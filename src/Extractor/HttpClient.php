@@ -6,6 +6,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
+/**
+ * HttpClient will make sure to retrieve the right content with the right url
+ *
+ * @todo catch Guzzle exception
+ */
 class HttpClient
 {
     private $debug = false;
@@ -77,10 +82,11 @@ class HttpClient
      *     - content type header.
      *
      * @param string $url
+     * @param bool   $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
      *
      * @return array With keys effective_url, body & headers
      */
-    public function fetch($url)
+    public function fetch($url, $skipTypeVerification = false)
     {
         // rewrite part of urls to something more readable
         foreach ($this->config['rewrite_url'] as $find => $action) {
@@ -109,38 +115,42 @@ class HttpClient
         }
 
         $method = 'get';
-        if (!empty($this->config['header_only_types']) && $this->possibleUnsupportedType($url)) {
+        if (!$skipTypeVerification && !empty($this->config['header_only_types']) && $this->possibleUnsupportedType($url)) {
             $method = 'head';
         }
-
-        $headers = array();
-        $headers[] = $this->getUserAgent($url);
-        // add referer for picky sites
-        $headers[] = array('Referer' => $this->config['default_referer']);
 
         $response = $this->httpClient->$method(
             $url,
             array(
-                'headers' => $headers,
+                'headers' => array(
+                    'User-Agent' => $this->getUserAgent($url),
+                    // add referer for picky sites
+                    'Referer' => $this->config['default_referer'],
+                ),
             )
         );
 
-        $body = (string) $response->getBody();
         $effectiveUrl = $response->getEffectiveUrl();
 
-        if (!$this->headerOnlyType((string) $response->getHeader('Content-Type')) && 'head' === $method) {
-            // the response content-type did not match our 'header only' types,
-            // but we'd issues a HEAD request because we assumed it would. So
-            // let's queue a proper GET request for this item...
-            //
-            // @TODO: re-queue the url as GET
+        // the response content-type did not match our 'header only' types,
+        // but we'd issues a HEAD request because we assumed it would. So
+        // let's queue a proper GET request for this item...
+        if ('head' === $method && !$this->headerOnlyType((string) $response->getHeader('Content-Type'))) {
+            return $this->fetch($effectiveUrl, true);
         }
 
-        if ('head' === $method && strpos($effectiveUrl, '_escaped_fragment_') === false) {
-            $redirectURL = $this->getRedirectURLfromHTML($effectiveUrl, substr($body, 0, 4000));
+        $body = (string) $response->getBody();
+
+        // check for <meta name='fragment' content='!'/>
+        // for AJAX sites, e.g. Blogger with its dynamic views templates.
+        // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
+        if (strpos($effectiveUrl, '_escaped_fragment_') === false) {
+            $html = substr($body, 0, 4000);
+
+            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $html) ?: $this->getUglyURL($effectiveUrl, $html);
 
             if ($redirectURL) {
-                // @TODO: re-queue the url as GET
+                return $this->fetch($redirectURL, true);
             }
         }
 
@@ -175,19 +185,34 @@ class HttpClient
         );
     }
 
+    /**
+     * Try to determine if the url is a direct link to a binary resource
+     * by checking the extension.
+     *
+     * @param string $url Absolute url
+     *
+     * @return string|false
+     */
     private function possibleUnsupportedType($url)
     {
-        $path = parse_url($url, PHP_URL_PATH);
+        $ext = strtolower(trim(pathinfo($url, PATHINFO_EXTENSION)));
 
-        if ($path && strpos($path, '.') !== false) {
-            $ext = strtolower(trim(pathinfo($path, PATHINFO_EXTENSION)));
-
-            return in_array($ext, $this->config['header_only_clues']);
+        if (!$ext) {
+            return false;
         }
 
-        return false;
+        return in_array($ext, $this->config['header_only_clues']);
     }
 
+    /**
+     * Find a UserAgent for this url.
+     * Based on the config, it will try to find a UserAgent from an host.
+     * Otherwise it will use the default one.
+     *
+     * @param string $url Absolute url
+     *
+     * @return string
+     */
     private function getUserAgent($url)
     {
         $ua = $this->config['ua_browser'];
@@ -214,13 +239,22 @@ class HttpClient
             }
         }
 
-        return array('User-Agent' => $ua);
+        return $ua;
     }
 
+    /**
+     * Look for full mime type (e.g. image/jpeg) or just type (e.g. image)
+     * to determine if the request is a binary resource.
+     *
+     * Since the request is now done we directly check the Content-Type header
+     *
+     * @param string $contentType Content-Type from the request
+     *
+     * @return bool
+     */
     private function headerOnlyType($contentType)
     {
         if (preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($contentType), $match)) {
-            // look for full mime type (e.g. image/jpeg) or just type (e.g. image)
             $match[1] = strtolower(trim($match[1]));
             $match[2] = strtolower(trim($match[2]));
 
@@ -234,17 +268,14 @@ class HttpClient
         return false;
     }
 
-    private function getRedirectURLfromHTML($url, $html)
-    {
-        $redirect_url = $this->getMetaRefreshURL($url, $html);
-
-        if (!$redirect_url) {
-            return $this->getUglyURL($url, $html);
-        }
-
-        return $redirect_url;
-    }
-
+    /**
+     * Try to find the refresh url from the meta.
+     *
+     * @param string $url  Absolute url
+     * @param string $html First characters of the response (hopefully it'll be enough to find some meta)
+     *
+     * @return false|string
+     */
     private function getMetaRefreshURL($url, $html)
     {
         if ($html == '') {
@@ -266,8 +297,8 @@ class HttpClient
         // absolutize redirect URL
         $base = new \SimplePie_IRI($url);
         // remove '//' in URL path (causes URLs not to resolve properly)
-        if (isset($base->path)) {
-            $base->path = str_replace('//', '/', $base->path);
+        if (isset($base->ipath)) {
+            $base->ipath = str_replace('//', '/', $base->ipath);
         }
 
         if ($absolute = \SimplePie_IRI::absolutize($base, $redirect_url)) {
@@ -278,6 +309,17 @@ class HttpClient
         return false;
     }
 
+    /**
+     * Some website (like Blogger) define an alternative url used by robots
+     * so that they can crawl the website which is usually full JS.
+     *
+     * And adding `_escaped_fragment_` to the request will force the HTML version of the url instead of the full JS
+     *
+     * @param string $url  Absolute url
+     * @param string $html First characters of the response (hopefully it'll be enough to find some meta)
+     *
+     * @return false|string
+     */
     private function getUglyURL($url, $html)
     {
         if ($html == '') {

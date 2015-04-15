@@ -1,5 +1,7 @@
 -----URL-----
 http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html
+-----URL_EFFECTIVE-----
+http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html?_escaped_fragment_=
 -----HEADER-----
 text/html; charset=UTF-8
 -----TITLE-----
@@ -7,7 +9,6 @@ Next Generation MongoDB Driver for PHP!
 -----SUMMARY-----
 For the past few months I've been working on a "next-gen" MongoDB driver for PHP -- codename "phongo".The aim was to build a new PHP extension ontop of the mongoc and libbson libraries to reduce maintenance of the extension itself and focus more on providing the ecosystem with improved support and libraries. The new driver &hellip;
 -----RAW_CONTENT-----
-
 <!DOCTYPE html>
 <HTML class="v2" dir="ltr"><HEAD>
 
@@ -30,13 +31,6 @@ For the past few months I've been working on a "next-gen" MongoDB driver for PHP
 <META content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width" name="viewport" />
 <LINK type="text/css" rel="stylesheet" href="https://www.blogger.com/static/v1/widgets/3681447274-widget_css_2_bundle.css" />
 <LINK type="text/css" rel="stylesheet" href="https://www.blogger.com/dyn-css/authorization.css?targetBlogID=6188174695458425487&amp;zx=dbe85342-f156-4ee9-9353-08c13828e5b5" />
-
-
-
-
-
-
-
 
 <STYLE id="subscribecss" class="singleton-element">#subscribe {
   text-align: left;
@@ -3297,11 +3291,11 @@ Most developers interact with databases these days through their preferred frame
 <li>Implementing the <a href="http://docs.mongodb.org/meta-driver/latest/legacy/mongodb-wire-protocol/" target="_blank">MongoDB wire protocol</a></li>
 </ol><br/><h4>Again, What's the Point?</h4>
 Well, now we can provide you with a stable driver that really shouldn't change all that much, which means less extension upgrades.
-<p>Furthermore, it should be faster. The legacy driver, which dates back five years, had unfortunate design quirks that couldn't be fully resolved without a costly rewrite (e.g. the way MongoGridFS invokes MongoCollection methods internally). Creating a brand new, no-frills<sup><a href="http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html#note-1" id="back-note-1">[1]</a></sup>, and simple to use driver gives us a fresh starting point for the next five years.</p>
+<p>Furthermore, it should be faster. The legacy driver, which dates back five years, had unfortunate design quirks that couldn't be fully resolved without a costly rewrite (e.g. the way MongoGridFS invokes MongoCollection methods internally). Creating a brand new, no-frills<sup><a href="http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html?_escaped_fragment_=#note-1" id="back-note-1">[1]</a></sup>, and simple to use driver gives us a fresh starting point for the next five years.</p>
 <h4>MongoDB PHP Libraries</h4>
 Of course, we aren't planning on leaving our users out to dry. Whether or not your framework of choice offers an amazing MongoDB abstraction layer, we do want to make it easy, simple, and natural for you to develop applications with MongoDB.
 <p>To that end, we are writing a <a href="https://github.com/10gen-labs/mongo-php-library-prototype" target="_blank">PHP library</a> on top of this new extension, which will have all of the frills, bells, and whistles you might expect. It implements the "<a href="https://github.com/mongodb/specifications/blob/master/source/crud/crud.rst" target="_blank">Standard MongoDB Driver CRUD API</a>" (among others) and we'll continue roll in new features into this library as needed. And because this library will be implemented in PHP, we expect to iterate on new features much more quickly than we were able to do with the legacy driver.</p>
 <p>This won't be the only library we will be writing. There are also plans to develop a library to deal with MongoDB administrative tasks (e.g. creating users, reconfiguring wiredTiger nodes, tailing oplogs) and develop tools to introspect MongoDB clusters.</p>
 <h4>What do you think?</h4>
 The biggest question at this point is: "what else?" What is missing? What are the other pain points you've experienced as a MongoDB developer, that the driver or a library can help with?<br/>We would love to <a href="https://jira.mongodb.org/secure/CreateIssue.jspa?pid=12484&amp;issuetype=6">hear your feedback</a>! Check out the projects on GitHub (<a href="https://github.com/10gen-labs/mongo-php-driver-prototype">driver</a>, <a href="https://github.com/10gen-labs/mongo-php-library-prototype">library</a>), and let us know what you think.
-<p><a href="http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html#back-note-1" id="note-1"><sup>[1]</sup></a> Well.. Almost. There is one <em>frilled</em> feature I'm excited about -- we'll cover that later.<br/></p>
+<p><a href="http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html?_escaped_fragment_=#back-note-1" id="note-1"><sup>[1]</sup></a> Well.. Almost. There is one <em>frilled</em> feature I'm excited about -- we'll cover that later.<br/></p>

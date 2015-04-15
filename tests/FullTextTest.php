@@ -57,9 +57,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
 
             $test = file_get_contents($file->getRealpath());
 
-            preg_match('/-----URL-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
+            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
 
-            $tests[] = array($match[1], $match[2], $match[3], $match[4], $match[5], $match[6]);
+            $tests[] = array($match[1], $match[2], $match[3], $match[4], $match[5], $match[6], $match[7]);
         }
 
         return $tests;
@@ -68,17 +68,17 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $header, $title, $summary, $rawContent, $parsedContent)
+    public function testFetchContent($url, $urlEffective, $header, $title, $summary, $rawContent, $parsedContent)
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $response->expects($this->once())
+        $response->expects($this->any())
             ->method('getEffectiveUrl')
-            ->willReturn($url);
+            ->willReturn($urlEffective);
 
-        $response->expects($this->once())
+        $response->expects($this->any())
             ->method('getBody')
             ->willReturn($rawContent);
 
@@ -98,7 +98,7 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $client->expects($this->once())
+        $client->expects($this->any())
             ->method('get')
             ->with($url)
             ->willReturn($response);
@@ -107,7 +107,7 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
 
         $res = $fullText->fetchContent($url);
 
-        $this->assertEquals($url, $res['url'], 'Same url');
+        $this->assertEquals($urlEffective, $res['url'], 'Same url');
         $this->assertEquals($title, $res['title'], 'Same title');
         $this->assertEquals($summary, $res['summary'], 'Same summary');
         $this->assertEquals($parsedContent, $res['html'], 'Same html');
@@ -248,12 +248,20 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('getHeader')
             ->willReturn('application/x-msdownload');
 
+        $response->expects($this->exactly(2))
+            ->method('getEffectiveUrl')
+            ->willReturn('http://lexpress.io/virus.exe');
+
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
             ->getMock();
 
         $client->expects($this->once())
             ->method('head')
+            ->willReturn($response);
+
+        $client->expects($this->once())
+            ->method('get')
             ->willReturn($response);
 
         $fullText = new FullText($client, array(
