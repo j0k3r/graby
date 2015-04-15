@@ -44,7 +44,7 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Parsing method inspired from Twig_Test_IntegrationTestCase
+     * Parsing method inspired from Twig_Test_IntegrationTestCase.
      */
     public function dataForFetchContent()
     {
@@ -84,7 +84,7 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getHeader')
-            ->will($this->returnCallback(function($parameter) use ($header) {
+            ->will($this->returnCallback(function ($parameter) use ($header) {
                 switch ($parameter) {
                     case 'Content-Type':
                         return $header;

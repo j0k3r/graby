@@ -4,7 +4,6 @@ namespace FullText;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Readability\Readability;
 use FullText\Extractor\ContentExtractor;
 use FullText\Extractor\HttpClient;

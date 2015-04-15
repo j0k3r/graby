@@ -239,7 +239,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     /**
      * This will force `SimplePie_IRI::absolutize` to return false because the "base" is wrong.
-     * It means there is no real host name
+     * It means there is no real host name.
      */
     public function testFetchGetWithMetaRefreshBadBase()
     {
