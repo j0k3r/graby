@@ -34,10 +34,12 @@ class ContentExtractor
         $resolver->setDefaults(array(
             'default_parser' => 'libxml',
             'allowed_parsers' => array('libxml', 'html5php'),
+            // key is fingerprint (fragment to find in HTML)
+            // value is host name to use for site config lookup if fingerprint matches
             'fingerprints' => array(
-                '<meta content="blogger" name="generator"' => array('hostname' => 'fingerprint.blogspot.com', 'head' => true),
-                '<meta name="generator" content="Blogger"' => array('hostname' => 'fingerprint.blogspot.com', 'head' => true),
-                '<meta name="generator" content="WordPress' => array('hostname' => 'fingerprint.wordpress.com', 'head' => true),
+                '<meta content="blogger" name="generator"' => 'fingerprint.blogspot.com',
+                '<meta name="generator" content="Blogger"' => 'fingerprint.blogspot.com',
+                '<meta name="generator" content="WordPress' => 'fingerprint.wordpress.com',
             ),
             'tidy_config' => array(
                 'clean'                       => true,
@@ -94,33 +96,34 @@ class ContentExtractor
         $this->success = false;
     }
 
+    /**
+     * Try to find a host depending on a meta that can be in the html.
+     * It allow to determine if a website is generated using Wordpress, Blogger, etc ..
+     *
+     * @param string $html
+     *
+     * @return string|false
+     */
     public function findHostUsingFingerprints($html)
     {
-        // $this->debug('Checking fingerprints...');
-        $head = substr($html, 0, 8000);
-
-        foreach ($this->config['fingerprints'] as $_fp => $_fphost) {
-            $lookin = 'html';
-            if (is_array($_fphost)) {
-                if (isset($_fphost['head']) && $_fphost['head']) {
-                    $lookin = 'head';
-                }
-                $_fphost = $_fphost['hostname'];
+        foreach ($this->config['fingerprints'] as $meta => $host) {
+            if (strpos($html, $meta) !== false) {
+                return $host;
             }
-
-            if (strpos($$lookin, $_fp) !== false) {
-                // $this->debug("Found match: $_fphost");
-
-                return $_fphost;
-            }
-        }
-
-        // $this->debug('No fingerprint matches');
+        };
 
         return false;
     }
 
-    // returns SiteConfig instance (joined in order: exact match, wildcard, fingerprint, global, default)
+    /**
+     * Returns SiteConfig instance (joined in order: exact match, wildcard, fingerprint, global, default).
+     *
+     * @param string $url
+     * @param string $html
+     * @param bool   $add_to_cache
+     *
+     * @return FullText\SiteConfig\SiteConfig
+     */
     public function buildSiteConfig($url, $html = '', $add_to_cache = true)
     {
         // extract host name
@@ -131,15 +134,15 @@ class ContentExtractor
         }
 
         // is merged version already cached?
-        if ($this->configBuilder->isCached($host.'.merged')) {
+        if ($siteConfig = $this->configBuilder->getCachedVersion($host.'.merged')) {
             // $this->debug("Returning cached and merged site config for $host");
 
-            return $this->configBuilder->build($host.'.merged');
+            return $siteConfig;
         }
 
         // let's build from site_config/custom/ and standard/
         $config = $this->configBuilder->build($host);
-        if ($add_to_cache && $config && !$this->configBuilder->isCached($host)) {
+        if ($add_to_cache && $config && !$this->configBuilder->getCachedVersion($host)) {
             $this->configBuilder->addToCache($host, $config);
         }
 
@@ -151,27 +154,25 @@ class ContentExtractor
         // load fingerprint config?
         if ($config->autodetect_on_failure()) {
             // check HTML for fingerprints
-            if (!empty($this->fingerprints) && ($_fphost = $this->findHostUsingFingerprints($html))) {
-                if ($config_fingerprint = $this->configBuilder->build($_fphost)) {
-                    // $this->debug("Appending site config settings from $_fphost (fingerprint match)");
-                    $config->append($config_fingerprint);
-                    if ($add_to_cache && !$this->configBuilder->isCached($_fphost)) {
-                        //$config_fingerprint->cache_in_apc = true;
-                        $this->configBuilder->addToCache($_fphost, $config_fingerprint);
-                    }
+            if (!empty($this->config['fingerprints']) && ($_fphost = $this->findHostUsingFingerprints($html)) && ($config_fingerprint = $this->configBuilder->build($_fphost))) {
+                // $this->debug("Appending site config settings from $_fphost (fingerprint match)");
+                $this->configBuilder->mergeConfig($config, $config_fingerprint);
+
+                if ($add_to_cache && !$this->configBuilder->getCachedVersion($_fphost)) {
+                    //$config_fingerprint->cache_in_apc = true;
+                    $this->configBuilder->addToCache($_fphost, $config_fingerprint);
                 }
             }
         }
 
         // load global config?
-        if ($config->autodetect_on_failure()) {
-            if ($config_global = $this->configBuilder->build('global', true)) {
-                // $this->debug('Appending site config settings from global.txt');
-                $config->append($config_global);
-                if ($add_to_cache && !$this->configBuilder->isCached('global')) {
-                    //$config_global->cache_in_apc = true;
-                    $this->configBuilder->addToCache('global', $config_global);
-                }
+        if ($config->autodetect_on_failure() && ($config_global = $this->configBuilder->build('global', true))) {
+            // $this->debug('Appending site config settings from global.txt');
+            $this->configBuilder->mergeConfig($config, $config_global);
+
+            if ($add_to_cache && !$this->configBuilder->getCachedVersion('global')) {
+                //$config_global->cache_in_apc = true;
+                $this->configBuilder->addToCache('global', $config_global);
             }
         }
 
@@ -186,10 +187,17 @@ class ContentExtractor
         return $config;
     }
 
-    // returns true on success, false on failure
-    // $smart_tidy indicates that if tidy is used and no results are produced, we will
-    // try again without it. Tidy helps us deal with PHP's patchy HTML parsing most of the time
-    // but it has problems of its own which we try to avoid with this option.
+    /**
+     * $smart_tidy indicates that if tidy is used and no results are produced, we will try again without it.
+     * Tidy helps us deal with PHP's patchy HTML parsing most of the time
+     * but it has problems of its own which we try to avoid with this option.
+     *
+     * @param string $html
+     * @param string $url
+     * @param bool   $smart_tidy
+     *
+     * @return bool true on success, false on failure
+     */
     public function process($html, $url, $smart_tidy = true)
     {
         $this->reset();
@@ -394,6 +402,7 @@ class ContentExtractor
                 }
             }
         }
+
         // strip elements using Readability.com and Instapaper.com ignore class names
         // .entry-unrelated and .instapaper_ignore
         // See https://www.readability.com/publishers/guidelines/#view-plainGuidelines
@@ -618,6 +627,7 @@ class ContentExtractor
                 $detect_title = false;
             }
         }
+
         // check for elements marked with instapaper_body
         if ($detect_body) {
             $elems = @$xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_body ')]", $this->readability->dom);
@@ -732,6 +742,7 @@ class ContentExtractor
             $this->title = $this->readability->getTitle()->textContent;
             // $this->debug('Detected title '.$this->title);
         }
+
         if ($detect_body && $success) {
             // $this->debug('Detecting body');
             $this->body = $this->readability->getContent();
@@ -744,6 +755,7 @@ class ContentExtractor
                 $this->readability->prepArticle($this->body);
             }
         }
+
         if (isset($this->body)) {
             // remove any h1-h6 elements that appear as first thing in the body
             // and which match our title
@@ -758,6 +770,7 @@ class ContentExtractor
                     $this->body->removeChild($firstChild);
                 }
             }
+
             // prevent self-closing iframes
             $elems = $this->body->getElementsByTagName('iframe');
             for ($i = $elems->length-1; $i >= 0; $i--) {
@@ -766,6 +779,7 @@ class ContentExtractor
                     $e->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
                 }
             }
+
             // remove image lazy loading - WordPress plugin http://wordpress.org/extend/plugins/lazy-load/
             // the plugin replaces the src attribute to point to a 1x1 gif and puts the original src
             // inside the data-lazy-src attribute. It also places the original image inside a noscript element

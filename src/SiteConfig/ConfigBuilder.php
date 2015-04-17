@@ -67,12 +67,13 @@ class ConfigBuilder
 
     /**
      * Determine if a Config is already cached.
+     * If so, return it otherwise return false
      *
      * @param string $key Key for the cache
      *
-     * @return bool
+     * @return bool|SiteConfig
      */
-    public function isCached($key)
+    public function getCachedVersion($key)
     {
         $key = strtolower($key);
         $key .= '.'.$this->keySuffix;
@@ -81,7 +82,7 @@ class ConfigBuilder
         }
 
         if (array_key_exists($key, $this->cache)) {
-            return true;
+            return $this->cache[$key];
         }
 
         return false;
@@ -146,12 +147,10 @@ class ConfigBuilder
         // look for site config file in primary folder
         // $this->debug(". looking for site config for $host in primary folder");
         foreach ($try as $h) {
-            $h_key = $h.'.'.$this->keySuffix;
-
-            if (array_key_exists($h_key, $this->cache)) {
+            if ($siteConfig = $this->getCachedVersion($h)) {
                 // $this->debug("... site config for $h already loaded in this request");
 
-                return $this->cache[$h_key];
+                return $siteConfig;
             } elseif (file_exists($this->config['site_config_custom'].'/'.$h.'.txt')) {
                 // $this->debug("... found site config ($h.txt)");
                 $file_primary = $this->config['site_config_custom'].'/'.$h.'.txt';
@@ -238,29 +237,32 @@ class ConfigBuilder
     /**
      * Append a configuration from to an existing one.
      *
-     * @param SiteConfig $newconfig New configuration
+     * @param SiteConfig $currentConfig Current configuration
+     * @param SiteConfig $newConfig New configuration to be merged
      */
-    private function append(SiteConfig $newconfig)
+    public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
     {
         // check for commands where we accept multiple statements (no test_url)
         foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'single_page_link_in_feed', 'next_page_link', 'http_header') as $var) {
-            // append array elements for this config variable from $newconfig to this config
-            $this->$var = array_unique(array_merge($this->$var, $newconfig->$var));
+            // append array elements for this config variable from $newConfig to this config
+            $currentConfig->$var = array_unique(array_merge($currentConfig->$var, $newConfig->$var));
         }
 
         // check for single statement commands
         // we do not overwrite existing non null values
         foreach (array('tidy', 'prune', 'parser', 'autodetect_on_failure') as $var) {
-            if ($this->$var === null) {
-                $this->$var = $newconfig->$var;
+            if ($currentConfig->$var === null) {
+                $currentConfig->$var = $newConfig->$var;
             }
         }
 
         // treat find_string and replace_string separately (don't apply array_unique) (thanks fabrizio!)
         foreach (array('find_string', 'replace_string') as $var) {
-            // append array elements for this config variable from $newconfig to this config
-            $this->$var = array_merge($this->$var, $newconfig->$var);
+            // append array elements for this config variable from $newConfig to this config
+            $currentConfig->$var = array_merge($currentConfig->$var, $newConfig->$var);
         }
+
+        return $currentConfig;
     }
 
     /**
