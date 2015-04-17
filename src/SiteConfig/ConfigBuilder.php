@@ -67,7 +67,7 @@ class ConfigBuilder
 
     /**
      * Determine if a Config is already cached.
-     * If so, return it otherwise return false
+     * If so, return it otherwise return false.
      *
      * @param string $key Key for the cache
      *
@@ -238,7 +238,7 @@ class ConfigBuilder
      * Append a configuration from to an existing one.
      *
      * @param SiteConfig $currentConfig Current configuration
-     * @param SiteConfig $newConfig New configuration to be merged
+     * @param SiteConfig $newConfig     New configuration to be merged
      */
     public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
     {

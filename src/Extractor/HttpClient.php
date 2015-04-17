@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
 /**
- * HttpClient will make sure to retrieve the right content with the right url
+ * HttpClient will make sure to retrieve the right content with the right url.
  *
  * @todo catch Guzzle exception
  */

@@ -602,7 +602,7 @@ class FullText
         foreach (array('a' => 'href', 'img' => 'src') as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
 
-            for ($i = $elems->length-1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; $i--) {
                 $e = $elems->item($i);
                 //$e->parentNode->replaceChild($articleContent->ownerDocument->createTextNode($e->textContent), $e);
                 $this->makeAbsoluteAttr($base, $e, $attr);

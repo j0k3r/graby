@@ -72,8 +72,8 @@ class ContentExtractor
     protected function debug($msg)
     {
         if ($this->debug) {
-            $mem = round(memory_get_usage()/1024, 2);
-            $memPeak = round(memory_get_peak_usage()/1024, 2);
+            $mem = round(memory_get_usage() / 1024, 2);
+            $memPeak = round(memory_get_peak_usage() / 1024, 2);
             echo '* ',$msg;
             echo ' - mem used: ',$mem," (peak: $memPeak)";
             echo "\n";
@@ -369,7 +369,7 @@ class ContentExtractor
             // check for matches
             if ($elems && $elems->length > 0) {
                 // $this->debug('Stripping '.$elems->length.' elements (strip)');
-                for ($i = $elems->length-1; $i >= 0; $i--) {
+                for ($i = $elems->length - 1; $i >= 0; $i--) {
                     if ($elems->item($i)->parentNode) {
                         $elems->item($i)->parentNode->removeChild($elems->item($i));
                     }
@@ -384,7 +384,7 @@ class ContentExtractor
             // check for matches
             if ($elems && $elems->length > 0) {
                 // $this->debug('Stripping '.$elems->length.' elements (strip_id_or_class)');
-                for ($i = $elems->length-1; $i >= 0; $i--) {
+                for ($i = $elems->length - 1; $i >= 0; $i--) {
                     $elems->item($i)->parentNode->removeChild($elems->item($i));
                 }
             }
@@ -397,7 +397,7 @@ class ContentExtractor
             // check for matches
             if ($elems && $elems->length > 0) {
                 // $this->debug('Stripping '.$elems->length.' image elements');
-                for ($i = $elems->length-1; $i >= 0; $i--) {
+                for ($i = $elems->length - 1; $i >= 0; $i--) {
                     $elems->item($i)->parentNode->removeChild($elems->item($i));
                 }
             }
@@ -411,7 +411,7 @@ class ContentExtractor
         // check for matches
         if ($elems && $elems->length > 0) {
             // $this->debug('Stripping '.$elems->length.' .entry-unrelated,.instapaper_ignore elements');
-            for ($i = $elems->length-1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; $i--) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
         }
@@ -421,7 +421,7 @@ class ContentExtractor
         // check for matches
         if ($elems && $elems->length > 0) {
             // $this->debug('Stripping '.$elems->length.' elements with inline display:none or visibility:hidden style');
-            for ($i = $elems->length-1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; $i--) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
         }
@@ -773,7 +773,7 @@ class ContentExtractor
 
             // prevent self-closing iframes
             $elems = $this->body->getElementsByTagName('iframe');
-            for ($i = $elems->length-1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; $i--) {
                 $e = $elems->item($i);
                 if (!$e->hasChildNodes()) {
                     $e->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
@@ -785,7 +785,7 @@ class ContentExtractor
             // inside the data-lazy-src attribute. It also places the original image inside a noscript element
             // next to the amended one.
             $elems = @$xpath->query('//img[@data-lazy-src]|//img[@data-src]', $this->body);
-            for ($i = $elems->length-1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; $i--) {
                 $e = $elems->item($i);
                 // let's see if we can grab image from noscript
                 if ($e->nextSibling !== null && $e->nextSibling->nodeName === 'noscript') {

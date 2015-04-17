@@ -3,7 +3,6 @@
 namespace Tests\FullText\Extractor;
 
 use FullText\Extractor\HttpClient;
-use GuzzleHttp\Client;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {
