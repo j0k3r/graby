@@ -36,10 +36,11 @@ class ContentExtractor
             'allowed_parsers' => array('libxml', 'html5php'),
             // key is fingerprint (fragment to find in HTML)
             // value is host name to use for site config lookup if fingerprint matches
+            // \s* match anything INCLUDING new lines
             'fingerprints' => array(
-                '<meta content="blogger" name="generator"' => 'fingerprint.blogspot.com',
-                '<meta name="generator" content="Blogger"' => 'fingerprint.blogspot.com',
-                '<meta name="generator" content="WordPress' => 'fingerprint.wordpress.com',
+                '/\<meta\s*content=\"blogger\"\s*name=\"generator\"/i' => 'fingerprint.blogspot.com',
+                '/\<meta\s*name=\"generator\"\s*content=\"Blogger\"/i' => 'fingerprint.blogspot.com',
+                '/\<meta\s*name=\"generator\"\s*content=\"WordPress/i' => 'fingerprint.wordpress.com',
             ),
             'tidy_config' => array(
                 'clean'                       => true,
@@ -106,11 +107,11 @@ class ContentExtractor
      */
     public function findHostUsingFingerprints($html)
     {
-        foreach ($this->config['fingerprints'] as $meta => $host) {
-            if (strpos($html, $meta) !== false) {
+        foreach ($this->config['fingerprints'] as $metaPattern => $host) {
+            if (1 === preg_match($metaPattern, $html)) {
                 return $host;
             }
-        };
+        }
 
         return false;
     }
