@@ -188,8 +188,8 @@ class FullText
         // @TODO: log parsed HTML
         // $readability->dom->saveXML($readability->dom->documentElement)
 
-        $content_block = $extract_result ? $this->extractor->getContent() : null;
-        $extracted_title = $extract_result ? $this->extractor->getTitle() : '';
+        $content_block = $this->extractor->getContent();
+        $extracted_title = $this->extractor->getTitle();
 
         // Deal with multi-page articles
         //die('Next: '.$this->extractor->getNextPageUrl());

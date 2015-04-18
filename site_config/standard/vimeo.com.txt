@@ -1,5 +1,6 @@
 title: //title
 body: //iframe
+author: //*[(@rel = "author")]
 
 find_string: <html>&lt;iframe
 replace_string: <iframe id="video"
@@ -14,4 +15,7 @@ single_page_link: //link[@type='text/xml+oembed']
 prune: no
 tidy: no
 
-test_url: http://vimeo.com/35941909
+# this is explicitly a bad parser (for test)
+parser: html5php
+
+test_url: https://vimeo.com/35941909

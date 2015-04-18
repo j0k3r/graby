@@ -114,7 +114,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         )));
 
         $res = $contentExtractor->process(
-            '<html>&lt;iframe &gt;&lt;/iframe&gt;</html>',
+            '<html>&lt;iframe &gt;&lt;/iframe&gt;</html> <a rel="author" href="/user8412228">CaTV</a>',
             'https://vimeo.com/35941909'
         );
 
@@ -122,6 +122,8 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $content_block = $contentExtractor->getContent();
 
-        $this->assertEquals('<iframe id="video" name="video"/>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertContains('<iframe id="video" name="video"/>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertCount(1, $contentExtractor->getAuthors());
+        $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
     }
 }
