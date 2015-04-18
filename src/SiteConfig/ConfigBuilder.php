@@ -16,9 +16,9 @@ class ConfigBuilder
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
             // Directory path to the standard config folder WITHOUT trailing slash
-            'site_config_custom' => dirname(__FILE__).'/site_config/custom',
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
             // Fallback directory path (the custom one) WITHOUT trailing slash
-            'site_config_standard' => dirname(__FILE__).'/site_config/standard',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ));
 
@@ -182,9 +182,9 @@ class ConfigBuilder
         if (isset($this->config['site_config_standard'])) {
             // $this->debug(". looking for site config for $host in secondary folder");
             foreach ($try as $h) {
-                if (file_exists($this->config['site_config_standard']."/$h.txt")) {
+                if (file_exists($this->config['site_config_standard'].'/'.$h.'.txt')) {
                     // $this->debug("... found site config in secondary folder ($h.txt)");
-                    $file_secondary = $this->config['site_config_standard']."/$h.txt";
+                    $file_secondary = $this->config['site_config_standard'].'/'.$h.'.txt';
                     $matched_name = $h;
                     break;
                 }

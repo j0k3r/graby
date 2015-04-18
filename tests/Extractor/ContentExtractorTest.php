@@ -37,11 +37,15 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildSiteConfigUnknownSite()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array('site_config_custom' => dirname(__FILE__).'/../../site_config/custom')));
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__)
+        )));
         $res = $contentExtractor->buildSiteConfig('http://0.0.0.0');
 
         $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
 
+        // everything is empty because the standard config folder was wrong, otherwise, the global.txt file will load some data
         foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'http_header', 'test_url', 'single_page_link', 'next_page_link', 'single_page_link_in_feed', 'find_string', 'replace_string') as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
         }
