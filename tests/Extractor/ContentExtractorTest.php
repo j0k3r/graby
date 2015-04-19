@@ -123,7 +123,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $content_block = $contentExtractor->getContent();
 
-        $this->assertContains('<iframe id="video" name="video"/>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertContains('<iframe id="video"/>', $content_block->ownerDocument->saveXML($content_block));
         $this->assertCount(1, $contentExtractor->getAuthors());
         $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
     }

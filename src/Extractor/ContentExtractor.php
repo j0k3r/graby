@@ -43,23 +43,6 @@ class ContentExtractor
                 '/\<meta\s*name=\"generator\"\s*content=\"Blogger\"/i' => 'fingerprint.blogspot.com',
                 '/\<meta\s*name=\"generator\"\s*content=\"WordPress/i' => 'fingerprint.wordpress.com',
             ),
-            'tidy_config' => array(
-                'clean'                       => true,
-                'output-xhtml'                => true,
-                'logical-emphasis'            => true,
-                'show-body-only'              => false,
-                'new-blocklevel-tags'         => 'article, aside, footer, header, hgroup, menu, nav, section, details, datagrid',
-                'new-inline-tags'             => 'mark, time, meter, progress, data',
-                'wrap'                        => 0,
-                'drop-empty-paras'            => true,
-                'drop-proprietary-attributes' => false,
-                'enclose-text'                => true,
-                'enclose-block-text'          => true,
-                'merge-divs'                  => true,
-                'merge-spans'                 => true,
-                'char-encoding'               => 'utf8',
-                'hide-comments'               => true,
-            ),
             'config_builder' => array(),
         ));
 
@@ -221,23 +204,6 @@ class ContentExtractor
             unset($_count);
         }
 
-        // use tidy (if it exists)?
-        // This fixes problems with some sites which would otherwise
-        // trouble DOMDocument's HTML parsing. (Although sometimes it
-        // makes matters worse, which is why you can override it in site config files.)
-        $tidied = false;
-        if ($this->siteConfig->tidy() && function_exists('tidy_parse_string') && $smart_tidy) {
-            // $this->debug('Using Tidy');
-            $tidy = tidy_parse_string($html, $this->config['tidy_config'], 'UTF8');
-
-            if (tidy_clean_repair($tidy)) {
-                $original_html = $html;
-                $tidied = true;
-                $html = $tidy->value;
-            }
-            unset($tidy);
-        }
-
         // load and parse html
         $parser = $this->siteConfig->parser();
 
@@ -247,7 +213,8 @@ class ContentExtractor
         }
 
         // $this->debug("Attempting to parse HTML with $parser");
-        $this->readability = new Readability($html, $url, $parser);
+        $this->readability = new Readability($html, $url, $parser, $this->siteConfig->tidy() && $smart_tidy);
+        $tidied = $this->readability->tidied;
 
         // we use xpath to find elements in the given HTML document
         $xpath = new \DOMXPath($this->readability->dom);
