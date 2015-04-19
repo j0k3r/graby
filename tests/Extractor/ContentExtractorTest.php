@@ -3,6 +3,7 @@
 namespace Tests\FullText\Extractor;
 
 use FullText\Extractor\ContentExtractor;
+use FullText\SiteConfig\SiteConfig;
 
 class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 {
@@ -39,7 +40,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__)
+            'site_config_standard' => dirname(__FILE__),
         )));
         $res = $contentExtractor->buildSiteConfig('http://0.0.0.0');
 
@@ -125,5 +126,156 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('<iframe id="video" name="video"/>', $content_block->ownerDocument->saveXML($content_block));
         $this->assertCount(1, $contentExtractor->getAuthors());
         $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
+    }
+
+    public function dataForNextPage()
+    {
+        return array(
+            array("string(//a[@class='next'])", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">https://lemonde.io/35941909?page=2</a></html>', 'https://lemonde.io/35941909?page=2'),
+            array("//a[@class='next']", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'),
+            array("//a[@class='next']/@href", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'),
+        );
+    }
+
+    /**
+     * @dataProvider dataForNextPage
+     */
+    public function testExtractNextPageLink($pattern, $html, $urlExpected)
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+        $config->next_page_link = array($pattern);
+
+        $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertEquals($urlExpected, $contentExtractor->getNextPageUrl());
+    }
+
+    public function dataForTitle()
+    {
+        return array(
+            array('string(//title)', '<html><title>mon titre</title></html>', 'mon titre'),
+            array('//title', '<html><title>mon titre</title></html>', 'mon titre'),
+        );
+    }
+
+    /**
+     * @dataProvider dataForTitle
+     */
+    public function testExtractTitle($pattern, $html, $titleExpected)
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+        $config->title = array($pattern);
+
+        $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertEquals($titleExpected, $contentExtractor->getTitle());
+    }
+
+    public function dataForAuthor()
+    {
+        return array(
+            array('//*[(@rel = "author")]', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', array('CaTV')),
+            array('string(//*[(@rel = "author")])', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', array('CaTV')),
+            array('string(//*[(@rel = "author")])', '<html>from <a href="/user8412228">CaTV</a></html>', array()),
+        );
+    }
+
+    /**
+     * @dataProvider dataForAuthor
+     */
+    public function testExtractAuthor($pattern, $html, $authorExpected)
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+        $config->author = array($pattern);
+
+        $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertEquals($authorExpected, $contentExtractor->getAuthors());
+    }
+
+    public function dataForLanguage()
+    {
+        return array(
+            array('<html><meta name="DC.language" content="en" />from <a rel="author" href="/user8412228">CaTV</a></html>', 'en'),
+        );
+    }
+
+    /**
+     * @dataProvider dataForLanguage
+     */
+    public function testExtractLanguage($html, $languageExpected)
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+
+        $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertEquals($languageExpected, $contentExtractor->getLanguage());
+    }
+
+    public function dataForDate()
+    {
+        return array(
+            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
+            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">date</time></html>', null),
+            array('string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
+        );
+    }
+
+    /**
+     * @dataProvider dataForDate
+     */
+    public function testExtractDate($pattern, $html, $dateExpected)
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+        $config->date = array($pattern);
+
+        $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertEquals($dateExpected, $contentExtractor->getDate());
     }
 }

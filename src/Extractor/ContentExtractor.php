@@ -5,6 +5,7 @@ namespace FullText\Extractor;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Readability\Readability;
 use FullText\SiteConfig\ConfigBuilder;
+use FullText\SiteConfig\SiteConfig;
 
 /**
  * Content Extractor.
@@ -193,16 +194,21 @@ class ContentExtractor
      * Tidy helps us deal with PHP's patchy HTML parsing most of the time
      * but it has problems of its own which we try to avoid with this option.
      *
-     * @param string $html
-     * @param string $url
-     * @param bool   $smart_tidy
+     * @param string     $html
+     * @param string     $url
+     * @param SiteConfig $siteConfig Will avoid to recalculate the site config
+     * @param bool       $smart_tidy Do we need to tidy the html ?
      *
      * @return bool true on success, false on failure
      */
-    public function process($html, $url, $smart_tidy = true)
+    public function process($html, $url, SiteConfig $siteConfig = null, $smart_tidy = true)
     {
         $this->reset();
-        $this->siteConfig = $this->buildSiteConfig($url, $html);
+
+        $this->siteConfig = $siteConfig;
+        if (null === $this->siteConfig) {
+            $this->siteConfig = $this->buildSiteConfig($url, $html);
+        }
 
         // do string replacements
         if (!empty($this->siteConfig->find_string)) {
@@ -247,6 +253,7 @@ class ContentExtractor
         $xpath = new \DOMXPath($this->readability->dom);
 
         // try to get next page link
+        // @todo: should we test if the link is actually a link?
         foreach ($this->siteConfig->next_page_link as $pattern) {
             $elems = $xpath->evaluate($pattern, $this->readability->dom);
 
@@ -303,10 +310,6 @@ class ContentExtractor
                     break;
                 } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
                     foreach ($elems as $elem) {
-                        if (!isset($elem->parentNode)) {
-                            continue;
-                        }
-
                         $this->author[] = trim($elem->textContent);
                         // $this->debug('Author matched: '.trim($elem->textContent));
                     }
@@ -320,20 +323,12 @@ class ContentExtractor
         }
 
         // try to get language
-        $_lang_xpath = array('//html[@lang]/@lang', '//meta[@name="DC.language"]/@content');
-        foreach ($_lang_xpath as $pattern) {
+        $langXpath = array('//html[@lang]/@lang', '//meta[@name="DC.language"]/@content');
+        foreach ($langXpath as $pattern) {
             $elems = $xpath->evaluate($pattern, $this->readability->dom);
 
-            if (is_string($elems) && trim($elems) != '') {
-                $this->language = trim($elems);
-                // $this->debug('Language matched: '.$this->language);
-                break;
-            } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
+            if ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 foreach ($elems as $elem) {
-                    if (!isset($elem->parentNode)) {
-                        continue;
-                    }
-
                     $this->language = trim($elem->textContent);
                     // $this->debug('Language matched: '.$this->language);
                 }
@@ -843,7 +838,7 @@ class ContentExtractor
         // that tidy has messed up. So let's try again without tidy...
         if (!$this->success && $tidied && $smart_tidy) {
             // $this->debug('Trying again without tidy');
-            $this->process($original_html, $url, false);
+            $this->process($original_html, $url, $this->siteConfig, false);
         }
 
         return $this->success;
@@ -872,6 +867,11 @@ class ContentExtractor
         return trim($this->title);
     }
 
+    /**
+     * Retrieve authors.
+     *
+     * @return array
+     */
     public function getAuthors()
     {
         return $this->author;
