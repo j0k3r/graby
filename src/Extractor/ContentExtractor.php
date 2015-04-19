@@ -385,6 +385,7 @@ class ContentExtractor
         }
 
         // strip elements that contain style 'display: none' or 'visibility:hidden'
+        // @todo: inline style are convert to <style> by tidy, so we can't remove hidden content ...
         $elems = $xpath->query("//*[contains(@style,'display:none') or contains(@style,'visibility:hidden')]", $this->readability->dom);
         // check for matches
         if ($elems && $elems->length > 0) {
@@ -399,52 +400,61 @@ class ContentExtractor
             $elems = $xpath->query($pattern, $this->readability->dom);
 
             // check for matches
-            if ($elems && $elems->length > 0) {
-                // $this->debug('Body matched');
-                // $this->debug("...XPath match: $pattern");
-                if ($elems->length == 1) {
-                    $this->body = $elems->item(0);
+            if (false === $elems || $elems->length <= 0) {
+                continue;
+            }
 
-                    // prune (clean up elements that may not be content)
-                    if ($this->siteConfig->prune()) {
-                        // $this->debug('...pruning content');
-                        $this->readability->prepArticle($this->body);
+            // $this->debug('Body matched');
+            // $this->debug("...XPath match: $pattern, nb: ".$elems->length);
+            if ($elems->length == 1) {
+                $this->body = $elems->item(0);
+
+                // prune (clean up elements that may not be content)
+                if ($this->siteConfig->prune()) {
+                    // $this->debug('...pruning content');
+                    $this->readability->prepArticle($this->body);
+                }
+                break;
+            } else {
+                $this->body = $this->readability->dom->createElement('div');
+                $len = 0;
+                // $this->debug($elems->length.' body elems found');
+
+                foreach ($elems as $elem) {
+                    if (!isset($elem->parentNode)) {
+                        continue;
                     }
-                    break;
-                } else {
-                    $this->body = $this->readability->dom->createElement('div');
 
-                    // $this->debug($elems->length.' body elems found');
-                    foreach ($elems as $elem) {
-                        if (!isset($elem->parentNode)) {
-                            continue;
+                    $isDescendant = false;
+
+                    foreach ($this->body->childNodes as $parent) {
+                        if ($this->isDescendant($parent, $elem)) {
+                            $isDescendant = true;
+                            break;
+                        }
+                    }
+
+                    if ($isDescendant) {
+                        // $this->debug('...element is child of another body element, skipping.');
+                    } else {
+                        // prune (clean up elements that may not be content)
+                        if ($this->siteConfig->prune()) {
+                            // $this->debug('...pruning content');
+                            $this->readability->prepArticle($elem);
                         }
 
-                        $isDescendant = false;
-                        foreach ($this->body->childNodes as $parent) {
-                            if ($this->isDescendant($parent, $elem)) {
-                                $isDescendant = true;
-                                break;
-                            }
-                        }
-
-                        if ($isDescendant) {
-                            // $this->debug('...element is child of another body element, skipping.');
-                        } else {
-                            // prune (clean up elements that may not be content)
-                            if ($this->siteConfig->prune()) {
-                                // $this->debug('Pruning content');
-                                $this->readability->prepArticle($elem);
-                            }
-
-                            // $this->debug('...element added to body');
+                        if ($elem) {
+                            $len++;
                             $this->body->appendChild($elem);
                         }
                     }
+                }
 
-                    if ($this->body->hasChildNodes()) {
-                        break;
-                    }
+                // $this->debug('...'.$len.' elements added to body');
+                unset($len);
+
+                if ($this->body->hasChildNodes()) {
+                    break;
                 }
             }
         }
@@ -547,7 +557,7 @@ class ContentExtractor
                             // what if it's empty? (some sites misuse hNews - place their content outside an empty entry-content element)
                             $e = $elems->item(0);
 
-                            if (($e->tagName == 'img') || (trim($e->textContent) != '')) {
+                            if ((strtolower($e->tagName) == 'img') || (trim($e->textContent) != '')) {
                                 $this->body = $elems->item(0);
                                 // prune (clean up elements that may not be content)
                                 if ($this->siteConfig->prune()) {
@@ -562,6 +572,8 @@ class ContentExtractor
                         } else {
                             $this->body = $this->readability->dom->createElement('div');
                             // $this->debug($elems->length.' entry-content elems found');
+                            $len = 0;
+
                             foreach ($elems as $elem) {
                                 if (!isset($elem->parentNode)) {
                                     continue;
@@ -576,17 +588,23 @@ class ContentExtractor
                                 }
 
                                 if ($isDescendant) {
-                                    // $this->debug('Element is child of another body element, skipping.');
+                                    // $this->debug('...element is child of another body element, skipping.');
                                 } else {
                                     // prune (clean up elements that may not be content)
                                     if ($this->siteConfig->prune()) {
-                                        // $this->debug('Pruning content');
+                                        // $this->debug('...pruning content');
                                         $this->readability->prepArticle($elem);
                                     }
-                                    // $this->debug('Element added to body');
-                                    $this->body->appendChild($elem);
+
+                                    if ($elem) {
+                                        $len++;
+                                        $this->body->appendChild($elem);
+                                    }
                                 }
                             }
+
+                            // $this->debug('...'.$len.' elements added to body');
+                            unset($len);
 
                             $detect_body = false;
                         }
@@ -635,7 +653,7 @@ class ContentExtractor
                     // what if it's empty? (content placed outside an empty itemprop='articleBody' element)
                     $e = $elems->item(0);
 
-                    if (($e->tagName == 'img') || (trim($e->textContent) != '')) {
+                    if ((strtolower($e->tagName) == 'img') || (trim($e->textContent) != '')) {
                         $this->body = $elems->item(0);
                         // prune (clean up elements that may not be content)
                         if ($this->siteConfig->prune()) {
@@ -650,6 +668,8 @@ class ContentExtractor
                 } else {
                     $this->body = $this->readability->dom->createElement('div');
                     // $this->debug($elems->length.' itemprop="articleBody" elems found');
+                    $len = 0;
+
                     foreach ($elems as $elem) {
                         if (!isset($elem->parentNode)) {
                             continue;
@@ -664,17 +684,23 @@ class ContentExtractor
                         }
 
                         if ($isDescendant) {
-                            // $this->debug('Element is child of another body element, skipping.');
+                            // $this->debug('...element is child of another body element, skipping.');
                         } else {
                             // prune (clean up elements that may not be content)
                             if ($this->siteConfig->prune()) {
-                                // $this->debug('Pruning content');
+                                // $this->debug('...pruning content');
                                 $this->readability->prepArticle($elem);
                             }
-                            // $this->debug('Element added to body');
-                            $this->body->appendChild($elem);
+
+                            if ($elem) {
+                                $len++;
+                                $this->body->appendChild($elem);
+                            }
                         }
                     }
+
+                    // $this->debug('...'.$len.' elements added to body');
+                    unset($len);
 
                     $detect_body = false;
                 }
@@ -753,10 +779,10 @@ class ContentExtractor
         if (isset($this->body)) {
             // remove any h1-h6 elements that appear as first thing in the body
             // and which match our title
-            if (isset($this->title) && ($this->title != '')) {
+            if (isset($this->title) && $this->title != '') {
                 $firstChild = $this->body->firstChild;
 
-                while ($firstChild->nodeType && ($firstChild->nodeType !== XML_ELEMENT_NODE)) {
+                while ($firstChild->nextSibling != null && $firstChild->nodeType && ($firstChild->nodeType !== XML_ELEMENT_NODE)) {
                     $firstChild = $firstChild->nextSibling;
                 }
 
@@ -792,9 +818,15 @@ class ContentExtractor
                     $e->nextSibling->parentNode->replaceChild($_new_elem, $e->nextSibling);
                     $e->parentNode->removeChild($e);
                 } else {
-                    // Use data-lazy-src as src value
-                    $e->setAttribute('src', $e->getAttribute('data-lazy-src'));
+                    // Use data[-lazy]-src as src value
+                    $src = $e->getAttribute('data-lazy-src');
                     $e->removeAttribute('data-lazy-src');
+
+                    if (!$src) {
+                        $src = $e->getAttribute('data-src');
+                        $e->removeAttribute('data-src');
+                    }
+                    $e->setAttribute('src', $src);
                 }
             }
 
@@ -804,14 +836,15 @@ class ContentExtractor
         // if we've had no success and we've used tidy, there's a chance
         // that tidy has messed up. So let's try again without tidy...
         if (!$this->success && $tidied && $smart_tidy) {
+            unset($this->body, $xpath);
             // $this->debug('Trying again without tidy');
-            $this->process($original_html, $url, $this->siteConfig, false);
+            return $this->process($this->readability->original_html, $url, $this->siteConfig, false);
         }
 
         return $this->success;
     }
 
-    private function isDescendant(DOMElement $parent, DOMElement $child)
+    private function isDescendant(\DOMElement $parent, \DOMElement $child)
     {
         $node = $child->parentNode;
         while ($node != null) {
