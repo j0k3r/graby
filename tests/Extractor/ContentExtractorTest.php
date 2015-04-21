@@ -21,6 +21,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $contentExtractor->getNextPageUrl());
     }
 
+    /**
+     * Test if fingerprints are well extract from meta node
+     */
     public function testFingerPrints()
     {
         $contentExtractor = new ContentExtractor(array(
@@ -36,6 +39,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('fingerprint.blogspot.com', $res);
     }
 
+    /**
+     * With a non-existent config, SiteConfig is empty
+     */
     public function testBuildSiteConfigUnknownSite()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
@@ -52,6 +58,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * With a good configuration, SiteConfig must have some value defined
+     */
     public function testBuildSiteConfig()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
@@ -75,6 +84,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * Multiple call to a same SiteConfig will use the cached version
+     */
     public function testBuildSiteConfigCached()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
@@ -90,6 +102,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res2);
     }
 
+    /**
+     * Test both fingerprint and custom SiteConfig for wordpress
+     */
     public function testWithFingerPrints()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
@@ -107,6 +122,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * Test config find_string / replace_string
+     */
     public function testProcessFindString()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
@@ -114,16 +132,22 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
         )));
 
+        $config = new SiteConfig();
+        $config->body = array('//iframe');
+        $config->find_string = array('<html>&lt;iframe', '&gt;&lt;/iframe&gt;</html>');
+        $config->replace_string = array('<iframe id="video"', '></iframe>');
+
         $res = $contentExtractor->process(
             '<html>&lt;iframe &gt;&lt;/iframe&gt;</html> <a rel="author" href="/user8412228">CaTV</a>',
-            'https://vimeo.com/35941909'
+            'https://vimeo.com/35941909',
+            $config
         );
 
         $this->assertTrue($res);
 
         $content_block = $contentExtractor->getContent();
 
-        $this->assertContains('<iframe id="video"/>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertContains('<iframe id="video"', $content_block->ownerDocument->saveXML($content_block));
         $this->assertCount(1, $contentExtractor->getAuthors());
         $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
     }
@@ -131,8 +155,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function dataForNextPage()
     {
         return array(
+            // return the link as string
             array("string(//a[@class='next'])", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">https://lemonde.io/35941909?page=2</a></html>', 'https://lemonde.io/35941909?page=2'),
+            // will find the link using "href" attribute
             array("//a[@class='next']", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'),
+            // will directly return the node attribute
             array("//a[@class='next']/@href", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'),
         );
     }
@@ -162,7 +189,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function dataForTitle()
     {
         return array(
+            // return the link as string
             array('string(//title)', '<html><title>mon titre</title></html>', 'mon titre'),
+            // return the DomElement link
             array('//title', '<html><title>mon titre</title></html>', 'mon titre'),
         );
     }
@@ -192,8 +221,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function dataForAuthor()
     {
         return array(
+            // return author node
             array('//*[(@rel = "author")]', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', array('CaTV')),
+            // return author as a string
             array('string(//*[(@rel = "author")])', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', array('CaTV')),
+            // return nothing because the rel="author" does not exist
             array('string(//*[(@rel = "author")])', '<html>from <a href="/user8412228">CaTV</a></html>', array()),
         );
     }
@@ -287,7 +319,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function dataForStrip()
     {
         return array(
+            // strip nav element and keep only the p
             array('//nav', '<html><body><nav id="high">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'hello !'),
+            // strip p element and keep the nav
             array('//p', '<html><body><nav id="high">'.str_repeat('hello !', 20).'</nav><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'this is the best part of the show'),
         );
     }
@@ -386,7 +420,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function dataForStripDisplayNoneAndInstapaper()
     {
         return array(
+            // remove element with class "instapaper_ignore"
             array('<html><body><p class="instapaper_ignore">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'hello !'),
+            // remove element with class "entry-unrelated"
             array('<html><body><p class="entry-unrelated">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'hello !'),
         );
     }
@@ -420,11 +456,13 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function dataForExtractBody()
     {
         return array(
+            // extract one element
             array(
                 "//p[@id='content']",
                 '<html><body><p id="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>',
                 '<p id="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p>'
             ),
+            // extract multiple element
             array(
                 "//p[@class='content_wrapper']",
                 '<html><body><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">'.str_repeat('this is the best part of the show', 5).'</p></body></html>',
@@ -528,6 +566,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * Extract content from instapaper class
+     */
     public function testExtractInstapaper()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
@@ -592,5 +633,108 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $content = $domElement->ownerDocument->saveXML($domElement);
 
         $this->assertEquals($expectedContent, $content);
+    }
+
+    /**
+     * Test that if the first h* found in the body is the same as the extracted title, it'll be removed
+     */
+    public function testRemoveH1FromBody()
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+        $config->body = array('//div');
+        $config->title = array('//title');
+
+        $res = $contentExtractor->process(
+            '<html><body><title>My Title</title><div><h3>My Title</h3>'.str_repeat('this is the best part of the show', 10).'</div></body></html>',
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $domElement = $contentExtractor->getContent();
+        $content = $domElement->ownerDocument->saveXML($domElement);
+
+        $this->assertNotContains('My Title', $content);
+        $this->assertEquals('My Title', $contentExtractor->getTitle());
+    }
+
+    public function dataForlazyLoad()
+    {
+        return array(
+            // test with img attribute data-src
+            array(
+                '<div>'.str_repeat('this is the best part of the show', 10).'<img data-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>',
+                '<img src="http://0.0.0.0/big_image.jpg"',
+            ),
+            // test with img attribute data-lazy-src
+            array(
+                '<div>'.str_repeat('this is the best part of the show', 10).'<img data-lazy-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>',
+                '<img src="http://0.0.0.0/big_image.jpg"',
+            ),
+            // test with img attribute data-src and image in noscript
+            array(
+                '<div>'.str_repeat('this is the best part of the show', 10).'<img data-lazy-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><noscript><img src="http://0.0.0.0/big_image_noscript.jpg"></noscript></div>',
+                '<img src="http://0.0.0.0/big_image_noscript.jpg"',
+            ),
+        );
+    }
+
+    /**
+     * Test that if the first h* found in the body is the same as the extracted title, it'll be removed
+     *
+     * @dataProvider dataForlazyLoad
+     */
+    public function testConvertLazyLoadImages($html, $htmlExpected)
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+        $config->body = array('//div');
+
+        $res = $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $domElement = $contentExtractor->getContent();
+        $content = $domElement->ownerDocument->saveXML($domElement);
+
+        $this->assertContains($htmlExpected, $content);
+    }
+
+    public function testIframeEmbeddedContent()
+    {
+        $contentExtractor = new ContentExtractor(array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+        )));
+
+        $config = new SiteConfig();
+        $config->body = array('//div');
+
+        $res = $contentExtractor->process(
+            '<div>'.str_repeat('this is the best part of the show', 10).'</div><div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>',
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $domElement = $contentExtractor->getContent();
+        $content = $domElement->ownerDocument->saveXML($domElement);
+
+        $this->assertContains('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $content);
     }
 }

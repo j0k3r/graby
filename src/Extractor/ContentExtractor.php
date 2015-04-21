@@ -56,6 +56,7 @@ class ContentExtractor
 
     protected function debug($msg)
     {
+        /*
         if ($this->debug) {
             $mem = round(memory_get_usage() / 1024, 2);
             $memPeak = round(memory_get_peak_usage() / 1024, 2);
@@ -65,6 +66,7 @@ class ContentExtractor
             ob_flush();
             flush();
         }
+        */
     }
 
     public function reset()
@@ -360,13 +362,10 @@ class ContentExtractor
         // strip images (using src attribute values)
         foreach ($this->siteConfig->strip_image_src as $string) {
             $string = strtr($string, array("'" => '', '"' => ''));
-            $elems = $xpath->query("//img[contains(@src, '$string')]", $this->readability->dom);
 
-            // check for matches
-            if ($elems && $elems->length > 0) {
-                // $this->debug('Stripping '.$elems->length.' image elements');
-                for ($i = $elems->length - 1; $i >= 0; $i--) {
-                    $elems->item($i)->parentNode->removeChild($elems->item($i));
+            foreach ($this->readability->dom->getElementsByTagName('img') as $e) {
+                if (strpos($e->getAttribute('src'), $string)) {
+                    $e->parentNode->removeChild($e);
                 }
             }
         }
@@ -786,7 +785,7 @@ class ContentExtractor
                     $firstChild = $firstChild->nextSibling;
                 }
 
-                if (($firstChild->nodeType === XML_ELEMENT_NODE)
+                if ($firstChild->nodeType === XML_ELEMENT_NODE
                     && in_array(strtolower($firstChild->tagName), array('h1', 'h2', 'h3', 'h4', 'h5', 'h6'))
                     && (strtolower(trim($firstChild->textContent)) == strtolower(trim($this->title)))) {
                     $this->body->removeChild($firstChild);
@@ -794,40 +793,41 @@ class ContentExtractor
             }
 
             // prevent self-closing iframes
-            $elems = $this->body->getElementsByTagName('iframe');
-            for ($i = $elems->length - 1; $i >= 0; $i--) {
-                $e = $elems->item($i);
-
+            foreach ($this->body->getElementsByTagName('iframe') as $e) {
                 if (!$e->hasChildNodes()) {
                     $e->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
                 }
             }
 
-            // remove image lazy loading - WordPress plugin http://wordpress.org/extend/plugins/lazy-load/
-            // the plugin replaces the src attribute to point to a 1x1 gif and puts the original src
-            // inside the data-lazy-src attribute. It also places the original image inside a noscript element
-            // next to the amended one.
-            $elems = $xpath->query('//img[@data-lazy-src]|//img[@data-src]', $this->body);
-            for ($i = $elems->length - 1; $i >= 0; $i--) {
-                $e = $elems->item($i);
+            // remove image lazy loading
+            foreach ($this->body->getElementsByTagName('img') as $e) {
+                if (!$e->hasAttribute('data-lazy-src') && !$e->hasAttribute('data-src')) {
+                    continue;
+                }
 
-                // let's see if we can grab image from noscript
+                // Custom case for WordPress plugin http://wordpress.org/extend/plugins/lazy-load/
+                // the plugin replaces the src attribute to point to a 1x1 gif and puts the original src
+                // inside the data-lazy-src attribute. It also places the original image inside a noscript element
+                // next to the amended one.
+                // @see https://plugins.trac.wordpress.org/browser/lazy-load/trunk/lazy-load.php
                 if ($e->nextSibling !== null && $e->nextSibling->nodeName === 'noscript') {
                     $_new_elem = $e->ownerDocument->createDocumentFragment();
                     $_new_elem->appendXML($e->nextSibling->innerHTML);
                     $e->nextSibling->parentNode->replaceChild($_new_elem, $e->nextSibling);
                     $e->parentNode->removeChild($e);
-                } else {
-                    // Use data[-lazy]-src as src value
+
+                    continue;
+                }
+
+                $src = $e->getAttribute('data-src');
+                $e->removeAttribute('data-src');
+
+                if ($e->hasAttribute('data-lazy-src')) {
                     $src = $e->getAttribute('data-lazy-src');
                     $e->removeAttribute('data-lazy-src');
-
-                    if (!$src) {
-                        $src = $e->getAttribute('data-src');
-                        $e->removeAttribute('data-src');
-                    }
-                    $e->setAttribute('src', $src);
                 }
+
+                $e->setAttribute('src', $src);
             }
 
             $this->success = true;
