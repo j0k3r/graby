@@ -34,7 +34,7 @@ class ConfigBuilder
         //
         // Which primary folder should we look inside?
         // If it's not the default ('custom'), we need
-        // a key suffix to distinguish site config fules
+        // a key suffix to distinguish site config rules
         // held in this folder from those in other folders.
         $this->keySuffix = basename($this->config['site_config_custom']);
         if ($this->keySuffix === 'custom') {
@@ -75,8 +75,7 @@ class ConfigBuilder
      */
     public function getCachedVersion($key)
     {
-        $key = strtolower($key);
-        $key .= '.'.$this->keySuffix;
+        $key = strtolower($key).'.'.$this->keySuffix;
         if (substr($key, 0, 4) == 'www.') {
             $key = substr($key, 4);
         }
@@ -90,6 +89,7 @@ class ConfigBuilder
 
     private function debug($msg)
     {
+        /*
         if (!$this->debug) {
             return;
         }
@@ -101,6 +101,7 @@ class ConfigBuilder
         echo "\n";
         ob_flush();
         flush();
+        */
     }
 
     /**
@@ -133,12 +134,15 @@ class ConfigBuilder
             return false;
         }
 
-        // check for site configuration
         $try = array($host);
         // should we look for wildcard matches
+        // will try to see for a host without the first subdomain (fr.example.org & .example.org)
+        // @todo: should we look for all possible subdomain? (fr.m.example.org &.m.example.org & .example.org)
         if (!$exact_host_match) {
             $split = explode('.', $host);
+
             if (count($split) > 1) {
+                // remove first subdomain
                 array_shift($split);
                 $try[] = '.'.implode('.', $split);
             }
@@ -162,6 +166,8 @@ class ConfigBuilder
         // if we found site config, process it
         if (isset($file_primary)) {
             $config_lines = file($file_primary, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            // no lines ? we don't found config then
+            // @todo: should we better try with secondary file instead?
             if (!$config_lines || !is_array($config_lines)) {
                 return false;
             }
@@ -210,21 +216,14 @@ class ConfigBuilder
         // process secondary config file
         $config_lines = file($file_secondary, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         if (!$config_lines || !is_array($config_lines)) {
-            // failed to process secondary
-            if (isset($config)) {
-                // return primary config
-                return $config;
-            }
-
-            return false;
+            // failed to process secondary then return primary config
+            return isset($config) ? $config : false;
         }
 
         // merge with primary and return
         if (isset($config)) {
             // $this->debug('. merging config files');
-            $config->append($this->parseLines($config_lines));
-
-            return $config;
+            return $this->mergeConfig($config, $this->parseLines($config_lines));
         }
 
         // return just secondary
@@ -239,6 +238,8 @@ class ConfigBuilder
      *
      * @param SiteConfig $currentConfig Current configuration
      * @param SiteConfig $newConfig     New configuration to be merged
+     *
+     * @return SiteConfig Merged config
      */
     public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
     {

@@ -7,6 +7,16 @@ use FullText\SiteConfig\SiteConfig;
 
 class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 {
+    protected static $contentExtractorConfig;
+
+    public static function setUpBeforeClass()
+    {
+        self::$contentExtractorConfig = array('config_builder' => array(
+            'site_config_custom' => dirname(__FILE__).'/../fixtures/site_config/custom',
+            'site_config_standard' => dirname(__FILE__).'/../fixtures/site_config/standard',
+        ));
+    }
+
     public function testConstructDefault()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array('site_config_custom' => dirname(__FILE__))));
@@ -63,10 +73,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testBuildSiteConfig()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
         $res = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
 
         $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
@@ -89,10 +96,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testBuildSiteConfigCached()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
         $res = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
 
         $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
@@ -107,10 +111,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithFingerPrints()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $res = $contentExtractor->buildSiteConfig(
             'https://en.blog.wordpress.com/2015/03/23/writing-101-registration/',
@@ -127,10 +128,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testProcessFindString()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->body = array('//iframe');
@@ -169,10 +167,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractNextPageLink($pattern, $html, $urlExpected)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->next_page_link = array($pattern);
@@ -201,10 +196,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractTitle($pattern, $html, $titleExpected)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->title = array($pattern);
@@ -235,10 +227,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractAuthor($pattern, $html, $authorExpected)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->author = array($pattern);
@@ -264,10 +253,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractLanguage($html, $languageExpected)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
 
@@ -299,10 +285,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractDate($pattern, $html, $dateExpected)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->date = array($pattern);
@@ -331,10 +314,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testApplyStrip($pattern, $html, $removedContent)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->strip = array($pattern);
@@ -364,10 +344,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testApplyStripIdOrClass($pattern, $html, $removedContent)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->strip_id_or_class = array($pattern);
@@ -397,10 +374,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testApplyStripImageSrc($pattern, $html, $removedContent)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->strip_image_src = array($pattern);
@@ -432,10 +406,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testApplyStripDisplayNoneAndInstapaper($html, $removedContent)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
 
@@ -476,10 +447,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractBody($pattern, $html, $expectedContent)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->body = array($pattern);
@@ -541,10 +509,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractHNews($html, $expectedContent, $expectedElements)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
 
@@ -571,10 +536,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractInstapaper()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
 
@@ -614,10 +576,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtractSchemaOrg($html, $expectedContent)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
 
@@ -640,10 +599,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemoveH1FromBody()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->body = array('//div');
@@ -692,10 +648,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertLazyLoadImages($html, $htmlExpected)
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->body = array('//div');
@@ -716,10 +669,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function testIframeEmbeddedContent()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
-        )));
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
         $config->body = array('//div');

@@ -1,0 +1,1 @@
+autodetect_on_failure: false
