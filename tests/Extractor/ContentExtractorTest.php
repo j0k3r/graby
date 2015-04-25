@@ -672,7 +672,10 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->body = array('//div');
+        // '//header' is a bad pattern, and it will jump to the next one
+        $config->body = array('//header', '//div');
+        // obviously a bad parser which will be converted to use the default one
+        $config->parser = 'toto';
 
         $res = $contentExtractor->process(
             '<div>'.str_repeat('this is the best part of the show', 10).'</div><div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>',
