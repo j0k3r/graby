@@ -63,7 +63,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
 
         // everything is empty because the standard config folder was wrong, otherwise, the global.txt file will load some data
-        foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'http_header', 'test_url', 'single_page_link', 'next_page_link', 'single_page_link_in_feed', 'find_string', 'replace_string') as $value) {
+        foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'http_header', 'test_url', 'single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
         }
     }
@@ -78,7 +78,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
 
-        foreach (array('author', 'http_header', 'single_page_link', 'next_page_link', 'single_page_link_in_feed', 'find_string', 'replace_string') as $value) {
+        foreach (array('author', 'http_header', 'single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
         }
 

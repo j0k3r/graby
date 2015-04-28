@@ -244,7 +244,7 @@ class ConfigBuilder
     public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
     {
         // check for commands where we accept multiple statements (no test_url)
-        foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'single_page_link_in_feed', 'next_page_link', 'http_header') as $var) {
+        foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'http_header') as $var) {
             // append array elements for this config variable from $newConfig to this config
             $currentConfig->$var = array_unique(array_merge($currentConfig->$var, $newConfig->$var));
         }
@@ -298,7 +298,7 @@ class ConfigBuilder
             }
 
             // check for commands where we accept multiple statements
-            if (in_array($command, array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'single_page_link_in_feed', 'next_page_link', 'http_header', 'test_url', 'find_string', 'replace_string'))) {
+            if (in_array($command, array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'http_header', 'test_url', 'find_string', 'replace_string'))) {
                 array_push($config->$command, $val);
             // check for single statement commands that evaluate to true or false
             } elseif (in_array($command, array('tidy', 'prune', 'autodetect_on_failure'))) {

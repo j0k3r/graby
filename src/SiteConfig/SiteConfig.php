@@ -74,9 +74,6 @@ class SiteConfig
 
     public $next_page_link = array();
 
-    // Single-page link in feed? - same as above, but patterns applied to item description HTML taken from feed
-    public $single_page_link_in_feed = array();
-
     // Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib')
     // string or null if undeclared
     public $parser = null;
