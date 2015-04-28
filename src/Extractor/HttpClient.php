@@ -132,10 +132,12 @@ class HttpClient
 
         $effectiveUrl = $response->getEffectiveUrl();
 
+        $contentType = (string) $response->getHeader('Content-Type');
+
         // the response content-type did not match our 'header only' types,
         // but we'd issues a HEAD request because we assumed it would. So
         // let's queue a proper GET request for this item...
-        if ('head' === $method && !$this->headerOnlyType((string) $response->getHeader('Content-Type'))) {
+        if ('head' === $method && !$this->headerOnlyType($contentType)) {
             return $this->fetch($effectiveUrl, true);
         }
 
@@ -181,7 +183,7 @@ class HttpClient
         return array(
             'effective_url' => $effectiveUrl,
             'body' => $body,
-            'headers' => (string) $response->getHeader('Content-Type'),
+            'headers' => $contentType,
         );
     }
 

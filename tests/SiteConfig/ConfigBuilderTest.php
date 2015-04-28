@@ -79,7 +79,6 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             $config->cache_key = $cachedKey;
         }
 
-
         $configBuilder->addToCache($key, $config);
 
         $this->assertEquals($config, $configBuilder->getCachedVersion($expectedKey));

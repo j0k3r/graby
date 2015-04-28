@@ -32,7 +32,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if fingerprints are well extract from meta node
+     * Test if fingerprints are well extract from meta node.
      */
     public function testFingerPrints()
     {
@@ -50,7 +50,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * With a non-existent config, SiteConfig is empty
+     * With a non-existent config, SiteConfig is empty.
      */
     public function testBuildSiteConfigUnknownSite()
     {
@@ -69,7 +69,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * With a good configuration, SiteConfig must have some value defined
+     * With a good configuration, SiteConfig must have some value defined.
      */
     public function testBuildSiteConfig()
     {
@@ -92,7 +92,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Multiple call to a same SiteConfig will use the cached version
+     * Multiple call to a same SiteConfig will use the cached version.
      */
     public function testBuildSiteConfigCached()
     {
@@ -107,7 +107,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test both fingerprint and custom SiteConfig for wordpress
+     * Test both fingerprint and custom SiteConfig for wordpress.
      */
     public function testWithFingerPrints()
     {
@@ -124,7 +124,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test config find_string / replace_string
+     * Test config find_string / replace_string.
      */
     public function testProcessFindString()
     {
@@ -431,13 +431,13 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             array(
                 "//p[@id='content']",
                 '<html><body><p id="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>',
-                '<p id="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p>'
+                '<p id="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p>',
             ),
             // extract multiple element
             array(
                 "//p[@class='content_wrapper']",
                 '<html><body><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">'.str_repeat('this is the best part of the show', 5).'</p></body></html>',
-                '<div><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">'.str_repeat('this is the best part of the show', 5).'</p></div>'
+                '<div><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">'.str_repeat('this is the best part of the show', 5).'</p></div>',
             ),
         );
     }
@@ -485,7 +485,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
                 '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
                 array(
                     'date' => null,
-                )
+                ),
             ),
             // hNews with many authors
             array(
@@ -493,13 +493,13 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
                 '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
                 array(
                     'authors' => array('first boy', 'first girl'),
-                )
+                ),
             ),
             // hNews with many content
             array(
                 '<html><body><div class="hentry"><p class="entry-content">hello !hello !hello !hello !hello !hello !hello !</p><p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
                 '<div><p class="entry-content">hello !hello !hello !hello !hello !hello !hello !</p><p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div>',
-                array()
+                array(),
             ),
         );
     }
@@ -532,7 +532,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Extract content from instapaper class
+     * Extract content from instapaper class.
      */
     public function testExtractInstapaper()
     {
@@ -595,7 +595,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that if the first h* found in the body is the same as the extracted title, it'll be removed
+     * Test that if the first h* found in the body is the same as the extracted title, it'll be removed.
      */
     public function testRemoveH1FromBody()
     {
@@ -642,7 +642,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that if the first h* found in the body is the same as the extracted title, it'll be removed
+     * Test that if the first h* found in the body is the same as the extracted title, it'll be removed.
      *
      * @dataProvider dataForlazyLoad
      */

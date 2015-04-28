@@ -41,9 +41,9 @@ class FullText
             'xss_filter' => true,
             'content_type_exc' => array(
                'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
-               'image' => array('action' => 'link', 'name' => 'Image'),
-               'audio' => array('action' => 'link', 'name' => 'Audio'),
-               'video' => array('action' => 'link', 'name' => 'Video'),
+               'image'           => array('action' => 'link', 'name' => 'Image'),
+               'audio'           => array('action' => 'link', 'name' => 'Audio'),
+               'video'           => array('action' => 'link', 'name' => 'Video'),
             ),
             'content_links' => 'preserve',
             'http_client' => array(),
@@ -279,7 +279,7 @@ class FullText
         }
 
         // footnotes
-        if (($this->config['content_links'] == 'footnotes') && (strpos($effective_url, 'wikipedia.org') === false)) {
+        if ($this->config['content_links'] == 'footnotes' && strpos($effective_url, 'wikipedia.org') === false) {
             $readability->addFootnotes($content_block);
         }
 
@@ -306,8 +306,6 @@ class FullText
         // Need to preserve things like body: //img[@id='feature']
         if (in_array(strtolower($content_block->tagName), array('div', 'article', 'section', 'header', 'footer', 'li', 'td'))) {
             $html = $content_block->innerHTML;
-        //} elseif (in_array(strtolower($content_block->tagName), array('td', 'li'))) {
-        //  $html = '<div>'.$content_block->innerHTML.'</div>';
         } else {
             $html = $content_block->ownerDocument->saveXML($content_block); // essentially outerHTML
         }
@@ -426,36 +424,28 @@ class FullText
      * @param string $html
      * @param string $url
      *
-     * @return string
+     * @return false|array From httpClient fetch
      */
     private function getSinglePage($html, $url)
     {
         // debug('Looking for site config files to see if single page link exists');
         $site_config = $this->extractor->buildSiteConfig($url, $html);
-        $splink = null;
 
-        if (!empty($site_config->single_page_link)) {
-            $splink = $site_config->single_page_link;
-        } elseif (!empty($site_config->single_page_link_in_feed)) {
-            // single page link xpath is targeted at feed
-            $splink = $site_config->single_page_link_in_feed;
-            // so let's replace HTML with feed item description
-            // $html = $this->item->description;
-            $html = '';
-        }
-
-        if (!isset($splink)) {
+        // no single page found?
+        if (empty($site_config->single_page_link)) {
             return false;
         }
 
         // Build DOM tree from HTML
         $readability = new Readability($html, $url);
         $xpath = new \DOMXPath($readability->dom);
+
         // Loop through single_page_link xpath expressions
         $single_page_url = null;
 
-        foreach ($splink as $pattern) {
-            $elems = @$xpath->evaluate($pattern, $readability->dom);
+        foreach ($site_config->single_page_link as $pattern) {
+            $elems = $xpath->evaluate($pattern, $readability->dom);
+
             if (is_string($elems)) {
                 $single_page_url = trim($elems);
                 break;
@@ -472,30 +462,35 @@ class FullText
             }
         }
 
-        // If we've got URL, resolve against $url
-        if (isset($single_page_url) && ($single_page_url = $this->makeAbsoluteStr($url, $single_page_url))) {
-            // check it's not what we have already!
-            if ($single_page_url != $url) {
-                // it's not, so let's try to fetch it...
-                $_prev_ref = $this->httpAgent->referer;
-                $this->httpAgent->referer = $single_page_url;
-
-                if (($response = $this->httpAgent->get($single_page_url, true)) && $response['status_code'] < 300) {
-                    $this->httpAgent->referer = $_prev_ref;
-
-                    return $response;
-                }
-                $this->httpAgent->referer = $_prev_ref;
-            }
+        if (!$single_page_url) {
+            return false;
         }
+
+        // try to resolve against $url
+        $single_page_url = $this->makeAbsoluteStr($url, $single_page_url);
+
+        // check it's not what we have already!
+        if ($single_page_url != $url) {
+            // it's not, so let's try to fetch it...
+            return $this->httpClient->fetch($single_page_url);
+        }
+
+        return false;
     }
 
+    /**
+     * Make an absolute url from an element.
+     *
+     * @param string     $base The base url
+     * @param DomElement $elem Element on which we'll retrieve the attribute
+     */
     private function makeAbsolute($base, $elem)
     {
         $base = new \SimplePie_IRI($base);
+
         // remove '//' in URL path (used to prevent URLs from resolving properly)
-        if (isset($base->path)) {
-            $base->path = str_replace('//', '/', $base->path);
+        if (isset($base->ipath)) {
+            $base->ipath = str_replace('//', '/', $base->ipath);
         }
 
         foreach (array('a' => 'href', 'img' => 'src') as $tag => $attr) {
@@ -513,7 +508,14 @@ class FullText
         }
     }
 
-    private function makeAbsoluteAttr($base, $e, $attr)
+    /**
+     * Make an attribute absolute (href or src).
+     *
+     * @param string     $base The base url
+     * @param DomElement $e    Element on which we'll retrieve the attribute
+     * @param string     $attr Attribute that contains the url to absolutize
+     */
+    private function makeAbsoluteAttr($base, \DomElement $e, $attr)
     {
         if (!$e->hasAttribute($attr)) {
             return;
@@ -531,13 +533,18 @@ class FullText
         }
     }
 
+    /**
+     * Make an $url absolute based on the $base.
+     *
+     * @param string $base Base url
+     * @param string $url  Url to make it absolute
+     *
+     * @return false|string
+     */
     private function makeAbsoluteStr($base, $url)
     {
-        $base = new \SimplePie_IRI($base);
-
-        // remove '//' in URL path (causes URLs not to resolve properly)
-        if (isset($base->path)) {
-            $base->path = preg_replace('!//+!', '/', $base->path);
+        if (!$url) {
+            return false;
         }
 
         if (preg_match('!^https?://!i', $url)) {
@@ -545,8 +552,15 @@ class FullText
             return $url;
         }
 
+        $base = new \SimplePie_IRI($base);
+
+        // remove '//' in URL path (causes URLs not to resolve properly)
+        if (isset($base->ipath)) {
+            $base->ipath = preg_replace('!//+!', '/', $base->ipath);
+        }
+
         if ($absolute = \SimplePie_IRI::absolutize($base, $url)) {
-            return $absolute;
+            return $absolute->get_uri();
         }
 
         return false;
@@ -561,7 +575,7 @@ class FullText
         }
 
         $text = strip_tags($text);
-        //TODO: Check if word count is based on single characters (East Asian characters)
+        // @todo: Check if word count is based on single characters (East Asian characters)
         /*
         if (1==2) {
             $text = trim(preg_replace("/[\n\r\t ]+/", ' ', $text), ' ');
