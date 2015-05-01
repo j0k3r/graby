@@ -1,6 +1,6 @@
 <?php
 
-namespace FullText\SiteConfig;
+namespace Graby\SiteConfig;
 
 /**
  * Site Config.

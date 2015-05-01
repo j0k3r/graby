@@ -1,6 +1,6 @@
 <?php
 
-namespace FullText\Extractor;
+namespace Graby\Extractor;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use GuzzleHttp\Client;

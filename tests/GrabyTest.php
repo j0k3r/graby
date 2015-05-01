@@ -1,18 +1,18 @@
 <?php
 
-namespace Tests\FullText;
+namespace Tests\Graby;
 
-use FullText\FullText;
+use Graby\Graby;
 use GuzzleHttp\Client;
 
-class FullTextTest extends \PHPUnit_Framework_TestCase
+class GrabyTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructDefault()
     {
-        $fullText = new FullText(new Client(), array('debug' => true));
+        $graby = new Graby(new Client(), array('debug' => true));
 
-        $this->assertTrue($fullText->getDebug());
-        $this->assertTrue($fullText->getConfig('debug'));
+        $this->assertTrue($graby->getDebug());
+        $this->assertTrue($graby->getConfig('debug'));
     }
 
     /**
@@ -21,9 +21,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetBadConfig()
     {
-        $fullText = new FullText(new Client(), array());
+        $graby = new Graby(new Client(), array());
 
-        $fullText->getConfig('does_not_exists');
+        $graby->getConfig('does_not_exists');
     }
 
     public function dataForConfigOverride()
@@ -38,9 +38,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
      */
     public function testConfigOverride($key, $config)
     {
-        $fullText = new FullText(new Client(), $config);
+        $graby = new Graby(new Client(), $config);
 
-        $this->assertEquals($config[$key], $fullText->getConfig($key));
+        $this->assertEquals($config[$key], $graby->getConfig($key));
     }
 
     /**
@@ -103,9 +103,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->with($url)
             ->willReturn($response);
 
-        $fullText = new FullText($client);
+        $graby = new Graby($client);
 
-        $res = $fullText->fetchContent($url);
+        $res = $graby->fetchContent($url);
 
         $this->assertEquals($urlEffective, $res['url'], 'Same url');
         $this->assertEquals($title, $res['title'], 'Same title');
@@ -139,11 +139,11 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->with($urlChanged)
             ->willReturn($response);
 
-        $fullText = new FullText($client, array(
+        $graby = new Graby($client, array(
             'allowed_urls' => array('wikipedia.org', 'wikimedia.com'),
         ));
 
-        $fullText->fetchContent($url);
+        $graby->fetchContent($url);
     }
 
     public function dataForBlocked()
@@ -166,11 +166,11 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $fullText = new FullText($client, array(
+        $graby = new Graby($client, array(
             'blocked_urls' => array('t411.io', 'lexpress.fr'),
         ));
 
-        $fullText->fetchContent($url);
+        $graby->fetchContent($url);
     }
 
     /**
@@ -195,11 +195,11 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array(
+        $graby = new Graby($client, array(
             'blocked_urls' => array('t411.io'),
         ));
 
-        $fullText->fetchContent('lexpress.io');
+        $graby->fetchContent('lexpress.io');
     }
 
     public function testMimeTypeActionLink()
@@ -224,9 +224,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client);
+        $graby = new Graby($client);
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('Image', $res['title']);
         $this->assertEquals('<a href="http://lexpress.io"><img src="http://lexpress.io" alt="Image" /></a>', $res['html']);
@@ -264,13 +264,13 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array(
+        $graby = new Graby($client, array(
             'content_type_exc' => array(
                'application/x-msdownload' => array('action' => 'exclude', 'name' => 'we do not want virus'),
             ),
         ));
 
-        $res = $fullText->fetchContent('http://lexpress.io/virus.exe');
+        $res = $graby->fetchContent('http://lexpress.io/virus.exe');
 
         $this->assertEquals('Image', $res['title']);
         $this->assertEquals('<a href="http://lexpress.io"><img src="http://lexpress.io" alt="Image" /></a>', $res['html']);
@@ -311,9 +311,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->willReturn($response);
 
-        $fullText = new FullText($client);
+        $graby = new Graby($client);
 
-        $res = $fullText->fetchContent($url);
+        $res = $graby->fetchContent($url);
 
         $this->assertEquals($title, $res['title']);
         $this->assertEquals($html, $res['html']);
@@ -366,12 +366,12 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
         ))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('my title', $res['title']);
         $this->assertEquals('my content', $res['html']);
@@ -410,12 +410,12 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('extractor' => array('config_builder' => array(
+        $graby = new Graby($client, array('extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
         ))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('PDF', $res['title']);
         $this->assertEquals('<a href="http://singlepage1.com/data.pdf">Download PDF</a>', $res['html']);
@@ -452,12 +452,12 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
         ))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('my title', $res['title']);
         $this->assertEquals('my content<div id="story">my content</div>', $res['html']);
@@ -498,12 +498,12 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
         ))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -539,12 +539,12 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
         ))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -580,12 +580,12 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
         ))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -621,12 +621,12 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
         ))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -651,13 +651,13 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetExcerpt($text, $words, $more, $expectedResult)
     {
-        $fullText = new FullText(new Client());
+        $graby = new Graby(new Client());
 
-        $reflection = new \ReflectionClass(get_class($fullText));
+        $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('getExcerpt');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($fullText, array($text, $words, $more));
+        $res = $method->invokeArgs($graby, array($text, $words, $more));
 
         $this->assertEquals($expectedResult, $res);
     }
@@ -678,13 +678,13 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteStr($base, $url, $expectedResult)
     {
-        $fullText = new FullText(new Client());
+        $graby = new Graby(new Client());
 
-        $reflection = new \ReflectionClass(get_class($fullText));
+        $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteStr');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($fullText, array($base, $url));
+        $res = $method->invokeArgs($graby, array($base, $url));
 
         $this->assertEquals($expectedResult, $res);
     }
@@ -704,18 +704,18 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteAttr($base, $string, $attr, $expectedAttr, $expectedResult)
     {
-        $fullText = new FullText(new Client());
+        $graby = new Graby(new Client());
 
         $doc = new \DomDocument();
         $doc->loadXML($string);
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($fullText));
+        $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteAttr');
         $method->setAccessible(true);
 
-        $method->invokeArgs($fullText, array($base, $e, $attr));
+        $method->invokeArgs($graby, array($base, $e, $attr));
 
         $this->assertEquals($expectedResult, $e->getAttribute($expectedAttr));
     }
@@ -735,18 +735,18 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsolute($base, $string, $expectedAttr, $expectedResult)
     {
-        $fullText = new FullText(new Client());
+        $graby = new Graby(new Client());
 
         $doc = new \DomDocument();
         $doc->loadXML($string);
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($fullText));
+        $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($fullText, array($base, $e));
+        $method->invokeArgs($graby, array($base, $e));
 
         $this->assertEquals($expectedResult, $e->getAttribute($expectedAttr));
     }
@@ -756,18 +756,18 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteMultiple()
     {
-        $fullText = new FullText(new Client());
+        $graby = new Graby(new Client());
 
         $doc = new \DomDocument();
         $doc->loadXML('<a href="/lol"><img src=" /path/to/image.jpg" /></a>');
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($fullText));
+        $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($fullText, array('http://example.org', $e));
+        $method->invokeArgs($graby, array('http://example.org', $e));
 
         $this->assertEquals('http://example.org/lol', $e->getAttribute('href'));
         $this->assertEquals('http://example.org/path/to/image.jpg', $e->firstChild->getAttribute('src'));
@@ -799,9 +799,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_links' => 'remove'));
+        $graby = new Graby($client, array('content_links' => 'remove'));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
         $this->assertEquals('http://removelinks.io', $res['url']);
@@ -830,9 +830,9 @@ class FullTextTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $fullText = new FullText($client, array('content_type_exc' => array('application/pdf' => array('action' => 'delete', 'name' => 'PDF'))));
+        $graby = new Graby($client, array('content_type_exc' => array('application/pdf' => array('action' => 'delete', 'name' => 'PDF'))));
 
-        $res = $fullText->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('lexpress.io');
 
         $this->assertEquals('', $res['title']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['html']);

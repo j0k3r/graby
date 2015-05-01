@@ -1,5 +1,5 @@
 {
-    "name": "j0k3r/full-text",
+    "name": "graby/graby",
     "license": "AGPLv3",
     "authors": [{
         "name": "Jeremy Benoist",
@@ -22,6 +22,6 @@
         "neitanod/forceutf8": "^1.4"
     },
     "autoload": {
-        "psr-4": { "FullText\\": "src/" }
+        "psr-4": { "Graby\\": "src/" }
     }
 }

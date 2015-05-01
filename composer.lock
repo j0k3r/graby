@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6248b4f57f3a08b6aed12035b19e15a8",
+    "hash": "113bf7a2b3413d71bb8c3b00ff6fb65b",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -213,16 +213,16 @@
         },
         {
             "name": "j0k3r/php-readability",
-            "version": "v1.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/j0k3r/php-readability.git",
-                "reference": "ddd013e3f8f2900fa0426d386fb8a74f5a9d63ba"
+                "reference": "b69619d386b7aab900d01171bb54a3164527dcf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/j0k3r/php-readability/zipball/ddd013e3f8f2900fa0426d386fb8a74f5a9d63ba",
-                "reference": "ddd013e3f8f2900fa0426d386fb8a74f5a9d63ba",
+                "url": "https://api.github.com/repos/j0k3r/php-readability/zipball/b69619d386b7aab900d01171bb54a3164527dcf0",
+                "reference": "b69619d386b7aab900d01171bb54a3164527dcf0",
                 "shasum": ""
             },
             "require": {
@@ -272,7 +272,7 @@
                 "extraction",
                 "html"
             ],
-            "time": "2014-12-12 11:14:40"
+            "time": "2015-04-29 08:27:50"
         },
         {
             "name": "neitanod/forceutf8",

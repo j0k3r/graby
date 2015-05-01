@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\FullText\Extractor;
+namespace Tests\Graby\Extractor;
 
-use FullText\Extractor\HttpClient;
+use Graby\Extractor\HttpClient;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {

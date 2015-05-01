@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\FullText\SiteConfig;
+namespace Tests\Graby\SiteConfig;
 
-use FullText\SiteConfig\SiteConfig;
-use FullText\SiteConfig\ConfigBuilder;
+use Graby\SiteConfig\SiteConfig;
+use Graby\SiteConfig\ConfigBuilder;
 
 class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 {
@@ -149,7 +149,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         if (false === $expectedRes) {
             $this->assertFalse($res, 'No site config generated');
         } else {
-            $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res, 'Site config generated');
+            $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res, 'Site config generated');
             $this->assertEquals($matchedHost, $res->cache_key);
         }
     }
@@ -163,13 +163,13 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
         $res = $configBuilder->build('fr.wikipedia.org');
 
-        $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
         $configBuilder->addToCache($res->cache_key, $res);
 
         $res2 = $configBuilder->build('fr.wikipedia.org');
 
-        $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
         $this->assertEquals($res, $res2, 'Config retrieve from cache');
     }
 }

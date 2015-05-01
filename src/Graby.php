@@ -1,12 +1,12 @@
 <?php
 
-namespace FullText;
+namespace Graby;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use GuzzleHttp\Client;
 use Readability\Readability;
-use FullText\Extractor\ContentExtractor;
-use FullText\Extractor\HttpClient;
+use Graby\Extractor\ContentExtractor;
+use Graby\Extractor\HttpClient;
 use ForceUTF8\Encoding;
 
 /**
@@ -14,7 +14,7 @@ use ForceUTF8\Encoding;
  * @todo add cache
  * @todo add logger
  */
-class FullText
+class Graby
 {
     private $debug = false;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace FullText\Extractor;
+namespace Graby\Extractor;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Readability\Readability;
-use FullText\SiteConfig\ConfigBuilder;
-use FullText\SiteConfig\SiteConfig;
+use Graby\SiteConfig\ConfigBuilder;
+use Graby\SiteConfig\SiteConfig;
 
 /**
  * Content Extractor.
@@ -109,7 +109,7 @@ class ContentExtractor
      * @param string $html
      * @param bool   $add_to_cache
      *
-     * @return FullText\SiteConfig\SiteConfig
+     * @return Graby\SiteConfig\SiteConfig
      */
     public function buildSiteConfig($url, $html = '', $add_to_cache = true)
     {

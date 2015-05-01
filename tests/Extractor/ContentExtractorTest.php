@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\FullText\Extractor;
+namespace Tests\Graby\Extractor;
 
-use FullText\Extractor\ContentExtractor;
-use FullText\SiteConfig\SiteConfig;
+use Graby\Extractor\ContentExtractor;
+use Graby\SiteConfig\SiteConfig;
 
 class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 {
@@ -60,7 +60,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         )));
         $res = $contentExtractor->buildSiteConfig('http://0.0.0.0');
 
-        $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
         // everything is empty because the standard config folder was wrong, otherwise, the global.txt file will load some data
         foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'http_header', 'test_url', 'single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
@@ -76,7 +76,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
         $res = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
 
-        $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
         foreach (array('author', 'http_header', 'single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
@@ -99,11 +99,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
         $res = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
 
-        $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
         $res2 = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
 
-        $this->assertInstanceOf('FullText\SiteConfig\SiteConfig', $res2);
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res2);
     }
 
     /**
