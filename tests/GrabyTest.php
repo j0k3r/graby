@@ -3,15 +3,13 @@
 namespace Tests\Graby;
 
 use Graby\Graby;
-use GuzzleHttp\Client;
 
 class GrabyTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructDefault()
     {
-        $graby = new Graby(new Client(), array('debug' => true));
+        $graby = new Graby(array('debug' => true));
 
-        $this->assertTrue($graby->getDebug());
         $this->assertTrue($graby->getConfig('debug'));
     }
 
@@ -21,7 +19,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetBadConfig()
     {
-        $graby = new Graby(new Client(), array());
+        $graby = new Graby(array());
 
         $graby->getConfig('does_not_exists');
     }
@@ -38,7 +36,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testConfigOverride($key, $config)
     {
-        $graby = new Graby(new Client(), $config);
+        $graby = new Graby($config);
 
         $this->assertEquals($config[$key], $graby->getConfig($key));
     }
@@ -103,7 +101,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->with($url)
             ->willReturn($response);
 
-        $graby = new Graby($client);
+        $graby = new Graby(array(), $client);
 
         $res = $graby->fetchContent($url);
 
@@ -139,9 +137,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->with($urlChanged)
             ->willReturn($response);
 
-        $graby = new Graby($client, array(
+        $graby = new Graby(array(
             'allowed_urls' => array('wikipedia.org', 'wikimedia.com'),
-        ));
+        ), $client);
 
         $graby->fetchContent($url);
     }
@@ -166,9 +164,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $graby = new Graby($client, array(
+        $graby = new Graby(array(
             'blocked_urls' => array('t411.io', 'lexpress.fr'),
-        ));
+        ), $client);
 
         $graby->fetchContent($url);
     }
@@ -195,9 +193,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array(
+        $graby = new Graby(array(
             'blocked_urls' => array('t411.io'),
-        ));
+        ), $client);
 
         $graby->fetchContent('lexpress.io');
     }
@@ -224,7 +222,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client);
+        $graby = new Graby(array(), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -264,11 +262,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array(
+        $graby = new Graby(array(
             'content_type_exc' => array(
                'application/x-msdownload' => array('action' => 'exclude', 'name' => 'we do not want virus'),
             ),
-        ));
+        ), $client);
 
         $res = $graby->fetchContent('http://lexpress.io/virus.exe');
 
@@ -311,7 +309,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->willReturn($response);
 
-        $graby = new Graby($client);
+        $graby = new Graby(array(), $client);
 
         $res = $graby->fetchContent($url);
 
@@ -366,10 +364,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
-        ))));
+        ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -410,10 +408,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('extractor' => array('config_builder' => array(
+        $graby = new Graby(array('extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
-        ))));
+        ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -452,10 +450,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
-        ))));
+        ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -498,10 +496,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
-        ))));
+        ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -539,10 +537,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
-        ))));
+        ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -580,10 +578,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
-        ))));
+        ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -621,10 +619,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
+        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
             'site_config_custom' => dirname(__FILE__).'/fixtures/site_config/custom',
             'site_config_standard' => dirname(__FILE__).'/fixtures/site_config/standard',
-        ))));
+        ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -651,7 +649,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetExcerpt($text, $words, $more, $expectedResult)
     {
-        $graby = new Graby(new Client());
+        $graby = new Graby(array());
 
         $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('getExcerpt');
@@ -678,7 +676,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteStr($base, $url, $expectedResult)
     {
-        $graby = new Graby(new Client());
+        $graby = new Graby(array());
 
         $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteStr');
@@ -704,7 +702,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteAttr($base, $string, $attr, $expectedAttr, $expectedResult)
     {
-        $graby = new Graby(new Client());
+        $graby = new Graby(array());
 
         $doc = new \DomDocument();
         $doc->loadXML($string);
@@ -735,7 +733,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsolute($base, $string, $expectedAttr, $expectedResult)
     {
-        $graby = new Graby(new Client());
+        $graby = new Graby(array());
 
         $doc = new \DomDocument();
         $doc->loadXML($string);
@@ -756,7 +754,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteMultiple()
     {
-        $graby = new Graby(new Client());
+        $graby = new Graby(array());
 
         $doc = new \DomDocument();
         $doc->loadXML('<a href="/lol"><img src=" /path/to/image.jpg" /></a>');
@@ -799,7 +797,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_links' => 'remove'));
+        $graby = new Graby(array('content_links' => 'remove'), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -830,7 +828,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby($client, array('content_type_exc' => array('application/pdf' => array('action' => 'delete', 'name' => 'PDF'))));
+        $graby = new Graby(array('content_type_exc' => array('application/pdf' => array('action' => 'delete', 'name' => 'PDF'))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 

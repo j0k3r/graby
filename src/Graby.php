@@ -24,10 +24,10 @@ class Graby
     private $extractor = null;
 
     /**
-     * @param Client $client Guzzle client
-     * @param array  $config
+     * @param array       $config
+     * @param Client|null $client Guzzle client
      */
-    public function __construct(Client $client, $config = array())
+    public function __construct($config = array(), Client $client = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
@@ -55,21 +55,17 @@ class Graby
 
         $this->config = $resolver->resolve($config);
 
-        $this->setDebug($this->getConfig('debug'));
+        $this->debug = (bool) $this->config['debug'];
 
-        $this->extractor = new ContentExtractor($this->config['extractor'], $this->config['debug']);
-
-        $this->httpClient = new HttpClient($client, $this->config['http_client'], $this->config['debug']);
-    }
-
-    public function setDebug($debug)
-    {
-        $this->debug = (bool) $debug;
-    }
-
-    public function getDebug()
-    {
-        return $this->debug;
+        $this->extractor = new ContentExtractor(
+            $this->config['extractor'],
+            $this->config['debug']
+        );
+        $this->httpClient = new HttpClient(
+            $client ?: new Client(),
+            $this->config['http_client'],
+            $this->config['debug']
+        );
     }
 
     public function getConfig($key)
