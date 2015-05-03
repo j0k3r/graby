@@ -114,7 +114,7 @@ class ContentExtractor
     public function buildSiteConfig($url, $html = '', $add_to_cache = true)
     {
         // extract host name
-        $host = @parse_url($url, PHP_URL_HOST);
+        $host = parse_url($url, PHP_URL_HOST);
         $host = strtolower($host);
         if (substr($host, 0, 4) == 'www.') {
             $host = substr($host, 4);
