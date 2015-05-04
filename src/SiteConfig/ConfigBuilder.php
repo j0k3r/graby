@@ -148,17 +148,20 @@ class ConfigBuilder
             }
         }
 
+        // will contain the matched host
+        $matched_name = '';
+
         // look for site config file in primary folder
         // $this->debug(". looking for site config for $host in primary folder");
-        foreach ($try as $h) {
-            if ($siteConfig = $this->getCachedVersion($h)) {
-                // $this->debug("... site config for $h already loaded in this request");
+        foreach ($try as $host) {
+            if ($siteConfig = $this->getCachedVersion($host)) {
+                // $this->debug("... site config for $host already loaded in this request");
 
                 return $siteConfig;
-            } elseif (file_exists($this->config['site_config_custom'].'/'.$h.'.txt')) {
-                // $this->debug("... found site config ($h.txt)");
-                $file_primary = $this->config['site_config_custom'].'/'.$h.'.txt';
-                $matched_name = $h;
+            } elseif (file_exists($this->config['site_config_custom'].'/'.$host.'.txt')) {
+                // $this->debug("... found site config ($host.txt)");
+                $file_primary = $this->config['site_config_custom'].'/'.$host.'.txt';
+                $matched_name = $host;
                 break;
             }
         }
@@ -168,7 +171,7 @@ class ConfigBuilder
             $config_lines = file($file_primary, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             // no lines ? we don't found config then
             // @todo: should we better try with secondary file instead?
-            if (!$config_lines || !is_array($config_lines)) {
+            if (empty($config_lines) || !is_array($config_lines)) {
                 return false;
             }
 
@@ -177,7 +180,7 @@ class ConfigBuilder
 
             // if autodetec on failure is off (on by default) we do not need to look
             // in secondary folder
-            if (!$config->autodetect_on_failure()) {
+            if (true !== $config->autodetect_on_failure()) {
                 // $this->debug('... autodetect on failure is disabled (no other site config files will be loaded)');
 
                 return $config;
@@ -187,11 +190,11 @@ class ConfigBuilder
         // look for site config file in secondary folder
         if (isset($this->config['site_config_standard'])) {
             // $this->debug(". looking for site config for $host in secondary folder");
-            foreach ($try as $h) {
-                if (file_exists($this->config['site_config_standard'].'/'.$h.'.txt')) {
-                    // $this->debug("... found site config in secondary folder ($h.txt)");
-                    $file_secondary = $this->config['site_config_standard'].'/'.$h.'.txt';
-                    $matched_name = $h;
+            foreach ($try as $host) {
+                if (file_exists($this->config['site_config_standard'].'/'.$host.'.txt')) {
+                    // $this->debug("... found site config in secondary folder ($host.txt)");
+                    $file_secondary = $this->config['site_config_standard'].'/'.$host.'.txt';
+                    $matched_name = $host;
                     break;
                 }
             }
@@ -215,7 +218,7 @@ class ConfigBuilder
 
         // process secondary config file
         $config_lines = file($file_secondary, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        if (!$config_lines || !is_array($config_lines)) {
+        if (empty($config_lines) || !is_array($config_lines)) {
             // failed to process secondary then return primary config
             return isset($config) ? $config : false;
         }

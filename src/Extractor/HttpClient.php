@@ -13,7 +13,6 @@ use GuzzleHttp\Exception\RequestException;
  */
 class HttpClient
 {
-    private $debug = false;
     private $config = array();
     private $httpClient = null;
 
@@ -39,10 +38,10 @@ class HttpClient
             // HTTP responses which match these content types will
             // be returned without body.
             'header_only_types' => array(
-               'application/pdf',
-               'image',
-               'audio',
-               'video',
+                'application/pdf',
+                'image',
+                'audio',
+                'video',
             ),
             // URLs ending with one of these extensions will
             // prompt Humble HTTP Agent to send a HEAD request first
@@ -151,7 +150,7 @@ class HttpClient
 
             $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $html) ?: $this->getUglyURL($effectiveUrl, $html);
 
-            if ($redirectURL) {
+            if (false !== $redirectURL) {
                 return $this->fetch($redirectURL, true);
             }
         }
@@ -289,7 +288,7 @@ class HttpClient
             return false;
         }
 
-        $redirect_url = $match[1];
+        $redirect_url = trim($match[1]);
         if (preg_match('!^https?://!i', $redirect_url)) {
             // already absolute
             // $this->debug('Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirect_url);
@@ -305,7 +304,7 @@ class HttpClient
 
         if ($absolute = \SimplePie_IRI::absolutize($base, $redirect_url)) {
             // $this->debug('Meta refresh redirect found (http-equiv="refresh"), new URL: '.$absolute);
-            return $absolute;
+            return $absolute->get_iri();
         }
 
         return false;

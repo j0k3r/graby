@@ -85,11 +85,15 @@ class SiteConfig
     public $replace_string = array();
 
     // the options below cannot be set in the config files which this class represents
-
-    //public $cache_in_apc = false; // used to decide if we should cache in apc or not
     public $cache_key = null;
 
-    // return bool or null
+    /**
+     * Process HTML with tidy before creating DOM (bool or null if undeclared)
+     *
+     * @param  boolean $use_default
+     *
+     * @return boolean|null
+     */
     public function tidy($use_default = true)
     {
         if ($use_default) {
@@ -99,7 +103,13 @@ class SiteConfig
         return $this->tidy;
     }
 
-    // return bool or null
+    /**
+     * Clean up content block - attempt to remove elements that appear to be superfluous
+     *
+     * @param  boolean $use_default
+     *
+     * @return boolean|null
+     */
     public function prune($use_default = true)
     {
         if ($use_default) {
@@ -109,7 +119,13 @@ class SiteConfig
         return $this->prune;
     }
 
-    // return string or null
+    /**
+     * Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib')
+     *
+     * @param  boolean $use_default
+     *
+     * @return string|null
+     */
     public function parser($use_default = true)
     {
         if ($use_default) {
@@ -119,7 +135,13 @@ class SiteConfig
         return $this->parser;
     }
 
-    // return bool or null
+    /**
+     * Autodetect title/body if xpath expressions fail to produce results.
+     *
+     * @param  boolean $use_default
+     *
+     * @return boolean|null
+     */
     public function autodetect_on_failure($use_default = true)
     {
         if ($use_default) {

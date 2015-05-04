@@ -40,10 +40,10 @@ class Graby
             'blocked_urls' => array(),
             'xss_filter' => true,
             'content_type_exc' => array(
-               'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
-               'image'           => array('action' => 'link', 'name' => 'Image'),
-               'audio'           => array('action' => 'link', 'name' => 'Audio'),
-               'video'           => array('action' => 'link', 'name' => 'Video'),
+                'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
+                'image'           => array('action' => 'link', 'name' => 'Image'),
+                'audio'           => array('action' => 'link', 'name' => 'Audio'),
+                'video'           => array('action' => 'link', 'name' => 'Video'),
             ),
             'content_links' => 'preserve',
             'http_client' => array(),
@@ -68,6 +68,13 @@ class Graby
         );
     }
 
+    /**
+     * Return a config
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
     public function getConfig($key)
     {
         if (!isset($this->config[$key])) {
@@ -127,19 +134,12 @@ class Graby
         }
 
         $url = filter_var($url, FILTER_SANITIZE_URL);
-        $test = filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED);
 
         if (false === $this->isUrlAllowed($url)) {
             throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $url));
         }
 
         $response = $this->httpClient->fetch($url);
-
-        $do_content_extraction = true;
-        $extract_result = false;
-        $text_sample = null;
-        $permalink = $url;
-        $extracted_title = '';
 
         $effective_url = $response['effective_url'];
         if (!$this->isUrlAllowed($effective_url)) {
@@ -190,7 +190,7 @@ class Graby
 
         // Deal with multi-page articles
         //die('Next: '.$this->extractor->getNextPageUrl());
-        $is_multi_page = (!$is_single_page && $extract_result && $this->extractor->getNextPageUrl());
+        $is_multi_page = (!$is_single_page && $extract_result && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $is_multi_page) {
             // debug('--------');
             // debug('Attempting to process multi-page article');
@@ -260,7 +260,7 @@ class Graby
         }
 
         // if we failed to extract content...
-        if (!$extract_result) {
+        if (!$extract_result || null === $content_block) {
             return array(
                 'html' => $this->config['error_message'],
                 'title' => $extracted_title,
@@ -466,7 +466,7 @@ class Graby
         $single_page_url = $this->makeAbsoluteStr($url, $single_page_url);
 
         // check it's not what we have already!
-        if ($single_page_url != $url) {
+        if (false !== $single_page_url && $single_page_url != $url) {
             // it's not, so let's try to fetch it...
             return $this->httpClient->fetch($single_page_url);
         }
@@ -478,9 +478,9 @@ class Graby
      * Make an absolute url from an element.
      *
      * @param string     $base The base url
-     * @param DomElement $elem Element on which we'll retrieve the attribute
+     * @param \DOMNode $elem Element on which we'll retrieve the attribute
      */
-    private function makeAbsolute($base, $elem)
+    private function makeAbsolute($base, \DOMNode $elem)
     {
         $base = new \SimplePie_IRI($base);
 
@@ -498,7 +498,7 @@ class Graby
                 $this->makeAbsoluteAttr($base, $e, $attr);
             }
 
-            if (strtolower($elem->tagName) == $tag) {
+            if (strtolower($elem->nodeName) == $tag) {
                 $this->makeAbsoluteAttr($base, $elem, $attr);
             }
         }
@@ -508,12 +508,12 @@ class Graby
      * Make an attribute absolute (href or src).
      *
      * @param string     $base The base url
-     * @param DomElement $e    Element on which we'll retrieve the attribute
+     * @param \DOMNode $e    Element on which we'll retrieve the attribute
      * @param string     $attr Attribute that contains the url to absolutize
      */
-    private function makeAbsoluteAttr($base, \DomElement $e, $attr)
+    private function makeAbsoluteAttr($base, \DOMNode $e, $attr)
     {
-        if (!$e->hasAttribute($attr)) {
+        if (!$e->attributes->getNamedItem($attr)) {
             return;
         }
 
