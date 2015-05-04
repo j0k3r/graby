@@ -570,7 +570,9 @@ class Graby
             $more = ' &hellip;';
         }
 
-        $text = strip_tags($text);
+        // use regex instead of strip_tags to left some spaces when removing tags
+        $text = preg_replace('#<[^>]+>#', ' ', $text);
+
         // @todo: Check if word count is based on single characters (East Asian characters)
         /*
         if (1==2) {
