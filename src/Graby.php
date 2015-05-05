@@ -69,7 +69,7 @@ class Graby
     }
 
     /**
-     * Return a config
+     * Return a config.
      *
      * @param string $key
      *
@@ -477,7 +477,7 @@ class Graby
     /**
      * Make an absolute url from an element.
      *
-     * @param string     $base The base url
+     * @param string   $base The base url
      * @param \DOMNode $elem Element on which we'll retrieve the attribute
      */
     private function makeAbsolute($base, \DOMNode $elem)
@@ -507,9 +507,9 @@ class Graby
     /**
      * Make an attribute absolute (href or src).
      *
-     * @param string     $base The base url
+     * @param string   $base The base url
      * @param \DOMNode $e    Element on which we'll retrieve the attribute
-     * @param string     $attr Attribute that contains the url to absolutize
+     * @param string   $attr Attribute that contains the url to absolutize
      */
     private function makeAbsoluteAttr($base, \DOMNode $e, $attr)
     {

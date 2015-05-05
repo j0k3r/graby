@@ -88,11 +88,11 @@ class SiteConfig
     public $cache_key = null;
 
     /**
-     * Process HTML with tidy before creating DOM (bool or null if undeclared)
+     * Process HTML with tidy before creating DOM (bool or null if undeclared).
      *
-     * @param  boolean $use_default
+     * @param bool $use_default
      *
-     * @return boolean|null
+     * @return bool|null
      */
     public function tidy($use_default = true)
     {
@@ -104,11 +104,11 @@ class SiteConfig
     }
 
     /**
-     * Clean up content block - attempt to remove elements that appear to be superfluous
+     * Clean up content block - attempt to remove elements that appear to be superfluous.
      *
-     * @param  boolean $use_default
+     * @param bool $use_default
      *
-     * @return boolean|null
+     * @return bool|null
      */
     public function prune($use_default = true)
     {
@@ -120,9 +120,9 @@ class SiteConfig
     }
 
     /**
-     * Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib')
+     * Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib').
      *
-     * @param  boolean $use_default
+     * @param bool $use_default
      *
      * @return string|null
      */
@@ -138,9 +138,9 @@ class SiteConfig
     /**
      * Autodetect title/body if xpath expressions fail to produce results.
      *
-     * @param  boolean $use_default
+     * @param bool $use_default
      *
-     * @return boolean|null
+     * @return bool|null
      */
     public function autodetect_on_failure($use_default = true)
     {
