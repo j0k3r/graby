@@ -6,6 +6,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Readability\Readability;
 use Graby\SiteConfig\ConfigBuilder;
 use Graby\SiteConfig\SiteConfig;
+use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 /**
  * Content Extractor.
@@ -25,12 +27,16 @@ class ContentExtractor
     private $body = null;
     private $success = false;
     private $nextPageUrl = null;
-    private $debug = false;
+    private $logger;
     private $configBuilder = null;
 
     public $readability = null;
 
-    public function __construct($config = array(), $debug = false)
+    /**
+     * @param array                $config
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct($config = array(), LoggerInterface $logger = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
@@ -49,25 +55,13 @@ class ContentExtractor
 
         $this->config = $resolver->resolve($config);
 
-        // Set up Content Extractor
-        $this->configBuilder = new ConfigBuilder($this->config['config_builder'], $debug);
-
-        $this->debug = $debug;
-    }
-
-    protected function debug($msg)
-    {
-        /*
-        if ($this->debug) {
-            $mem = round(memory_get_usage() / 1024, 2);
-            $memPeak = round(memory_get_peak_usage() / 1024, 2);
-            echo '* ',$msg;
-            echo ' - mem used: ',$mem," (peak: $memPeak)";
-            echo "\n";
-            ob_flush();
-            flush();
+        $this->logger = $logger;
+        if (null === $logger) {
+            $this->logger = new NullLogger();
         }
-        */
+
+        // Set up Content Extractor
+        $this->configBuilder = new ConfigBuilder($this->config['config_builder'], $this->logger);
     }
 
     public function reset()
@@ -123,7 +117,7 @@ class ContentExtractor
 
         // is merged version already cached?
         if ($siteConfig = $this->configBuilder->getCachedVersion($host.'.merged')) {
-            // $this->debug("Returning cached and merged site config for $host");
+            $this->logger->log('debug', 'Returning cached and merged site config for '.$host);
 
             return $siteConfig;
         }
@@ -148,7 +142,7 @@ class ContentExtractor
                 $config_fingerprint = $this->configBuilder->build($_fphost);
 
                 if (!empty($this->config['fingerprints']) && false !== $config_fingerprint) {
-                    // $this->debug("Appending site config settings from $_fphost (fingerprint match)");
+                    $this->logger->log('debug', 'Appending site config settings from '.$_fphost.' (fingerprint match)');
                     $this->configBuilder->mergeConfig($config, $config_fingerprint);
 
                     if ($add_to_cache && !$this->configBuilder->getCachedVersion($_fphost)) {
@@ -161,7 +155,7 @@ class ContentExtractor
         // load global config?
         $config_global = $this->configBuilder->build('global', true);
         if ($config->autodetect_on_failure() && false !== $config_global) {
-            // $this->debug('Appending site config settings from global.txt');
+            $this->logger->log('debug', 'Appending site config settings from global.txt');
             $this->configBuilder->mergeConfig($config, $config_global);
 
             if ($add_to_cache && !$this->configBuilder->getCachedVersion('global')) {
@@ -203,9 +197,9 @@ class ContentExtractor
         if (!empty($this->siteConfig->find_string)) {
             if (count($this->siteConfig->find_string) == count($this->siteConfig->replace_string)) {
                 $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $_count);
-                // $this->debug("Strings replaced: $_count (find_string and/or replace_string)");
+                $this->logger->log('debug', 'Strings replaced: $_count (find_string and/or replace_string)');
             } else {
-                // $this->debug('Skipped string replacement - incorrect number of find-replace strings in site config');
+                $this->logger->log('debug', 'Skipped string replacement - incorrect number of find-replace strings in site config');
             }
             unset($_count);
         }
@@ -214,11 +208,11 @@ class ContentExtractor
         $parser = $this->siteConfig->parser();
 
         if (!in_array($parser, $this->config['allowed_parsers'])) {
-            // $this->debug("HTML parser $parser not listed, using ".$this->config['default_parser'].' instead');
+            $this->logger->log('debug', 'HTML parser '.$parser.' not listed, using '.$this->config['default_parser'].' instead');
             $parser = $this->config['default_parser'];
         }
 
-        // $this->debug("Attempting to parse HTML with $parser");
+        $this->logger->log('debug', 'Attempting to parse HTML with '.$parser);
         $this->readability = new Readability($html, $url, $parser, $this->siteConfig->tidy() && $smart_tidy);
         $tidied = $this->readability->tidied;
 
@@ -248,18 +242,18 @@ class ContentExtractor
 
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
-            $this->debug("Trying $pattern");
+            $this->logger->log('debug', 'Trying '.$pattern);
             $elems = $xpath->evaluate($pattern, $this->readability->dom);
 
             if (is_string($elems)) {
                 $this->title = trim($elems);
-                // $this->debug('Title expression evaluated as string: '.$this->title);
-                // $this->debug("...XPath match: $pattern");
+                $this->logger->log('debug', 'Title expression evaluated as string: '.$this->title);
+                $this->logger->log('debug', '...XPath match: $pattern');
                 break;
             } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 $this->title = $elems->item(0)->textContent;
-                // $this->debug('Title matched: '.$this->title);
-                // $this->debug("...XPath match: $pattern");
+                $this->logger->log('debug', 'Title matched: '.$this->title);
+                $this->logger->log('debug', '...XPath match: '.$pattern);
 
                 // remove title from document
                 try {
@@ -278,17 +272,17 @@ class ContentExtractor
 
                 if (is_string($elems) && trim($elems) != '') {
                     $this->author[] = trim($elems);
-                    // $this->debug('Author expression evaluated as string: '.trim($elems));
-                    // $this->debug("...XPath match: $pattern");
+                    $this->logger->log('debug', 'Author expression evaluated as string: '.trim($elems));
+                    $this->logger->log('debug', '...XPath match: '.$pattern);
                     break;
                 } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
                     foreach ($elems as $elem) {
                         $this->author[] = trim($elem->textContent);
-                        // $this->debug('Author matched: '.trim($elem->textContent));
+                        $this->logger->log('debug', 'Author matched: '.trim($elem->textContent));
                     }
 
                     if (!empty($this->author)) {
-                        // $this->debug("...XPath match: $pattern");
+                        $this->logger->log('debug', '...XPath match: '.$pattern);
                         break;
                     }
                 }
@@ -303,7 +297,7 @@ class ContentExtractor
             if ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 foreach ($elems as $elem) {
                     $this->language = trim($elem->textContent);
-                    // $this->debug('Language matched: '.$this->language);
+                    $this->logger->log('debug', 'Language matched: '.$this->language);
                 }
 
                 if (null !== $this->language) {
@@ -328,8 +322,8 @@ class ContentExtractor
             if (!$this->date) {
                 $this->date = null;
             } else {
-                // $this->debug('Date matched: '.date('Y-m-d H:i:s', $this->date));
-                // $this->debug("...XPath match: $pattern");
+                $this->logger->log('debug', 'Date matched: '.date('Y-m-d H:i:s', $this->date));
+                $this->logger->log('debug', '...XPath match: '.$pattern);
                 break;
             }
         }
@@ -340,7 +334,7 @@ class ContentExtractor
 
             // check for matches
             if ($elems && $elems->length > 0) {
-                // $this->debug('Stripping '.$elems->length.' elements (strip)');
+                $this->logger->log('debug', 'Stripping '.$elems->length.' elements (strip)');
                 for ($i = $elems->length - 1; $i >= 0; $i--) {
                     if ($elems->item($i)->parentNode) {
                         $elems->item($i)->parentNode->removeChild($elems->item($i));
@@ -356,7 +350,7 @@ class ContentExtractor
 
             // check for matches
             if ($elems && $elems->length > 0) {
-                // $this->debug('Stripping '.$elems->length.' elements (strip_id_or_class)');
+                $this->logger->log('debug', 'Stripping '.$elems->length.' elements (strip_id_or_class)');
                 for ($i = $elems->length - 1; $i >= 0; $i--) {
                     $elems->item($i)->parentNode->removeChild($elems->item($i));
                 }
@@ -381,7 +375,7 @@ class ContentExtractor
         $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' entry-unrelated ') or contains(concat(' ',normalize-space(@class),' '),' instapaper_ignore ')]", $this->readability->dom);
         // check for matches
         if ($elems && $elems->length > 0) {
-            // $this->debug('Stripping '.$elems->length.' .entry-unrelated,.instapaper_ignore elements');
+            $this->logger->log('debug', 'Stripping '.$elems->length.' .entry-unrelated,.instapaper_ignore elements');
             for ($i = $elems->length - 1; $i >= 0; $i--) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
@@ -392,7 +386,7 @@ class ContentExtractor
         $elems = $xpath->query("//*[contains(@style,'display:none') or contains(@style,'visibility:hidden')]", $this->readability->dom);
         // check for matches
         if ($elems && $elems->length > 0) {
-            // $this->debug('Stripping '.$elems->length.' elements with inline display:none or visibility:hidden style');
+            $this->logger->log('debug', 'Stripping '.$elems->length.' elements with inline display:none or visibility:hidden style');
             for ($i = $elems->length - 1; $i >= 0; $i--) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
@@ -407,21 +401,21 @@ class ContentExtractor
                 continue;
             }
 
-            // $this->debug('Body matched');
-            // $this->debug("...XPath match: $pattern, nb: ".$elems->length);
+            $this->logger->log('debug', 'Body matched');
+            $this->logger->log('debug', '...XPath match: $pattern, nb: '.$elems->length);
             if ($elems->length == 1) {
                 $this->body = $elems->item(0);
 
                 // prune (clean up elements that may not be content)
                 if ($this->siteConfig->prune()) {
-                    // $this->debug('...pruning content');
+                    $this->logger->log('debug', '...pruning content');
                     $this->readability->prepArticle($this->body);
                 }
                 break;
             } else {
                 $this->body = $this->readability->dom->createElement('div');
                 $len = 0;
-                // $this->debug($elems->length.' body elems found');
+                $this->logger->log('debug', $elems->length.' body elems found');
 
                 foreach ($elems as $elem) {
                     if (!isset($elem->parentNode)) {
@@ -438,11 +432,11 @@ class ContentExtractor
                     }
 
                     if ($isDescendant) {
-                        // $this->debug('...element is child of another body element, skipping.');
+                        $this->logger->log('debug', '...element is child of another body element, skipping.');
                     } else {
                         // prune (clean up elements that may not be content)
                         if ($this->siteConfig->prune()) {
-                            // $this->debug('...pruning content');
+                            $this->logger->log('debug', '...pruning content');
                             $this->readability->prepArticle($elem);
                         }
 
@@ -453,7 +447,7 @@ class ContentExtractor
                     }
                 }
 
-                // $this->debug('...'.$len.' elements added to body');
+                $this->logger->log('debug', '...'.$len.' elements added to body');
                 unset($len);
 
                 if ($this->body->hasChildNodes()) {
@@ -488,7 +482,7 @@ class ContentExtractor
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
             if ($elems && $elems->length > 0) {
-                // $this->debug('hNews: found hentry');
+                $this->logger->log('debug', 'hNews: found hentry');
                 $hentry = $elems->item(0);
 
                 if ($detect_title) {
@@ -497,7 +491,7 @@ class ContentExtractor
 
                     if ($elems && $elems->length > 0) {
                         $this->title = $elems->item(0)->textContent;
-                        // $this->debug('hNews: found entry-title: '.$this->title);
+                        $this->logger->log('debug', 'hNews: found entry-title: '.$this->title);
                         // remove title from document
                         $elems->item(0)->parentNode->removeChild($elems->item(0));
                         $detect_title = false;
@@ -514,7 +508,7 @@ class ContentExtractor
                         // remove date from document
                         //$elems->item(0)->parentNode->removeChild($elems->item(0));
                         if ($this->date) {
-                            // $this->debug('hNews: found publication date: '.date('Y-m-d H:i:s', $this->date));
+                            $this->logger->log('debug', 'hNews: found publication date: '.date('Y-m-d H:i:s', $this->date));
                         } else {
                             $this->date = null;
                         }
@@ -533,13 +527,13 @@ class ContentExtractor
                             foreach ($fn as $_fn) {
                                 if (trim($_fn->textContent) != '') {
                                     $this->author[] = trim($_fn->textContent);
-                                    // $this->debug('hNews: found author: '.trim($_fn->textContent));
+                                    $this->logger->log('debug', 'hNews: found author: '.trim($_fn->textContent));
                                 }
                             }
                         } else {
                             if (trim($author->textContent) != '') {
                                 $this->author[] = trim($author->textContent);
-                                // $this->debug('hNews: found author: '.trim($author->textContent));
+                                $this->logger->log('debug', 'hNews: found author: '.trim($author->textContent));
                             }
                         }
 
@@ -554,7 +548,7 @@ class ContentExtractor
                     $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' entry-content ')]", $hentry);
 
                     if ($elems && $elems->length > 0) {
-                        // $this->debug('hNews: found entry-content');
+                        $this->logger->log('debug', 'hNews: found entry-content');
                         if ($elems->length == 1) {
                             // what if it's empty? (some sites misuse hNews - place their content outside an empty entry-content element)
                             $e = $elems->item(0);
@@ -563,17 +557,17 @@ class ContentExtractor
                                 $this->body = $elems->item(0);
                                 // prune (clean up elements that may not be content)
                                 if ($this->siteConfig->prune()) {
-                                    // $this->debug('Pruning content');
+                                    $this->logger->log('debug', 'Pruning content');
                                     $this->readability->prepArticle($this->body);
                                 }
                                 $detect_body = false;
                             } else {
-                                // $this->debug('hNews: skipping entry-content - appears not to contain content');
+                                $this->logger->log('debug', 'hNews: skipping entry-content - appears not to contain content');
                             }
                             unset($e);
                         } else {
                             $this->body = $this->readability->dom->createElement('div');
-                            // $this->debug($elems->length.' entry-content elems found');
+                            $this->logger->log('debug', $elems->length.' entry-content elems found');
                             $len = 0;
 
                             foreach ($elems as $elem) {
@@ -590,11 +584,11 @@ class ContentExtractor
                                 }
 
                                 if ($isDescendant) {
-                                    // $this->debug('...element is child of another body element, skipping.');
+                                    $this->logger->log('debug', '...element is child of another body element, skipping.');
                                 } else {
                                     // prune (clean up elements that may not be content)
                                     if ($this->siteConfig->prune()) {
-                                        // $this->debug('...pruning content');
+                                        $this->logger->log('debug', '...pruning content');
                                         $this->readability->prepArticle($elem);
                                     }
 
@@ -605,7 +599,7 @@ class ContentExtractor
                                 }
                             }
 
-                            // $this->debug('...'.$len.' elements added to body');
+                            $this->logger->log('debug', '...'.$len.' elements added to body');
                             unset($len);
 
                             $detect_body = false;
@@ -622,7 +616,7 @@ class ContentExtractor
 
             if ($elems && $elems->length > 0) {
                 $this->title = $elems->item(0)->textContent;
-                // $this->debug('Title found (.instapaper_title): '.$this->title);
+                $this->logger->log('debug', 'Title found (.instapaper_title): '.$this->title);
                 // remove title from document
                 $elems->item(0)->parentNode->removeChild($elems->item(0));
                 $detect_title = false;
@@ -634,11 +628,11 @@ class ContentExtractor
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_body ')]", $this->readability->dom);
 
             if ($elems && $elems->length > 0) {
-                // $this->debug('body found (.instapaper_body)');
+                $this->logger->log('debug', 'body found (.instapaper_body)');
                 $this->body = $elems->item(0);
                 // prune (clean up elements that may not be content)
                 if ($this->siteConfig->prune()) {
-                    // $this->debug('Pruning content');
+                    $this->logger->log('debug', 'Pruning content');
                     $this->readability->prepArticle($this->body);
                 }
                 $detect_body = false;
@@ -650,7 +644,7 @@ class ContentExtractor
             $elems = $xpath->query("//*[@itemprop='articleBody']", $this->readability->dom);
 
             if ($elems && $elems->length > 0) {
-                // $this->debug('body found (Schema.org itemprop="articleBody")');
+                $this->logger->log('debug', 'body found (Schema.org itemprop="articleBody")');
                 if ($elems->length == 1) {
                     // what if it's empty? (content placed outside an empty itemprop='articleBody' element)
                     $e = $elems->item(0);
@@ -659,17 +653,17 @@ class ContentExtractor
                         $this->body = $elems->item(0);
                         // prune (clean up elements that may not be content)
                         if ($this->siteConfig->prune()) {
-                            // $this->debug('Pruning content');
+                            $this->logger->log('debug', 'Pruning content');
                             $this->readability->prepArticle($this->body);
                         }
                         $detect_body = false;
                     } else {
-                        // $this->debug('Schema.org: skipping itemprop="articleBody" - appears not to contain content');
+                        $this->logger->log('debug', 'Schema.org: skipping itemprop="articleBody" - appears not to contain content');
                     }
                     unset($e);
                 } else {
                     $this->body = $this->readability->dom->createElement('div');
-                    // $this->debug($elems->length.' itemprop="articleBody" elems found');
+                    $this->logger->log('debug', $elems->length.' itemprop="articleBody" elems found');
                     $len = 0;
 
                     foreach ($elems as $elem) {
@@ -686,11 +680,11 @@ class ContentExtractor
                         }
 
                         if ($isDescendant) {
-                            // $this->debug('...element is child of another body element, skipping.');
+                            $this->logger->log('debug', '...element is child of another body element, skipping.');
                         } else {
                             // prune (clean up elements that may not be content)
                             if ($this->siteConfig->prune()) {
-                                // $this->debug('...pruning content');
+                                $this->logger->log('debug', '...pruning content');
                                 $this->readability->prepArticle($elem);
                             }
 
@@ -701,7 +695,7 @@ class ContentExtractor
                         }
                     }
 
-                    // $this->debug('...'.$len.' elements added to body');
+                    $this->logger->log('debug', '...'.$len.' elements added to body');
                     unset($len);
 
                     $detect_body = false;
@@ -721,7 +715,7 @@ class ContentExtractor
                 $author = trim($elems->item(0)->textContent);
 
                 if ($author != '') {
-                    // $this->debug("Author found (rel=\"author\"): $author");
+                    $this->logger->log('debug', 'Author found (rel=\"author\"): $author');
                     $this->author[] = $author;
                 }
             }
@@ -739,7 +733,7 @@ class ContentExtractor
                 // remove date from document
                 //$elems->item(0)->parentNode->removeChild($elems->item(0));
                 if ($this->date) {
-                    // $this->debug('Date found (pubdate marked time element): '.date('Y-m-d H:i:s', $this->date));
+                    $this->logger->log('debug', 'Date found (pubdate marked time element): '.date('Y-m-d H:i:s', $this->date));
                 } else {
                     $this->date = null;
                 }
@@ -749,7 +743,7 @@ class ContentExtractor
         // still missing title or body, so we detect using Readability
         $success = false;
         if ($detect_title || $detect_body) {
-            // $this->debug('Using Readability');
+            $this->logger->log('debug', 'Using Readability');
             // clone body if we're only using Readability for title (otherwise it may interfere with body element)
             if (isset($this->body)) {
                 $this->body = $this->body->cloneNode(true);
@@ -759,11 +753,11 @@ class ContentExtractor
 
         if ($detect_title) {
             $this->title = $this->readability->getTitle()->textContent;
-            // $this->debug('Detected title '.$this->title);
+            $this->logger->log('debug', 'Detected title '.$this->title);
         }
 
         if ($detect_body && $success) {
-            // $this->debug('Detecting body');
+            $this->logger->log('debug', 'Detecting body');
             $this->body = $this->readability->getContent();
 
             if ($this->body->childNodes->length == 1 && $this->body->firstChild->nodeType === XML_ELEMENT_NODE) {
@@ -772,7 +766,7 @@ class ContentExtractor
 
             // prune (clean up elements that may not be content)
             if ($this->siteConfig->prune()) {
-                // $this->debug('Pruning content');
+                $this->logger->log('debug', 'Pruning content');
                 $this->readability->prepArticle($this->body);
             }
         }
@@ -840,7 +834,8 @@ class ContentExtractor
         if (!$this->success && $tidied && $smart_tidy) {
             unset($this->body, $xpath);
 
-            // $this->debug('Trying again without tidy');
+            $this->logger->log('debug', 'Trying again without tidy');
+
             return $this->process(
                 $this->readability->original_html,
                 $url,

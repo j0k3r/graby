@@ -64,7 +64,7 @@ This is the full documented configuration and also the default one.
 ```php
 $graby = new Graby(
     // Enable or disable debugging.
-    // This will only generate log information in a file
+    // This will only generate log information in a file (log/graby.log)
     'debug' => false,
     // If enabled relative URLs found in the extracted content are automatically rewritten as absolute URLs.
     'rewrite_relative_urls' => true,

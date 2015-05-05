@@ -3,15 +3,21 @@
 namespace Graby\SiteConfig;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 class ConfigBuilder
 {
-    private $debug = false;
+    private $logger = false;
     private $config = array();
     private $keySuffix = '';
     private $cache = array();
 
-    public function __construct($config = array(), $debug = false)
+    /**
+     * @param array                $config
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct($config = array(), LoggerInterface $logger = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
@@ -25,8 +31,6 @@ class ConfigBuilder
         $resolver->setRequired('site_config_custom');
         $this->config = $resolver->resolve($config);
 
-        $this->debug = $debug;
-
         // This is used to make sure that when a different primary folder is chosen
         // The key for the cached result includes that folder choice.
         // Otherwise, a subsequent request choosing a different folder
@@ -39,6 +43,11 @@ class ConfigBuilder
         $this->keySuffix = basename($this->config['site_config_custom']);
         if ($this->keySuffix === 'custom') {
             $this->keySuffix = '';
+        }
+
+        $this->logger = $logger;
+        if (null === $logger) {
+            $this->logger = new NullLogger();
         }
     }
 
@@ -62,7 +71,7 @@ class ConfigBuilder
         $key .= '.'.$this->keySuffix;
         $this->cache[$key] = $config;
 
-        // $this->debug("Cached site config with key $key");
+        $this->logger->log('debug', 'Cached site config with key '.$key);
     }
 
     /**
@@ -85,23 +94,6 @@ class ConfigBuilder
         }
 
         return false;
-    }
-
-    private function debug($msg)
-    {
-        /*
-        if (!$this->debug) {
-            return;
-        }
-
-        //$mem = round(memory_get_usage()/1024, 2);
-        //$memPeak = round(memory_get_peak_usage()/1024, 2);
-        echo '* ',$msg;
-        //echo ' - mem used: ',$mem," (peak: $memPeak)\n";
-        echo "\n";
-        ob_flush();
-        flush();
-        */
     }
 
     /**
@@ -152,14 +144,14 @@ class ConfigBuilder
         $matched_name = '';
 
         // look for site config file in primary folder
-        // $this->debug(". looking for site config for $host in primary folder");
+        $this->logger->log('debug', '. looking for site config for '.$host.' in primary folder');
         foreach ($try as $host) {
             if ($siteConfig = $this->getCachedVersion($host)) {
-                // $this->debug("... site config for $host already loaded in this request");
+                $this->logger->log('debug', '... site config for '.$host.' already loaded in this request');
 
                 return $siteConfig;
             } elseif (file_exists($this->config['site_config_custom'].'/'.$host.'.txt')) {
-                // $this->debug("... found site config ($host.txt)");
+                $this->logger->log('debug', '... found site config ('.$host.'.txt)');
                 $file_primary = $this->config['site_config_custom'].'/'.$host.'.txt';
                 $matched_name = $host;
                 break;
@@ -181,7 +173,7 @@ class ConfigBuilder
             // if autodetec on failure is off (on by default) we do not need to look
             // in secondary folder
             if (true !== $config->autodetect_on_failure()) {
-                // $this->debug('... autodetect on failure is disabled (no other site config files will be loaded)');
+                $this->logger->log('debug', '... autodetect on failure is disabled (no other site config files will be loaded)');
 
                 return $config;
             }
@@ -189,10 +181,10 @@ class ConfigBuilder
 
         // look for site config file in secondary folder
         if (isset($this->config['site_config_standard'])) {
-            // $this->debug(". looking for site config for $host in secondary folder");
+            $this->logger->log('debug', '. looking for site config for '.$host.' in secondary folder');
             foreach ($try as $host) {
                 if (file_exists($this->config['site_config_standard'].'/'.$host.'.txt')) {
-                    // $this->debug("... found site config in secondary folder ($host.txt)");
+                    $this->logger->log('debug', '... found site config in secondary folder ('.$host.'.txt)');
                     $file_secondary = $this->config['site_config_standard'].'/'.$host.'.txt';
                     $matched_name = $host;
                     break;
@@ -200,13 +192,13 @@ class ConfigBuilder
             }
 
             if (!isset($file_secondary)) {
-                // $this->debug('... no site config match in secondary folder');
+                $this->logger->log('debug', '... no site config match in secondary folder');
             }
         }
 
         // return false if no config file found
         if (!isset($file_primary) && !isset($file_secondary)) {
-            // $this->debug("... no site config match for $host");
+            $this->logger->log('debug', '... no site config match for '.$host);
 
             return false;
         }
@@ -225,7 +217,8 @@ class ConfigBuilder
 
         // merge with primary and return
         if (isset($config)) {
-            // $this->debug('. merging config files');
+            $this->logger->log('debug', '. merging config files');
+
             return $this->mergeConfig($config, $this->parseLines($config_lines));
         }
 

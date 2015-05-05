@@ -19,7 +19,8 @@
         "j0k3r/php-readability": "^1.0",
         "htmlawed/htmlawed": "^1.1.19",
         "symfony/options-resolver": "^2.6.6",
-        "neitanod/forceutf8": "^1.4"
+        "neitanod/forceutf8": "^1.4",
+        "monolog/monolog": "^1.13.1"
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
