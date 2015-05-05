@@ -15,19 +15,20 @@ use Graby\SiteConfig\SiteConfig;
  */
 class ContentExtractor
 {
-    private $html;
-    private $siteConfig;
-    private $title;
+    private $html = null;
+    private $config;
+    private $siteConfig = null;
+    private $title = null;
     private $author = array();
-    private $language;
-    private $date;
-    private $body;
+    private $language = null;
+    private $date = null;
+    private $body = null;
     private $success = false;
-    private $nextPageUrl;
+    private $nextPageUrl = null;
     private $debug = false;
     private $configBuilder = null;
 
-    public $readability;
+    public $readability = null;
 
     public function __construct($config = array(), $debug = false)
     {
@@ -134,41 +135,44 @@ class ContentExtractor
         }
 
         // if no match, use defaults
-        if (!$config) {
+        if (false === $config) {
             $config = $this->configBuilder->create();
         }
 
         // load fingerprint config?
         if ($config->autodetect_on_failure()) {
             // check HTML for fingerprints
-            if (!empty($this->config['fingerprints']) && ($_fphost = $this->findHostUsingFingerprints($html)) && ($config_fingerprint = $this->configBuilder->build($_fphost))) {
-                // $this->debug("Appending site config settings from $_fphost (fingerprint match)");
-                $this->configBuilder->mergeConfig($config, $config_fingerprint);
+            $_fphost = $this->findHostUsingFingerprints($html);
 
-                if ($add_to_cache && !$this->configBuilder->getCachedVersion($_fphost)) {
-                    //$config_fingerprint->cache_in_apc = true;
-                    $this->configBuilder->addToCache($_fphost, $config_fingerprint);
+            if (false !== $_fphost) {
+                $config_fingerprint = $this->configBuilder->build($_fphost);
+
+                if (!empty($this->config['fingerprints']) && false !== $config_fingerprint) {
+                    // $this->debug("Appending site config settings from $_fphost (fingerprint match)");
+                    $this->configBuilder->mergeConfig($config, $config_fingerprint);
+
+                    if ($add_to_cache && !$this->configBuilder->getCachedVersion($_fphost)) {
+                        $this->configBuilder->addToCache($_fphost, $config_fingerprint);
+                    }
                 }
             }
         }
 
         // load global config?
-        if ($config->autodetect_on_failure() && ($config_global = $this->configBuilder->build('global', true))) {
+        $config_global = $this->configBuilder->build('global', true);
+        if ($config->autodetect_on_failure() && false !== $config_global) {
             // $this->debug('Appending site config settings from global.txt');
             $this->configBuilder->mergeConfig($config, $config_global);
 
             if ($add_to_cache && !$this->configBuilder->getCachedVersion('global')) {
-                //$config_global->cache_in_apc = true;
                 $this->configBuilder->addToCache('global', $config_global);
             }
         }
 
         // store copy of merged config
         if ($add_to_cache) {
-            // do not store in APC if wildcard match
-            $use_apc = ($host == $config->cache_key);
             $config->cache_key = null;
-            $this->configBuilder->addToCache("$host.merged", $config, $use_apc);
+            $this->configBuilder->addToCache("$host.merged", $config);
         }
 
         return $config;
@@ -302,7 +306,7 @@ class ContentExtractor
                     // $this->debug('Language matched: '.$this->language);
                 }
 
-                if ($this->language) {
+                if (null !== $this->language) {
                     break;
                 }
             }
@@ -511,7 +515,6 @@ class ContentExtractor
                         //$elems->item(0)->parentNode->removeChild($elems->item(0));
                         if ($this->date) {
                             // $this->debug('hNews: found publication date: '.date('Y-m-d H:i:s', $this->date));
-                            $detect_date = false;
                         } else {
                             $this->date = null;
                         }
@@ -556,7 +559,7 @@ class ContentExtractor
                             // what if it's empty? (some sites misuse hNews - place their content outside an empty entry-content element)
                             $e = $elems->item(0);
 
-                            if ((strtolower($e->tagName) == 'img') || (trim($e->textContent) != '')) {
+                            if ((strtolower($e->nodeName) == 'img') || (trim($e->textContent) != '')) {
                                 $this->body = $elems->item(0);
                                 // prune (clean up elements that may not be content)
                                 if ($this->siteConfig->prune()) {
@@ -652,7 +655,7 @@ class ContentExtractor
                     // what if it's empty? (content placed outside an empty itemprop='articleBody' element)
                     $e = $elems->item(0);
 
-                    if ((strtolower($e->tagName) == 'img') || (trim($e->textContent) != '')) {
+                    if ((strtolower($e->nodeName) == 'img') || (trim($e->textContent) != '')) {
                         $this->body = $elems->item(0);
                         // prune (clean up elements that may not be content)
                         if ($this->siteConfig->prune()) {
@@ -720,7 +723,6 @@ class ContentExtractor
                 if ($author != '') {
                     // $this->debug("Author found (rel=\"author\"): $author");
                     $this->author[] = $author;
-                    $detect_author = false;
                 }
             }
         }
@@ -738,7 +740,6 @@ class ContentExtractor
                 //$elems->item(0)->parentNode->removeChild($elems->item(0));
                 if ($this->date) {
                     // $this->debug('Date found (pubdate marked time element): '.date('Y-m-d H:i:s', $this->date));
-                    $detect_date = false;
                 } else {
                     $this->date = null;
                 }
@@ -746,6 +747,7 @@ class ContentExtractor
         }
 
         // still missing title or body, so we detect using Readability
+        $success = false;
         if ($detect_title || $detect_body) {
             // $this->debug('Using Readability');
             // clone body if we're only using Readability for title (otherwise it may interfere with body element)
@@ -837,8 +839,14 @@ class ContentExtractor
         // that tidy has messed up. So let's try again without tidy...
         if (!$this->success && $tidied && $smart_tidy) {
             unset($this->body, $xpath);
+
             // $this->debug('Trying again without tidy');
-            return $this->process($this->readability->original_html, $url, $this->siteConfig, false);
+            return $this->process(
+                $this->readability->original_html,
+                $url,
+                $this->siteConfig,
+                false
+            );
         }
 
         return $this->success;

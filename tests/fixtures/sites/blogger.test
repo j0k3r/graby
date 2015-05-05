@@ -7,7 +7,7 @@ text/html; charset=UTF-8
 -----TITLE-----
 Next Generation MongoDB Driver for PHP!
 -----SUMMARY-----
-For the past few months I've been working on a "next-gen" MongoDB driver for PHP -- codename "phongo".The aim was to build a new PHP extension ontop of the mongoc and libbson libraries to reduce maintenance of the extension itself and focus more on providing the ecosystem with improved support and libraries. The new driver &hellip;
+For the past few months I've been working on a "next-gen" MongoDB driver for PHP -- codename " phongo ". The aim was to build a new PHP extension ontop of the mongoc and libbson libraries to reduce maintenance of the extension itself and focus more on providing the ecosystem with improved support and libraries. &hellip;
 -----RAW_CONTENT-----
 <!DOCTYPE html>
 <HTML class="v2" dir="ltr"><HEAD>
