@@ -8,15 +8,18 @@ use Readability\Readability;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
 use ForceUTF8\Encoding;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Psr\Log\NullLogger;
 
 /**
  * @todo add proxy
  * @todo add cache
- * @todo add logger
  */
 class Graby
 {
     private $debug = false;
+    private $logger;
 
     private $config = array();
 
@@ -56,15 +59,21 @@ class Graby
         $this->config = $resolver->resolve($config);
 
         $this->debug = (bool) $this->config['debug'];
+        $this->logger = new NullLogger();
+
+        if ($this->debug) {
+            $this->logger = new Logger('graby');
+            $this->logger->pushHandler(new StreamHandler(dirname(__FILE__).'/../log/graby.log'));
+        }
 
         $this->extractor = new ContentExtractor(
             $this->config['extractor'],
-            $this->config['debug']
+            $this->logger
         );
         $this->httpClient = new HttpClient(
             $client ?: new Client(),
             $this->config['http_client'],
-            $this->config['debug']
+            $this->logger
         );
     }
 
@@ -99,7 +108,7 @@ class Graby
 
         // filter xss?
         if ($this->config['xss_filter']) {
-            // debug('Filtering HTML to remove XSS');
+            $this->logger->log('debug', 'Filtering HTML to remove XSS');
             $html = htmLawed($html, array(
                 'safe' => 1,
                 'deny_attribute' => 'style',
@@ -171,13 +180,13 @@ class Graby
             }
 
             $html = Encoding::toUTF8($single_page_response['body']);
-            // debug("Retrieved single-page view from $effective_url");
+            $this->logger->log('debug', "Retrieved single-page view from $effective_url");
 
             unset($single_page_response);
         }
 
-        // debug('--------');
-        // debug('Attempting to extract content');
+        $this->logger->log('debug', '--------');
+        $this->logger->log('debug', 'Attempting to extract content');
         $extract_result = $this->extractor->process($html, $effective_url);
         $readability = $this->extractor->readability;
 
@@ -192,25 +201,25 @@ class Graby
         //die('Next: '.$this->extractor->getNextPageUrl());
         $is_multi_page = (!$is_single_page && $extract_result && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $is_multi_page) {
-            // debug('--------');
-            // debug('Attempting to process multi-page article');
+            $this->logger->log('debug', '--------');
+            $this->logger->log('debug', 'Attempting to process multi-page article');
             $multi_page_urls = array();
             $multi_page_content = array();
 
             while ($next_page_url = $this->extractor->getNextPageUrl()) {
-                // debug('--------');
-                // debug('Processing next page: '.$next_page_url);
+                $this->logger->log('debug', '--------');
+                $this->logger->log('debug', 'Processing next page: '.$next_page_url);
                 // If we've got URL, resolve against $url
                 $next_page_url = $this->makeAbsoluteStr($effective_url, $next_page_url);
                 if (!$next_page_url) {
-                    // debug('Failed to resolve against '.$effective_url);
+                    $this->logger->log('debug', 'Failed to resolve against '.$effective_url);
                     $multi_page_content = array();
                     break;
                 }
 
                 // check it's not what we have already!
                 if (in_array($next_page_url, $multi_page_urls)) {
-                    // debug('URL already processed');
+                    $this->logger->log('debug', 'URL already processed');
                     $multi_page_content = array();
                     break;
                 }
@@ -224,7 +233,7 @@ class Graby
                 $mimeInfo = $this->getMimeActionInfo($response['headers']);
 
                 if (isset($mimeInfo['action'])) {
-                    // debug('MIME type requires different action');
+                    $this->logger->log('debug', 'MIME type requires different action');
                     $multi_page_content = array();
                     break;
                 }
@@ -235,7 +244,7 @@ class Graby
                 );
 
                 if (!$extracSuccess) {
-                    // debug('Failed to extract content');
+                    $this->logger->log('debug', 'Failed to extract content');
                     $multi_page_content = array();
                     break;
                 }
@@ -245,7 +254,7 @@ class Graby
 
             // did we successfully deal with this multi-page article?
             if (empty($multi_page_content)) {
-                // debug('Failed to extract all parts of multi-page article, so not going to include them');
+                $this->logger->log('debug', 'Failed to extract all parts of multi-page article, so not going to include them');
                 $_page = $readability->dom->createElement('p');
                 $_page->innerHTML = '<em>This article appears to continue on subsequent pages which we could not extract</em>';
                 $multi_page_content[] = $_page;
@@ -314,7 +323,8 @@ class Graby
             $html = preg_replace('!</?a[^>]*>!', '', $html);
         }
 
-        // debug('Done!');
+        $this->logger->log('debug', 'Done!');
+
         return array(
             'html' => $html,
             'title' => $extracted_title,
@@ -424,7 +434,7 @@ class Graby
      */
     private function getSinglePage($html, $url)
     {
-        // debug('Looking for site config files to see if single page link exists');
+        $this->logger->log('debug', 'Looking for site config files to see if single page link exists');
         $site_config = $this->extractor->buildSiteConfig($url, $html);
 
         // no single page found?

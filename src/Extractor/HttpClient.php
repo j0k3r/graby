@@ -5,6 +5,8 @@ namespace Graby\Extractor;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 /**
  * HttpClient will make sure to retrieve the right content with the right url.
@@ -15,12 +17,14 @@ class HttpClient
 {
     private $config = array();
     private $httpClient = null;
+    private $logger = null;
 
     /**
-     * @param Client $client Guzzle client
-     * @param array  $config
+     * @param Client               $client Guzzle client
+     * @param array                $config
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(Client $client, $config = array(), $debug = false)
+    public function __construct(Client $client, $config = array(), LoggerInterface $logger = null)
     {
         $this->httpClient = $client;
 
@@ -72,6 +76,11 @@ class HttpClient
         ));
 
         $this->config = $resolver->resolve($config);
+
+        $this->logger = $logger;
+        if (null === $logger) {
+            $this->logger = new NullLogger();
+        }
     }
 
     /**
@@ -291,7 +300,8 @@ class HttpClient
         $redirect_url = trim($match[1]);
         if (preg_match('!^https?://!i', $redirect_url)) {
             // already absolute
-            // $this->debug('Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirect_url);
+            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirect_url);
+
             return $redirect_url;
         }
 
@@ -303,7 +313,8 @@ class HttpClient
         }
 
         if ($absolute = \SimplePie_IRI::absolutize($base, $redirect_url)) {
-            // $this->debug('Meta refresh redirect found (http-equiv="refresh"), new URL: '.$absolute);
+            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$absolute);
+
             return $absolute->get_iri();
         }
 
