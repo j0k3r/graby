@@ -135,6 +135,7 @@ class HttpClient
                     // add referer for picky sites
                     'Referer' => $this->config['default_referer'],
                 ),
+                'cookies' => true,
             )
         );
 

@@ -68,7 +68,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($urlRewritten),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -111,7 +111,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -157,7 +157,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -166,7 +166,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -309,7 +309,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
