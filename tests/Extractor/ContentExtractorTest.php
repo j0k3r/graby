@@ -12,14 +12,13 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         self::$contentExtractorConfig = array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../fixtures/site_config/custom',
-            'site_config_standard' => dirname(__FILE__).'/../fixtures/site_config/standard',
+            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
         ));
     }
 
     public function testConstructDefault()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array('site_config_custom' => dirname(__FILE__))));
+        $contentExtractor = new ContentExtractor(array('config_builder' => array('site_config' => array(dirname(__FILE__)))));
         $contentExtractor->reset();
 
         $this->assertEquals(null, $contentExtractor->getContent());
@@ -37,7 +36,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function testFingerPrints()
     {
         $contentExtractor = new ContentExtractor(array(
-            'config_builder' => array('site_config_custom' => dirname(__FILE__)),
+            'config_builder' => array('site_config' => array(dirname(__FILE__))),
         ));
 
         $res = $contentExtractor->findHostUsingFingerprints('');
@@ -50,22 +49,17 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * With a non-existent config, SiteConfig is empty.
+     * With a non-existent config directory, it fails
+     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage directory does not exist
      */
     public function testBuildSiteConfigUnknownSite()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            'site_config_standard' => dirname(__FILE__),
+            'site_config' => array(dirname(__FILE__).'/../../site_config')
         )));
-        $res = $contentExtractor->buildSiteConfig('http://0.0.0.0');
-
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
-
-        // everything is empty because the standard config folder was wrong, otherwise, the global.txt file will load some data
-        foreach (array('title', 'body', 'author', 'date', 'strip', 'strip_id_or_class', 'strip_image_src', 'http_header', 'test_url', 'single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
-            $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
-        }
+        $contentExtractor->buildSiteConfig('http://0.0.0.0');
     }
 
     /**
