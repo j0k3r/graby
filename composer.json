@@ -1,5 +1,6 @@
 {
     "name": "j0k3r/graby",
+    "description": "Graby helps you extract article content from web pages",
     "license": "AGPL-3.0",
     "authors": [{
         "name": "Jeremy Benoist",
@@ -19,10 +20,25 @@
         "j0k3r/php-readability": "^1.0",
         "htmlawed/htmlawed": "^1.1.19",
         "symfony/options-resolver": "^2.6.6",
+        "symfony/finder": "^2.6.6",
         "neitanod/forceutf8": "^1.4",
-        "monolog/monolog": "^1.13.1"
+        "monolog/monolog": "^1.13.1",
+        "fivefilters/ftr-site-config": "*"
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
-    }
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "fivefilters/ftr-site-config",
+                "version": "dev-master",
+                "dist": {
+                    "url": "https://github.com/fivefilters/ftr-site-config/archive/master.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    ]
 }
