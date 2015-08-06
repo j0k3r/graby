@@ -171,10 +171,8 @@ $graby = new Graby(
             '/\<meta\s*name=\"generator\"\s*content=\"WordPress/i' => 'fingerprint.wordpress.com',
         ),
         'config_builder' => array(
-            // Directory path to the standard config folder WITHOUT trailing slash
-            'site_config_custom' => dirname(__FILE__).'/../../site_config/custom',
-            // Fallback directory path (the custom one) WITHOUT trailing slash
-            'site_config_standard' => dirname(__FILE__).'/../../site_config/standard',
+            // Directory path to site config folder WITHOUT trailing slash
+            'site_config' => dirname(__FILE__).'/../../site_config',
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ),
     ),
