@@ -23,22 +23,9 @@
         "symfony/finder": "^2.6.6",
         "neitanod/forceutf8": "^1.4",
         "monolog/monolog": "^1.13.1",
-        "fivefilters/ftr-site-config": "*"
+        "j0k3r/graby-site-config": "*"
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
-    },
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "fivefilters/ftr-site-config",
-                "version": "dev-master",
-                "dist": {
-                    "url": "https://github.com/fivefilters/ftr-site-config/archive/master.zip",
-                    "type": "zip"
-                }
-            }
-        }
-    ]
+    }
 }
