@@ -27,5 +27,9 @@
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
+    },
+    "scripts": {
+        "post-update-cmd": "Graby\\Composer\\Script::postUpdate",
+        "post-install-cmd": "Graby\\Composer\\Script::postUpdate"
     }
 }

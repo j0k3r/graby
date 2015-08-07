@@ -23,7 +23,7 @@ class ConfigBuilder
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
             // Directory path to the site config folder WITHOUT trailing slash
-            'site_config' => array(dirname(__FILE__).'/../../vendor/j0k3r/graby-site-config'),
+            'site_config' => array(dirname(__FILE__).'/../../site_config'),
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ));
 

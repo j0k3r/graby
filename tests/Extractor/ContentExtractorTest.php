@@ -57,7 +57,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function testBuildSiteConfigUnknownSite()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/../../site_config')
+            'site_config' => array(dirname(__FILE__).'/../../wrong_site_config')
         )));
         $contentExtractor->buildSiteConfig('http://0.0.0.0');
     }
