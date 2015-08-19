@@ -44,7 +44,7 @@ $result = $graby->fetchContent($article);
 
 var_dump($result);
 /*
-array(4) {
+array(6) {
   'html' =>
   string() "Fetched and readable content"
   'title' =>
@@ -53,6 +53,17 @@ array(4) {
   string() "http://www.bbc.com/news/entertainment-arts-32547474"
   'content_type' =>
   string() "text/html"
+  'open_graph' =>
+    array (9)
+      'og_title' => string 'Ben E King: R&B legend dies at 76 - BBC News'
+      'og_type' => string 'article'
+      'og_description' => string 'R&B and soul singer Ben E King, best known for the classic song Stand By Me, dies at the age of 76.'
+      'og_site_name' => string 'BBC News'
+      'og_locale' => string 'en_GB'
+      'og_article_author' => string 'BBC News'
+      'og_article_section' => string 'Entertainment & Arts'
+      'og_url' => string 'http://www.bbc.com/news/entertainment-arts-32547474'
+      'og_image' => string 'http://ichef-1.bbci.co.uk/news/1024/media/images/82695000/jpg/_82695869_kingap.jpg'
   'summary' =>
   string() "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
 }

@@ -634,7 +634,7 @@ class Graby
      */
     private function extractOpenGraph($html)
     {
-        if (empty(trim($html))) {
+        if ('' === trim($html)) {
             return array();
         }
 
