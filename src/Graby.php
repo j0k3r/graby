@@ -164,6 +164,8 @@ class Graby
 
         $html = Encoding::toUTF8($response['body']);
 
+        $ogData = $this->extractOpenGraph($html);
+
         // @TODO: log raw html + headers
 
         // check site config for single page URL - fetch it if found
@@ -275,6 +277,7 @@ class Graby
                 'title' => $extracted_title,
                 'url' => $effective_url,
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
+                'open_graph' => $ogData,
             );
         }
 
@@ -331,6 +334,7 @@ class Graby
             'title' => $extracted_title,
             'url' => $effective_url,
             'content_type' => $mimeInfo['mime'],
+            'open_graph' => $ogData,
         );
     }
 
@@ -423,6 +427,7 @@ class Graby
                     'html' => $html,
                     'url' => $effective_url,
                     'content_type' => $mimeInfo['mime'],
+                    'open_graph' => array(),
                 );
         }
 
@@ -616,5 +621,38 @@ class Graby
         $text = preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $text);
 
         return $text;
+    }
+
+    /**
+     * Extract OpenGraph data from the response
+     *
+     * @param  string $html
+     *
+     * @return array
+     * @see  http://stackoverflow.com/a/7454737/569101
+     */
+    private function extractOpenGraph($html)
+    {
+        if (empty(trim($html))) {
+            return array();
+        }
+
+        libxml_use_internal_errors(true);
+
+        $doc = new \DomDocument();
+        $doc->loadHTML($html);
+
+        libxml_use_internal_errors(false);
+
+        $xpath = new \DOMXPath($doc);
+        $query = '//*/meta[starts-with(@property, \'og:\')]';
+        $metas = $xpath->query($query);
+
+        $rmetas = array();
+        foreach ($metas as $meta) {
+            $rmetas[str_replace(':', '_', $meta->getAttribute('property'))] = $meta->getAttribute('content');
+        }
+
+        return $rmetas;
     }
 }
