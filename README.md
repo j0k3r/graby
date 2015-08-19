@@ -51,6 +51,8 @@ array(4) {
   string() "Ben E King: R&B legend dies at 76"
   'url' =>
   string() "http://www.bbc.com/news/entertainment-arts-32547474"
+  'content_type' =>
+  string() "text/html"
   'summary' =>
   string() "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
 }
