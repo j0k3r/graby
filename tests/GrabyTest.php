@@ -107,10 +107,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent($url);
 
+        $this->assertCount(5, $res);
         $this->assertEquals($urlEffective, $res['url'], 'Same url');
         $this->assertEquals($title, $res['title'], 'Same title');
         $this->assertEquals($summary, $res['summary'], 'Same summary');
         $this->assertEquals($parsedContent, $res['html'], 'Same html');
+        $this->assertEquals('text/html', $res['content_type']);
     }
 
     public function dataForAllowed()
@@ -228,10 +230,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('Image', $res['title']);
         $this->assertEquals('<a href="http://lexpress.io"><img src="http://lexpress.io" alt="Image" /></a>', $res['html']);
         $this->assertEquals('http://lexpress.io', $res['url']);
         $this->assertEmpty($res['summary']);
+        $this->assertEquals('image/jpeg', $res['content_type']);
     }
 
     /**
@@ -270,12 +274,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ),
         ), $client);
 
-        $res = $graby->fetchContent('http://lexpress.io/virus.exe');
-
-        $this->assertEquals('Image', $res['title']);
-        $this->assertEquals('<a href="http://lexpress.io"><img src="http://lexpress.io" alt="Image" /></a>', $res['html']);
-        $this->assertEquals('http://lexpress.io', $res['url']);
-        $this->assertEmpty($res['summary']);
+        $graby->fetchContent('http://lexpress.io/virus.exe');
     }
 
     public function dataForExtension()
@@ -315,10 +314,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent($url);
 
+        $this->assertCount(5, $res);
         $this->assertEquals($title, $res['title']);
         $this->assertEquals($html, $res['html']);
         $this->assertEquals($url, $res['url']);
         $this->assertEquals($summary, $res['summary']);
+        $this->assertEquals($header, $res['content_type']);
     }
 
     public function dataForSinglePage()
@@ -372,10 +373,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('my title', $res['title']);
         $this->assertEquals('my content', $res['html']);
         $this->assertEquals('http://'.$url, $res['url']);
         $this->assertEquals('my content', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
     }
 
     public function testSinglePageMimeAction()
@@ -415,10 +418,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('PDF', $res['title']);
         $this->assertEquals('<a href="http://singlepage1.com/data.pdf">Download PDF</a>', $res['html']);
         $this->assertEquals('http://singlepage1.com/data.pdf', $res['url']);
         $this->assertEquals('Download PDF', $res['summary']);
+        $this->assertEquals('application/pdf', $res['content_type']);
     }
 
     public function testMultiplePageOk()
@@ -456,9 +461,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('my title', $res['title']);
         $this->assertEquals('my content<div id="story">my content</div>', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
+        $this->assertEquals('my content my content', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
     }
 
     public function testMultiplePageMimeAction()
@@ -501,9 +509,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
+        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertEquals('application/pdf', $res['content_type']);
     }
 
     public function testMultiplePageExtractFailed()
@@ -541,9 +552,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
+        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
     }
 
     public function testMultiplePageBadAbsoluteUrl()
@@ -581,9 +595,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
+        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
     }
 
     public function testMultiplePageSameUrl()
@@ -621,9 +638,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
+        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
     }
 
     public function dataForExcerpt()
@@ -796,9 +816,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
+        $this->assertEquals('', $res['title']);
         $this->assertEquals('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
         $this->assertEquals('http://removelinks.io', $res['url']);
         $this->assertEquals('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some &hellip;', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
     }
 
     public function testMimeActionNotDefined()
@@ -827,9 +850,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
+        $this->assertCount(5, $res);
         $this->assertEquals('', $res['title']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
         $this->assertEquals('http://lexpress.io', $res['url']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['summary']);
+        $this->assertEquals('application/pdf', $res['content_type']);
     }
 }
