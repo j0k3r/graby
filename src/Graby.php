@@ -274,6 +274,7 @@ class Graby
                 'html' => $this->config['error_message'],
                 'title' => $extracted_title,
                 'url' => $effective_url,
+                'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
             );
         }
 
@@ -329,6 +330,7 @@ class Graby
             'html' => $html,
             'title' => $extracted_title,
             'url' => $effective_url,
+            'content_type' => $mimeInfo['mime'],
         );
     }
 
@@ -365,7 +367,9 @@ class Graby
     private function getMimeActionInfo($headers)
     {
         // check if action defined for returned Content-Type
-        $info = array();
+        $info = array(
+            'mime' => '',
+        );
         if (preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($headers), $match)) {
             // look for full mime type (e.g. image/jpeg) or just type (e.g. image)
             // match[1] = full mime type, e.g. image/jpeg
@@ -418,6 +422,7 @@ class Graby
                     'title' => $mimeInfo['name'],
                     'html' => $html,
                     'url' => $effective_url,
+                    'content_type' => $mimeInfo['mime'],
                 );
         }
 
