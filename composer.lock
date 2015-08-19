@@ -241,16 +241,16 @@
         },
         {
             "name": "j0k3r/php-readability",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/j0k3r/php-readability.git",
-                "reference": "8667dae74b7c39eac5642fc0f41c96ae42051978"
+                "reference": "91b80b70e2193fb852d96daf1fe17303876881dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/j0k3r/php-readability/zipball/8667dae74b7c39eac5642fc0f41c96ae42051978",
-                "reference": "8667dae74b7c39eac5642fc0f41c96ae42051978",
+                "url": "https://api.github.com/repos/j0k3r/php-readability/zipball/91b80b70e2193fb852d96daf1fe17303876881dc",
+                "reference": "91b80b70e2193fb852d96daf1fe17303876881dc",
                 "shasum": ""
             },
             "require": {
@@ -300,20 +300,20 @@
                 "extraction",
                 "html"
             ],
-            "time": "2015-06-11 07:39:26"
+            "time": "2015-08-19 21:12:31"
         },
         {
             "name": "monolog/monolog",
-            "version": "1.15.0",
+            "version": "1.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "dc5150cc608f2334c72c3b6a553ec9668a4156b0"
+                "reference": "c0c0b4bee3aabce7182876b0d912ef2595563db7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/dc5150cc608f2334c72c3b6a553ec9668a4156b0",
-                "reference": "dc5150cc608f2334c72c3b6a553ec9668a4156b0",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/c0c0b4bee3aabce7182876b0d912ef2595563db7",
+                "reference": "c0c0b4bee3aabce7182876b0d912ef2595563db7",
                 "shasum": ""
             },
             "require": {
@@ -350,7 +350,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.15.x-dev"
+                    "dev-master": "1.16.x-dev"
                 }
             },
             "autoload": {
@@ -376,7 +376,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2015-07-12 13:54:09"
+            "time": "2015-08-09 17:44:44"
         },
         {
             "name": "neitanod/forceutf8",

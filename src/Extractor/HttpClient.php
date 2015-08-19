@@ -16,7 +16,7 @@ use Psr\Log\LoggerInterface;
 class HttpClient
 {
     private $config = array();
-    private $httpClient = null;
+    private $client = null;
     private $logger = null;
 
     /**
@@ -26,7 +26,7 @@ class HttpClient
      */
     public function __construct(Client $client, $config = array(), LoggerInterface $logger = null)
     {
-        $this->httpClient = $client;
+        $this->client = $client;
 
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
@@ -127,7 +127,7 @@ class HttpClient
             $method = 'head';
         }
 
-        $response = $this->httpClient->$method(
+        $response = $this->client->$method(
             $url,
             array(
                 'headers' => array(
@@ -170,7 +170,7 @@ class HttpClient
         }
 
         // try {
-        //     $response = $this->httpClient->get($url);
+        //     $response = $this->client->get($url);
         //     $effectiveUrl = $response->getEffectiveUrl();
         // } catch (RequestException $e) {
         //     // catch timeout, ssl verification that failed, etc ...
