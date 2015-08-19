@@ -3,9 +3,9 @@
 namespace Graby\SiteConfig;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Finder\Finder;
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
+use GrabySiteConfig\SiteConfig\Files;
 
 class ConfigBuilder
 {
@@ -23,7 +23,7 @@ class ConfigBuilder
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
             // Directory path to the site config folder WITHOUT trailing slash
-            'site_config' => array(dirname(__FILE__).'/../../site_config'),
+            'site_config' => array(),
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ));
 
@@ -37,21 +37,7 @@ class ConfigBuilder
             $this->logger = new NullLogger();
         }
 
-        // we add the data dir by default because it contains the "global.txt" file with global rules
-        // that can be applied to every website
-        $dirs = array_merge($this->config['site_config'], array(dirname(__FILE__).'/../../data'));
-
-        // load config files
-        $finder = new Finder();
-        $finder->files()
-            ->sortByName()
-            ->ignoreDotFiles(false)
-            ->name('/\.txt$/')
-            ->in($dirs);
-
-        foreach ($finder as $files) {
-            $this->configFiles[$files->getRelativePathname()] = $files->getRealpath();
-        }
+        $this->configFiles = Files::getFiles($this->config['site_config']);
     }
 
     /**
@@ -148,10 +134,10 @@ class ConfigBuilder
         // look for site config file in primary folder
         $this->logger->log('debug', '. looking for site config for '.$host.' in primary folder');
         foreach ($try as $host) {
-            if ($siteConfig = $this->getCachedVersion($host)) {
+            if ($config = $this->getCachedVersion($host)) {
                 $this->logger->log('debug', '... site config for '.$host.' already loaded in this request');
 
-                return $siteConfig;
+                return $config;
             } elseif (isset($this->configFiles[$host.'.txt'])) {
                 $this->logger->log('debug', '... found site config ('.$host.'.txt)');
                 $file_primary = $this->configFiles[$host.'.txt'];
@@ -159,6 +145,8 @@ class ConfigBuilder
                 break;
             }
         }
+
+        $config = new SiteConfig();
 
         // if we found site config, process it
         if (isset($file_primary)) {
@@ -171,14 +159,18 @@ class ConfigBuilder
 
             $config = $this->parseLines($config_lines);
             $config->cache_key = $matched_name;
-
-            return $config;
         }
 
-        // return false if no config file found
-        $this->logger->log('debug', '... no site config match for '.$host);
+        // append global config?
+        if ('global' != $host && $config->autodetect_on_failure() && isset($this->configFiles['global.txt'])) {
+            $this->logger->log('debug', 'Appending site config settings from global.txt');
 
-        return false;
+            $config_global = $this->build('global', true);
+
+            $config = $this->mergeConfig($config, $config_global);
+        }
+
+        return $config;
     }
 
     /**
@@ -224,6 +216,7 @@ class ConfigBuilder
     public function parseLines(array $lines)
     {
         $config = new SiteConfig();
+
         foreach ($lines as $line) {
             $line = trim($line);
 

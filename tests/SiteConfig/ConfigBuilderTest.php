@@ -117,19 +117,19 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             // bar hostname
             array('youknownothing/johnsnow', false),
             array('www.'.str_repeat('yay', 70).'.com', false),
-            // no config file found
-            array('fr.m.localhost.dev', false),
-            // config in existing standard folder
+            // no config file found (global to the rescue)
+            array('fr.m.localhost.dev', true),
+            // config exists
             array('fr.wikipedia.org', true, '.wikipedia.org'),
-            // config in existing custom folder
+            // config exists
             array('ted.com', true, 'ted.com'),
-            // config in existing custom & standard folder – config will be merged
+            // config exists
             array('stackoverflow.com', true, 'stackoverflow.com'),
-            // custom config but with no lines
+            // config with no lines
             array('emptylines.com', false),
-            // custom config but no auto_failure
+            // config with no auto_failure
             array('nofailure.io', true, 'nofailure.io'),
-            // standard config but no lines
+            // config with no lines
             array('emptylines.net', false),
         );
     }
