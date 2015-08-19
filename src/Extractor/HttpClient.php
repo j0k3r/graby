@@ -33,8 +33,8 @@ class HttpClient
             'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
             'default_referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
             'rewrite_url' => array(
-                'docs.google.com'  => array('/Doc?' => '/View?'),
-                'tnr.com'          => array('tnr.com/article/' => 'tnr.com/print/article/'),
+                'docs.google.com' => array('/Doc?' => '/View?'),
+                'tnr.com' => array('tnr.com/article/' => 'tnr.com/print/article/'),
                 '.m.wikipedia.org' => array('.m.wikipedia.org' => '.wikipedia.org'),
                 'm.vanityfair.com' => array('m.vanityfair.com' => 'www.vanityfair.com'),
             ),
@@ -54,16 +54,16 @@ class HttpClient
             // User Agent strings - mapping domain names
             'user_agents' => array(
                 'lifehacker.com' => 'PHP/5.2',
-                'gawker.com'     => 'PHP/5.2',
-                'deadspin.com'   => 'PHP/5.2',
-                'kotaku.com'     => 'PHP/5.2',
-                'jezebel.com'    => 'PHP/5.2',
-                'io9.com'        => 'PHP/5.2',
-                'jalopnik.com'   => 'PHP/5.2',
-                'gizmodo.com'    => 'PHP/5.2',
+                'gawker.com' => 'PHP/5.2',
+                'deadspin.com' => 'PHP/5.2',
+                'kotaku.com' => 'PHP/5.2',
+                'jezebel.com' => 'PHP/5.2',
+                'io9.com' => 'PHP/5.2',
+                'jalopnik.com' => 'PHP/5.2',
+                'gizmodo.com' => 'PHP/5.2',
                 '.wikipedia.org' => 'Mozilla/5.2',
-                '.fok.nl'        => 'Googlebot/2.1',
-                'getpocket.com'  => 'PHP/5.2',
+                '.fok.nl' => 'Googlebot/2.1',
+                'getpocket.com' => 'PHP/5.2',
             ),
             // AJAX triggers to search for.
             // for AJAX sites, e.g. Blogger with its dynamic views templates.

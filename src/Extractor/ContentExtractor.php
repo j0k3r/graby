@@ -335,7 +335,7 @@ class ContentExtractor
             // check for matches
             if ($elems && $elems->length > 0) {
                 $this->logger->log('debug', 'Stripping '.$elems->length.' elements (strip)');
-                for ($i = $elems->length - 1; $i >= 0; $i--) {
+                for ($i = $elems->length - 1; $i >= 0; --$i) {
                     if ($elems->item($i)->parentNode) {
                         $elems->item($i)->parentNode->removeChild($elems->item($i));
                     }
@@ -351,7 +351,7 @@ class ContentExtractor
             // check for matches
             if ($elems && $elems->length > 0) {
                 $this->logger->log('debug', 'Stripping '.$elems->length.' elements (strip_id_or_class)');
-                for ($i = $elems->length - 1; $i >= 0; $i--) {
+                for ($i = $elems->length - 1; $i >= 0; --$i) {
                     $elems->item($i)->parentNode->removeChild($elems->item($i));
                 }
             }
@@ -376,7 +376,7 @@ class ContentExtractor
         // check for matches
         if ($elems && $elems->length > 0) {
             $this->logger->log('debug', 'Stripping '.$elems->length.' .entry-unrelated,.instapaper_ignore elements');
-            for ($i = $elems->length - 1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
         }
@@ -387,7 +387,7 @@ class ContentExtractor
         // check for matches
         if ($elems && $elems->length > 0) {
             $this->logger->log('debug', 'Stripping '.$elems->length.' elements with inline display:none or visibility:hidden style');
-            for ($i = $elems->length - 1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
         }
@@ -441,7 +441,7 @@ class ContentExtractor
                         }
 
                         if ($elem) {
-                            $len++;
+                            ++$len;
                             $this->body->appendChild($elem);
                         }
                     }
@@ -593,7 +593,7 @@ class ContentExtractor
                                     }
 
                                     if ($elem) {
-                                        $len++;
+                                        ++$len;
                                         $this->body->appendChild($elem);
                                     }
                                 }
@@ -689,7 +689,7 @@ class ContentExtractor
                             }
 
                             if ($elem) {
-                                $len++;
+                                ++$len;
                                 $this->body->appendChild($elem);
                             }
                         }

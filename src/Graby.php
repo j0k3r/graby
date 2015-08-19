@@ -44,9 +44,9 @@ class Graby
             'xss_filter' => true,
             'content_type_exc' => array(
                 'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
-                'image'           => array('action' => 'link', 'name' => 'Image'),
-                'audio'           => array('action' => 'link', 'name' => 'Audio'),
-                'video'           => array('action' => 'link', 'name' => 'Video'),
+                'image' => array('action' => 'link', 'name' => 'Image'),
+                'audio' => array('action' => 'link', 'name' => 'Audio'),
+                'video' => array('action' => 'link', 'name' => 'Video'),
             ),
             'content_links' => 'preserve',
             'http_client' => array(),
@@ -512,7 +512,7 @@ class Graby
         foreach (array('a' => 'href', 'img' => 'src') as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
 
-            for ($i = $elems->length - 1; $i >= 0; $i--) {
+            for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $e = $elems->item($i);
                 //$e->parentNode->replaceChild($articleContent->ownerDocument->createTextNode($e->textContent), $e);
                 $this->makeAbsoluteAttr($base, $e, $attr);
@@ -624,11 +624,12 @@ class Graby
     }
 
     /**
-     * Extract OpenGraph data from the response
+     * Extract OpenGraph data from the response.
      *
-     * @param  string $html
+     * @param string $html
      *
      * @return array
+     *
      * @see  http://stackoverflow.com/a/7454737/569101
      */
     private function extractOpenGraph($html)

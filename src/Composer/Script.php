@@ -3,14 +3,13 @@
 namespace Graby\Composer;
 
 use Composer\Script\Event;
-use Composer\Installer\PackageEvent;
 
 class Script
 {
     private static $rootDir;
 
     /**
-     * Generate a symlink to the default site config
+     * Generate a symlink to the default site config.
      */
     public static function postUpdate(Event $event)
     {
