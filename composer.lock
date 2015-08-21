@@ -4,11 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-<<<<<<< 4b9a622a7ab86fd94ae17638ce799afcdbb141f7
-    "hash": "a7952e54ce0a3532bb844736d3095852",
-=======
-    "hash": "9006e1a0a0670dd40e8ee226f7e3fc53",
->>>>>>> Add SafeCurl
+    "hash": "ead6e472ea2f471404ee971bfc13c5d1",
     "packages": [
         {
             "name": "fin1te/safecurl",

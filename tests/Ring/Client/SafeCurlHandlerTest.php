@@ -22,12 +22,6 @@ class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
         return new SafeCurlHandler($options);
     }
 
-    public function testCanSetMaxHandles()
-    {
-        $a = new SafeCurlHandler(['max_handles' => 10]);
-        $this->assertEquals(10, $this->readAttribute($a, 'maxHandles'));
-    }
-
     public function testCreatesCurlErrors()
     {
         $handler = new SafeCurlHandler();
