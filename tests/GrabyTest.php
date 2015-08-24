@@ -19,7 +19,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetBadConfig()
     {
-        $graby = new Graby(array());
+        $graby = new Graby();
 
         $graby->getConfig('does_not_exists');
     }
@@ -181,14 +181,31 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testBlockedUrls($url)
     {
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $graby = new Graby(array(
             'blocked_urls' => array('t411.io', 'lexpress.fr'),
-        ), $client);
+        ));
 
+        $graby->fetchContent($url);
+    }
+
+    public function dataForNotValid()
+    {
+        return array(
+            array('http://lexpress devant.fr'),
+            array('http://cestmôcje.fr'),
+            array('http://cest^long.fr'),
+        );
+    }
+
+    /**
+     * @dataProvider dataForNotValid
+     *
+     * @expectedException Exception
+     * @expectedExceptionMessage is not valid.
+     */
+    public function testNotValidUrls($url)
+    {
+        $graby = new Graby();
         $graby->fetchContent($url);
     }
 
@@ -690,7 +707,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetExcerpt($text, $words, $more, $expectedResult)
     {
-        $graby = new Graby(array());
+        $graby = new Graby();
 
         $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('getExcerpt');
@@ -717,7 +734,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteStr($base, $url, $expectedResult)
     {
-        $graby = new Graby(array());
+        $graby = new Graby();
 
         $reflection = new \ReflectionClass(get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteStr');
@@ -743,7 +760,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteAttr($base, $string, $attr, $expectedAttr, $expectedResult)
     {
-        $graby = new Graby(array());
+        $graby = new Graby();
 
         $doc = new \DomDocument();
         $doc->loadXML($string);
@@ -774,7 +791,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsolute($base, $string, $expectedAttr, $expectedResult)
     {
-        $graby = new Graby(array());
+        $graby = new Graby();
 
         $doc = new \DomDocument();
         $doc->loadXML($string);
@@ -795,7 +812,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeAbsoluteMultiple()
     {
-        $graby = new Graby(array());
+        $graby = new Graby();
 
         $doc = new \DomDocument();
         $doc->loadXML('<a href="/lol"><img src=" /path/to/image.jpg" /></a>');

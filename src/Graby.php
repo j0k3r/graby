@@ -142,6 +142,10 @@ class Graby
             $url = 'http://'.$url;
         }
 
+        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new \Exception(sprintf('Url "%s" is not valid.', $url));
+        }
+
         $url = filter_var($url, FILTER_SANITIZE_URL);
 
         if (false === $this->isUrlAllowed($url)) {
