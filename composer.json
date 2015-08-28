@@ -22,15 +22,9 @@
         "symfony/options-resolver": "^2.6.6",
         "neitanod/forceutf8": "^1.4",
         "monolog/monolog": "^1.13.1",
-        "j0k3r/graby-site-config": "dev-local"
+        "j0k3r/graby-site-config": "dev-master"
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "/Users/j0k/Sites/github/graby-site-config"
-        }
-    ]
+    }
 }
