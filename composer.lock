@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c0dc8e8b186553c0d38a1f036e6d49d4",
+    "hash": "a7952e54ce0a3532bb844736d3095852",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -217,15 +217,23 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/j0k3r/graby-site-config.git",
-                "reference": "13b5e27c8e73580e703cdaec9c8ad3a5ade3c547"
+                "reference": "1558d8773f27dc19a32725468edd697d7cb0e7b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/j0k3r/graby-site-config/zipball/13b5e27c8e73580e703cdaec9c8ad3a5ade3c547",
-                "reference": "13b5e27c8e73580e703cdaec9c8ad3a5ade3c547",
+                "url": "https://api.github.com/repos/j0k3r/graby-site-config/zipball/1558d8773f27dc19a32725468edd697d7cb0e7b8",
+                "reference": "1558d8773f27dc19a32725468edd697d7cb0e7b8",
                 "shasum": ""
             },
+            "require": {
+                "symfony/finder": "^2.6.6"
+            },
             "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GrabySiteConfig\\SiteConfig\\": "/"
+                }
+            },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "AGPL-3.0"
@@ -237,20 +245,20 @@
                 }
             ],
             "description": "Graby site config files",
-            "time": "2015-08-07 19:10:45"
+            "time": "2015-08-28 20:38:25"
         },
         {
             "name": "j0k3r/php-readability",
-            "version": "v1.0.3",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/j0k3r/php-readability.git",
-                "reference": "91b80b70e2193fb852d96daf1fe17303876881dc"
+                "reference": "c5a4a490e155fa20809c9bbcf3e318defbb7a261"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/j0k3r/php-readability/zipball/91b80b70e2193fb852d96daf1fe17303876881dc",
-                "reference": "91b80b70e2193fb852d96daf1fe17303876881dc",
+                "url": "https://api.github.com/repos/j0k3r/php-readability/zipball/c5a4a490e155fa20809c9bbcf3e318defbb7a261",
+                "reference": "c5a4a490e155fa20809c9bbcf3e318defbb7a261",
                 "shasum": ""
             },
             "require": {
@@ -300,7 +308,7 @@
                 "extraction",
                 "html"
             ],
-            "time": "2015-08-19 21:12:31"
+            "time": "2015-08-24 09:10:54"
         },
         {
             "name": "monolog/monolog",
@@ -655,7 +663,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "j0k3r/graby-site-config": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
