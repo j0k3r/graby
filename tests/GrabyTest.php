@@ -902,4 +902,29 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('application/pdf', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }
+
+    public function dataForSafeCurl()
+    {
+        return array(
+            array('http://0.0.0.0:123'),
+            array('http://127.0.0.1/server-status'),
+            array('file:///etc/passwd'),
+            array('ssh://localhost'),
+            array('gopher://localhost'),
+            array('telnet://localhost:25'),
+            array('http://169.254.169.254/latest/meta-data/'),
+            array('ftp://myhost.com'),
+        );
+    }
+
+    /**
+     * @dataProvider dataForSafeCurl
+     */
+    public function testBlockedUrlBySafeCurl($url)
+    {
+        $this->setExpectedException('GuzzleHttp\Exception\RequestException');
+
+        $graby = new Graby();
+        $graby->fetchContent($url);
+    }
 }

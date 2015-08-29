@@ -751,7 +751,7 @@ class ContentExtractor
             $success = $this->readability->init();
         }
 
-        if ($detect_title) {
+        if ($detect_title && $this->readability->getTitle()) {
             $this->title = $this->readability->getTitle()->textContent;
             $this->logger->log('debug', 'Detected title '.$this->title);
         }

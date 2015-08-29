@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use Readability\Readability;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
+use Graby\Ring\Client\SafeCurlHandler;
 use ForceUTF8\Encoding;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -71,7 +72,7 @@ class Graby
             $this->logger
         );
         $this->httpClient = new HttpClient(
-            $client ?: new Client(),
+            $client ?: new Client(array('handler' => new SafeCurlHandler())),
             $this->config['http_client'],
             $this->logger
         );
