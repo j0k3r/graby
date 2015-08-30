@@ -23,7 +23,7 @@
         "symfony/options-resolver": "^2.6.6",
         "neitanod/forceutf8": "^1.4",
         "monolog/monolog": "^1.13.1",
-        "j0k3r/graby-site-config": "dev-master"
+        "j0k3r/graby-site-config": "^1.0.0"
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }

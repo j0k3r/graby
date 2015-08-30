@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ead6e472ea2f471404ee971bfc13c5d1",
+    "hash": "9473914475aaa21d86ffcd18fd75442f",
     "packages": [
         {
             "name": "fin1te/safecurl",
@@ -259,7 +259,7 @@
         },
         {
             "name": "j0k3r/graby-site-config",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/j0k3r/graby-site-config.git",
@@ -709,9 +709,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "j0k3r/graby-site-config": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
