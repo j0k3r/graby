@@ -127,17 +127,36 @@ class HttpClient
             $method = 'head';
         }
 
-        $response = $this->client->$method(
-            $url,
-            array(
-                'headers' => array(
-                    'User-Agent' => $this->getUserAgent($url),
-                    // add referer for picky sites
-                    'Referer' => $this->config['default_referer'],
-                ),
-                'cookies' => true,
-            )
-        );
+        try {
+            $response = $this->client->$method(
+                $url,
+                array(
+                    'headers' => array(
+                        'User-Agent' => $this->getUserAgent($url),
+                        // add referer for picky sites
+                        'Referer' => $this->config['default_referer'],
+                    ),
+                    'cookies' => true,
+                )
+            );
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+
+                return array(
+                    'effective_url' => $response->getEffectiveUrl(),
+                    'body' => '',
+                    'headers' => (string) $response->getHeader('Content-Type'),
+                    'status' => $response->getStatusCode(),
+                );
+            }
+            return array(
+                'effective_url' => $url,
+                'body' => '',
+                'headers' => '',
+                'status' => 500,
+            );
+        }
 
         $effectiveUrl = $response->getEffectiveUrl();
 
@@ -169,23 +188,6 @@ class HttpClient
             $body = gzdecode($body);
         }
 
-        // try {
-        //     $response = $this->client->get($url);
-        //     $effectiveUrl = $response->getEffectiveUrl();
-        // } catch (RequestException $e) {
-        //     // catch timeout, ssl verification that failed, etc ...
-        //     // so try an alternative using basic file_get_contents
-        //     $content = @file_get_contents($url, false, stream_context_create(array(
-        //         'http' => array('timeout' => 10),
-        //     )));
-
-        //     return array(
-        //         'effective_url' => $url.(strpos($url, '?') ? '&' : '?').'not-changed',
-        //         'body' => $content,
-        //         'headers' => '',
-        //     );
-        // }
-
         // remove utm parameters & fragment
         $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', urldecode($effectiveUrl));
 
@@ -193,6 +195,7 @@ class HttpClient
             'effective_url' => $effectiveUrl,
             'body' => $body,
             'headers' => $contentType,
+            'status' => $response->getStatusCode(),
         );
     }
 

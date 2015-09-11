@@ -278,6 +278,7 @@ class Graby
         // if we failed to extract content...
         if (!$extract_result || null === $content_block) {
             return array(
+                'status' => $response['status'],
                 'html' => $this->config['error_message'],
                 'title' => $extracted_title,
                 'url' => $effective_url,
@@ -335,6 +336,7 @@ class Graby
         $this->logger->log('debug', 'Done!');
 
         return array(
+            'status' => $response['status'],
             'html' => $html,
             'title' => $extracted_title,
             'url' => $effective_url,
@@ -428,6 +430,8 @@ class Graby
                 }
 
                 return array(
+                    // at this point status will always be considered as 200
+                    'status' => 200,
                     'title' => $mimeInfo['name'],
                     'html' => $html,
                     'url' => $effective_url,

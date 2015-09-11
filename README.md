@@ -44,7 +44,9 @@ $result = $graby->fetchContent($article);
 
 var_dump($result);
 /*
-array(6) {
+array(7) {
+  'status' =>
+  int 200
   'html' =>
   string() "Fetched and readable content"
   'title' =>
@@ -66,6 +68,30 @@ array(6) {
       'og_image' => string 'http://ichef-1.bbci.co.uk/news/1024/media/images/82695000/jpg/_82695869_kingap.jpg'
   'summary' =>
   string() "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
+}
+*/
+```
+
+In case of error when fetching the url, graby won't throw an exception but will return information about the error (at least the status code):
+
+```php
+/*
+array(7) {
+  'status' =>
+  int 404
+  'html' =>
+  string() "[unable to retrieve full-text content]"
+  'title' =>
+  string() ""
+  'url' =>
+  string() "http://www.bbc.com/404"
+  'content_type' =>
+  string() "text/html"
+  'open_graph' =>
+    array (0)
+      empty
+  'summary' =>
+  string() "[unable to retrieve full-text content]"
 }
 */
 ```
