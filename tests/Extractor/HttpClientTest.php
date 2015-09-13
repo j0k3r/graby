@@ -3,6 +3,11 @@
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
+use GuzzleHttp\Client;
+use GuzzleHttp\Subscriber\Mock;
+use GuzzleHttp\Message\Response;
+use GuzzleHttp\Stream\Stream;
+use GuzzleHttp\Exception\RequestException;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -57,6 +62,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn('');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getBody')
             ->willReturn('yay');
 
@@ -77,6 +86,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($urlEffective, $res['effective_url']);
         $this->assertEquals('yay', $res['body']);
+        $this->assertEquals(200, $res['status']);
     }
 
     public function testFetchHeadGoodContentType()
@@ -100,6 +110,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn('image/jpg');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getBody')
             ->willReturn('yay');
 
@@ -121,6 +135,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($url, $res['effective_url']);
         $this->assertEquals('yay', $res['body']);
         $this->assertEquals('image/jpg', $res['headers']);
+        $this->assertEquals(200, $res['status']);
     }
 
     public function testFetchHeadBadContentType()
@@ -143,6 +158,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('text/html');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -176,6 +195,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($url, $res['effective_url']);
         $this->assertEquals('yay', $res['body']);
         $this->assertEquals('text/html', $res['headers']);
+        $this->assertEquals(200, $res['status']);
     }
 
     public function dataForMetaRefresh()
@@ -220,6 +240,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('getBody')
             ->will($this->onConsecutiveCalls($body, ''));
 
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
             ->getMock();
@@ -234,6 +258,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($metaUrl, $res['effective_url']);
         $this->assertEmpty($res['body']);
         $this->assertEquals('text/html', $res['headers']);
+        $this->assertEquals(200, $res['status']);
     }
 
     /**
@@ -258,6 +283,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn('text/html');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getBody')
             ->willReturn($body);
 
@@ -275,6 +304,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($url, $res['effective_url']);
         $this->assertEquals($body, $res['body']);
         $this->assertEquals('text/html', $res['headers']);
+        $this->assertEquals(200, $res['status']);
     }
 
     public function testFetchGzip()
@@ -298,6 +328,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn('gzip');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getBody')
             ->willReturn(gzencode('yay'));
 
@@ -318,5 +352,53 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($url, $res['effective_url']);
         $this->assertEquals('yay', $res['body']);
+        $this->assertEquals('gzip', $res['headers']);
+        $this->assertEquals(200, $res['status']);
+    }
+
+    public function testWith404ResponseWithResponse()
+    {
+        $client = new Client();
+
+        $mock = new Mock([
+            new Response(404, ['Content-Type' => 'text/html'], Stream::factory('test')),
+        ]);
+
+        $client->getEmitter()->attach($mock);
+
+        $http = new HttpClient($client);
+        $res = $http->fetch('http://www.lexpress.io/my-map.html');
+
+        $this->assertEquals('http://www.lexpress.io/my-map.html', $res['effective_url']);
+        $this->assertEquals('', $res['body']);
+        $this->assertEquals('text/html', $res['headers']);
+        $this->assertEquals(404, $res['status']);
+    }
+
+    public function testWith404ResponseWithoutResponse()
+    {
+        $request = $this->getMockBuilder('GuzzleHttp\Message\Request')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('get')
+            ->willThrowException(new RequestException('oops', $request));
+
+        $http = new HttpClient($client);
+        $res = $http->fetch('http://0.0.0.0');
+
+        $this->assertEquals('http://0.0.0.0', $res['effective_url']);
+        $this->assertEquals('', $res['body']);
+        $this->assertEquals('', $res['headers']);
+        $this->assertEquals(500, $res['status']);
     }
 }
