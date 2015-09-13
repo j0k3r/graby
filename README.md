@@ -44,13 +44,15 @@ $result = $graby->fetchContent($article);
 
 var_dump($result);
 /*
-array(7) {
+array(8) {
   'status' =>
   int 200
   'html' =>
   string() "Fetched and readable content"
   'title' =>
   string() "Ben E King: R&B legend dies at 76"
+  'language' =>
+  string() "en"
   'url' =>
   string() "http://www.bbc.com/news/entertainment-arts-32547474"
   'content_type' =>
@@ -76,12 +78,14 @@ In case of error when fetching the url, graby won't throw an exception but will 
 
 ```php
 /*
-array(7) {
+array(8) {
   'status' =>
   int 404
   'html' =>
   string() "[unable to retrieve full-text content]"
   'title' =>
+  string() ""
+  'language' =>
   string() ""
   'url' =>
   string() "http://www.bbc.com/404"
