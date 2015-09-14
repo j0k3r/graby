@@ -316,7 +316,6 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('http://lexpress.io/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://lexpress.io/test.jpg"><img src="http://lexpress.io/test.jpg" alt="Image" /></a>'),
-            array('http://lexpress.io/test.pdf', 'application/pdf', 'PDF', 'Download PDF', '<a href="http://lexpress.io/test.pdf">Download PDF</a>'),
         );
     }
 
@@ -355,6 +354,49 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($url, $res['url']);
         $this->assertEquals($summary, $res['summary']);
         $this->assertEquals($header, $res['content_type']);
+        $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function testAssetExtensionPDF()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->once())
+            ->method('getEffectiveUrl')
+            ->willReturn('http://lexpress.io/test.pdf');
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('application/pdf');
+
+        $pdf = file_get_contents(dirname(__FILE__).'/fixtures/document1.pdf');
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn($pdf);
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('head')
+            ->willReturn($response);
+
+        $graby = new Graby(array(), $client);
+
+        $res = $graby->fetchContent('http://lexpress.io/test.pdf');
+
+        $this->assertCount(7, $res);
+        $this->assertEquals('Document1', $res['title']);
+        $this->assertContains('Document title', $res['html']);
+        $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
+        $this->assertEquals('http://lexpress.io/test.pdf', $res['url']);
+        $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
+        $this->assertEquals('application/pdf', $res['content_type']);
+        $this->assertEquals('Document1', $res['title']);
         $this->assertEquals(array(), $res['open_graph']);
     }
 
@@ -426,14 +468,14 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getEffectiveUrl')
-            ->willReturn('http://singlepage1.com/data.pdf');
+            ->willReturn('http://singlepage1.com/data.jpg');
 
         $response->expects($this->exactly(4))
             ->method('getHeader')
             ->will($this->onConsecutiveCalls(
                 'text/html',
                 '',
-                'application/pdf',
+                'image/jpeg',
                 ''
             ));
 
@@ -456,11 +498,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(7, $res);
-        $this->assertEquals('PDF', $res['title']);
-        $this->assertEquals('<a href="http://singlepage1.com/data.pdf">Download PDF</a>', $res['html']);
-        $this->assertEquals('http://singlepage1.com/data.pdf', $res['url']);
-        $this->assertEquals('Download PDF', $res['summary']);
-        $this->assertEquals('application/pdf', $res['content_type']);
+        $this->assertEquals('Image', $res['title']);
+        $this->assertEquals('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res['html']);
+        $this->assertEquals('http://singlepage1.com/data.jpg', $res['url']);
+        $this->assertEquals('', $res['summary']);
+        $this->assertEquals('image/jpeg', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }
 

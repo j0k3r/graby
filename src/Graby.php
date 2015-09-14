@@ -12,6 +12,7 @@ use ForceUTF8\Encoding;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Psr\Log\NullLogger;
+use Smalot\PdfParser\Parser as PdfParser;
 
 /**
  * @todo add proxy
@@ -162,7 +163,7 @@ class Graby
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
         $mimeInfo = $this->getMimeActionInfo($response['headers']);
-        $infos = $this->handleMimeAction($mimeInfo, $effective_url);
+        $infos = $this->handleMimeAction($mimeInfo, $effective_url, $response['body']);
         if (is_array($infos)) {
             return $infos;
         }
@@ -181,7 +182,7 @@ class Graby
 
             // check if action defined for returned Content-Type
             $mimeInfo = $this->getMimeActionInfo($single_page_response['headers']);
-            $infos = $this->handleMimeAction($mimeInfo, $effective_url);
+            $infos = $this->handleMimeAction($mimeInfo, $effective_url, $single_page_response['body']);
             if (is_array($infos)) {
                 return $infos;
             }
@@ -381,6 +382,7 @@ class Graby
         $info = array(
             'mime' => '',
         );
+
         if (preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($headers), $match)) {
             // look for full mime type (e.g. image/jpeg) or just type (e.g. image)
             // match[1] = full mime type, e.g. image/jpeg
@@ -409,35 +411,50 @@ class Graby
      *
      * @param array  $mimeInfo      From getMimeActionInfo() function
      * @param string $effective_url Current content url
+     * @param string $body          Content from the response
      *
      * @return array|null
      */
-    private function handleMimeAction($mimeInfo, $effective_url)
+    private function handleMimeAction($mimeInfo, $effective_url, $body = '')
     {
         if (!isset($mimeInfo['action'])) {
             return;
         }
+
+        $infos = array(
+            // at this point status will always be considered as 200
+            'status' => 200,
+            'title' => $mimeInfo['name'],
+            'html' => '',
+            'url' => $effective_url,
+            'content_type' => $mimeInfo['mime'],
+            'open_graph' => array(),
+        );
 
         switch ($mimeInfo['action']) {
             case 'exclude':
                 throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effective_url));
 
             case 'link':
+                $infos['html'] = '<a href="'.$effective_url.'">Download '.$mimeInfo['name'].'</a>';
+
                 if ($mimeInfo['type'] == 'image') {
-                    $html = '<a href="'.$effective_url.'"><img src="'.$effective_url.'" alt="'.$mimeInfo['name'].'" /></a>';
-                } else {
-                    $html = '<a href="'.$effective_url.'">Download '.$mimeInfo['name'].'</a>';
+                    $infos['html'] = '<a href="'.$effective_url.'"><img src="'.$effective_url.'" alt="'.$mimeInfo['name'].'" /></a>';
                 }
 
-                return array(
-                    // at this point status will always be considered as 200
-                    'status' => 200,
-                    'title' => $mimeInfo['name'],
-                    'html' => $html,
-                    'url' => $effective_url,
-                    'content_type' => $mimeInfo['mime'],
-                    'open_graph' => array(),
-                );
+                if ($mimeInfo['type'] == 'application' && $mimeInfo['subtype'] == 'pdf') {
+                    $parser = new PdfParser();
+                    $pdf = $parser->parseContent($body);
+                    $infos['html'] = nl2br($pdf->getText());
+
+                    // update title in case of details are present
+                    $details = $pdf->getDetails();
+                    if (isset($details['Title']) && '' !== trim($details['Title'])) {
+                        $infos['title'] = $details['Title'];
+                    }
+                }
+
+                return $infos;
         }
 
         return;
