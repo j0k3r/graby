@@ -1,5 +1,5 @@
 title: //h2[contains(@class, 'primary')]
-body: //div[@id='story']
+body: //div[@class='story']
 
 next_page_link: //li[@class='next']/a
 

@@ -577,8 +577,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div></html>'
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>',
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
             ));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
@@ -598,7 +598,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(8, $res);
         $this->assertEquals('', $res['language']);
         $this->assertEquals('my title', $res['title']);
-        $this->assertEquals('my content<div id="story">my content</div>', $res['html']);
+        $this->assertEquals('my content<div class="story">my content</div>', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
         $this->assertEquals('my content my content', $res['summary']);
         $this->assertEquals('text/html', $res['content_type']);
@@ -627,8 +627,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div><ul><li class="next"><a href="multiplepage1.com/data.pdf">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div></html>'
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com/data.pdf">next page</a></li></ul></html>',
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
             ));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
@@ -672,7 +672,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>',
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>',
                 ''
             ));
 
@@ -717,8 +717,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div><ul><li class="next"><a href=".//oops :)">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div></html>'
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href=".//oops :)">next page</a></li></ul></html>',
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
             ));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
@@ -762,8 +762,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div id="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>',
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
             ));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')

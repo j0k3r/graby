@@ -127,7 +127,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config = new SiteConfig();
         $config->body = array('//iframe');
         $config->find_string = array('<html>&lt;iframe', '&gt;&lt;/iframe&gt;</html>');
-        $config->replace_string = array('<iframe id="video"', '></iframe>');
+        $config->replace_string = array('<iframe class="video"', '></iframe>');
 
         $res = $contentExtractor->process(
             '<html>&lt;iframe &gt;&lt;/iframe&gt;</html> <a rel="author" href="/user8412228">CaTV</a>',
@@ -139,7 +139,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $content_block = $contentExtractor->getContent();
 
-        $this->assertContains('<iframe id="video"', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertContains('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
         $this->assertCount(1, $contentExtractor->getAuthors());
         $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
     }
@@ -424,9 +424,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         return array(
             // extract one element
             array(
-                "//p[@id='content']",
-                '<html><body><p id="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>',
-                '<p id="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p>',
+                "//p[@class='content']",
+                '<html><body><p class="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>',
+                '<p class="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p>',
             ),
             // extract multiple element
             array(
