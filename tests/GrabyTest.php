@@ -409,7 +409,46 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://lexpress.io/test.pdf', $res['url']);
         $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
         $this->assertEquals('application/pdf', $res['content_type']);
-        $this->assertEquals('Document1', $res['title']);
+        $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function testAssetExtensionTXT()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->once())
+            ->method('getEffectiveUrl')
+            ->willReturn('http://lexpress.io/test.txt');
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('text/plain');
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('plain text :)');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('get')
+            ->willReturn($response);
+
+        $graby = new Graby(array(), $client);
+
+        $res = $graby->fetchContent('http://lexpress.io/test.txt');
+
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
+        $this->assertEquals('Plain text', $res['title']);
+        $this->assertEquals('<pre>plain text :)</pre>', $res['html']);
+        $this->assertEquals('http://lexpress.io/test.txt', $res['url']);
+        $this->assertEquals('plain text :)', $res['summary']);
+        $this->assertEquals('text/plain', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }
 
