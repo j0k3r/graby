@@ -55,9 +55,18 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
             $test = file_get_contents($file->getRealpath());
 
-            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
+            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
 
-            $tests[] = array($match[1], $match[2], $match[3], $match[4], $match[5], $match[6], $match[7]);
+            $tests[] = array(
+                $match[1], // url
+                $match[2], // url effective
+                $match[3], // header
+                $match[4], // language
+                $match[5], // title
+                $match[6], // summary
+                $match[7], // raw content
+                $match[8] // parsed content
+            );
         }
 
         return $tests;
@@ -66,7 +75,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $urlEffective, $header, $title, $summary, $rawContent, $parsedContent)
+    public function testFetchContent($url, $urlEffective, $header, $language, $title, $summary, $rawContent, $parsedContent)
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -107,7 +116,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals($language, $res['language']);
         $this->assertEquals($urlEffective, $res['url'], 'Same url');
         $this->assertEquals($title, $res['title'], 'Same title');
         $this->assertEquals($summary, $res['summary'], 'Same summary');
@@ -264,7 +274,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('Image', $res['title']);
         $this->assertEquals('<a href="http://lexpress.io"><img src="http://lexpress.io" alt="Image" /></a>', $res['html']);
         $this->assertEquals('http://lexpress.io', $res['url']);
@@ -348,7 +359,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals($title, $res['title']);
         $this->assertEquals($html, $res['html']);
         $this->assertEquals($url, $res['url']);
@@ -389,7 +401,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('http://lexpress.io/test.pdf');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('Document1', $res['title']);
         $this->assertContains('Document title', $res['html']);
         $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
@@ -451,7 +464,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('my title', $res['title']);
         $this->assertEquals('my content', $res['html']);
         $this->assertEquals('http://'.$url, $res['url']);
@@ -497,7 +511,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('Image', $res['title']);
         $this->assertEquals('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res['html']);
         $this->assertEquals('http://singlepage1.com/data.jpg', $res['url']);
@@ -541,7 +556,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('my title', $res['title']);
         $this->assertEquals('my content<div id="story">my content</div>', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
@@ -590,7 +606,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
@@ -634,7 +651,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
@@ -678,7 +696,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
@@ -722,7 +741,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertEquals('http://multiplepage1.com', $res['url']);
@@ -901,7 +921,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('', $res['title']);
         $this->assertEquals('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
         $this->assertEquals('http://removelinks.io', $res['url']);
@@ -936,7 +957,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('', $res['title']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
         $this->assertEquals('http://lexpress.io', $res['url']);
@@ -967,7 +989,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby();
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(7, $res);
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
         $this->assertEquals('', $res['title']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['summary']);

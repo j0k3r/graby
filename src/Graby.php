@@ -204,6 +204,7 @@ class Graby
 
         $content_block = $this->extractor->getContent();
         $extracted_title = $this->extractor->getTitle();
+        $extracted_language = $this->extractor->getLanguage();
 
         // Deal with multi-page articles
         //die('Next: '.$this->extractor->getNextPageUrl());
@@ -282,6 +283,7 @@ class Graby
                 'status' => $response['status'],
                 'html' => $this->config['error_message'],
                 'title' => $extracted_title,
+                'language' => $extracted_language,
                 'url' => $effective_url,
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
                 'open_graph' => $ogData,
@@ -340,6 +342,7 @@ class Graby
             'status' => $response['status'],
             'html' => $html,
             'title' => $extracted_title,
+            'language' => $extracted_language,
             'url' => $effective_url,
             'content_type' => $mimeInfo['mime'],
             'open_graph' => $ogData,
@@ -425,6 +428,7 @@ class Graby
             // at this point status will always be considered as 200
             'status' => 200,
             'title' => $mimeInfo['name'],
+            'language' => '',
             'html' => '',
             'url' => $effective_url,
             'content_type' => $mimeInfo['mime'],

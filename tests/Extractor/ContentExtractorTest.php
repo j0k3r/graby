@@ -239,6 +239,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('<html><meta name="DC.language" content="en" />from <a rel="author" href="/user8412228">CaTV</a></html>', 'en'),
+            array('<html lang="de">from <a rel="author" href="/user8412228">CaTV</a></html>', 'de'),
         );
     }
 
