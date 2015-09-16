@@ -49,6 +49,7 @@ class Graby
                 'image' => array('action' => 'link', 'name' => 'Image'),
                 'audio' => array('action' => 'link', 'name' => 'Audio'),
                 'video' => array('action' => 'link', 'name' => 'Video'),
+                'text/plain' => array('action' => 'link', 'name' => 'Plain text'),
             ),
             'content_links' => 'preserve',
             'http_client' => array(),
@@ -446,7 +447,7 @@ class Graby
                     $infos['html'] = '<a href="'.$effective_url.'"><img src="'.$effective_url.'" alt="'.$mimeInfo['name'].'" /></a>';
                 }
 
-                if ($mimeInfo['type'] == 'application' && $mimeInfo['subtype'] == 'pdf') {
+                if ($mimeInfo['mime'] == 'application/pdf') {
                     $parser = new PdfParser();
                     $pdf = $parser->parseContent($body);
                     $infos['html'] = nl2br($pdf->getText());
@@ -456,6 +457,10 @@ class Graby
                     if (isset($details['Title']) && '' !== trim($details['Title'])) {
                         $infos['title'] = $details['Title'];
                     }
+                }
+
+                if ($mimeInfo['mime'] == 'text/plain') {
+                    $infos['html'] = '<pre>'.$body.'</pre>';
                 }
 
                 return $infos;
