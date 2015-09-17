@@ -72,6 +72,7 @@ class HttpClient
                 '<meta name="fragment" content="!"',
                 "<meta content='!' name='fragment'",
                 '<meta content="!" name="fragment"',
+                ' ng-controller=',
             ),
         ));
 
