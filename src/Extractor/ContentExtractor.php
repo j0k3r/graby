@@ -21,9 +21,7 @@ class ContentExtractor
     private $config;
     private $siteConfig = null;
     private $title = null;
-    private $author = array();
     private $language = null;
-    private $date = null;
     private $body = null;
     private $success = false;
     private $nextPageUrl = null;
@@ -71,9 +69,7 @@ class ContentExtractor
         $this->siteConfig = null;
         $this->title = null;
         $this->body = null;
-        $this->author = array();
         $this->language = null;
-        $this->date = null;
         $this->nextPageUrl = null;
         $this->success = false;
     }
@@ -265,30 +261,6 @@ class ContentExtractor
             }
         }
 
-        // try to get author (if it hasn't already been set)
-        if (empty($this->author)) {
-            foreach ($this->siteConfig->author as $pattern) {
-                $elems = $xpath->evaluate($pattern, $this->readability->dom);
-
-                if (is_string($elems) && trim($elems) != '') {
-                    $this->author[] = trim($elems);
-                    $this->logger->log('debug', 'Author expression evaluated as string: '.trim($elems));
-                    $this->logger->log('debug', '...XPath match: '.$pattern);
-                    break;
-                } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
-                    foreach ($elems as $elem) {
-                        $this->author[] = trim($elem->textContent);
-                        $this->logger->log('debug', 'Author matched: '.trim($elem->textContent));
-                    }
-
-                    if (!empty($this->author)) {
-                        $this->logger->log('debug', '...XPath match: '.$pattern);
-                        break;
-                    }
-                }
-            }
-        }
-
         // try to get language
         $langXpath = array('//html[@lang]/@lang', '//meta[@name="DC.language"]/@content');
         foreach ($langXpath as $pattern) {
@@ -303,28 +275,6 @@ class ContentExtractor
                 if (null !== $this->language) {
                     break;
                 }
-            }
-        }
-
-        // try to get date
-        foreach ($this->siteConfig->date as $pattern) {
-            $elems = $xpath->evaluate($pattern, $this->readability->dom);
-
-            if (is_string($elems)) {
-                $this->date = strtotime(trim($elems, "; \t\n\r\0\x0B"));
-            } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
-                $this->date = $elems->item(0)->textContent;
-                $this->date = strtotime(trim($this->date, "; \t\n\r\0\x0B"));
-                // remove date from document
-                // $elems->item(0)->parentNode->removeChild($elems->item(0));
-            }
-
-            if (!$this->date) {
-                $this->date = null;
-            } else {
-                $this->logger->log('debug', 'Date matched: '.date('Y-m-d H:i:s', $this->date));
-                $this->logger->log('debug', '...XPath match: '.$pattern);
-                break;
             }
         }
 
@@ -457,7 +407,7 @@ class ContentExtractor
         }
 
         // auto detect?
-        $detect_title = $detect_body = $detect_author = $detect_date = false;
+        $detect_title = $detect_body = false;
 
         // detect title?
         if (!isset($this->title) && (empty($this->siteConfig->title) || $this->siteConfig->autodetect_on_failure())) {
@@ -466,14 +416,6 @@ class ContentExtractor
         // detect body?
         if (!isset($this->body) && (empty($this->siteConfig->body) || $this->siteConfig->autodetect_on_failure())) {
             $detect_body = true;
-        }
-        // detect author?
-        if (empty($this->author) && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
-            $detect_author = true;
-        }
-        // detect date?
-        if (!isset($this->date) && (empty($this->siteConfig->date) || $this->siteConfig->autodetect_on_failure())) {
-            $detect_date = true;
         }
 
         // check for hNews
@@ -495,49 +437,6 @@ class ContentExtractor
                         // remove title from document
                         $elems->item(0)->parentNode->removeChild($elems->item(0));
                         $detect_title = false;
-                    }
-                }
-
-                if ($detect_date) {
-                    // check for time element with pubdate attribute
-                    $elems = $xpath->query(".//time[@pubdate or @pubDate] | .//abbr[contains(concat(' ',normalize-space(@class),' '),' published ')]", $hentry);
-
-                    if ($elems && $elems->length > 0) {
-                        $this->date = strtotime(trim($elems->item(0)->textContent));
-
-                        // remove date from document
-                        //$elems->item(0)->parentNode->removeChild($elems->item(0));
-                        if ($this->date) {
-                            $this->logger->log('debug', 'hNews: found publication date: '.date('Y-m-d H:i:s', $this->date));
-                        } else {
-                            $this->date = null;
-                        }
-                    }
-                }
-
-                if ($detect_author) {
-                    // check for time element with pubdate attribute
-                    $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' vcard ') and (contains(concat(' ',normalize-space(@class),' '),' author ') or contains(concat(' ',normalize-space(@class),' '),' byline '))]", $hentry);
-
-                    if ($elems && $elems->length > 0) {
-                        $author = $elems->item(0);
-                        $fn = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' fn ')]", $author);
-
-                        if ($fn && $fn->length > 0) {
-                            foreach ($fn as $_fn) {
-                                if (trim($_fn->textContent) != '') {
-                                    $this->author[] = trim($_fn->textContent);
-                                    $this->logger->log('debug', 'hNews: found author: '.trim($_fn->textContent));
-                                }
-                            }
-                        } else {
-                            if (trim($author->textContent) != '') {
-                                $this->author[] = trim($author->textContent);
-                                $this->logger->log('debug', 'hNews: found author: '.trim($author->textContent));
-                            }
-                        }
-
-                        $detect_author = empty($this->author);
                     }
                 }
 
@@ -703,43 +602,6 @@ class ContentExtractor
             }
         }
 
-        // Find author in rel="author" marked element
-        // We only use this if there's exactly one.
-        // If there's more than one, it could indicate more than
-        // one author, but it could also indicate that we're processing
-        // a page listing different articles with different authors.
-        if ($detect_author) {
-            $elems = $xpath->query("//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]", $this->readability->dom);
-
-            if ($elems && $elems->length == 1) {
-                $author = trim($elems->item(0)->textContent);
-
-                if ($author != '') {
-                    $this->logger->log('debug', 'Author found (rel=\"author\"): $author');
-                    $this->author[] = $author;
-                }
-            }
-        }
-
-        // Find date in pubdate marked time element
-        // For the same reason given above, we only use this
-        // if there's exactly one element.
-        if ($detect_date) {
-            $elems = $xpath->query('//time[@pubdate or @pubDate]', $this->readability->dom);
-
-            if ($elems && $elems->length == 1) {
-                $this->date = strtotime(trim($elems->item(0)->textContent));
-
-                // remove date from document
-                //$elems->item(0)->parentNode->removeChild($elems->item(0));
-                if ($this->date) {
-                    $this->logger->log('debug', 'Date found (pubdate marked time element): '.date('Y-m-d H:i:s', $this->date));
-                } else {
-                    $this->date = null;
-                }
-            }
-        }
-
         // still missing title or body, so we detect using Readability
         $success = false;
         if ($detect_title || $detect_body) {
@@ -870,24 +732,9 @@ class ContentExtractor
         return trim($this->title);
     }
 
-    /**
-     * Retrieve authors.
-     *
-     * @return array
-     */
-    public function getAuthors()
-    {
-        return $this->author;
-    }
-
     public function getLanguage()
     {
         return $this->language;
-    }
-
-    public function getDate()
-    {
-        return $this->date;
     }
 
     public function getSiteConfig()

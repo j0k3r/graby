@@ -23,9 +23,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(null, $contentExtractor->getContent());
         $this->assertEquals(null, $contentExtractor->getTitle());
-        $this->assertEquals(array(), $contentExtractor->getAuthors());
         $this->assertEquals(null, $contentExtractor->getLanguage());
-        $this->assertEquals(null, $contentExtractor->getDate());
         $this->assertEquals(null, $contentExtractor->getSiteConfig());
         $this->assertEquals(null, $contentExtractor->getNextPageUrl());
     }
@@ -72,11 +70,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
-        foreach (array('author', 'http_header', 'single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
+        foreach (array('http_header', 'single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
         }
 
-        foreach (array('date', 'strip_image_src') as $value) {
+        foreach (array('strip_image_src') as $value) {
             $this->assertNotEmpty($res->$value, 'Check not empty value for: '.$value);
         }
 
@@ -112,7 +110,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             '<html><meta name="generator" content="WordPress.com" /></html>'
         );
 
-        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'author', 'date', 'strip_image_src') as $value) {
+        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src') as $value) {
             $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: '.$value);
         }
     }
@@ -130,7 +128,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config->replace_string = array('<iframe class="video"', '></iframe>');
 
         $res = $contentExtractor->process(
-            '<html>&lt;iframe &gt;&lt;/iframe&gt;</html> <a rel="author" href="/user8412228">CaTV</a>',
+            '<html>&lt;iframe &gt;&lt;/iframe&gt;</html>',
             'https://vimeo.com/35941909',
             $config
         );
@@ -140,8 +138,6 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $content_block = $contentExtractor->getContent();
 
         $this->assertContains('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
-        $this->assertCount(1, $contentExtractor->getAuthors());
-        $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
     }
 
     public function dataForNextPage()
@@ -204,42 +200,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($titleExpected, $contentExtractor->getTitle());
     }
 
-    public function dataForAuthor()
-    {
-        return array(
-            // return author node
-            array('//*[(@rel = "author")]', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', array('CaTV')),
-            // return author as a string
-            array('string(//*[(@rel = "author")])', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', array('CaTV')),
-            // return nothing because the rel="author" does not exist
-            array('string(//*[(@rel = "author")])', '<html>from <a href="/user8412228">CaTV</a></html>', array()),
-        );
-    }
-
-    /**
-     * @dataProvider dataForAuthor
-     */
-    public function testExtractAuthor($pattern, $html, $authorExpected)
-    {
-        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
-
-        $config = new SiteConfig();
-        $config->author = array($pattern);
-
-        $contentExtractor->process(
-            $html,
-            'https://lemonde.io/35941909',
-            $config
-        );
-
-        $this->assertEquals($authorExpected, $contentExtractor->getAuthors());
-    }
-
     public function dataForLanguage()
     {
         return array(
-            array('<html><meta name="DC.language" content="en" />from <a rel="author" href="/user8412228">CaTV</a></html>', 'en'),
-            array('<html lang="de">from <a rel="author" href="/user8412228">CaTV</a></html>', 'de'),
+            array('<html><meta name="DC.language" content="en" />from CaTV</html>', 'en'),
+            array('<html lang="de">from CaTV</html>', 'de'),
         );
     }
 
@@ -259,39 +224,6 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($languageExpected, $contentExtractor->getLanguage());
-    }
-
-    public function dataForDate()
-    {
-        return array(
-            // good time format
-            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
-            // bad time format, null result
-            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">date</time></html>', null),
-            // bad pattern but good @pubdate
-            array('//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
-            // good time format
-            array('string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
-        );
-    }
-
-    /**
-     * @dataProvider dataForDate
-     */
-    public function testExtractDate($pattern, $html, $dateExpected)
-    {
-        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
-
-        $config = new SiteConfig();
-        $config->date = array($pattern);
-
-        $contentExtractor->process(
-            $html,
-            'https://lemonde.io/35941909',
-            $config
-        );
-
-        $this->assertEquals($dateExpected, $contentExtractor->getDate());
     }
 
     public function dataForStrip()
@@ -466,28 +398,10 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         return array(
             // the all hNews tested
             array(
-                '<html><body><div class="hentry"><p class="entry-title">hello !</p><time pubdate="2015-01-01">2015-01-01</time><a class="vcard author">hello !</a>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
+                '<html><body><div class="hentry"><p class="entry-title">hello !</p><time pubdate="2015-01-01">2015-01-01</time>hello ! hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
                 '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
                 array(
                     'title' => 'hello !',
-                    'date' => strtotime('2015-01-01'),
-                    'authors' => array('hello !'),
-                ),
-            ),
-            // hNews with bad date
-            array(
-                '<html><body><div class="hentry"><time pubdate="2015-01-01">aweomse!</time>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
-                '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
-                array(
-                    'date' => null,
-                ),
-            ),
-            // hNews with many authors
-            array(
-                '<html><body><div class="hentry"><p class="vcard author"><a class="fn">first boy</a><a class="fn">first girl</a></p>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
-                '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
-                array(
-                    'authors' => array('first boy', 'first girl'),
                 ),
             ),
             // hNews with many content
