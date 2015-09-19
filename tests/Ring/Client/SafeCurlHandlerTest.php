@@ -1,12 +1,11 @@
 <?php
 
-namespace Graby\Tests\Ring\Client;
+namespace Graby\tests\Ring\Client;
 
 require __DIR__.'/../../../vendor/guzzlehttp/ringphp/tests/Client/Server.php';
 
 use GuzzleHttp\Tests\Ring\Client\Server;
 use Graby\Ring\Client\SafeCurlHandler;
-use GuzzleHttp\Ring\Client\CurlHandler;
 
 class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
 {
@@ -50,7 +49,7 @@ class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
         $a = new SafeCurlHandler();
         $request = [
             'http_method' => 'GET',
-            'headers'     => ['host' => [Server::$host]],
+            'headers' => ['host' => [Server::$host]],
         ];
         $a($request);
         $a($request);

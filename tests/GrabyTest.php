@@ -65,7 +65,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
                 $match[5], // title
                 $match[6], // summary
                 $match[7], // raw content
-                $match[8] // parsed content
+                $match[8], // parsed content
             );
         }
 
@@ -111,7 +111,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent($url);
@@ -139,7 +139,6 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             $this->assertArrayHasKey('og_image_type', $res['open_graph']);
             $this->assertArrayHasKey('og_type', $res['open_graph']);
         }
-
     }
 
     public function dataForAllowed()
@@ -498,7 +497,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -545,7 +544,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -590,7 +589,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -640,7 +639,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -685,7 +684,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -730,7 +729,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -775,7 +774,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
         $res = $graby->fetchContent('lexpress.io');

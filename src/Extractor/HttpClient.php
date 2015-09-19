@@ -151,6 +151,7 @@ class HttpClient
                     'status' => $response->getStatusCode(),
                 );
             }
+
             return array(
                 'effective_url' => $url,
                 'body' => '',

@@ -47,7 +47,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * With a non-existent config directory, it fails
+     * With a non-existent config directory, it fails.
      *
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage directory does not exist
@@ -55,7 +55,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function testBuildSiteConfigUnknownSite()
     {
         $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/../../wrong_site_config')
+            'site_config' => array(dirname(__FILE__).'/../../wrong_site_config'),
         )));
         $contentExtractor->buildSiteConfig('http://0.0.0.0');
     }

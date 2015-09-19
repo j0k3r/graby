@@ -1,4 +1,5 @@
 <?php
+
 namespace Graby\Ring\Client;
 
 use GuzzleHttp\Ring\Future\CompletedFutureArray;
@@ -9,7 +10,7 @@ use fin1te\SafeCurl\Exception;
 
 /**
  * This is a hard copy/paste of the `GuzzleHttp\Ring\Client\CurlHandler`
- * to wrap SafeCurl inside it (in `_invokeAsArray`)
+ * to wrap SafeCurl inside it (in `_invokeAsArray`).
  */
 class SafeCurlHandler
 {
@@ -47,7 +48,7 @@ class SafeCurlHandler
         // Ensure headers are by reference. They're updated elsewhere.
         $result = $factory($request, curl_init());
         $h = $result[0];
-        $hd =& $result[1];
+        $hd = &$result[1];
         $bd = $result[2];
         Core::doSleep($request);
 

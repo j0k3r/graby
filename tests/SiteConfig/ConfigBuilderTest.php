@@ -140,7 +140,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
     public function testBuildSiteConfig($host, $expectedRes, $matchedHost = false)
     {
         $configBuilder = new ConfigBuilder(array(
-            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
         ));
 
         $res = $configBuilder->build($host);
@@ -156,7 +156,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
     public function testBuildWithCachedVersion()
     {
         $configBuilder = new ConfigBuilder(array(
-            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config')
+            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
         ));
 
         $res = $configBuilder->build('fr.wikipedia.org');
