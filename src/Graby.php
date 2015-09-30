@@ -544,7 +544,7 @@ class Graby
             $base->ipath = str_replace('//', '/', $base->ipath);
         }
 
-        foreach (array('a' => 'href', 'img' => 'src') as $tag => $attr) {
+        foreach (array('a' => 'href', 'img' => 'src', 'iframe' => 'src') as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
 
             for ($i = $elems->length - 1; $i >= 0; --$i) {

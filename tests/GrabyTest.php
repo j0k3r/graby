@@ -852,6 +852,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             array('http://example.org', '<img src="/lol.jpg">test</img>', 'src', 'src', 'http://example.org/lol.jpg'),
             array('http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'src', 'http://example.org/path/to/image.jpg'),
             array('http://example.org', '<a href="/lol">test</a>', 'src', 'src', ''),
+            array('http://example.org', '<iframe src="/lol" />', 'src', 'src', 'http://example.org/lol'),
         );
     }
 
@@ -881,6 +882,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         return array(
             array('http://example.org', '<a href="/lol">test</a>', 'href', 'http://example.org/lol'),
             array('http://example.org', '<img src="/lol.jpg">test</img>', 'src', 'http://example.org/lol.jpg'),
+            array('http://example.org', '<img src="//domain.com/lol.jpg">test</img>', 'src', 'http://domain.com/lol.jpg'),
             array('http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'http://example.org/path/to/image.jpg'),
             array('http://example.org', '<a href="/lol">test</a>', 'src', ''),
         );

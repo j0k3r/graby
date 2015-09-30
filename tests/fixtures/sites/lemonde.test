@@ -536,7 +536,7 @@ require(["lmd/ui/liste-az"],function(a){a.init({context:'#ariane-context-3236'})
 <h2 class="intertitre">« Thérapie de groupe »</h2>
 <p><em>« On a une impression amère »</em>, a commenté Jean-Eric Ziolkowski, de la Confédération française démocratique du travail, pour qui ces trois jours de discussions avec le médiateur se sont apparentés à une <em>« thérapie de groupe »</em>.</p>
 <p>Le recours à un médiateur avait été posé comme préalable par les syndicats de Radio France à la reprise des discussions avec la direction et préconisé par le Conseil supérieur de l'audiovisuel, qui avait nommé <a href="/actualite-medias/article/2015/04/08/quand-mathieu-gallet-fend-l-armure_4611633_3236.html">Mathieu Gallet</a> à la tête de la radio au début de l'année dernière.</p>
-<div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>
+<div class="video_player"><iframe src="/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>
                   </div>
 
                                  </article>
@@ -1111,4 +1111,4 @@ lmd.conf.fsw.webvisor && lmd.onload(function() {
 <h2 class="intertitre">« Thérapie de groupe »</h2>
 <p><em>« On a une impression amère »</em>, a commenté Jean-Eric Ziolkowski, de la Confédération française démocratique du travail, pour qui ces trois jours de discussions avec le médiateur se sont apparentés à une <em>« thérapie de groupe »</em>.</p>
 <p>Le recours à un médiateur avait été posé comme préalable par les syndicats de Radio France à la reprise des discussions avec la direction et préconisé par le Conseil supérieur de l'audiovisuel, qui avait nommé <a href="http://www.lemonde.fr/actualite-medias/article/2015/04/08/quand-mathieu-gallet-fend-l-armure_4611633_3236.html">Mathieu Gallet</a> à la tête de la radio au début de l'année dernière.</p>
-<div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe></div>
+<div class="video_player"><iframe src="http://www.lemonde.fr/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe></div>
