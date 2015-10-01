@@ -141,6 +141,44 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * This test will required an internet connexion.
+     * Kind of *functional test*.
+     */
+    public function testRealFetchContent()
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html');
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+
+        $this->assertEquals(200, $res['status']);
+        $this->assertEquals('fr', $res['language']);
+        $this->assertEquals('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
+        $this->assertEquals('Grève à Radio France : vers une sortie du conflit ?', $res['title']);
+        $this->assertEquals('text/html', $res['content_type']);
+
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('og_site_name', $res['open_graph']);
+        $this->assertArrayHasKey('og_locale', $res['open_graph']);
+        $this->assertArrayHasKey('og_url', $res['open_graph']);
+        $this->assertArrayHasKey('og_title', $res['open_graph']);
+        $this->assertArrayHasKey('og_description', $res['open_graph']);
+        $this->assertArrayHasKey('og_image', $res['open_graph']);
+        $this->assertArrayHasKey('og_image_width', $res['open_graph']);
+        $this->assertArrayHasKey('og_image_height', $res['open_graph']);
+        $this->assertArrayHasKey('og_image_type', $res['open_graph']);
+        $this->assertArrayHasKey('og_type', $res['open_graph']);
+    }
+
     public function dataForAllowed()
     {
         return array(
