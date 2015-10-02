@@ -28,11 +28,5 @@
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/j0k3r/safecurl"
-        }
-    ]
+    }
 }
