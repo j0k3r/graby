@@ -162,18 +162,6 @@ class Graby
             throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effective_url));
         }
 
-        if (200 !== $response['status']) {
-            return array(
-                'status' => $response['status'],
-                'html' => $this->config['error_message'],
-                'title' => '',
-                'language' => '',
-                'url' => $effective_url,
-                'content_type' => '',
-                'open_graph' => array()
-            );
-        }
-
         // check if action defined for returned Content-Type, like image, pdf, audio or video
         $mimeInfo = $this->getMimeActionInfo($response['headers']);
         $infos = $this->handleMimeAction($mimeInfo, $effective_url, $response['body']);

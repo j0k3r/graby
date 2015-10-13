@@ -77,7 +77,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($urlRewritten),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true, 'exceptions' => false))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -125,7 +125,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true, 'exceptions' => false))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -176,7 +176,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true, 'exceptions' => false))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -185,7 +185,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true, 'exceptions' => false))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -348,7 +348,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true, 'exceptions' => false))
+                $this->equalTo(array('headers' => $headers, 'cookies' => true))
             )
             ->willReturn($response);
 
@@ -375,7 +375,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $res = $http->fetch('http://www.lexpress.io/my-map.html');
 
         $this->assertEquals('http://www.lexpress.io/my-map.html', $res['effective_url']);
-        $this->assertEquals('test', $res['body']);
+        $this->assertEquals('', $res['body']);
         $this->assertEquals('text/html', $res['headers']);
         $this->assertEquals(404, $res['status']);
     }
