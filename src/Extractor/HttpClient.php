@@ -128,6 +128,10 @@ class HttpClient
             $method = 'head';
         }
 
+        /**
+         * Since we can make a first request with HTTP `HEAD` we can get a bad request depending if the server handle HEAD request or not
+         * So, instead of catching the error, we defined Guzzle to not throw Exception and allow the failed HEAD request on our own (just below)
+         */
         try {
             $response = $this->client->$method(
                 $url,
@@ -138,20 +142,11 @@ class HttpClient
                         'Referer' => $this->config['default_referer'],
                     ),
                     'cookies' => true,
+                    'exceptions' => false,
                 )
             );
         } catch (RequestException $e) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-
-                return array(
-                    'effective_url' => $response->getEffectiveUrl(),
-                    'body' => '',
-                    'headers' => (string) $response->getHeader('Content-Type'),
-                    'status' => $response->getStatusCode(),
-                );
-            }
-
+            // in case of exception this means SafeCurl doesn't allow this url
             return array(
                 'effective_url' => $url,
                 'body' => '',
@@ -172,6 +167,16 @@ class HttpClient
         }
 
         $body = (string) $response->getBody();
+
+        // since we don't want to catch Guzzle exception, we need to handle bad request on our own
+        if (200 !== $response->getStatusCode()) {
+            return array(
+                'effective_url' => $effectiveUrl,
+                'body' => $body,
+                'headers' => $contentType,
+                'status' => $response->getStatusCode(),
+            );
+        }
 
         // check for <meta name='fragment' content='!'/>
         // for AJAX sites, e.g. Blogger with its dynamic views templates.

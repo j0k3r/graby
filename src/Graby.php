@@ -162,6 +162,18 @@ class Graby
             throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effective_url));
         }
 
+        if (200 !== $response['status']) {
+            return array(
+                'status' => $response['status'],
+                'html' => $this->config['error_message'],
+                'title' => '',
+                'language' => '',
+                'url' => $effective_url,
+                'content_type' => '',
+                'open_graph' => array()
+            );
+        }
+
         // check if action defined for returned Content-Type, like image, pdf, audio or video
         $mimeInfo = $this->getMimeActionInfo($response['headers']);
         $infos = $this->handleMimeAction($mimeInfo, $effective_url, $response['body']);
@@ -449,13 +461,19 @@ class Graby
 
                 if ($mimeInfo['mime'] == 'application/pdf') {
                     $parser = new PdfParser();
-                    $pdf = $parser->parseContent($body);
+                    $pdf = $parser->parseFile($effective_url);
                     $infos['html'] = nl2br($pdf->getText());
 
                     // update title in case of details are present
                     $details = $pdf->getDetails();
-                    if (isset($details['Title']) && '' !== trim($details['Title'])) {
-                        $infos['title'] = $details['Title'];
+
+                    // Title can be a string or an array with one key
+                    if (isset($details['Title'])) {
+                        if (is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
+                            $infos['title'] = $details['Title'][0];
+                        } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
+                            $infos['title'] = $details['Title'];
+                        }
                     }
                 }
 
