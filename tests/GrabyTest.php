@@ -90,6 +90,14 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($rawContent);
 
         $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn($rawContent);
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getHeader')
             ->will($this->returnCallback(function ($parameter) use ($header) {
                 switch ($parameter) {
@@ -296,6 +304,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://lexpress.io');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('image/jpeg');
 
@@ -334,6 +346,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('application/x-msdownload');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $response->expects($this->exactly(2))
             ->method('getEffectiveUrl')
@@ -381,6 +397,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getHeader')
             ->willReturn($header);
 
@@ -412,19 +432,18 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        // hacking stuff to avoid to mock the file_get_contents from PdfParser->parseFile()
         $response->expects($this->once())
             ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io/test.pdf');
+            ->willReturn(dirname(__FILE__).'/fixtures/document1.pdf');
 
         $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('application/pdf');
 
-        $pdf = file_get_contents(dirname(__FILE__).'/fixtures/document1.pdf');
-
         $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn($pdf);
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -443,8 +462,49 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Document1', $res['title']);
         $this->assertContains('Document title', $res['html']);
         $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
-        $this->assertEquals('http://lexpress.io/test.pdf', $res['url']);
+        $this->assertContains('fixtures/document1.pdf', $res['url']);
         $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
+        $this->assertEquals('application/pdf', $res['content_type']);
+        $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function testAssetExtensionPDFWithArrayDetails()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        // hacking stuff to avoid to mock the file_get_contents from PdfParser->parseFile()
+        $response->expects($this->once())
+            ->method('getEffectiveUrl')
+            ->willReturn(dirname(__FILE__).'/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf');
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('application/pdf');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('head')
+            ->willReturn($response);
+
+        $graby = new Graby(array(), $client);
+
+        $res = $graby->fetchContent('http://lexpress.io/test.pdf');
+
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
+        $this->assertEquals('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
+        $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
+        $this->assertContains('fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf', $res['url']);
+        $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['summary']);
         $this->assertEquals('application/pdf', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }
@@ -458,6 +518,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->once())
             ->method('getEffectiveUrl')
             ->willReturn('http://lexpress.io/test.txt');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $response->expects($this->any())
             ->method('getHeader')
@@ -523,6 +587,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('text/html');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getBody')
             ->willReturn('<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="'.$singlePageUrl.'" class="service-links-print">printed view</a></li></ul></html>');
 
@@ -559,6 +627,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getEffectiveUrl')
             ->willReturn('http://singlepage1.com/data.jpg');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $response->expects($this->exactly(4))
             ->method('getHeader')
@@ -608,6 +680,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://multiplepage1.com');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('text/html');
 
@@ -651,6 +727,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getEffectiveUrl')
             ->willReturn('http://multiplepage1.com');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $response->expects($this->exactly(4))
             ->method('getHeader')
@@ -703,6 +783,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://multiplepage1.com');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('text/html');
 
@@ -748,6 +832,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://multiplepage1.com');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('text/html');
 
@@ -791,6 +879,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getEffectiveUrl')
             ->willReturn('http://multiplepage1.com');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $response->expects($this->any())
             ->method('getHeader')
@@ -980,6 +1072,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://removelinks.io');
 
         $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
             ->method('getHeader')
             ->willReturn('text/html');
 
@@ -1018,6 +1114,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->once())
             ->method('getEffectiveUrl')
             ->willReturn('http://lexpress.io');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
 
         $response->expects($this->any())
             ->method('getHeader')

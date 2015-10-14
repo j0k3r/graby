@@ -449,13 +449,19 @@ class Graby
 
                 if ($mimeInfo['mime'] == 'application/pdf') {
                     $parser = new PdfParser();
-                    $pdf = $parser->parseContent($body);
+                    $pdf = $parser->parseFile($effective_url);
                     $infos['html'] = nl2br($pdf->getText());
 
                     // update title in case of details are present
                     $details = $pdf->getDetails();
-                    if (isset($details['Title']) && '' !== trim($details['Title'])) {
-                        $infos['title'] = $details['Title'];
+
+                    // Title can be a string or an array with one key
+                    if (isset($details['Title'])) {
+                        if (is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
+                            $infos['title'] = $details['Title'][0];
+                        } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
+                            $infos['title'] = $details['Title'];
+                        }
                     }
                 }
 
