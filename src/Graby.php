@@ -12,6 +12,7 @@ use ForceUTF8\Encoding;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 use Smalot\PdfParser\Parser as PdfParser;
 
 /**
@@ -81,6 +82,18 @@ class Graby
     }
 
     /**
+     * Redefine all loggers.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        $this->extractor->setLogger($logger);
+        $this->httpClient->setLogger($logger);
+    }
+
+    /**
      * Return a config.
      *
      * @param string $key
@@ -105,6 +118,8 @@ class Graby
      */
     public function fetchContent($url)
     {
+        $this->logger->log('debug', 'Graby is ready to fetch');
+
         $infos = $this->doFetchContent($url);
 
         $html = $infos['html'];
@@ -155,6 +170,8 @@ class Graby
             throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $url));
         }
 
+        $this->logger->log('debug', 'Fetching url: {url}', array('url' => $url));
+
         $response = $this->httpClient->fetch($url);
 
         $effective_url = $response['effective_url'];
@@ -173,6 +190,8 @@ class Graby
 
         $ogData = $this->extractOpenGraph($html);
 
+        $this->logger->log('debug', 'Opengraph data: {ogData}', array('ogData' => $ogData));
+
         // @TODO: log raw html + headers
 
         // check site config for single page URL - fetch it if found
@@ -189,12 +208,11 @@ class Graby
             }
 
             $html = Encoding::toUTF8($single_page_response['body']);
-            $this->logger->log('debug', "Retrieved single-page view from $effective_url");
+            $this->logger->log('debug', 'Retrieved single-page view from "{url}"', array('url' => $effective_url));
 
             unset($single_page_response);
         }
 
-        $this->logger->log('debug', '--------');
         $this->logger->log('debug', 'Attempting to extract content');
         $extract_result = $this->extractor->process($html, $effective_url);
         $readability = $this->extractor->readability;
@@ -211,18 +229,16 @@ class Graby
         //die('Next: '.$this->extractor->getNextPageUrl());
         $is_multi_page = (!$is_single_page && $extract_result && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $is_multi_page) {
-            $this->logger->log('debug', '--------');
             $this->logger->log('debug', 'Attempting to process multi-page article');
             $multi_page_urls = array();
             $multi_page_content = array();
 
             while ($next_page_url = $this->extractor->getNextPageUrl()) {
-                $this->logger->log('debug', '--------');
-                $this->logger->log('debug', 'Processing next page: '.$next_page_url);
+                $this->logger->log('debug', 'Processing next page: {url}', array('url' => $next_page_url));
                 // If we've got URL, resolve against $url
                 $next_page_url = $this->makeAbsoluteStr($effective_url, $next_page_url);
                 if (!$next_page_url) {
-                    $this->logger->log('debug', 'Failed to resolve against '.$effective_url);
+                    $this->logger->log('debug', 'Failed to resolve against: {url}', array('url' => $effective_url));
                     $multi_page_content = array();
                     break;
                 }
@@ -337,7 +353,12 @@ class Graby
             $html = preg_replace('!</?a[^>]*>!', '', $html);
         }
 
-        $this->logger->log('debug', 'Done!');
+        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', array('data' => array(
+            'title' => $extracted_title,
+            'language' => $extracted_language,
+            'url' => $effective_url,
+            'content_type' => $mimeInfo['mime'],
+        )));
 
         return array(
             'status' => $response['status'],

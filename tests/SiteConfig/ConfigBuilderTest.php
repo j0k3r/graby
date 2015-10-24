@@ -4,6 +4,8 @@ namespace Tests\Graby\SiteConfig;
 
 use Graby\SiteConfig\SiteConfig;
 use Graby\SiteConfig\ConfigBuilder;
+use Monolog\Logger;
+use Monolog\Handler\TestHandler;
 
 class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 {
@@ -169,5 +171,28 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
         $this->assertEquals($res, $res2, 'Config retrieve from cache');
+    }
+
+    public function testLogMessage()
+    {
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $configBuilder = new ConfigBuilder(array(
+            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
+        ));
+        $configBuilder->setLogger($logger);
+
+        $res = $configBuilder->build('fr.wikipedia.org');
+
+        $records = $handler->getRecords();
+
+        $this->assertCount(5, $records);
+        $this->assertEquals('. looking for site config for {host} in primary folder', $records[0]['message']);
+        $this->assertEquals('fr.wikipedia.org', $records[0]['context']['host']);
+        $this->assertEquals('... found site config {host}', $records[1]['message']);
+        $this->assertEquals('.wikipedia.org.txt', $records[1]['context']['host']);
+        $this->assertEquals('Appending site config settings from global.txt', $records[2]['message']);
     }
 }

@@ -62,6 +62,12 @@ class ContentExtractor
         $this->configBuilder = new ConfigBuilder($this->config['config_builder'], $this->logger);
     }
 
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        $this->configBuilder->setLogger($logger);
+    }
+
     public function reset()
     {
         $this->html = null;
@@ -113,7 +119,7 @@ class ContentExtractor
 
         // is merged version already cached?
         if ($siteConfig = $this->configBuilder->getCachedVersion($host.'.merged')) {
-            $this->logger->log('debug', 'Returning cached and merged site config for '.$host);
+            $this->logger->log('debug', 'Returning cached and merged site config for {host}', array('host' => $host));
 
             return $siteConfig;
         }
@@ -138,7 +144,7 @@ class ContentExtractor
                 $config_fingerprint = $this->configBuilder->build($_fphost);
 
                 if (!empty($this->config['fingerprints']) && false !== $config_fingerprint) {
-                    $this->logger->log('debug', 'Appending site config settings from '.$_fphost.' (fingerprint match)');
+                    $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', array('host' => $_fphost));
                     $this->configBuilder->mergeConfig($config, $config_fingerprint);
 
                     if ($add_to_cache && !$this->configBuilder->getCachedVersion($_fphost)) {
@@ -193,7 +199,7 @@ class ContentExtractor
         if (!empty($this->siteConfig->find_string)) {
             if (count($this->siteConfig->find_string) == count($this->siteConfig->replace_string)) {
                 $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $_count);
-                $this->logger->log('debug', 'Strings replaced: $_count (find_string and/or replace_string)');
+                $this->logger->log('debug', 'Strings replaced: {count} (find_string and/or replace_string)', array('count' => $_count));
             } else {
                 $this->logger->log('debug', 'Skipped string replacement - incorrect number of find-replace strings in site config');
             }
@@ -204,11 +210,11 @@ class ContentExtractor
         $parser = $this->siteConfig->parser();
 
         if (!in_array($parser, $this->config['allowed_parsers'])) {
-            $this->logger->log('debug', 'HTML parser '.$parser.' not listed, using '.$this->config['default_parser'].' instead');
+            $this->logger->log('debug', 'HTML parser {parser} not listed, using {default_parser} instead', array('parser' => $parser, 'default_parser' => $this->config['default_parser']));
             $parser = $this->config['default_parser'];
         }
 
-        $this->logger->log('debug', 'Attempting to parse HTML with '.$parser);
+        $this->logger->log('debug', 'Attempting to parse HTML with {parser}', array('parser' => $parser));
         $this->readability = new Readability($html, $url, $parser, $this->siteConfig->tidy() && $smart_tidy);
         $tidied = $this->readability->tidied;
 
@@ -238,18 +244,18 @@ class ContentExtractor
 
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
-            $this->logger->log('debug', 'Trying '.$pattern);
+            $this->logger->log('debug', 'Trying {pattern}', array('pattern' => $pattern));
             $elems = $xpath->evaluate($pattern, $this->readability->dom);
 
             if (is_string($elems)) {
                 $this->title = trim($elems);
-                $this->logger->log('debug', 'Title expression evaluated as string: '.$this->title);
-                $this->logger->log('debug', '...XPath match: $pattern');
+                $this->logger->log('debug', 'Title expression evaluated as string: {title}', array('title' => $this->title));
+                $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
                 break;
             } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 $this->title = $elems->item(0)->textContent;
-                $this->logger->log('debug', 'Title matched: '.$this->title);
-                $this->logger->log('debug', '...XPath match: '.$pattern);
+                $this->logger->log('debug', 'Title matched: {title}', array('title' => $this->title));
+                $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
 
                 // remove title from document
                 try {
@@ -269,7 +275,7 @@ class ContentExtractor
             if ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 foreach ($elems as $elem) {
                     $this->language = trim($elem->textContent);
-                    $this->logger->log('debug', 'Language matched: '.$this->language);
+                    $this->logger->log('debug', 'Language matched: {language}', array('language' => $this->language));
                 }
 
                 if (null !== $this->language) {
@@ -284,7 +290,7 @@ class ContentExtractor
 
             // check for matches
             if ($elems && $elems->length > 0) {
-                $this->logger->log('debug', 'Stripping '.$elems->length.' elements (strip)');
+                $this->logger->log('debug', 'Stripping {length} elements (strip)', array('length' => $elems->length));
                 for ($i = $elems->length - 1; $i >= 0; --$i) {
                     if ($elems->item($i)->parentNode) {
                         $elems->item($i)->parentNode->removeChild($elems->item($i));
@@ -300,7 +306,7 @@ class ContentExtractor
 
             // check for matches
             if ($elems && $elems->length > 0) {
-                $this->logger->log('debug', 'Stripping '.$elems->length.' elements (strip_id_or_class)');
+                $this->logger->log('debug', 'Stripping {length} elements (strip_id_or_class)', array('length' => $elems->length));
                 for ($i = $elems->length - 1; $i >= 0; --$i) {
                     $elems->item($i)->parentNode->removeChild($elems->item($i));
                 }
@@ -325,7 +331,7 @@ class ContentExtractor
         $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' entry-unrelated ') or contains(concat(' ',normalize-space(@class),' '),' instapaper_ignore ')]", $this->readability->dom);
         // check for matches
         if ($elems && $elems->length > 0) {
-            $this->logger->log('debug', 'Stripping '.$elems->length.' .entry-unrelated,.instapaper_ignore elements');
+            $this->logger->log('debug', 'Stripping {length} .entry-unrelated,.instapaper_ignore elements', array('length' => $elems->length));
             for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
@@ -336,7 +342,7 @@ class ContentExtractor
         $elems = $xpath->query("//*[contains(@style,'display:none') or contains(@style,'visibility:hidden')]", $this->readability->dom);
         // check for matches
         if ($elems && $elems->length > 0) {
-            $this->logger->log('debug', 'Stripping '.$elems->length.' elements with inline display:none or visibility:hidden style');
+            $this->logger->log('debug', 'Stripping {length} elements with inline display:none or visibility:hidden style', array('length' => $elems->length));
             for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
@@ -352,7 +358,7 @@ class ContentExtractor
             }
 
             $this->logger->log('debug', 'Body matched');
-            $this->logger->log('debug', '...XPath match: $pattern, nb: '.$elems->length);
+            $this->logger->log('debug', '...XPath match: {pattern}, nb: {length}', array('pattern' => $pattern, 'length' => $elems->length));
             if ($elems->length == 1) {
                 $this->body = $elems->item(0);
 
@@ -365,7 +371,7 @@ class ContentExtractor
             } else {
                 $this->body = $this->readability->dom->createElement('div');
                 $len = 0;
-                $this->logger->log('debug', $elems->length.' body elems found');
+                $this->logger->log('debug', '{nb} body elems found', array('nb' => $elems->length));
 
                 foreach ($elems as $elem) {
                     if (!isset($elem->parentNode)) {
@@ -397,7 +403,7 @@ class ContentExtractor
                     }
                 }
 
-                $this->logger->log('debug', '...'.$len.' elements added to body');
+                $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
                 unset($len);
 
                 if ($this->body->hasChildNodes()) {
@@ -433,7 +439,7 @@ class ContentExtractor
 
                     if ($elems && $elems->length > 0) {
                         $this->title = $elems->item(0)->textContent;
-                        $this->logger->log('debug', 'hNews: found entry-title: '.$this->title);
+                        $this->logger->log('debug', 'hNews: found entry-title: {title}', array('title' => $this->title));
                         // remove title from document
                         $elems->item(0)->parentNode->removeChild($elems->item(0));
                         $detect_title = false;
@@ -466,7 +472,7 @@ class ContentExtractor
                             unset($e);
                         } else {
                             $this->body = $this->readability->dom->createElement('div');
-                            $this->logger->log('debug', $elems->length.' entry-content elems found');
+                            $this->logger->log('debug', '{nb} entry-content elems found', array('nb' => $elems->length));
                             $len = 0;
 
                             foreach ($elems as $elem) {
@@ -498,7 +504,7 @@ class ContentExtractor
                                 }
                             }
 
-                            $this->logger->log('debug', '...'.$len.' elements added to body');
+                            $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
                             unset($len);
 
                             $detect_body = false;
@@ -515,7 +521,7 @@ class ContentExtractor
 
             if ($elems && $elems->length > 0) {
                 $this->title = $elems->item(0)->textContent;
-                $this->logger->log('debug', 'Title found (.instapaper_title): '.$this->title);
+                $this->logger->log('debug', 'Title found (.instapaper_title): {title}', array('title' => $this->title));
                 // remove title from document
                 $elems->item(0)->parentNode->removeChild($elems->item(0));
                 $detect_title = false;
@@ -562,7 +568,7 @@ class ContentExtractor
                     unset($e);
                 } else {
                     $this->body = $this->readability->dom->createElement('div');
-                    $this->logger->log('debug', $elems->length.' itemprop="articleBody" elems found');
+                    $this->logger->log('debug', '{nb} itemprop="articleBody" elems found', array('nb' => $elems->length));
                     $len = 0;
 
                     foreach ($elems as $elem) {
@@ -594,7 +600,7 @@ class ContentExtractor
                         }
                     }
 
-                    $this->logger->log('debug', '...'.$len.' elements added to body');
+                    $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
                     unset($len);
 
                     $detect_body = false;
@@ -615,7 +621,7 @@ class ContentExtractor
 
         if ($detect_title && $this->readability->getTitle()) {
             $this->title = $this->readability->getTitle()->textContent;
-            $this->logger->log('debug', 'Detected title '.$this->title);
+            $this->logger->log('debug', 'Detected title: {title}', array('title' => $this->title));
         }
 
         if ($detect_body && $success) {

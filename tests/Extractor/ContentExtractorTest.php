@@ -4,6 +4,8 @@ namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\ContentExtractor;
 use Graby\SiteConfig\SiteConfig;
+use Monolog\Logger;
+use Monolog\Handler\TestHandler;
 
 class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 {
@@ -598,5 +600,32 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $content = $domElement->ownerDocument->saveXML($domElement);
 
         $this->assertContains('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $content);
+    }
+
+    public function testLogMessage()
+    {
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+        $contentExtractor->setLogger($logger);
+
+        $config = new SiteConfig();
+
+        $res = $contentExtractor->process(
+            '<html>&lt;iframe &gt;&lt;/iframe&gt;</html>',
+            'https://vimeo.com/35941909',
+            $config
+        );
+
+        $records = $handler->getRecords();
+
+        $this->assertCount(7, $records);
+        $this->assertEquals('Attempting to parse HTML with {parser}', $records[0]['message']);
+        $this->assertEquals('libxml', $records[0]['context']['parser']);
+        $this->assertEquals('Using Readability', $records[1]['message']);
+        $this->assertEquals('Detected title: {title}', $records[2]['message']);
+        $this->assertEquals('Trying again without tidy', $records[3]['message']);
     }
 }
