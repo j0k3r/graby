@@ -40,6 +40,11 @@ class ConfigBuilder
         $this->configFiles = Files::getFiles($this->config['site_config']);
     }
 
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * Add the given SiteConfig to the cache.
      *
@@ -59,7 +64,7 @@ class ConfigBuilder
 
         $this->cache[$key] = $config;
 
-        $this->logger->log('debug', 'Cached site config with key '.$key);
+        $this->logger->log('debug', 'Cached site config with key: {key}', array('key' => $key));
     }
 
     /**
@@ -132,14 +137,14 @@ class ConfigBuilder
         $matched_name = '';
 
         // look for site config file in primary folder
-        $this->logger->log('debug', '. looking for site config for '.$host.' in primary folder');
+        $this->logger->log('debug', '. looking for site config for {host} in primary folder', array('host' => $host));
         foreach ($try as $host) {
             if ($config = $this->getCachedVersion($host)) {
-                $this->logger->log('debug', '... site config for '.$host.' already loaded in this request');
+                $this->logger->log('debug', '... site config for {host} already loaded in this request', array('host' => $host));
 
                 return $config;
             } elseif (isset($this->configFiles[$host.'.txt'])) {
-                $this->logger->log('debug', '... found site config ('.$host.'.txt)');
+                $this->logger->log('debug', '... found site config {host}', array('host' => $host.'.txt'));
                 $file_primary = $this->configFiles[$host.'.txt'];
                 $matched_name = $host;
                 break;

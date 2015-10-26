@@ -8,6 +8,8 @@ use GuzzleHttp\Subscriber\Mock;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Stream\Stream;
 use GuzzleHttp\Exception\RequestException;
+use Monolog\Logger;
+use Monolog\Handler\TestHandler;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -405,5 +407,70 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $res['body']);
         $this->assertEquals('', $res['headers']);
         $this->assertEquals(500, $res['status']);
+    }
+
+    public function testLogMessage()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->once())
+            ->method('getEffectiveUrl')
+            ->willReturn('http://fr.wikipedia.org/wiki/Copyright');
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('yay');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('get')
+            ->with(
+                $this->equalTo('http://fr.wikipedia.org/wiki/Copyright'),
+                $this->equalTo(array('headers' => array(
+                    'User-Agent' => 'Mozilla/5.2',
+                    'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                ), 'cookies' => true))
+            )
+            ->willReturn($response);
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($client);
+        $http->setLogger($logger);
+
+        $res = $http->fetch('http://fr.m.wikipedia.org/wiki/Copyright#bottom');
+
+        $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
+        $this->assertEquals('yay', $res['body']);
+        $this->assertEquals(200, $res['status']);
+
+        $records = $handler->getRecords();
+
+        $this->assertCount(2, $records);
+        $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[0]['message']);
+        $this->assertEquals('get', $records[0]['context']['method']);
+        $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $records[0]['context']['url']);
+        $this->assertEquals('Data fetched: {data}', $records[1]['message']);
+        $this->assertEquals(array(
+            'effective_url' => 'http://fr.wikipedia.org/wiki/Copyright',
+            'body' => '(only length for debug): 3',
+            'headers' => '',
+            'status' => 200,
+        ), $records[1]['context']['data']);
     }
 }

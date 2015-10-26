@@ -84,6 +84,11 @@ class HttpClient
         }
     }
 
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * Grab informations from an url:
      *     - final url (after potential redirection)
@@ -128,6 +133,8 @@ class HttpClient
             $method = 'head';
         }
 
+        $this->logger->log('debug', 'Trying using method "{method}" on url "{url}"', array('method' => $method, 'url' => $url));
+
         try {
             $response = $this->client->$method(
                 $url,
@@ -144,20 +151,30 @@ class HttpClient
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
 
-                return array(
+                $data = array(
                     'effective_url' => $response->getEffectiveUrl(),
                     'body' => '',
                     'headers' => (string) $response->getHeader('Content-Type'),
                     'status' => $response->getStatusCode(),
                 );
+
+                $this->logger->log('debug', 'Request throw exception (with a response)');
+                $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
+
+                return $data;
             }
 
-            return array(
+            $data = array(
                 'effective_url' => $url,
                 'body' => '',
                 'headers' => '',
                 'status' => 500,
             );
+
+            $this->logger->log('debug', 'Request throw exception (with no response)');
+            $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
+
+            return $data;
         }
 
         $effectiveUrl = $response->getEffectiveUrl();
@@ -192,6 +209,13 @@ class HttpClient
 
         // remove utm parameters & fragment
         $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', urldecode($effectiveUrl));
+
+        $this->logger->log('debug', 'Data fetched: {data}', array('data' => array(
+            'effective_url' => $effectiveUrl,
+            'body' => '(only length for debug): '.strlen($body),
+            'headers' => $contentType,
+            'status' => $response->getStatusCode(),
+        )));
 
         return array(
             'effective_url' => $effectiveUrl,
