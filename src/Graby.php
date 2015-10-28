@@ -471,7 +471,7 @@ class Graby
                 if ($mimeInfo['mime'] == 'application/pdf') {
                     $parser = new PdfParser();
                     $pdf = $parser->parseFile($effective_url);
-                    $infos['html'] = nl2br($pdf->getText());
+                    $infos['html'] = Encoding::toUTF8(nl2br($pdf->getText()));
 
                     // update title in case of details are present
                     $details = $pdf->getDetails();
