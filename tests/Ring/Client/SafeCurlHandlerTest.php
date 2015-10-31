@@ -38,7 +38,7 @@ class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
             $response['error']
         );
 
-        $this->assertEquals("Provided port '123' doesn't match whitelisted values: 80, 443, 8080", $response['error']->getMessage());
+        $this->assertEquals('Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080', $response['error']->getMessage());
     }
 
     public function testReusesHandles()
