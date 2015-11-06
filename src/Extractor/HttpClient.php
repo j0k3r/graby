@@ -158,7 +158,7 @@ class HttpClient
                     'status' => $response->getStatusCode(),
                 );
 
-                $this->logger->log('debug', 'Request throw exception (with a response)');
+                $this->logger->log('debug', 'Request throw exception (with a response): {error_message}', array('error_message' => $e->getMessage()));
                 $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
 
                 return $data;
@@ -171,7 +171,7 @@ class HttpClient
                 'status' => 500,
             );
 
-            $this->logger->log('debug', 'Request throw exception (with no response)');
+            $this->logger->log('debug', 'Request throw exception (with no response): {error_message}', array('error_message' => $e->getMessage()));
             $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
 
             return $data;
