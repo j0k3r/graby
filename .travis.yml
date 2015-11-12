@@ -11,7 +11,6 @@ php:
 matrix:
     fast_finish: true
     allow_failures:
-        - php: 7.0
         - php: hhvm
 
 # faster builds on new travis setup not using sudo
@@ -24,13 +23,14 @@ cache:
         - $HOME/.composer/cache
 
 before_install:
+    - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
     - composer self-update
 
 install:
-    - composer install --prefer-source --no-interaction
+    - composer install --no-interaction
 
 script:
-    - phpunit --coverage-clover=coverage.clover
+    - phpunit -v --coverage-clover=coverage.clover
 
 after_script:
     - |
