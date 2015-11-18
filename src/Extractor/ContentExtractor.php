@@ -716,7 +716,7 @@ class ContentExtractor
             );
         }
 
-        $this->logger->log('debug', 'Success ? {}', array('success' => $this->success));
+        $this->logger->log('debug', 'Success ? {is_success}', array('is_success' => $this->success));
 
         return $this->success;
     }

@@ -621,11 +621,12 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertCount(7, $records);
+        $this->assertCount(12, $records);
         $this->assertEquals('Attempting to parse HTML with {parser}', $records[0]['message']);
         $this->assertEquals('libxml', $records[0]['context']['parser']);
-        $this->assertEquals('Using Readability', $records[1]['message']);
-        $this->assertEquals('Detected title: {title}', $records[2]['message']);
-        $this->assertEquals('Trying again without tidy', $records[3]['message']);
+        $this->assertEquals('Trying {pattern} for language', $records[1]['message']);
+        $this->assertEquals('Using Readability', $records[3]['message']);
+        $this->assertEquals('Detected title: {title}', $records[4]['message']);
+        $this->assertEquals('Trying again without tidy', $records[5]['message']);
     }
 }
