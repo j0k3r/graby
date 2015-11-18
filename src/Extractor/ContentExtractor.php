@@ -244,7 +244,7 @@ class ContentExtractor
 
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern}', array('pattern' => $pattern));
+            $this->logger->log('debug', 'Trying {pattern} for title', array('pattern' => $pattern));
             $elems = $xpath->evaluate($pattern, $this->readability->dom);
 
             if (is_string($elems)) {
@@ -270,6 +270,7 @@ class ContentExtractor
         // try to get language
         $langXpath = array('//html[@lang]/@lang', '//meta[@name="DC.language"]/@content');
         foreach ($langXpath as $pattern) {
+            $this->logger->log('debug', 'Trying {pattern} for language', array('pattern' => $pattern));
             $elems = $xpath->evaluate($pattern, $this->readability->dom);
 
             if ($elems instanceof \DOMNodeList && $elems->length > 0) {
@@ -286,6 +287,7 @@ class ContentExtractor
 
         // strip elements (using xpath expressions)
         foreach ($this->siteConfig->strip as $pattern) {
+            $this->logger->log('debug', 'Trying {pattern} to strip element', array('pattern' => $pattern));
             $elems = $xpath->query($pattern, $this->readability->dom);
 
             // check for matches
@@ -301,6 +303,7 @@ class ContentExtractor
 
         // strip elements (using id and class attribute values)
         foreach ($this->siteConfig->strip_id_or_class as $string) {
+            $this->logger->log('debug', 'Trying {string} to strip element', array('string' => $string));
             $string = strtr($string, array("'" => '', '"' => ''));
             $elems = $xpath->query("//*[contains(@class, '$string') or contains(@id, '$string')]", $this->readability->dom);
 
@@ -350,6 +353,7 @@ class ContentExtractor
 
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
+            $this->logger->log('debug', 'Trying {pattern} for body', array('pattern' => $pattern));
             $elems = $xpath->query($pattern, $this->readability->dom);
 
             // check for matches
@@ -711,6 +715,8 @@ class ContentExtractor
                 false
             );
         }
+
+        $this->logger->log('debug', 'Success ? {}', array('success' => $this->success));
 
         return $this->success;
     }
