@@ -54,7 +54,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertCount(32, $records);
+        $this->assertGreaterThan(30, $records);
         $this->assertEquals('Graby is ready to fetch', $records[0]['message']);
         $this->assertEquals('Fetching url: {url}', $records[1]['message']);
         $this->assertEquals('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $records[1]['context']['url']);
@@ -62,42 +62,6 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('get', $records[2]['context']['method']);
         $this->assertEquals('Data fetched: {data}', $records[3]['message']);
         $this->assertEquals('Opengraph data: {ogData}', $records[4]['message']);
-        $this->assertEquals('Looking for site config files to see if single page link exists', $records[5]['message']);
-        $this->assertEquals('. looking for site config for {host} in primary folder', $records[6]['message']);
-        $this->assertEquals('lemonde.fr', $records[6]['context']['host']);
-        $this->assertEquals('... found site config {host}', $records[7]['message']);
-        $this->assertEquals('lemonde.fr.txt', $records[7]['context']['host']);
-        $this->assertEquals('Appending site config settings from global.txt', $records[8]['message']);
-        $this->assertEquals('. looking for site config for {host} in primary folder', $records[9]['message']);
-        $this->assertEquals('global', $records[9]['context']['host']);
-        $this->assertEquals('... found site config {host}', $records[10]['message']);
-        $this->assertEquals('global.txt', $records[10]['context']['host']);
-        $this->assertEquals('Cached site config with key: {key}', $records[11]['message']);
-        $this->assertEquals('. looking for site config for {host} in primary folder', $records[12]['message']);
-        $this->assertEquals('... found site config {host}', $records[13]['message']);
-        $this->assertEquals('Appending site config settings from global.txt', $records[14]['message']);
-        $this->assertEquals('Cached site config with key: {key}', $records[15]['message']);
-        $this->assertEquals('Cached site config with key: {key}', $records[16]['message']);
-        $this->assertEquals('lemonde.fr.merged', $records[16]['context']['key']);
-        $this->assertEquals('Attempting to extract content', $records[17]['message']);
-        $this->assertEquals('Returning cached and merged site config for {host}', $records[18]['message']);
-        $this->assertEquals('Attempting to parse HTML with {parser}', $records[19]['message']);
-        $this->assertEquals('Trying {pattern} for title', $records[20]['message']);
-        $this->assertEquals('//h1', $records[20]['context']['pattern']);
-        $this->assertEquals('Title matched: {title}', $records[21]['message']);
-        $this->assertEquals('Grève à Radio France : vers une sortie du conflit ?', $records[21]['context']['title']);
-        $this->assertEquals('...XPath match: {pattern}', $records[22]['message']);
-        $this->assertEquals('Trying {pattern} for language', $records[23]['message']);
-        $this->assertEquals('Language matched: {language}', $records[25]['message']);
-        $this->assertEquals('fr', $records[25]['context']['language']);
-        $this->assertEquals('Trying {pattern} for body', $records[26]['message']);
-        $this->assertEquals('Body matched', $records[27]['message']);
-        $this->assertEquals('...XPath match: {pattern}, nb: {length}', $records[28]['message']);
-        $this->assertEquals("//div[@id='articleBody']", $records[28]['context']['pattern']);
-        $this->assertEquals(1, $records[28]['context']['length']);
-        $this->assertEquals('Success ? {is_success}', $records[29]['message']);
-        $this->assertEquals('Returning data (most interesting ones): {data}', $records[30]['message']);
-        $this->assertEquals('Filtering HTML to remove XSS', $records[31]['message']);
     }
 
     public function testRealFetchContent2()
