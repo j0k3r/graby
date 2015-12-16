@@ -471,7 +471,14 @@ class Graby
                 if ($mimeInfo['mime'] == 'application/pdf') {
                     $parser = new PdfParser();
                     $pdf = $parser->parseFile($effective_url);
-                    $infos['html'] = Encoding::toUTF8(nl2br($pdf->getText()));
+
+                    $html = Encoding::toUTF8(nl2br($pdf->getText()));
+
+                    // strip away unwanted chars (that usualy came from PDF extracted content)
+                    // @see http://www.phpwact.org/php/i18n/charsets#common_problem_areas_with_utf-8
+                    $html = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $html);
+
+                    $infos['html'] = $html;
 
                     // update title in case of details are present
                     $details = $pdf->getDetails();
