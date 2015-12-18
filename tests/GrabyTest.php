@@ -103,9 +103,6 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
                 switch ($parameter) {
                     case 'Content-Type':
                         return $header;
-
-                    case 'Content-Encoding':
-                        return 'text';
                 }
             }));
 
@@ -594,13 +591,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('getStatusCode')
             ->willReturn(200);
 
-        $response->expects($this->exactly(4))
+        $response->expects($this->exactly(2))
             ->method('getHeader')
             ->will($this->onConsecutiveCalls(
                 'text/html',
-                '',
-                'image/jpeg',
-                ''
+                'image/jpeg'
             ));
 
         $response->expects($this->any())
@@ -694,13 +689,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('getStatusCode')
             ->willReturn(200);
 
-        $response->expects($this->exactly(4))
+        $response->expects($this->exactly(2))
             ->method('getHeader')
             ->will($this->onConsecutiveCalls(
                 'text/html',
-                '',
-                'application/pdf',
-                ''
+                'application/pdf'
             ));
 
         $response->expects($this->any())
