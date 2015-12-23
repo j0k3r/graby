@@ -203,10 +203,6 @@ class HttpClient
             }
         }
 
-        if ('gzip' == $response->getHeader('Content-Encoding')) {
-            $body = gzdecode($body);
-        }
-
         // remove utm parameters & fragment
         $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', urldecode($effectiveUrl));
 

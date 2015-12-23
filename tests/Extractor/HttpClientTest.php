@@ -314,55 +314,6 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(200, $res['status']);
     }
 
-    public function testFetchGzip()
-    {
-        $url = 'http://fr.wikipedia.org/wiki/Copyright';
-        $headers = array(
-            'User-Agent' => 'Mozilla/5.2',
-            'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-        );
-
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('gzip');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn(gzencode('yay'));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->with(
-                $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true))
-            )
-            ->willReturn($response);
-
-        $http = new HttpClient($client);
-        $res = $http->fetch($url);
-
-        $this->assertEquals($url, $res['effective_url']);
-        $this->assertEquals('yay', $res['body']);
-        $this->assertEquals('gzip', $res['headers']);
-        $this->assertEquals(200, $res['status']);
-    }
-
     public function testWith404ResponseWithResponse()
     {
         $client = new Client();
