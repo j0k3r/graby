@@ -226,11 +226,11 @@ class Graby
         $extracted_language = $this->extractor->getLanguage();
 
         // Deal with multi-page articles
-        //die('Next: '.$this->extractor->getNextPageUrl());
         $is_multi_page = (!$is_single_page && $extract_result && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $is_multi_page) {
             $this->logger->log('debug', 'Attempting to process multi-page article');
-            $multi_page_urls = array();
+            // store first page to avoid parsing it again (previous url content is in `$content_block`)
+            $multi_page_urls = array($effective_url);
             $multi_page_content = array();
 
             while ($next_page_url = $this->extractor->getNextPageUrl()) {
@@ -250,10 +250,10 @@ class Graby
                     break;
                 }
 
-                // it's not, so let's attempt to fetch it
+                // it's not, store it for later check & so let's attempt to fetch it
                 $multi_page_urls[] = $next_page_url;
 
-                $response = $this->httpClient->fetch($url);
+                $response = $this->httpClient->fetch($next_page_url);
 
                 // make sure mime type is not something with a different action associated
                 $mimeInfo = $this->getMimeActionInfo($response['headers']);
