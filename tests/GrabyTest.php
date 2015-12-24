@@ -681,7 +681,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $response->expects($this->any())
+        $response->expects($this->exactly(2))
             ->method('getEffectiveUrl')
             ->willReturn('http://multiplepage1.com');
 
@@ -696,7 +696,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
                 'application/pdf'
             ));
 
-        $response->expects($this->any())
+        $response->expects($this->exactly(2))
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
                 '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com/data.pdf">next page</a></li></ul></html>',
@@ -707,8 +707,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $client->expects($this->any())
+        $client->expects($this->once())
             ->method('get')
+            ->willReturn($response);
+
+        $client->expects($this->once())
+            ->method('head')
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
