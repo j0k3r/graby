@@ -2,6 +2,7 @@
 
 namespace Graby;
 
+use Graby\SiteConfig\ConfigBuilder;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use GuzzleHttp\Client;
 use Readability\Readability;
@@ -29,11 +30,15 @@ class Graby
     private $httpClient = null;
     private $extractor = null;
 
+    /** @var \Graby\SiteConfig\ConfigBuilder */
+    private $configBuilder;
+
     /**
-     * @param array       $config
+     * @param array $config
      * @param Client|null $client Guzzle client
+     * @param \Graby\SiteConfig\ConfigBuilder $configBuilder
      */
-    public function __construct($config = array(), Client $client = null)
+    public function __construct($config = array(), Client $client = null, ConfigBuilder $configBuilder = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
@@ -74,11 +79,20 @@ class Graby
             $this->config['extractor'],
             $this->logger
         );
+
         $this->httpClient = new HttpClient(
-            $client ?: new Client(array('handler' => new SafeCurlHandler())),
+            $guzzleClient = $client ?: new Client(array('handler' => new SafeCurlHandler())),
             $this->config['http_client'],
             $this->logger
         );
+
+        if ($configBuilder === null) {
+            $configBuilder = new ConfigBuilder(
+                isset($this->config['extractor']['config_builder']) ? $this->config['extractor']['config_builder'] : [],
+                $this->logger
+            );
+        }
+        $this->configBuilder = $configBuilder;
     }
 
     /**
@@ -514,7 +528,7 @@ class Graby
     private function getSinglePage($html, $url)
     {
         $this->logger->log('debug', 'Looking for site config files to see if single page link exists');
-        $site_config = $this->extractor->buildSiteConfig($url, $html);
+        $site_config = $this->configBuilder->buildFromUrl($url);
 
         // no single page found?
         if (empty($site_config->single_page_link)) {
