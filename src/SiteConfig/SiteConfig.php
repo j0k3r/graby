@@ -87,6 +87,13 @@ class SiteConfig
     // the options below cannot be set in the config files which this class represents
     public $cache_key = null;
 
+    public $requires_login = false;
+    public $not_logged_in_xpath = false;
+    public $login_uri = false;
+    public $login_username_field = false;
+    public $login_password_field = false;
+    public $login_extra_fields = array();
+
     /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
      *

@@ -196,7 +196,7 @@ class ConfigBuilder
 
         // check for single statement commands
         // we do not overwrite existing non null values
-        foreach (array('tidy', 'prune', 'parser', 'autodetect_on_failure') as $var) {
+        foreach (array('tidy', 'prune', 'parser', 'autodetect_on_failure', 'requires_login') as $var) {
             if ($currentConfig->$var === null) {
                 $currentConfig->$var = $newConfig->$var;
             }
@@ -244,13 +244,13 @@ class ConfigBuilder
             }
 
             // check for commands where we accept multiple statements
-            if (in_array($command, array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'http_header', 'test_url', 'find_string', 'replace_string'))) {
+            if (in_array($command, array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'http_header', 'test_url', 'find_string', 'replace_string', 'login_extra_fields'))) {
                 array_push($config->$command, $val);
             // check for single statement commands that evaluate to true or false
-            } elseif (in_array($command, array('tidy', 'prune', 'autodetect_on_failure'))) {
+            } elseif (in_array($command, array('tidy', 'prune', 'autodetect_on_failure', 'requires_login'))) {
                 $config->$command = ($val == 'yes' || $val == 'true');
             // check for single statement commands stored as strings
-            } elseif (in_array($command, array('parser'))) {
+            } elseif (in_array($command, array('parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri'))) {
                 $config->$command = $val;
             // check for replace_string(find): replace
             } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match)) {
