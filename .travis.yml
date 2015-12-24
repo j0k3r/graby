@@ -30,9 +30,8 @@ install:
     - composer install --no-interaction
 
 script:
-    - phpunit -v --coverage-clover=coverage.clover
+    - mkdir -p build/logs
+    - phpunit -v --coverage-clover build/logs/clover.xml
 
 after_script:
-    - |
-        wget https://scrutinizer-ci.com/ocular.phar
-        php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+    - php vendor/bin/coveralls -v
