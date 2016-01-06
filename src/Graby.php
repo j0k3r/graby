@@ -75,9 +75,7 @@ class Graby
             $this->logger
         );
         $this->httpClient = new HttpClient(
-            $guzzleClient = $client ?: new Client(
-                array('handler' => new SafeCurlHandler(), 'defaults' => array('cookies' => true))
-            ),
+            $client ?: new Client(array('handler' => new SafeCurlHandler(), 'defaults' => array('cookies' => true))),
             $this->config['http_client'],
             $this->logger
         );
