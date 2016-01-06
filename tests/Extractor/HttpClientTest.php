@@ -79,7 +79,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($urlRewritten),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true))
+                $this->equalTo(array('headers' => $headers))
             )
             ->willReturn($response);
 
@@ -127,7 +127,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true))
+                $this->equalTo(array('headers' => $headers))
             )
             ->willReturn($response);
 
@@ -178,7 +178,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true))
+                $this->equalTo(array('headers' => $headers))
             )
             ->willReturn($response);
 
@@ -187,7 +187,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers, 'cookies' => true))
+                $this->equalTo(array('headers' => $headers))
             )
             ->willReturn($response);
 
@@ -393,7 +393,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo(array('headers' => array(
                     'User-Agent' => 'Mozilla/5.2',
                     'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                ), 'cookies' => true))
+                )))
             )
             ->willReturn($response);
 
