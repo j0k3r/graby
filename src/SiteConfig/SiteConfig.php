@@ -87,11 +87,40 @@ class SiteConfig
     // the options below cannot be set in the config files which this class represents
     public $cache_key = null;
 
+    /**
+     * If fetching the site's content requires to authentify.
+     * @var bool
+     */
     public $requires_login = false;
+
+    /**
+     * XPath query to detect if login is requested in a page from the site.
+     * @var string
+     */
     public $not_logged_in_xpath = false;
+
+    /**
+     * Site's login form URI, if applicable.
+     * @var string
+     */
     public $login_uri = false;
+
+    /**
+     * Name of the site's login form username field. Example: username.
+     * @var string
+     */
     public $login_username_field = false;
+
+    /**
+     * Name of the site's login form password field. Example: password.
+     * @var string
+     */
     public $login_password_field = false;
+
+    /**
+     * Extra fields to POST to the site's login form.
+     * @var array hash of form field name => value
+     */
     public $login_extra_fields = array();
 
     /**
