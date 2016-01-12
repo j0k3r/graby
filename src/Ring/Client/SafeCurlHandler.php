@@ -5,6 +5,7 @@ namespace Graby\Ring\Client;
 use GuzzleHttp\Ring\Future\CompletedFutureArray;
 use GuzzleHttp\Ring\Core;
 use GuzzleHttp\Ring\Client\CurlFactory;
+use GuzzleHttp\Stream\Stream;
 use fin1te\SafeCurl\SafeCurl;
 use fin1te\SafeCurl\Exception;
 
@@ -49,16 +50,16 @@ class SafeCurlHandler
         $result = $factory($request, curl_init());
         $h = $result[0];
         $hd = &$result[1];
-        $bd = $result[2];
+        $body = $result[2];
         Core::doSleep($request);
 
         try {
             // override the default body stream with the request response
             $safecurl = new SafeCurl($h);
-            $bd = $safecurl->execute(Core::url($request));
+            $body = $safecurl->execute(Core::url($request));
         } catch (Exception $e) {
             // URL wasn't safe, return empty content
-            $bd = '';
+            $body = '';
             $safeCurlError = $e->getMessage();
         }
 
@@ -73,6 +74,6 @@ class SafeCurlHandler
             $response['err_message'] = $safeCurlError;
         }
 
-        return CurlFactory::createResponse([$this, '_invokeAsArray'], $request, $response, $hd, $bd);
+        return CurlFactory::createResponse([$this, '_invokeAsArray'], $request, $response, $hd, Stream::factory($body));
     }
 }
