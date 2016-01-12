@@ -12,6 +12,10 @@ matrix:
     fast_finish: true
     allow_failures:
         - php: hhvm
+    # only one build will send the coverage, this'll speed up other one
+    include:
+        - php: 5.6
+          env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml"
 
 # faster builds on new travis setup not using sudo
 sudo: false
@@ -31,7 +35,7 @@ install:
 
 script:
     - mkdir -p build/logs
-    - phpunit -v --coverage-clover build/logs/clover.xml
+    - phpunit -v $PHPUNIT_FLAGS
 
 after_script:
-    - php vendor/bin/coveralls -v
+    - if [[ "$PHPUNIT_FLAGS" != "" ]]; then php vendor/bin/coveralls -v; fi;
