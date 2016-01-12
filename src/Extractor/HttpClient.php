@@ -323,12 +323,12 @@ class HttpClient
             return false;
         }
 
-        $redirect_url = trim($match[1]);
-        if (preg_match('!^https?://!i', $redirect_url)) {
+        $redirectUrl = trim($match[1]);
+        if (preg_match('!^https?://!i', $redirectUrl)) {
             // already absolute
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirect_url);
+            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirectUrl);
 
-            return $redirect_url;
+            return $redirectUrl;
         }
 
         // absolutize redirect URL
@@ -338,7 +338,7 @@ class HttpClient
             $base->ipath = str_replace('//', '/', $base->ipath);
         }
 
-        if ($absolute = \SimplePie_IRI::absolutize($base, $redirect_url)) {
+        if ($absolute = \SimplePie_IRI::absolutize($base, $redirectUrl)) {
             $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$absolute);
 
             return $absolute->get_iri();

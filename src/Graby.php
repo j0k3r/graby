@@ -188,14 +188,14 @@ class Graby
 
         $response = $this->httpClient->fetch($url);
 
-        $effective_url = $response['effective_url'];
-        if (!$this->isUrlAllowed($effective_url)) {
-            throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effective_url));
+        $effectiveUrl = $response['effective_url'];
+        if (!$this->isUrlAllowed($effectiveUrl)) {
+            throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
         }
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
         $mimeInfo = $this->getMimeActionInfo($response['headers']);
-        $infos = $this->handleMimeAction($mimeInfo, $effective_url, $response['body']);
+        $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response['body']);
         if (is_array($infos)) {
             return $infos;
         }
@@ -210,152 +210,152 @@ class Graby
 
         // check site config for single page URL - fetch it if found
         $is_single_page = false;
-        if ($this->config['singlepage'] && ($single_page_response = $this->getSinglePage($html, $effective_url))) {
+        if ($this->config['singlepage'] && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
             $is_single_page = true;
-            $effective_url = $single_page_response['effective_url'];
+            $effectiveUrl = $singlePageResponse['effective_url'];
 
             // check if action defined for returned Content-Type
-            $mimeInfo = $this->getMimeActionInfo($single_page_response['headers']);
-            $infos = $this->handleMimeAction($mimeInfo, $effective_url, $single_page_response['body']);
+            $mimeInfo = $this->getMimeActionInfo($singlePageResponse['headers']);
+            $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse['body']);
             if (is_array($infos)) {
                 return $infos;
             }
 
-            $html = Encoding::toUTF8($single_page_response['body']);
-            $this->logger->log('debug', 'Retrieved single-page view from "{url}"', array('url' => $effective_url));
+            $html = Encoding::toUTF8($singlePageResponse['body']);
+            $this->logger->log('debug', 'Retrieved single-page view from "{url}"', array('url' => $effectiveUrl));
 
-            unset($single_page_response);
+            unset($singlePageResponse);
         }
 
         $this->logger->log('debug', 'Attempting to extract content');
-        $extract_result = $this->extractor->process($html, $effective_url);
+        $extract_result = $this->extractor->process($html, $effectiveUrl);
         $readability = $this->extractor->readability;
 
-        $content_block = $this->extractor->getContent();
-        $extracted_title = $this->extractor->getTitle();
-        $extracted_language = $this->extractor->getLanguage();
+        $contentBlock = $this->extractor->getContent();
+        $extractedTitle = $this->extractor->getTitle();
+        $extractedLanguage = $this->extractor->getLanguage();
 
         // Deal with multi-page articles
-        $is_multi_page = (!$is_single_page && $extract_result && null !== $this->extractor->getNextPageUrl());
-        if ($this->config['multipage'] && $is_multi_page) {
+        $isMultiPage = (!$is_single_page && $extract_result && null !== $this->extractor->getNextPageUrl());
+        if ($this->config['multipage'] && $isMultiPage) {
             $this->logger->log('debug', 'Attempting to process multi-page article');
-            // store first page to avoid parsing it again (previous url content is in `$content_block`)
-            $multi_page_urls = array($effective_url);
-            $multi_page_content = array();
+            // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
+            $multiPageUrls = array($effectiveUrl);
+            $multiPageContent = array();
 
-            while ($next_page_url = $this->extractor->getNextPageUrl()) {
-                $this->logger->log('debug', 'Processing next page: {url}', array('url' => $next_page_url));
+            while ($nextPageUrl = $this->extractor->getNextPageUrl()) {
+                $this->logger->log('debug', 'Processing next page: {url}', array('url' => $nextPageUrl));
                 // If we've got URL, resolve against $url
-                $next_page_url = $this->makeAbsoluteStr($effective_url, $next_page_url);
-                if (!$next_page_url) {
-                    $this->logger->log('debug', 'Failed to resolve against: {url}', array('url' => $effective_url));
-                    $multi_page_content = array();
+                $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
+                if (!$nextPageUrl) {
+                    $this->logger->log('debug', 'Failed to resolve against: {url}', array('url' => $effectiveUrl));
+                    $multiPageContent = array();
                     break;
                 }
 
                 // check it's not what we have already!
-                if (in_array($next_page_url, $multi_page_urls)) {
+                if (in_array($nextPageUrl, $multiPageUrls)) {
                     $this->logger->log('debug', 'URL already processed');
-                    $multi_page_content = array();
+                    $multiPageContent = array();
                     break;
                 }
 
                 // it's not, store it for later check & so let's attempt to fetch it
-                $multi_page_urls[] = $next_page_url;
+                $multiPageUrls[] = $nextPageUrl;
 
-                $response = $this->httpClient->fetch($next_page_url);
+                $response = $this->httpClient->fetch($nextPageUrl);
 
                 // make sure mime type is not something with a different action associated
                 $mimeInfo = $this->getMimeActionInfo($response['headers']);
 
                 if (isset($mimeInfo['action'])) {
                     $this->logger->log('debug', 'MIME type requires different action');
-                    $multi_page_content = array();
+                    $multiPageContent = array();
                     break;
                 }
 
                 $extracSuccess = $this->extractor->process(
                     Encoding::toUTF8($response['body']),
-                    $next_page_url
+                    $nextPageUrl
                 );
 
                 if (!$extracSuccess) {
                     $this->logger->log('debug', 'Failed to extract content');
-                    $multi_page_content = array();
+                    $multiPageContent = array();
                     break;
                 }
 
-                $multi_page_content[] = $this->extractor->getContent();
+                $multiPageContent[] = $this->extractor->getContent();
             }
 
             // did we successfully deal with this multi-page article?
-            if (empty($multi_page_content)) {
+            if (empty($multiPageContent)) {
                 $this->logger->log('debug', 'Failed to extract all parts of multi-page article, so not going to include them');
                 $_page = $readability->dom->createElement('p');
                 $_page->innerHTML = '<em>This article appears to continue on subsequent pages which we could not extract</em>';
-                $multi_page_content[] = $_page;
+                $multiPageContent[] = $_page;
             }
 
-            foreach ($multi_page_content as $_page) {
-                $_page = $content_block->ownerDocument->importNode($_page, true);
-                $content_block->appendChild($_page);
+            foreach ($multiPageContent as $_page) {
+                $_page = $contentBlock->ownerDocument->importNode($_page, true);
+                $contentBlock->appendChild($_page);
             }
 
-            unset($multi_page_urls, $multi_page_content, $page_mime_info, $next_page_url, $_page);
+            unset($multiPageUrls, $multiPageContent, $nextPageUrl, $_page);
         }
 
         // if we failed to extract content...
-        if (!$extract_result || null === $content_block) {
+        if (!$extract_result || null === $contentBlock) {
             return array(
                 'status' => $response['status'],
                 'html' => $this->config['error_message'],
-                'title' => $extracted_title,
-                'language' => $extracted_language,
-                'url' => $effective_url,
+                'title' => $extractedTitle,
+                'language' => $extractedLanguage,
+                'url' => $effectiveUrl,
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
                 'open_graph' => $ogData,
             );
         }
 
-        $readability->clean($content_block, 'select');
+        $readability->clean($contentBlock, 'select');
 
         if ($this->config['rewrite_relative_urls']) {
-            $this->makeAbsolute($effective_url, $content_block);
+            $this->makeAbsolute($effectiveUrl, $contentBlock);
         }
 
         // footnotes
-        if ($this->config['content_links'] == 'footnotes' && strpos($effective_url, 'wikipedia.org') === false) {
-            $readability->addFootnotes($content_block);
+        if ($this->config['content_links'] == 'footnotes' && strpos($effectiveUrl, 'wikipedia.org') === false) {
+            $readability->addFootnotes($contentBlock);
         }
 
         // normalise
-        $content_block->normalize();
+        $contentBlock->normalize();
         // remove empty text nodes
-        foreach ($content_block->childNodes as $_n) {
+        foreach ($contentBlock->childNodes as $_n) {
             if ($_n->nodeType === XML_TEXT_NODE && trim($_n->textContent) == '') {
-                $content_block->removeChild($_n);
+                $contentBlock->removeChild($_n);
             }
         }
 
         // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while ($content_block->childNodes->length == 1 && $content_block->firstChild->nodeType === XML_ELEMENT_NODE) {
+        while ($contentBlock->childNodes->length == 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
             // only follow these tag names
-            if (!in_array(strtolower($content_block->tagName), array('div', 'article', 'section', 'header', 'footer'))) {
+            if (!in_array(strtolower($contentBlock->tagName), array('div', 'article', 'section', 'header', 'footer'))) {
                 break;
             }
 
-            $content_block = $content_block->firstChild;
+            $contentBlock = $contentBlock->firstChild;
         }
 
         // convert content block to HTML string
         // Need to preserve things like body: //img[@id='feature']
-        if (in_array(strtolower($content_block->tagName), array('div', 'article', 'section', 'header', 'footer', 'li', 'td'))) {
-            $html = $content_block->innerHTML;
+        if (in_array(strtolower($contentBlock->tagName), array('div', 'article', 'section', 'header', 'footer', 'li', 'td'))) {
+            $html = $contentBlock->innerHTML;
         } else {
-            $html = $content_block->ownerDocument->saveXML($content_block); // essentially outerHTML
+            $html = $contentBlock->ownerDocument->saveXML($contentBlock); // essentially outerHTML
         }
 
-        unset($content_block);
+        unset($contentBlock);
 
         // post-processing cleanup
         $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', $html);
@@ -364,18 +364,18 @@ class Graby
         }
 
         $this->logger->log('debug', 'Returning data (most interesting ones): {data}', array('data' => array(
-            'title' => $extracted_title,
-            'language' => $extracted_language,
-            'url' => $effective_url,
+            'title' => $extractedTitle,
+            'language' => $extractedLanguage,
+            'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
         )));
 
         return array(
             'status' => $response['status'],
             'html' => $html,
-            'title' => $extracted_title,
-            'language' => $extracted_language,
-            'url' => $effective_url,
+            'title' => $extractedTitle,
+            'language' => $extractedLanguage,
+            'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
             'open_graph' => $ogData,
         );
@@ -444,13 +444,13 @@ class Graby
      * Handle action related to mime type detection.
      * These action can be exclude or link to handle custom content (like image, video, pdf, etc ..).
      *
-     * @param array  $mimeInfo      From getMimeActionInfo() function
-     * @param string $effective_url Current content url
-     * @param string $body          Content from the response
+     * @param array  $mimeInfo     From getMimeActionInfo() function
+     * @param string $effectiveUrl Current content url
+     * @param string $body         Content from the response
      *
      * @return array|null
      */
-    private function handleMimeAction($mimeInfo, $effective_url, $body = '')
+    private function handleMimeAction($mimeInfo, $effectiveUrl, $body = '')
     {
         if (!isset($mimeInfo['action'])) {
             return;
@@ -462,25 +462,25 @@ class Graby
             'title' => $mimeInfo['name'],
             'language' => '',
             'html' => '',
-            'url' => $effective_url,
+            'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
             'open_graph' => array(),
         );
 
         switch ($mimeInfo['action']) {
             case 'exclude':
-                throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effective_url));
+                throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
 
             case 'link':
-                $infos['html'] = '<a href="'.$effective_url.'">Download '.$mimeInfo['name'].'</a>';
+                $infos['html'] = '<a href="'.$effectiveUrl.'">Download '.$mimeInfo['name'].'</a>';
 
                 if ($mimeInfo['type'] == 'image') {
-                    $infos['html'] = '<a href="'.$effective_url.'"><img src="'.$effective_url.'" alt="'.$mimeInfo['name'].'" /></a>';
+                    $infos['html'] = '<a href="'.$effectiveUrl.'"><img src="'.$effectiveUrl.'" alt="'.$mimeInfo['name'].'" /></a>';
                 }
 
                 if ($mimeInfo['mime'] == 'application/pdf') {
                     $parser = new PdfParser();
-                    $pdf = $parser->parseFile($effective_url);
+                    $pdf = $parser->parseFile($effectiveUrl);
 
                     $html = Encoding::toUTF8(nl2br($pdf->getText()));
 
@@ -536,38 +536,38 @@ class Graby
         $xpath = new \DOMXPath($readability->dom);
 
         // Loop through single_page_link xpath expressions
-        $single_page_url = null;
+        $singlePageUrl = null;
 
         foreach ($site_config->single_page_link as $pattern) {
             $elems = $xpath->evaluate($pattern, $readability->dom);
 
             if (is_string($elems)) {
-                $single_page_url = trim($elems);
+                $singlePageUrl = trim($elems);
                 break;
             } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 foreach ($elems as $item) {
                     if ($item instanceof \DOMElement && $item->hasAttribute('href')) {
-                        $single_page_url = $item->getAttribute('href');
+                        $singlePageUrl = $item->getAttribute('href');
                         break 2;
                     } elseif ($item instanceof \DOMAttr && $item->value) {
-                        $single_page_url = $item->value;
+                        $singlePageUrl = $item->value;
                         break 2;
                     }
                 }
             }
         }
 
-        if (!$single_page_url) {
+        if (!$singlePageUrl) {
             return false;
         }
 
         // try to resolve against $url
-        $single_page_url = $this->makeAbsoluteStr($url, $single_page_url);
+        $singlePageUrl = $this->makeAbsoluteStr($url, $singlePageUrl);
 
         // check it's not what we have already!
-        if (false !== $single_page_url && $single_page_url != $url) {
+        if (false !== $singlePageUrl && $singlePageUrl != $url) {
             // it's not, so let's try to fetch it...
-            return $this->httpClient->fetch($single_page_url);
+            return $this->httpClient->fetch($singlePageUrl);
         }
 
         return false;
@@ -662,7 +662,7 @@ class Graby
 
     // Adapted from WordPress
     // http://core.trac.wordpress.org/browser/tags/3.5.1/wp-includes/formatting.php#L2173
-    private function getExcerpt($text, $num_words = 55, $more = null)
+    private function getExcerpt($text, $numWords = 55, $more = null)
     {
         if (null === $more) {
             $more = ' &hellip;';
@@ -675,23 +675,23 @@ class Graby
         /*
         if (1==2) {
             $text = trim(preg_replace("/[\n\r\t ]+/", ' ', $text), ' ');
-            preg_match_all('/./u', $text, $words_array);
-            $words_array = array_slice($words_array[0], 0, $num_words + 1);
+            preg_match_all('/./u', $text, $wordsArray);
+            $wordsArray = array_slice($wordsArray[0], 0, $numWords + 1);
             $sep = '';
         } else {
-            $words_array = preg_split("/[\n\r\t ]+/", $text, $num_words + 1, PREG_SPLIT_NO_EMPTY);
+            $wordsArray = preg_split("/[\n\r\t ]+/", $text, $numWords + 1, PREG_SPLIT_NO_EMPTY);
             $sep = ' ';
         }
         */
-        $words_array = preg_split("/[\n\r\t ]+/", $text, $num_words + 1, PREG_SPLIT_NO_EMPTY);
+        $wordsArray = preg_split("/[\n\r\t ]+/", $text, $numWords + 1, PREG_SPLIT_NO_EMPTY);
         $sep = ' ';
 
-        if (count($words_array) > $num_words) {
-            array_pop($words_array);
-            $text = implode($sep, $words_array);
+        if (count($wordsArray) > $numWords) {
+            array_pop($wordsArray);
+            $text = implode($sep, $wordsArray);
             $text = $text.$more;
         } else {
-            $text = implode($sep, $words_array);
+            $text = implode($sep, $wordsArray);
         }
 
         // trim whitespace at beginning or end of string

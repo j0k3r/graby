@@ -115,17 +115,17 @@ class ContentExtractor
         // load fingerprint config?
         if ($config->autodetect_on_failure()) {
             // check HTML for fingerprints
-            $_fphost = $this->findHostUsingFingerprints($html);
+            $fingerprintHost = $this->findHostUsingFingerprints($html);
 
-            if (false !== $_fphost) {
-                $config_fingerprint = $this->configBuilder->buildForHost($_fphost);
+            if (false !== $fingerprintHost) {
+                $configFingerprint = $this->configBuilder->buildForHost($fingerprintHost);
 
-                if (!empty($this->config['fingerprints']) && false !== $config_fingerprint) {
-                    $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', array('host' => $_fphost));
-                    $this->configBuilder->mergeConfig($config, $config_fingerprint);
+                if (!empty($this->config['fingerprints']) && false !== $configFingerprint) {
+                    $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', array('host' => $fingerprintHost));
+                    $this->configBuilder->mergeConfig($config, $configFingerprint);
 
-                    if ($add_to_cache && !$this->configBuilder->getCachedVersion($_fphost)) {
-                        $this->configBuilder->addToCache($_fphost, $config_fingerprint);
+                    if ($add_to_cache && !$this->configBuilder->getCachedVersion($fingerprintHost)) {
+                        $this->configBuilder->addToCache($fingerprintHost, $configFingerprint);
                     }
                 }
             }
@@ -135,18 +135,18 @@ class ContentExtractor
     }
 
     /**
-     * $smart_tidy indicates that if tidy is used and no results are produced, we will try again without it.
+     * $smartTidy indicates that if tidy is used and no results are produced, we will try again without it.
      * Tidy helps us deal with PHP's patchy HTML parsing most of the time
      * but it has problems of its own which we try to avoid with this option.
      *
      * @param string     $html
      * @param string     $url
      * @param SiteConfig $siteConfig Will avoid to recalculate the site config
-     * @param bool       $smart_tidy Do we need to tidy the html ?
+     * @param bool       $smartTidy  Do we need to tidy the html ?
      *
      * @return bool true on success, false on failure
      */
-    public function process($html, $url, SiteConfig $siteConfig = null, $smart_tidy = true)
+    public function process($html, $url, SiteConfig $siteConfig = null, $smartTidy = true)
     {
         $this->reset();
 
@@ -175,7 +175,7 @@ class ContentExtractor
         }
 
         $this->logger->log('debug', 'Attempting to parse HTML with {parser}', array('parser' => $parser));
-        $this->readability = new Readability($html, $url, $parser, $this->siteConfig->tidy() && $smart_tidy);
+        $this->readability = new Readability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
         $tidied = $this->readability->tidied;
 
         // we use xpath to find elements in the given HTML document
@@ -377,19 +377,19 @@ class ContentExtractor
         }
 
         // auto detect?
-        $detect_title = $detect_body = false;
+        $detectTitle = $detectBody = false;
 
         // detect title?
         if (!isset($this->title) && (empty($this->siteConfig->title) || $this->siteConfig->autodetect_on_failure())) {
-            $detect_title = true;
+            $detectTitle = true;
         }
         // detect body?
         if (!isset($this->body) && (empty($this->siteConfig->body) || $this->siteConfig->autodetect_on_failure())) {
-            $detect_body = true;
+            $detectBody = true;
         }
 
         // check for hNews
-        if ($detect_title || $detect_body) {
+        if ($detectTitle || $detectBody) {
             // check for hentry
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
@@ -397,7 +397,7 @@ class ContentExtractor
                 $this->logger->log('debug', 'hNews: found hentry');
                 $hentry = $elems->item(0);
 
-                if ($detect_title) {
+                if ($detectTitle) {
                     // check for entry-title
                     $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' entry-title ')]", $hentry);
 
@@ -406,14 +406,14 @@ class ContentExtractor
                         $this->logger->log('debug', 'hNews: found entry-title: {title}', array('title' => $this->title));
                         // remove title from document
                         $elems->item(0)->parentNode->removeChild($elems->item(0));
-                        $detect_title = false;
+                        $detectTitle = false;
                     }
                 }
 
                 // check for entry-content.
                 // according to hAtom spec, if there are multiple elements marked entry-content,
                 // we include all of these in the order they appear - see http://microformats.org/wiki/hatom#Entry_Content
-                if ($detect_body) {
+                if ($detectBody) {
                     $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' entry-content ')]", $hentry);
 
                     if ($this->hasElements($elems)) {
@@ -429,7 +429,7 @@ class ContentExtractor
                                     $this->logger->log('debug', 'Pruning content');
                                     $this->readability->prepArticle($this->body);
                                 }
-                                $detect_body = false;
+                                $detectBody = false;
                             } else {
                                 $this->logger->log('debug', 'hNews: skipping entry-content - appears not to contain content');
                             }
@@ -471,7 +471,7 @@ class ContentExtractor
                             $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
                             unset($len);
 
-                            $detect_body = false;
+                            $detectBody = false;
                         }
                     }
                 }
@@ -479,7 +479,7 @@ class ContentExtractor
         }
 
         // check for elements marked with instapaper_title
-        if ($detect_title) {
+        if ($detectTitle) {
             // check for instapaper_title
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_title ')]", $this->readability->dom);
 
@@ -488,12 +488,12 @@ class ContentExtractor
                 $this->logger->log('debug', 'Title found (.instapaper_title): {title}', array('title' => $this->title));
                 // remove title from document
                 $elems->item(0)->parentNode->removeChild($elems->item(0));
-                $detect_title = false;
+                $detectTitle = false;
             }
         }
 
         // check for elements marked with instapaper_body
-        if ($detect_body) {
+        if ($detectBody) {
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_body ')]", $this->readability->dom);
 
             if ($this->hasElements($elems)) {
@@ -504,12 +504,12 @@ class ContentExtractor
                     $this->logger->log('debug', 'Pruning content');
                     $this->readability->prepArticle($this->body);
                 }
-                $detect_body = false;
+                $detectBody = false;
             }
         }
 
         // check for elements marked with itemprop="articleBody" (from Schema.org)
-        if ($detect_body) {
+        if ($detectBody) {
             $elems = $xpath->query("//*[@itemprop='articleBody']", $this->readability->dom);
 
             if ($this->hasElements($elems)) {
@@ -525,7 +525,7 @@ class ContentExtractor
                             $this->logger->log('debug', 'Pruning content');
                             $this->readability->prepArticle($this->body);
                         }
-                        $detect_body = false;
+                        $detectBody = false;
                     } else {
                         $this->logger->log('debug', 'Schema.org: skipping itemprop="articleBody" - appears not to contain content');
                     }
@@ -567,14 +567,14 @@ class ContentExtractor
                     $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
                     unset($len);
 
-                    $detect_body = false;
+                    $detectBody = false;
                 }
             }
         }
 
         // still missing title or body, so we detect using Readability
         $success = false;
-        if ($detect_title || $detect_body) {
+        if ($detectTitle || $detectBody) {
             $this->logger->log('debug', 'Using Readability');
             // clone body if we're only using Readability for title (otherwise it may interfere with body element)
             if (isset($this->body)) {
@@ -583,12 +583,12 @@ class ContentExtractor
             $success = $this->readability->init();
         }
 
-        if ($detect_title && $this->readability->getTitle()) {
+        if ($detectTitle && $this->readability->getTitle()) {
             $this->title = $this->readability->getTitle()->textContent;
             $this->logger->log('debug', 'Detected title: {title}', array('title' => $this->title));
         }
 
-        if ($detect_body && $success) {
+        if ($detectBody && $success) {
             $this->logger->log('debug', 'Detecting body');
             $this->body = $this->readability->getContent();
 
@@ -639,9 +639,9 @@ class ContentExtractor
                 // next to the amended one.
                 // @see https://plugins.trac.wordpress.org/browser/lazy-load/trunk/lazy-load.php
                 if ($e->nextSibling !== null && $e->nextSibling->nodeName === 'noscript') {
-                    $_new_elem = $e->ownerDocument->createDocumentFragment();
-                    $_new_elem->appendXML($e->nextSibling->innerHTML);
-                    $e->nextSibling->parentNode->replaceChild($_new_elem, $e->nextSibling);
+                    $newElem = $e->ownerDocument->createDocumentFragment();
+                    $newElem->appendXML($e->nextSibling->innerHTML);
+                    $e->nextSibling->parentNode->replaceChild($newElem, $e->nextSibling);
                     $e->parentNode->removeChild($e);
 
                     continue;
@@ -663,7 +663,7 @@ class ContentExtractor
 
         // if we've had no success and we've used tidy, there's a chance
         // that tidy has messed up. So let's try again without tidy...
-        if (!$this->success && $tidied && $smart_tidy) {
+        if (!$this->success && $tidied && $smartTidy) {
             unset($this->body, $xpath);
 
             $this->logger->log('debug', 'Trying again without tidy');
