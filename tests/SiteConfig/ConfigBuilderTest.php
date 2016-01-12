@@ -116,7 +116,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
     public function testBuildOnCachedVersion()
     {
         $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
-        $config1 = $configBuilder->buildForHost('host.io');
+        $config1 = $configBuilder->buildForHost('www.host.io');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config1);
 
@@ -161,7 +161,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
         ));
 
-        $res = $configBuilder->build($host);
+        $res = $configBuilder->loadSiteConfig($host);
 
         if (false === $expectedRes) {
             $this->assertFalse($res, 'No site config generated');
@@ -177,13 +177,13 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
         ));
 
-        $res = $configBuilder->build('fr.wikipedia.org');
+        $res = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
         $configBuilder->addToCache($res->cache_key, $res);
 
-        $res2 = $configBuilder->build('fr.wikipedia.org');
+        $res2 = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
         $this->assertEquals($res, $res2, 'Config retrieve from cache');
@@ -200,11 +200,11 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         ));
         $configBuilder->setLogger($logger);
 
-        $res = $configBuilder->build('fr.wikipedia.org');
+        $res = $configBuilder->buildFromUrl('https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal');
 
         $records = $handler->getRecords();
 
-        $this->assertCount(5, $records);
+        $this->assertGreaterThan(5, $records);
         $this->assertEquals('. looking for site config for {host} in primary folder', $records[0]['message']);
         $this->assertEquals('fr.wikipedia.org', $records[0]['context']['host']);
         $this->assertEquals('... found site config {host}', $records[1]['message']);

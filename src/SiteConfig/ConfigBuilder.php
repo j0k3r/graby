@@ -117,9 +117,6 @@ class ConfigBuilder
     }
 
     /**
-     * @return SiteConfig
-     */
-    /**
      * Build a config file from a host.
      * Use `buildFromUrl` if you have an url.
      *
@@ -227,35 +224,31 @@ class ConfigBuilder
 
         // will contain the matched host
         $matchedName = '';
+        $config = new SiteConfig();
 
         // look for site config file in primary folder
         $this->logger->log('debug', '. looking for site config for {host} in primary folder', array('host' => $host));
         foreach ($try as $host) {
-            if ($config = $this->getCachedVersion($host)) {
+            if ($cachedConfig = $this->getCachedVersion($host)) {
                 $this->logger->log('debug', '... site config for {host} already loaded in this request', array('host' => $host));
 
-                return $config;
-            } elseif (isset($this->configFiles[$host.'.txt'])) {
+                return $cachedConfig;
+            }
+
+            // if we found site config, process it
+            if (isset($this->configFiles[$host.'.txt'])) {
                 $this->logger->log('debug', '... found site config {host}', array('host' => $host.'.txt'));
 
-                $primaryFile = $this->configFiles[$host.'.txt'];
-                $matchedName = $host;
+                $config_lines = file($this->configFiles[$host.'.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                // no lines ? we don't found config then
+                if (empty($config_lines) || !is_array($config_lines)) {
+                    return false;
+                }
+
+                $config = $this->parseLines($config_lines);
+                $config->cache_key = $host;
                 break;
             }
-        }
-
-        $config = new SiteConfig();
-
-        // if we found site config, process it
-        if (isset($primaryFile)) {
-            $config_lines = file($primaryFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            // no lines ? we don't found config then
-            if (empty($config_lines) || !is_array($config_lines)) {
-                return false;
-            }
-
-            $config = $this->parseLines($config_lines);
-            $config->cache_key = $matchedName;
         }
 
         // append global config?
@@ -346,12 +339,9 @@ class ConfigBuilder
             } elseif (in_array($command, array('parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri'))) {
                 $config->$command = $val;
             // check for replace_string(find): replace
-            } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match)) {
-                if (in_array($match[1], array('replace_string'))) {
-                    $command = $match[1];
-                    array_push($config->find_string, $match[2]);
-                    array_push($config->$command, $val);
-                }
+            } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && in_array($match[1], array('replace_string'))) {
+                array_push($config->find_string, $match[2]);
+                array_push($config->$match[1], $val);
             }
         }
 
