@@ -10,8 +10,6 @@ use Psr\Log\LoggerInterface;
 
 /**
  * HttpClient will make sure to retrieve the right content with the right url.
- *
- * @todo catch Guzzle exception
  */
 class HttpClient
 {
@@ -102,31 +100,7 @@ class HttpClient
      */
     public function fetch($url, $skipTypeVerification = false)
     {
-        // rewrite part of urls to something more readable
-        foreach ($this->config['rewrite_url'] as $find => $action) {
-            if (strpos($url, $find) !== false && is_array($action)) {
-                $url = strtr($url, $action);
-            }
-        }
-
-        // convert fragment to actual query parameters
-        if ($fragmentPos = strpos($url, '#!')) {
-            $fragment = parse_url($url, PHP_URL_FRAGMENT);
-            // strip '!'
-            $fragment = substr($fragment, 1);
-            $query = array('_escaped_fragment_' => $fragment);
-
-            // url without fragment
-            $url = substr($url, 0, $fragmentPos);
-            $url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';
-            // needed for some sites
-            $url .= str_replace('%2F', '/', http_build_query($query));
-        }
-
-        // remove fragment
-        if ($pos = strpos($url, '#')) {
-            $url = substr($url, 0, $pos);
-        }
+        $url = $this->cleanupUrl($url);
 
         $method = 'get';
         if (!$skipTypeVerification && !empty($this->config['header_only_types']) && $this->possibleUnsupportedType($url)) {
@@ -221,6 +195,44 @@ class HttpClient
     }
 
     /**
+     * Cleanup URL and retrieve the final url to be called
+     *
+     * @param  string $url
+     *
+     * @return string
+     */
+    private function cleanupUrl($url)
+    {
+        // rewrite part of urls to something more readable
+        foreach ($this->config['rewrite_url'] as $find => $action) {
+            if (strpos($url, $find) !== false && is_array($action)) {
+                $url = strtr($url, $action);
+            }
+        }
+
+        // convert fragment to actual query parameters
+        if ($fragmentPos = strpos($url, '#!')) {
+            $fragment = parse_url($url, PHP_URL_FRAGMENT);
+            // strip '!'
+            $fragment = substr($fragment, 1);
+            $query = array('_escaped_fragment_' => $fragment);
+
+            // url without fragment
+            $url = substr($url, 0, $fragmentPos);
+            $url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';
+            // needed for some sites
+            $url .= str_replace('%2F', '/', http_build_query($query));
+        }
+
+        // remove fragment
+        if ($pos = strpos($url, '#')) {
+            $url = substr($url, 0, $pos);
+        }
+
+        return $url;
+    }
+
+    /**
      * Try to determine if the url is a direct link to a binary resource
      * by checking the extension.
      *
@@ -257,21 +269,18 @@ class HttpClient
             $host = substr($host, 4);
         }
 
-        if ($host !== false || strlen($host) > 0) {
-            $try = array($host);
-            $split = explode('.', $host);
+        $try = array($host);
+        $split = explode('.', $host);
 
-            if (count($split) > 1) {
-                // remove first subdomain
-                array_shift($split);
-                $try[] = '.'.implode('.', $split);
-            }
+        if (count($split) > 1) {
+            // remove first subdomain
+            array_shift($split);
+            $try[] = '.'.implode('.', $split);
+        }
 
-            foreach ($try as $h) {
-                if (isset($this->config['user_agents'][$h])) {
-                    $ua = $this->config['user_agents'][$h];
-                    break;
-                }
+        foreach ($try as $h) {
+            if (isset($this->config['user_agents'][$h])) {
+                return $this->config['user_agents'][$h];
             }
         }
 
@@ -290,14 +299,16 @@ class HttpClient
      */
     private function headerOnlyType($contentType)
     {
-        if (preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($contentType), $match)) {
-            $match[1] = strtolower(trim($match[1]));
-            $match[2] = strtolower(trim($match[2]));
+        if (!preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($contentType), $match)) {
+            return false;
+        }
 
-            foreach (array($match[1], $match[2]) as $mime) {
-                if (in_array($mime, $this->config['header_only_types'])) {
-                    return true;
-                }
+        $match[1] = strtolower(trim($match[1]));
+        $match[2] = strtolower(trim($match[2]));
+
+        foreach (array($match[1], $match[2]) as $mime) {
+            if (in_array($mime, $this->config['header_only_types'])) {
+                return true;
             }
         }
 
@@ -360,10 +371,6 @@ class HttpClient
      */
     private function getUglyURL($url, $html)
     {
-        if ($html == '') {
-            return false;
-        }
-
         $found = false;
         foreach ($this->config['ajax_triggers'] as $string) {
             if (stripos($html, $string)) {
