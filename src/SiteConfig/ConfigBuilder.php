@@ -149,7 +149,7 @@ class ConfigBuilder
         // store copy of merged config
         if ($addToCache) {
             $config->cache_key = null;
-            $this->addToCache("$host.merged", $config);
+            $this->addToCache($host.'merged', $config);
         }
 
         return $config;
@@ -160,8 +160,8 @@ class ConfigBuilder
      *
      * Will add the merged result to cache if $addToCache is set to true
      *
-     * @param string $host Host, like en.wikipedia.org
-     * @param bool $addToCache if true, we will not look for wildcard config matches
+     * @param string $host       Host, like en.wikipedia.org
+     * @param bool   $addToCache if true, we will not look for wildcard config matches
      *
      * @return false|SiteConfig
      *
@@ -176,8 +176,8 @@ class ConfigBuilder
      * Returns SiteConfig instance if an appropriate one is found, false otherwise.
      * by default if host is 'test.example.org' we will look for and load '.example.org.txt' if it exists.
      *
-     * @param string $host Host, like en.wikipedia.org
-     * @param bool $exactHostMatch if true, we will not look for wildcard config matches
+     * @param string $host           Host, like en.wikipedia.org
+     * @param bool   $exactHostMatch if true, we will not look for wildcard config matches
      *
      * @return false|SiteConfig
      */

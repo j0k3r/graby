@@ -34,8 +34,8 @@ class Graby
     private $configBuilder;
 
     /**
-     * @param array $config
-     * @param Client|null $client Guzzle client
+     * @param array                           $config
+     * @param Client|null                     $client        Guzzle client
      * @param \Graby\SiteConfig\ConfigBuilder $configBuilder
      */
     public function __construct($config = array(), Client $client = null, ConfigBuilder $configBuilder = null)

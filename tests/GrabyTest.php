@@ -27,7 +27,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function dataForConfigOverride()
     {
         return array(
-            array('http_client', array('http_client' => array('rewrite_url' => array('dummy.io' => array('/foo' => '/bar'),'docs.google.com' => array('/foo' => '/bar'))))),
+            array('http_client', array('http_client' => array('rewrite_url' => array('dummy.io' => array('/foo' => '/bar'), 'docs.google.com' => array('/foo' => '/bar'))))),
         );
     }
 

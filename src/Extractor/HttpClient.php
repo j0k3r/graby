@@ -143,7 +143,7 @@ class HttpClient
                         'User-Agent' => $this->getUserAgent($url),
                         // add referer for picky sites
                         'Referer' => $this->config['default_referer'],
-                    )
+                    ),
                 )
             );
         } catch (RequestException $e) {
