@@ -113,6 +113,22 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($config, $configBuilder->getCachedVersion($key));
     }
 
+    public function testBuildOnCachedVersion()
+    {
+        $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
+        $config1 = $configBuilder->buildForHost('host.io');
+
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config1);
+
+        $this->assertEquals($config1, $configBuilder->getCachedVersion('host.io'));
+        $this->assertEquals($config1, $configBuilder->getCachedVersion('host.io.merged'));
+
+        $config2 = $configBuilder->buildForHost('host.io');
+
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config2);
+        $this->assertSame($config1, $config2);
+    }
+
     public function dataForBuild()
     {
         return array(

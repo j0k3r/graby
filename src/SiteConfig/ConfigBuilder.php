@@ -168,7 +168,7 @@ class ConfigBuilder
         // store copy of merged config
         if ($addToCache) {
             $config->cache_key = null;
-            $this->addToCache($host.'merged', $config);
+            $this->addToCache($host.'.merged', $config);
         }
 
         return $config;
