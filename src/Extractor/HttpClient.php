@@ -257,11 +257,12 @@ class HttpClient
             $host = substr($host, 4);
         }
 
-        if ($host) {
+        if ($host !== false || strlen($host) > 0) {
             $try = array($host);
             $split = explode('.', $host);
 
             if (count($split) > 1) {
+                // remove first subdomain
                 array_shift($split);
                 $try[] = '.'.implode('.', $split);
             }

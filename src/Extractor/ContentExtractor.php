@@ -251,7 +251,7 @@ class ContentExtractor
             $elems = $xpath->query($pattern, $this->readability->dom);
 
             // check for matches
-            if ($elems && $elems->length > 0) {
+            if ($this->hasElements($elems)) {
                 $this->logger->log('debug', 'Stripping {length} elements (strip)', array('length' => $elems->length));
                 for ($i = $elems->length - 1; $i >= 0; --$i) {
                     if ($elems->item($i)->parentNode) {
@@ -268,7 +268,7 @@ class ContentExtractor
             $elems = $xpath->query("//*[contains(@class, '$string') or contains(@id, '$string')]", $this->readability->dom);
 
             // check for matches
-            if ($elems && $elems->length > 0) {
+            if ($this->hasElements($elems)) {
                 $this->logger->log('debug', 'Stripping {length} elements (strip_id_or_class)', array('length' => $elems->length));
                 for ($i = $elems->length - 1; $i >= 0; --$i) {
                     $elems->item($i)->parentNode->removeChild($elems->item($i));
@@ -293,7 +293,7 @@ class ContentExtractor
         // and http://blog.instapaper.com/post/730281947
         $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' entry-unrelated ') or contains(concat(' ',normalize-space(@class),' '),' instapaper_ignore ')]", $this->readability->dom);
         // check for matches
-        if ($elems && $elems->length > 0) {
+        if ($this->hasElements($elems)) {
             $this->logger->log('debug', 'Stripping {length} .entry-unrelated,.instapaper_ignore elements', array('length' => $elems->length));
             for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
@@ -304,7 +304,7 @@ class ContentExtractor
         // @todo: inline style are convert to <style> by tidy, so we can't remove hidden content ...
         $elems = $xpath->query("//*[contains(@style,'display:none') or contains(@style,'visibility:hidden')]", $this->readability->dom);
         // check for matches
-        if ($elems && $elems->length > 0) {
+        if ($this->hasElements($elems)) {
             $this->logger->log('debug', 'Stripping {length} elements with inline display:none or visibility:hidden style', array('length' => $elems->length));
             for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
@@ -393,7 +393,7 @@ class ContentExtractor
             // check for hentry
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
-            if ($elems && $elems->length > 0) {
+            if ($this->hasElements($elems)) {
                 $this->logger->log('debug', 'hNews: found hentry');
                 $hentry = $elems->item(0);
 
@@ -401,7 +401,7 @@ class ContentExtractor
                     // check for entry-title
                     $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' entry-title ')]", $hentry);
 
-                    if ($elems && $elems->length > 0) {
+                    if ($this->hasElements($elems)) {
                         $this->title = $elems->item(0)->textContent;
                         $this->logger->log('debug', 'hNews: found entry-title: {title}', array('title' => $this->title));
                         // remove title from document
@@ -416,7 +416,7 @@ class ContentExtractor
                 if ($detect_body) {
                     $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' entry-content ')]", $hentry);
 
-                    if ($elems && $elems->length > 0) {
+                    if ($this->hasElements($elems)) {
                         $this->logger->log('debug', 'hNews: found entry-content');
                         if ($elems->length == 1) {
                             // what if it's empty? (some sites misuse hNews - place their content outside an empty entry-content element)
@@ -483,7 +483,7 @@ class ContentExtractor
             // check for instapaper_title
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_title ')]", $this->readability->dom);
 
-            if ($elems && $elems->length > 0) {
+            if ($this->hasElements($elems)) {
                 $this->title = $elems->item(0)->textContent;
                 $this->logger->log('debug', 'Title found (.instapaper_title): {title}', array('title' => $this->title));
                 // remove title from document
@@ -496,7 +496,7 @@ class ContentExtractor
         if ($detect_body) {
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_body ')]", $this->readability->dom);
 
-            if ($elems && $elems->length > 0) {
+            if ($this->hasElements($elems)) {
                 $this->logger->log('debug', 'body found (.instapaper_body)');
                 $this->body = $elems->item(0);
                 // prune (clean up elements that may not be content)
@@ -512,7 +512,7 @@ class ContentExtractor
         if ($detect_body) {
             $elems = $xpath->query("//*[@itemprop='articleBody']", $this->readability->dom);
 
-            if ($elems && $elems->length > 0) {
+            if ($this->hasElements($elems)) {
                 $this->logger->log('debug', 'body found (Schema.org itemprop="articleBody")');
                 if ($elems->length == 1) {
                     // what if it's empty? (content placed outside an empty itemprop='articleBody' element)
@@ -717,5 +717,17 @@ class ContentExtractor
     public function getNextPageUrl()
     {
         return $this->nextPageUrl;
+    }
+
+    /**
+     * Check if given node list exists and has length more than 0.
+     *
+     * @param \DOMNodeList $elems
+     *
+     * @return bool
+     */
+    private function hasElements(\DOMNodeList $elems)
+    {
+        return $elems && $elems->length > 0;
     }
 }

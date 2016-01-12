@@ -231,10 +231,6 @@ class Graby
         $extract_result = $this->extractor->process($html, $effective_url);
         $readability = $this->extractor->readability;
 
-        // if user has asked to see parsed HTML, show it and exit.
-        // @TODO: log parsed HTML
-        // $readability->dom->saveXML($readability->dom->documentElement)
-
         $content_block = $this->extractor->getContent();
         $extracted_title = $this->extractor->getTitle();
         $extracted_language = $this->extractor->getLanguage();
@@ -597,7 +593,6 @@ class Graby
 
             for ($i = $elems->length - 1; $i >= 0; --$i) {
                 $e = $elems->item($i);
-                //$e->parentNode->replaceChild($articleContent->ownerDocument->createTextNode($e->textContent), $e);
                 $this->makeAbsoluteAttr($base, $e, $attr);
             }
 

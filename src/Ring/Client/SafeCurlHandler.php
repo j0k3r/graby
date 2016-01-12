@@ -56,7 +56,6 @@ class SafeCurlHandler
             // override the default body stream with the request response
             $safecurl = new SafeCurl($h);
             $bd = $safecurl->execute(Core::url($request));
-            // curl_exec($h);
         } catch (Exception $e) {
             // URL wasn't safe, return empty content
             $bd = '';

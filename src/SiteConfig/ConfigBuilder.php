@@ -9,7 +9,7 @@ use GrabySiteConfig\SiteConfig\Files;
 
 class ConfigBuilder
 {
-    private $logger = false;
+    private $logger;
     private $config = array();
     private $configFiles = array();
     private $cache = array();
@@ -99,15 +99,33 @@ class ConfigBuilder
         return new SiteConfig();
     }
 
+    /**
+     * Build a config file from an url.
+     * Use `buildForHost` if you already have the host.
+     *
+     * @param string $url
+     * @param bool   $addToCache
+     *
+     * @return SiteConfig
+     */
     public function buildFromUrl($url, $addToCache = true)
     {
         // extract host name
         $host = parse_url($url, PHP_URL_HOST);
 
-        return $this->buildForHost($host);
+        return $this->buildForHost($host, $addToCache);
     }
 
     /**
+     * @return SiteConfig
+     */
+    /**
+     * Build a config file from a host.
+     * Use `buildFromUrl` if you have an url.
+     *
+     * @param string $host       Host, like en.wikipedia.org
+     * @param bool   $addToCache
+     *
      * @return SiteConfig
      */
     public function buildForHost($host, $addToCache = true)
@@ -160,8 +178,8 @@ class ConfigBuilder
      *
      * Will add the merged result to cache if $addToCache is set to true
      *
-     * @param string $host       Host, like en.wikipedia.org
-     * @param bool   $addToCache if true, we will not look for wildcard config matches
+     * @param string $host           Host, like en.wikipedia.org
+     * @param bool   $exactHostMatch if true, we will not look for wildcard config matches
      *
      * @return false|SiteConfig
      *
@@ -243,7 +261,7 @@ class ConfigBuilder
         if ('global' != $host && $config->autodetect_on_failure() && isset($this->configFiles['global.txt'])) {
             $this->logger->log('debug', 'Appending site config settings from global.txt');
 
-            $config_global = $this->build('global', true);
+            $config_global = $this->loadSiteConfig('global', true);
 
             $config = $this->mergeConfig($config, $config_global);
         }
