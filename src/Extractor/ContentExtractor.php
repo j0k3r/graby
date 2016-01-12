@@ -17,6 +17,7 @@ use Psr\Log\LoggerInterface;
  */
 class ContentExtractor
 {
+    private $xpath = null;
     private $html = null;
     private $config;
     private $siteConfig = null;
@@ -70,6 +71,7 @@ class ContentExtractor
 
     public function reset()
     {
+        $this->xpath = null;
         $this->html = null;
         $this->readability = null;
         $this->siteConfig = null;
@@ -113,21 +115,24 @@ class ContentExtractor
         $config = $this->configBuilder->buildFromUrl($url, $add_to_cache);
 
         // load fingerprint config?
-        if ($config->autodetect_on_failure()) {
-            // check HTML for fingerprints
-            $fingerprintHost = $this->findHostUsingFingerprints($html);
+        if (true !== $config->autodetect_on_failure()) {
+            return $config;
+        }
 
-            if (false !== $fingerprintHost) {
-                $configFingerprint = $this->configBuilder->buildForHost($fingerprintHost);
+        // check HTML for fingerprints
+        $fingerprintHost = $this->findHostUsingFingerprints($html);
+        if (false === $fingerprintHost) {
+            return $config;
+        }
 
-                if (!empty($this->config['fingerprints']) && false !== $configFingerprint) {
-                    $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', array('host' => $fingerprintHost));
-                    $this->configBuilder->mergeConfig($config, $configFingerprint);
+        $configFingerprint = $this->configBuilder->buildForHost($fingerprintHost);
 
-                    if ($add_to_cache && !$this->configBuilder->getCachedVersion($fingerprintHost)) {
-                        $this->configBuilder->addToCache($fingerprintHost, $configFingerprint);
-                    }
-                }
+        if (!empty($this->config['fingerprints']) && false !== $configFingerprint) {
+            $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', array('host' => $fingerprintHost));
+            $this->configBuilder->mergeConfig($config, $configFingerprint);
+
+            if ($add_to_cache && false === $this->configBuilder->getCachedVersion($fingerprintHost)) {
+                $this->configBuilder->addToCache($fingerprintHost, $configFingerprint);
             }
         }
 
@@ -179,12 +184,12 @@ class ContentExtractor
         $tidied = $this->readability->tidied;
 
         // we use xpath to find elements in the given HTML document
-        $xpath = new \DOMXPath($this->readability->dom);
+        $this->xpath = new \DOMXPath($this->readability->dom);
 
         // try to get next page link
         // @todo: should we test if the link is actually a link?
         foreach ($this->siteConfig->next_page_link as $pattern) {
-            $elems = $xpath->evaluate($pattern, $this->readability->dom);
+            $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
 
             if (is_string($elems)) {
                 $this->nextPageUrl = trim($elems);
@@ -205,7 +210,7 @@ class ContentExtractor
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for title', array('pattern' => $pattern));
-            $elems = $xpath->evaluate($pattern, $this->readability->dom);
+            $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
 
             if (is_string($elems)) {
                 $this->title = trim($elems);
@@ -231,7 +236,7 @@ class ContentExtractor
         $langXpath = array('//html[@lang]/@lang', '//meta[@name="DC.language"]/@content');
         foreach ($langXpath as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for language', array('pattern' => $pattern));
-            $elems = $xpath->evaluate($pattern, $this->readability->dom);
+            $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
 
             if ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 foreach ($elems as $elem) {
@@ -248,32 +253,18 @@ class ContentExtractor
         // strip elements (using xpath expressions)
         foreach ($this->siteConfig->strip as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} to strip element', array('pattern' => $pattern));
-            $elems = $xpath->query($pattern, $this->readability->dom);
+            $elems = $this->xpath->query($pattern, $this->readability->dom);
 
-            // check for matches
-            if ($this->hasElements($elems)) {
-                $this->logger->log('debug', 'Stripping {length} elements (strip)', array('length' => $elems->length));
-                for ($i = $elems->length - 1; $i >= 0; --$i) {
-                    if ($elems->item($i)->parentNode) {
-                        $elems->item($i)->parentNode->removeChild($elems->item($i));
-                    }
-                }
-            }
+            $this->removeElements($elems, 'Stripping {length} elements (strip)');
         }
 
         // strip elements (using id and class attribute values)
         foreach ($this->siteConfig->strip_id_or_class as $string) {
             $this->logger->log('debug', 'Trying {string} to strip element', array('string' => $string));
             $string = strtr($string, array("'" => '', '"' => ''));
-            $elems = $xpath->query("//*[contains(@class, '$string') or contains(@id, '$string')]", $this->readability->dom);
+            $elems = $this->xpath->query("//*[contains(@class, '$string') or contains(@id, '$string')]", $this->readability->dom);
 
-            // check for matches
-            if ($this->hasElements($elems)) {
-                $this->logger->log('debug', 'Stripping {length} elements (strip_id_or_class)', array('length' => $elems->length));
-                for ($i = $elems->length - 1; $i >= 0; --$i) {
-                    $elems->item($i)->parentNode->removeChild($elems->item($i));
-                }
-            }
+            $this->removeElements($elems, 'Stripping {length} elements (strip_id_or_class)');
         }
 
         // strip images (using src attribute values)
@@ -291,88 +282,30 @@ class ContentExtractor
         // .entry-unrelated and .instapaper_ignore
         // See https://www.readability.com/publishers/guidelines/#view-plainGuidelines
         // and http://blog.instapaper.com/post/730281947
-        $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' entry-unrelated ') or contains(concat(' ',normalize-space(@class),' '),' instapaper_ignore ')]", $this->readability->dom);
-        // check for matches
-        if ($this->hasElements($elems)) {
-            $this->logger->log('debug', 'Stripping {length} .entry-unrelated,.instapaper_ignore elements', array('length' => $elems->length));
-            for ($i = $elems->length - 1; $i >= 0; --$i) {
-                $elems->item($i)->parentNode->removeChild($elems->item($i));
-            }
-        }
+        $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' entry-unrelated ') or contains(concat(' ',normalize-space(@class),' '),' instapaper_ignore ')]", $this->readability->dom);
+
+        $this->removeElements($elems, 'Stripping {length} .entry-unrelated,.instapaper_ignore elements');
 
         // strip elements that contain style 'display: none' or 'visibility:hidden'
         // @todo: inline style are convert to <style> by tidy, so we can't remove hidden content ...
-        $elems = $xpath->query("//*[contains(@style,'display:none') or contains(@style,'visibility:hidden')]", $this->readability->dom);
-        // check for matches
-        if ($this->hasElements($elems)) {
-            $this->logger->log('debug', 'Stripping {length} elements with inline display:none or visibility:hidden style', array('length' => $elems->length));
-            for ($i = $elems->length - 1; $i >= 0; --$i) {
-                $elems->item($i)->parentNode->removeChild($elems->item($i));
-            }
-        }
+        $elems = $this->xpath->query("//*[contains(@style,'display:none') or contains(@style,'visibility:hidden')]", $this->readability->dom);
+
+        $this->removeElements($elems, 'Stripping {length} elements with inline display:none or visibility:hidden style');
 
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for body', array('pattern' => $pattern));
-            $elems = $xpath->query($pattern, $this->readability->dom);
 
-            // check for matches
-            if (false === $elems || $elems->length <= 0) {
-                continue;
-            }
+            $res = $this->extractBody(
+                true,
+                $pattern,
+                $this->readability->dom,
+                'XPath'
+            );
 
-            $this->logger->log('debug', 'Body matched');
-            $this->logger->log('debug', '...XPath match: {pattern}, nb: {length}', array('pattern' => $pattern, 'length' => $elems->length));
-            if ($elems->length == 1) {
-                $this->body = $elems->item(0);
-
-                // prune (clean up elements that may not be content)
-                if ($this->siteConfig->prune()) {
-                    $this->logger->log('debug', '...pruning content');
-                    $this->readability->prepArticle($this->body);
-                }
+            // this mean we have *found* a body, so we don't need to continue
+            if (false === $res) {
                 break;
-            } else {
-                $this->body = $this->readability->dom->createElement('div');
-                $len = 0;
-                $this->logger->log('debug', '{nb} body elems found', array('nb' => $elems->length));
-
-                foreach ($elems as $elem) {
-                    if (!isset($elem->parentNode)) {
-                        continue;
-                    }
-
-                    $isDescendant = false;
-
-                    foreach ($this->body->childNodes as $parent) {
-                        if ($this->isDescendant($parent, $elem)) {
-                            $isDescendant = true;
-                            break;
-                        }
-                    }
-
-                    if ($isDescendant) {
-                        $this->logger->log('debug', '...element is child of another body element, skipping.');
-                    } else {
-                        // prune (clean up elements that may not be content)
-                        if ($this->siteConfig->prune()) {
-                            $this->logger->log('debug', '...pruning content');
-                            $this->readability->prepArticle($elem);
-                        }
-
-                        if ($elem) {
-                            ++$len;
-                            $this->body->appendChild($elem);
-                        }
-                    }
-                }
-
-                $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
-                unset($len);
-
-                if ($this->body->hasChildNodes()) {
-                    break;
-                }
             }
         }
 
@@ -391,186 +324,55 @@ class ContentExtractor
         // check for hNews
         if ($detectTitle || $detectBody) {
             // check for hentry
-            $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
+            $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
             if ($this->hasElements($elems)) {
                 $this->logger->log('debug', 'hNews: found hentry');
                 $hentry = $elems->item(0);
 
-                if ($detectTitle) {
-                    // check for entry-title
-                    $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' entry-title ')]", $hentry);
-
-                    if ($this->hasElements($elems)) {
-                        $this->title = $elems->item(0)->textContent;
-                        $this->logger->log('debug', 'hNews: found entry-title: {title}', array('title' => $this->title));
-                        // remove title from document
-                        $elems->item(0)->parentNode->removeChild($elems->item(0));
-                        $detectTitle = false;
-                    }
-                }
+                // check for entry-title
+                $detectTitle = $this->extractTitle(
+                    $detectTitle,
+                    'entry-title',
+                    $hentry,
+                    'hNews: found entry-title: {title}'
+                );
 
                 // check for entry-content.
                 // according to hAtom spec, if there are multiple elements marked entry-content,
                 // we include all of these in the order they appear - see http://microformats.org/wiki/hatom#Entry_Content
-                if ($detectBody) {
-                    $elems = $xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' entry-content ')]", $hentry);
-
-                    if ($this->hasElements($elems)) {
-                        $this->logger->log('debug', 'hNews: found entry-content');
-                        if ($elems->length == 1) {
-                            // what if it's empty? (some sites misuse hNews - place their content outside an empty entry-content element)
-                            $e = $elems->item(0);
-
-                            if ((strtolower($e->nodeName) == 'img') || (trim($e->textContent) != '')) {
-                                $this->body = $elems->item(0);
-                                // prune (clean up elements that may not be content)
-                                if ($this->siteConfig->prune()) {
-                                    $this->logger->log('debug', 'Pruning content');
-                                    $this->readability->prepArticle($this->body);
-                                }
-                                $detectBody = false;
-                            } else {
-                                $this->logger->log('debug', 'hNews: skipping entry-content - appears not to contain content');
-                            }
-                            unset($e);
-                        } else {
-                            $this->body = $this->readability->dom->createElement('div');
-                            $this->logger->log('debug', '{nb} entry-content elems found', array('nb' => $elems->length));
-                            $len = 0;
-
-                            foreach ($elems as $elem) {
-                                if (!isset($elem->parentNode)) {
-                                    continue;
-                                }
-
-                                $isDescendant = false;
-                                foreach ($this->body->childNodes as $parent) {
-                                    if ($this->isDescendant($parent, $elem)) {
-                                        $isDescendant = true;
-                                        break;
-                                    }
-                                }
-
-                                if ($isDescendant) {
-                                    $this->logger->log('debug', '...element is child of another body element, skipping.');
-                                } else {
-                                    // prune (clean up elements that may not be content)
-                                    if ($this->siteConfig->prune()) {
-                                        $this->logger->log('debug', '...pruning content');
-                                        $this->readability->prepArticle($elem);
-                                    }
-
-                                    if ($elem) {
-                                        ++$len;
-                                        $this->body->appendChild($elem);
-                                    }
-                                }
-                            }
-
-                            $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
-                            unset($len);
-
-                            $detectBody = false;
-                        }
-                    }
-                }
+                $detectBody = $this->extractBody(
+                    $detectBody,
+                    ".//*[contains(concat(' ',normalize-space(@class),' '),' entry-content ')]",
+                    $hentry,
+                    'hNews'
+                );
             }
         }
 
         // check for elements marked with instapaper_title
-        if ($detectTitle) {
-            // check for instapaper_title
-            $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_title ')]", $this->readability->dom);
-
-            if ($this->hasElements($elems)) {
-                $this->title = $elems->item(0)->textContent;
-                $this->logger->log('debug', 'Title found (.instapaper_title): {title}', array('title' => $this->title));
-                // remove title from document
-                $elems->item(0)->parentNode->removeChild($elems->item(0));
-                $detectTitle = false;
-            }
-        }
+        $detectTitle = $this->extractTitle(
+            $detectTitle,
+            'instapaper_title',
+            $this->readability->dom,
+            'Title found (.instapaper_title): {title}'
+        );
 
         // check for elements marked with instapaper_body
-        if ($detectBody) {
-            $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_body ')]", $this->readability->dom);
-
-            if ($this->hasElements($elems)) {
-                $this->logger->log('debug', 'body found (.instapaper_body)');
-                $this->body = $elems->item(0);
-                // prune (clean up elements that may not be content)
-                if ($this->siteConfig->prune()) {
-                    $this->logger->log('debug', 'Pruning content');
-                    $this->readability->prepArticle($this->body);
-                }
-                $detectBody = false;
-            }
-        }
+        $detectBody = $this->extractBody(
+            $detectBody,
+            "//*[contains(concat(' ',normalize-space(@class),' '),' instapaper_body ')]",
+            $this->readability->dom,
+            'instapaper'
+        );
 
         // check for elements marked with itemprop="articleBody" (from Schema.org)
-        if ($detectBody) {
-            $elems = $xpath->query("//*[@itemprop='articleBody']", $this->readability->dom);
-
-            if ($this->hasElements($elems)) {
-                $this->logger->log('debug', 'body found (Schema.org itemprop="articleBody")');
-                if ($elems->length == 1) {
-                    // what if it's empty? (content placed outside an empty itemprop='articleBody' element)
-                    $e = $elems->item(0);
-
-                    if ((strtolower($e->nodeName) == 'img') || (trim($e->textContent) != '')) {
-                        $this->body = $elems->item(0);
-                        // prune (clean up elements that may not be content)
-                        if ($this->siteConfig->prune()) {
-                            $this->logger->log('debug', 'Pruning content');
-                            $this->readability->prepArticle($this->body);
-                        }
-                        $detectBody = false;
-                    } else {
-                        $this->logger->log('debug', 'Schema.org: skipping itemprop="articleBody" - appears not to contain content');
-                    }
-                    unset($e);
-                } else {
-                    $this->body = $this->readability->dom->createElement('div');
-                    $this->logger->log('debug', '{nb} itemprop="articleBody" elems found', array('nb' => $elems->length));
-                    $len = 0;
-
-                    foreach ($elems as $elem) {
-                        if (!isset($elem->parentNode)) {
-                            continue;
-                        }
-
-                        $isDescendant = false;
-                        foreach ($this->body->childNodes as $parent) {
-                            if ($this->isDescendant($parent, $elem)) {
-                                $isDescendant = true;
-                                break;
-                            }
-                        }
-
-                        if ($isDescendant) {
-                            $this->logger->log('debug', '...element is child of another body element, skipping.');
-                        } else {
-                            // prune (clean up elements that may not be content)
-                            if ($this->siteConfig->prune()) {
-                                $this->logger->log('debug', '...pruning content');
-                                $this->readability->prepArticle($elem);
-                            }
-
-                            if ($elem) {
-                                ++$len;
-                                $this->body->appendChild($elem);
-                            }
-                        }
-                    }
-
-                    $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
-                    unset($len);
-
-                    $detectBody = false;
-                }
-            }
-        }
+        $detectBody = $this->extractBody(
+            $detectBody,
+            "//*[@itemprop='articleBody']",
+            $this->readability->dom,
+            'Schema.org'
+        );
 
         // still missing title or body, so we detect using Readability
         $success = false;
@@ -664,7 +466,7 @@ class ContentExtractor
         // if we've had no success and we've used tidy, there's a chance
         // that tidy has messed up. So let's try again without tidy...
         if (!$this->success && $tidied && $smartTidy) {
-            unset($this->body, $xpath);
+            unset($this->body, $this->xpath);
 
             $this->logger->log('debug', 'Trying again without tidy');
 
@@ -679,19 +481,6 @@ class ContentExtractor
         $this->logger->log('debug', 'Success ? {is_success}', array('is_success' => $this->success));
 
         return $this->success;
-    }
-
-    private function isDescendant(\DOMElement $parent, \DOMElement $child)
-    {
-        $node = $child->parentNode;
-        while ($node != null) {
-            if ($node->isSameNode($parent)) {
-                return true;
-            }
-            $node = $node->parentNode;
-        }
-
-        return false;
     }
 
     public function getContent()
@@ -729,5 +518,137 @@ class ContentExtractor
     private function hasElements(\DOMNodeList $elems)
     {
         return $elems && $elems->length > 0;
+    }
+
+    /**
+     * Remove elements.
+     *
+     * @param \DOMNodeList $elems
+     * @param string       $logMessage
+     */
+    private function removeElements(\DOMNodeList $elems, $logMessage = null)
+    {
+        if (false === $this->hasElements($elems)) {
+            return;
+        }
+
+        if (null !== $logMessage) {
+            $this->logger->log('debug', $logMessage, array('length' => $elems->length));
+        }
+
+        for ($i = $elems->length - 1; $i >= 0; --$i) {
+            if ($elems->item($i)->parentNode) {
+                $elems->item($i)->parentNode->removeChild($elems->item($i));
+            }
+        }
+    }
+
+    /**
+     * Extract title for a given CSS class a node.
+     *
+     * @param bool    $detectTitle Do we have to detect title ?
+     * @param string  $cssClass    CSS class to look for
+     * @param DOMNode $node        DOMNode to look into
+     * @param string  $logMessage
+     *
+     * @return bool Telling if we have to detect title again or not
+     */
+    private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
+    {
+        if (false === $detectTitle) {
+            return false;
+        }
+
+        // check for given css class
+        $elems = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node);
+
+        if (false === $this->hasElements($elems)) {
+            return $detectTitle;
+        }
+
+        $this->title = $elems->item(0)->textContent;
+        $this->logger->log('debug', $logMessage, array('title' => $this->title));
+        // remove title from document
+        $elems->item(0)->parentNode->removeChild($elems->item(0));
+
+        return false;
+    }
+
+    /**
+     * Extract body from a given CSS for a node.
+     *
+     * @param bool     $detectBody      Do we have to detect body ?
+     * @param string   $xpathExpression XPath expression to extract body
+     * @param \DOMNode $node            DOMNode to look into
+     * @param string   $type            Format type we are looking for, only used for log message
+     *
+     * @return bool Telling if we have to detect body again or not
+     */
+    private function extractBody($detectBody, $xpathExpression, \DOMNode $node, $type)
+    {
+        if (false === $detectBody) {
+            return false;
+        }
+
+        $elems = $this->xpath->query($xpathExpression, $node);
+
+        if (false === $this->hasElements($elems)) {
+            return $detectBody;
+        }
+
+        $this->logger->log('debug', $type.': found "'.$elems->length.'" with '.$xpathExpression.'');
+
+        if ($elems->length == 1) {
+            $this->body = $elems->item(0);
+
+            // prune (clean up elements that may not be content)
+            if ($this->siteConfig->prune()) {
+                $this->logger->log('debug', 'Pruning content');
+                $this->readability->prepArticle($this->body);
+            }
+
+            return false;
+        }
+
+        $this->body = $this->readability->dom->createElement('div');
+        $this->logger->log('debug', '{nb} body elems found', array('nb' => $elems->length));
+        $len = 0;
+
+        foreach ($elems as $elem) {
+            if (!isset($elem->parentNode)) {
+                continue;
+            }
+
+            $isDescendant = false;
+            foreach ($this->body->childNodes as $parent) {
+                $node = $elem->parentNode;
+                while ($node !== null) {
+                    if ($node->isSameNode($parent)) {
+                        $isDescendant = true;
+                        break 2;
+                    }
+                    $node = $node->parentNode;
+                }
+            }
+
+            if ($isDescendant) {
+                $this->logger->log('debug', '...element is child of another body element, skipping.');
+            } else {
+                // prune (clean up elements that may not be content)
+                if ($this->siteConfig->prune()) {
+                    $this->logger->log('debug', '...pruning content');
+                    $this->readability->prepArticle($elem);
+                }
+
+                if ($elem) {
+                    ++$len;
+                    $this->body->appendChild($elem);
+                }
+            }
+        }
+
+        $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
+
+        return false;
     }
 }
