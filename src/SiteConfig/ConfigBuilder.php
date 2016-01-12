@@ -99,16 +99,89 @@ class ConfigBuilder
         return new SiteConfig();
     }
 
+    public function buildFromUrl($url, $addToCache = true)
+    {
+        // extract host name
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return $this->buildForHost($host);
+    }
+
+    /**
+     * @return SiteConfig
+     */
+    public function buildForHost($host, $addToCache = true)
+    {
+        $host = strtolower($host);
+        if (substr($host, 0, 4) == 'www.') {
+            $host = substr($host, 4);
+        }
+
+        // is merged version already cached?
+        if ($siteConfig = $this->getCachedVersion($host.'.merged')) {
+            $this->logger->log('debug', 'Returning cached and merged site config for {host}', array('host' => $host));
+
+            return $siteConfig;
+        }
+
+        // let's build from site_config/custom/ and standard/
+        $config = $this->loadSiteConfig($host);
+        if ($addToCache && $config && !$this->getCachedVersion($host)) {
+            $this->addToCache($host, $config);
+        }
+
+        // if no match, use defaults
+        if (false === $config) {
+            $config = $this->create();
+        }
+
+        // load global config?
+        $config_global = $this->loadSiteConfig('global', true);
+        if ($config->autodetect_on_failure() && false !== $config_global) {
+            $this->logger->log('debug', 'Appending site config settings from global.txt');
+            $this->mergeConfig($config, $config_global);
+
+            if ($addToCache && !$this->getCachedVersion('global')) {
+                $this->addToCache('global', $config_global);
+            }
+        }
+
+        // store copy of merged config
+        if ($addToCache) {
+            $config->cache_key = null;
+            $this->addToCache("$host.merged", $config);
+        }
+
+        return $config;
+    }
+
+    /**
+     * Returns SiteConfig instance (joined in order: exact match, wildcard, fingerprint, global, default).
+     *
+     * Will add the merged result to cache if $addToCache is set to true
+     *
+     * @param string $host Host, like en.wikipedia.org
+     * @param bool $addToCache if true, we will not look for wildcard config matches
+     *
+     * @return false|SiteConfig
+     *
+     * @deprecated Use either buildForHost() / buildFromUrl() for the merged config or loadSiteConfig() to get the config for a site.
+     */
+    public function build($host, $exactHostMatch = false)
+    {
+        return $this->loadSiteConfig($host, $exactHostMatch);
+    }
+
     /**
      * Returns SiteConfig instance if an appropriate one is found, false otherwise.
      * by default if host is 'test.example.org' we will look for and load '.example.org.txt' if it exists.
      *
-     * @param string $host             Host, like en.wikipedia.org
-     * @param bool   $exact_host_match if true, we will not look for wildcard config matches
+     * @param string $host Host, like en.wikipedia.org
+     * @param bool $exactHostMatch if true, we will not look for wildcard config matches
      *
      * @return false|SiteConfig
      */
-    public function build($host, $exact_host_match = false)
+    public function loadSiteConfig($host, $exactHostMatch = false)
     {
         $host = strtolower($host);
         if (substr($host, 0, 4) == 'www.') {
@@ -123,7 +196,7 @@ class ConfigBuilder
         // should we look for wildcard matches
         // will try to see for a host without the first subdomain (fr.example.org & .example.org)
         // @todo: should we look for all possible subdomain? (fr.m.example.org &.m.example.org & .example.org)
-        if (!$exact_host_match) {
+        if (!$exactHostMatch) {
             $split = explode('.', $host);
 
             if (count($split) > 1) {

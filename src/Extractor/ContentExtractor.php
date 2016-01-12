@@ -106,34 +106,11 @@ class ContentExtractor
      * @param string $html
      * @param bool   $add_to_cache
      *
-     * @return Graby\SiteConfig\SiteConfig
+     * @return \Graby\SiteConfig\SiteConfig
      */
     public function buildSiteConfig($url, $html = '', $add_to_cache = true)
     {
-        // extract host name
-        $host = parse_url($url, PHP_URL_HOST);
-        $host = strtolower($host);
-        if (substr($host, 0, 4) == 'www.') {
-            $host = substr($host, 4);
-        }
-
-        // is merged version already cached?
-        if ($siteConfig = $this->configBuilder->getCachedVersion($host.'.merged')) {
-            $this->logger->log('debug', 'Returning cached and merged site config for {host}', array('host' => $host));
-
-            return $siteConfig;
-        }
-
-        // let's build from site_config/custom/ and standard/
-        $config = $this->configBuilder->build($host);
-        if ($add_to_cache && $config && !$this->configBuilder->getCachedVersion($host)) {
-            $this->configBuilder->addToCache($host, $config);
-        }
-
-        // if no match, use defaults
-        if (false === $config) {
-            $config = $this->configBuilder->create();
-        }
+        $config = $this->configBuilder->buildFromUrl($url, $add_to_cache);
 
         // load fingerprint config?
         if ($config->autodetect_on_failure()) {
@@ -141,7 +118,7 @@ class ContentExtractor
             $_fphost = $this->findHostUsingFingerprints($html);
 
             if (false !== $_fphost) {
-                $config_fingerprint = $this->configBuilder->build($_fphost);
+                $config_fingerprint = $this->configBuilder->buildForHost($_fphost);
 
                 if (!empty($this->config['fingerprints']) && false !== $config_fingerprint) {
                     $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', array('host' => $_fphost));
@@ -152,23 +129,6 @@ class ContentExtractor
                     }
                 }
             }
-        }
-
-        // load global config?
-        $config_global = $this->configBuilder->build('global', true);
-        if ($config->autodetect_on_failure() && false !== $config_global) {
-            $this->logger->log('debug', 'Appending site config settings from global.txt');
-            $this->configBuilder->mergeConfig($config, $config_global);
-
-            if ($add_to_cache && !$this->configBuilder->getCachedVersion('global')) {
-                $this->configBuilder->addToCache('global', $config_global);
-            }
-        }
-
-        // store copy of merged config
-        if ($add_to_cache) {
-            $config->cache_key = null;
-            $this->configBuilder->addToCache("$host.merged", $config);
         }
 
         return $config;
