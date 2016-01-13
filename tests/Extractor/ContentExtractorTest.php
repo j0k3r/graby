@@ -145,7 +145,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test config find_string / replace_string.
-     * But with a count different between the two, so replacement will be skipped
+     * But with a count different between the two, so replacement will be skipped.
      */
     public function testProcessFindStringBadCount()
     {

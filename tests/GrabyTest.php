@@ -882,19 +882,21 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('hello you are fine', 35, null, 'hello you are fine'),
-            array('hello you are fine', 3, null, 'hello you are &hellip;'),
-            array('hello "you" are fine', 3, '...', 'hello "you" are...'),
-            array('hello <p>you</p> are fine', 3, '...', 'hello you are...'),
-            array("hello you\n are fine", 3, '...', 'hello you are...'),
-            array(chr(0xc2).chr(0xa0).'hello you are fine', 3, '...', 'hello you are...'),
-            array('hello you are fine'.chr(0xc2).chr(0xa0), 3, '...', 'hello you are...'),
+            array('hello you are fine ok ?', 14, null, 'hello you are fine'),
+            // breakpoint in on the last word, won't add separator
+            array('hello you are fine', 16, '...', 'hello you are fine'),
+            array('hello "you" are fine', 15, '...', 'hello "you" are...'),
+            array('hello <p>you</p> are fine', 13, '...', 'hello you are...'),
+            array("hello you\n are fine", 13, '...', 'hello you are...'),
+            array(chr(0xc2).chr(0xa0).'hello you are fine', 13, '...', 'hello you are...'),
+            array('hello you are fine'.chr(0xc2).chr(0xa0), 13, '...', 'hello you are...'),
         );
     }
 
     /**
      * @dataProvider dataForExcerpt
      */
-    public function testGetExcerpt($text, $words, $more, $expectedResult)
+    public function testGetExcerpt($text, $length, $separator, $expectedResult)
     {
         $graby = new Graby();
 
@@ -902,7 +904,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('getExcerpt');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($graby, array($text, $words, $more));
+        $res = $method->invokeArgs($graby, array($text, $length, $separator));
 
         $this->assertEquals($expectedResult, $res);
     }
@@ -1059,7 +1061,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $res['title']);
         $this->assertEquals('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
         $this->assertEquals('http://removelinks.io', $res['url']);
-        $this->assertEquals('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some &hellip;', $res['summary']);
+        $this->assertEquals('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
         $this->assertEquals('text/html', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }

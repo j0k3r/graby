@@ -339,9 +339,9 @@ class ConfigBuilder
             } elseif (in_array($command, array('parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri'))) {
                 $config->$command = $val;
             // check for replace_string(find): replace
-            } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && in_array($match[1], array('replace_string'))) {
+            } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && $match[1] == 'replace_string') {
                 array_push($config->find_string, $match[2]);
-                array_push($config->$match[1], $val);
+                array_push($config->replace_string, $val);
             }
         }
 

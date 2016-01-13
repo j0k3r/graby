@@ -195,9 +195,9 @@ class HttpClient
     }
 
     /**
-     * Cleanup URL and retrieve the final url to be called
+     * Cleanup URL and retrieve the final url to be called.
      *
-     * @param  string $url
+     * @param string $url
      *
      * @return string
      */
