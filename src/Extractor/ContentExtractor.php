@@ -106,13 +106,13 @@ class ContentExtractor
      *
      * @param string $url
      * @param string $html
-     * @param bool   $add_to_cache
+     * @param bool   $addToCache
      *
      * @return \Graby\SiteConfig\SiteConfig
      */
-    public function buildSiteConfig($url, $html = '', $add_to_cache = true)
+    public function buildSiteConfig($url, $html = '', $addToCache = true)
     {
-        $config = $this->configBuilder->buildFromUrl($url, $add_to_cache);
+        $config = $this->configBuilder->buildFromUrl($url, $addToCache);
 
         // load fingerprint config?
         if (true !== $config->autodetect_on_failure()) {
@@ -131,7 +131,7 @@ class ContentExtractor
             $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', array('host' => $fingerprintHost));
             $this->configBuilder->mergeConfig($config, $configFingerprint);
 
-            if ($add_to_cache && false === $this->configBuilder->getCachedVersion($fingerprintHost)) {
+            if ($addToCache && false === $this->configBuilder->getCachedVersion($fingerprintHost)) {
                 $this->configBuilder->addToCache($fingerprintHost, $configFingerprint);
             }
         }
@@ -163,12 +163,12 @@ class ContentExtractor
         // do string replacements
         if (!empty($this->siteConfig->find_string)) {
             if (count($this->siteConfig->find_string) == count($this->siteConfig->replace_string)) {
-                $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $_count);
-                $this->logger->log('debug', 'Strings replaced: {count} (find_string and/or replace_string)', array('count' => $_count));
+                $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $count);
+                $this->logger->log('debug', 'Strings replaced: {count} (find_string and/or replace_string)', array('count' => $count));
             } else {
                 $this->logger->log('debug', 'Skipped string replacement - incorrect number of find-replace strings in site config');
             }
-            unset($_count);
+            unset($count);
         }
 
         // load and parse html

@@ -182,6 +182,7 @@ class ConfigBuilder
      * @return false|SiteConfig
      *
      * @deprecated Use either buildForHost() / buildFromUrl() for the merged config or loadSiteConfig() to get the config for a site.
+     * @codeCoverageIgnore
      */
     public function build($host, $exactHostMatch = false)
     {
@@ -222,8 +223,6 @@ class ConfigBuilder
             }
         }
 
-        // will contain the matched host
-        $matchedName = '';
         $config = new SiteConfig();
 
         // look for site config file in primary folder
@@ -239,13 +238,13 @@ class ConfigBuilder
             if (isset($this->configFiles[$host.'.txt'])) {
                 $this->logger->log('debug', '... found site config {host}', array('host' => $host.'.txt'));
 
-                $config_lines = file($this->configFiles[$host.'.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $configLines = file($this->configFiles[$host.'.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 // no lines ? we don't found config then
-                if (empty($config_lines) || !is_array($config_lines)) {
+                if (empty($configLines) || !is_array($configLines)) {
                     return false;
                 }
 
-                $config = $this->parseLines($config_lines);
+                $config = $this->parseLines($configLines);
                 $config->cache_key = $host;
                 break;
             }
