@@ -91,13 +91,14 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function testBuildSiteConfigCached()
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
-        $res = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
+        $res = $contentExtractor->buildSiteConfig('https://nofailure.io/wiki/Metallica');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
-        $res2 = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
+        $res2 = $contentExtractor->buildSiteConfig('https://nofailure.io/wiki/Metallica');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res2);
+        $this->assertSame($res, $res2);
     }
 
     /**
@@ -130,7 +131,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config->replace_string = array('<iframe class="video"', '></iframe>');
 
         $res = $contentExtractor->process(
-            '<html>&lt;iframe &gt;&lt;/iframe&gt;</html>',
+            '<html>&lt;iframe src=""&gt;&lt;/iframe&gt;</html>',
             'https://vimeo.com/35941909',
             $config
         );
@@ -140,6 +141,32 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $content_block = $contentExtractor->getContent();
 
         $this->assertContains('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    /**
+     * Test config find_string / replace_string.
+     * But with a count different between the two, so replacement will be skipped.
+     */
+    public function testProcessFindStringBadCount()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        $config->body = array('//iframe');
+        $config->find_string = array('one');
+        $config->replace_string = array('1', '2');
+
+        $res = $contentExtractor->process(
+            '<html><iframe src=""></iframe></html>',
+            'https://vimeo.com/35941909',
+            $config
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertContains('<iframe src=""/>', $content_block->ownerDocument->saveXML($content_block));
     }
 
     public function dataForNextPage()
@@ -478,6 +505,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             array(
                 '<html><body><div><p itemprop="articleBody">hello !hello !hello !hello !hello !hello !hello !</p><p itemprop="articleBody">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
                 '<div><p itemprop="articleBody">hello !hello !hello !hello !hello !hello !hello !</p><p itemprop="articleBody">'.str_repeat('this is the best part of the show', 10).'</p></div>',
+            ),
+            // articleBody on img element
+            array(
+                '<html><body><div><p itemprop="articleBody"><img src="http://0.0.0.0/image.jpg" /></p></div></body></html>',
+                '<p itemprop="articleBody"><img src="http://0.0.0.0/image.jpg"/></p>',
             ),
         );
     }

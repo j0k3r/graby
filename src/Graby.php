@@ -160,29 +160,11 @@ class Graby
      *
      * @param string $url
      *
-     * @return array With key html, url & title
+     * @return array With key status, html, title, language, url, content_type & open_graph
      */
     private function doFetchContent($url)
     {
-        // Check for feed URL
-        $url = trim($url);
-        if (strtolower(substr($url, 0, 7)) == 'feed://') {
-            $url = 'http://'.substr($url, 7);
-        }
-
-        if (!preg_match('!^https?://.+!i', $url)) {
-            $url = 'http://'.$url;
-        }
-
-        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new \Exception(sprintf('Url "%s" is not valid.', $url));
-        }
-
-        $url = filter_var($url, FILTER_SANITIZE_URL);
-
-        if (false === $this->isUrlAllowed($url)) {
-            throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $url));
-        }
+        $url = $this->validateUrl($url);
 
         $this->logger->log('debug', 'Fetching url: {url}', array('url' => $url));
 
@@ -228,7 +210,7 @@ class Graby
         }
 
         $this->logger->log('debug', 'Attempting to extract content');
-        $extract_result = $this->extractor->process($html, $effectiveUrl);
+        $extractResult = $this->extractor->process($html, $effectiveUrl);
         $readability = $this->extractor->readability;
 
         $contentBlock = $this->extractor->getContent();
@@ -236,7 +218,7 @@ class Graby
         $extractedLanguage = $this->extractor->getLanguage();
 
         // Deal with multi-page articles
-        $isMultiPage = (!$is_single_page && $extract_result && null !== $this->extractor->getNextPageUrl());
+        $isMultiPage = (!$is_single_page && $extractResult && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $isMultiPage) {
             $this->logger->log('debug', 'Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
@@ -291,21 +273,21 @@ class Graby
             // did we successfully deal with this multi-page article?
             if (empty($multiPageContent)) {
                 $this->logger->log('debug', 'Failed to extract all parts of multi-page article, so not going to include them');
-                $_page = $readability->dom->createElement('p');
-                $_page->innerHTML = '<em>This article appears to continue on subsequent pages which we could not extract</em>';
-                $multiPageContent[] = $_page;
+                $page = $readability->dom->createElement('p');
+                $page->innerHTML = '<em>This article appears to continue on subsequent pages which we could not extract</em>';
+                $multiPageContent[] = $page;
             }
 
-            foreach ($multiPageContent as $_page) {
-                $_page = $contentBlock->ownerDocument->importNode($_page, true);
-                $contentBlock->appendChild($_page);
+            foreach ($multiPageContent as $page) {
+                $page = $contentBlock->ownerDocument->importNode($page, true);
+                $contentBlock->appendChild($page);
             }
 
-            unset($multiPageUrls, $multiPageContent, $nextPageUrl, $_page);
+            unset($multiPageUrls, $multiPageContent, $nextPageUrl, $page);
         }
 
         // if we failed to extract content...
-        if (!$extract_result || null === $contentBlock) {
+        if (!$extractResult || null === $contentBlock) {
             return array(
                 'status' => $response['status'],
                 'html' => $this->config['error_message'],
@@ -330,10 +312,11 @@ class Graby
 
         // normalise
         $contentBlock->normalize();
+
         // remove empty text nodes
-        foreach ($contentBlock->childNodes as $_n) {
-            if ($_n->nodeType === XML_TEXT_NODE && trim($_n->textContent) == '') {
-                $contentBlock->removeChild($_n);
+        foreach ($contentBlock->childNodes as $n) {
+            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) == '') {
+                $contentBlock->removeChild($n);
             }
         }
 
@@ -379,6 +362,38 @@ class Graby
             'content_type' => $mimeInfo['mime'],
             'open_graph' => $ogData,
         );
+    }
+
+    /**
+     * Validate & clean the given url.
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    private function validateUrl($url)
+    {
+        // Check for feed URL
+        $url = trim($url);
+        if (strtolower(substr($url, 0, 7)) == 'feed://') {
+            $url = 'http://'.substr($url, 7);
+        }
+
+        if (!preg_match('!^https?://.+!i', $url)) {
+            $url = 'http://'.$url;
+        }
+
+        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new \Exception(sprintf('Url "%s" is not valid.', $url));
+        }
+
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+
+        if (false === $this->isUrlAllowed($url)) {
+            throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $url));
+        }
+
+        return $url;
     }
 
     private function isUrlAllowed($url)
@@ -427,10 +442,10 @@ class Graby
             $info['type'] = trim($match[2]);
             $info['subtype'] = trim($match[3]);
 
-            foreach (array($info['mime'], $info['type']) as $_mime) {
-                if (isset($this->config['content_type_exc'][$_mime])) {
-                    $info['action'] = $this->config['content_type_exc'][$_mime]['action'];
-                    $info['name'] = $this->config['content_type_exc'][$_mime]['name'];
+            foreach (array($info['mime'], $info['type']) as $mime) {
+                if (isset($this->config['content_type_exc'][$mime])) {
+                    $info['action'] = $this->config['content_type_exc'][$mime]['action'];
+                    $info['name'] = $this->config['content_type_exc'][$mime]['name'];
 
                     break;
                 }
@@ -524,10 +539,10 @@ class Graby
     private function getSinglePage($html, $url)
     {
         $this->logger->log('debug', 'Looking for site config files to see if single page link exists');
-        $site_config = $this->configBuilder->buildFromUrl($url);
+        $siteConfig = $this->configBuilder->buildFromUrl($url);
 
         // no single page found?
-        if (empty($site_config->single_page_link)) {
+        if (empty($siteConfig->single_page_link)) {
             return false;
         }
 
@@ -538,7 +553,7 @@ class Graby
         // Loop through single_page_link xpath expressions
         $singlePageUrl = null;
 
-        foreach ($site_config->single_page_link as $pattern) {
+        foreach ($siteConfig->single_page_link as $pattern) {
             $elems = $xpath->evaluate($pattern, $readability->dom);
 
             if (is_string($elems)) {
@@ -660,43 +675,37 @@ class Graby
         return false;
     }
 
-    // Adapted from WordPress
-    // http://core.trac.wordpress.org/browser/tags/3.5.1/wp-includes/formatting.php#L2173
-    private function getExcerpt($text, $numWords = 55, $more = null)
+    /**
+     * Truncate text.
+     *
+     * @see https://github.com/twigphp/Twig-extensions/blob/449e3c8a9ffad7c2479c7864557275a32b037499/lib/Twig/Extensions/Extension/Text.php#L40
+     *
+     * @param string $text
+     * @param int    $length
+     * @param string $separator
+     *
+     * @return string
+     */
+    private function getExcerpt($text, $length = 250, $separator = ' &hellip;')
     {
-        if (null === $more) {
-            $more = ' &hellip;';
-        }
-
         // use regex instead of strip_tags to left some spaces when removing tags
         $text = preg_replace('#<[^>]+>#', ' ', $text);
 
-        // @todo: Check if word count is based on single characters (East Asian characters)
-        /*
-        if (1==2) {
-            $text = trim(preg_replace("/[\n\r\t ]+/", ' ', $text), ' ');
-            preg_match_all('/./u', $text, $wordsArray);
-            $wordsArray = array_slice($wordsArray[0], 0, $numWords + 1);
-            $sep = '';
-        } else {
-            $wordsArray = preg_split("/[\n\r\t ]+/", $text, $numWords + 1, PREG_SPLIT_NO_EMPTY);
-            $sep = ' ';
-        }
-        */
-        $wordsArray = preg_split("/[\n\r\t ]+/", $text, $numWords + 1, PREG_SPLIT_NO_EMPTY);
-        $sep = ' ';
-
-        if (count($wordsArray) > $numWords) {
-            array_pop($wordsArray);
-            $text = implode($sep, $wordsArray);
-            $text = $text.$more;
-        } else {
-            $text = implode($sep, $wordsArray);
-        }
-
         // trim whitespace at beginning or end of string
-        // See: http://stackoverflow.com/questions/4166896/trim-unicode-whitespace-in-php-5-2
+        // See: http://stackoverflow.com/a/4167053/569101
         $text = preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $text);
+        // clean new lines and tabs
+        $text = trim(preg_replace("/[\n\r\t ]+/", ' ', $text), ' ');
+
+        if (mb_strlen($text) > $length) {
+            // If breakpoint is on the last word, return the text without separator.
+            if (false === ($breakpoint = mb_strpos($text, ' ', $length))) {
+                return $text;
+            }
+            $length = $breakpoint;
+
+            return rtrim(mb_substr($text, 0, $length)).$separator;
+        }
 
         return $text;
     }
@@ -708,7 +717,7 @@ class Graby
      *
      * @return array
      *
-     * @see  http://stackoverflow.com/a/7454737/569101
+     * @see http://stackoverflow.com/a/7454737/569101
      */
     private function extractOpenGraph($html)
     {
