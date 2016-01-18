@@ -13,6 +13,8 @@ use Psr\Log\LoggerInterface;
  */
 class HttpClient
 {
+    private static $nbRedirect = 0;
+    private static $initialUrl = '';
     private $config = array();
     private $client = null;
     private $logger = null;
@@ -74,6 +76,8 @@ class HttpClient
             ),
             // timeout of the request in seconds
             'timeout' => 10,
+            // number of redirection allowed until we assume request won't be complete
+            'max_redirect' => 10,
         ));
 
         $this->config = $resolver->resolve($config);
@@ -102,6 +106,16 @@ class HttpClient
      */
     public function fetch($url, $skipTypeVerification = false)
     {
+        if (false === $this->checkNumberRedirects($url)) {
+            return $this->sendResults(array(
+                'effective_url' => self::$initialUrl,
+                'body' => '',
+                'headers' => '',
+                // Too many Redirects
+                'status' => 310,
+            ));
+        }
+
         $url = $this->cleanupUrl($url);
 
         $method = 'get';
@@ -138,7 +152,7 @@ class HttpClient
                 $this->logger->log('debug', 'Request throw exception (with a response): {error_message}', array('error_message' => $e->getMessage()));
                 $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
 
-                return $data;
+                return $this->sendResults($data);
             }
 
             $data = array(
@@ -151,7 +165,7 @@ class HttpClient
             $this->logger->log('debug', 'Request throw exception (with no response): {error_message}', array('error_message' => $e->getMessage()));
             $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
 
-            return $data;
+            return $this->sendResults($data);
         }
 
         $effectiveUrl = $response->getEffectiveUrl();
@@ -190,12 +204,12 @@ class HttpClient
             'status' => $response->getStatusCode(),
         )));
 
-        return array(
+        return $this->sendResults(array(
             'effective_url' => $effectiveUrl,
             'body' => $body,
             'headers' => $contentType,
             'status' => $response->getStatusCode(),
-        );
+        ));
     }
 
     /**
@@ -234,6 +248,46 @@ class HttpClient
         }
 
         return $url;
+    }
+
+    /**
+     * Check if number of redirect count isn't reach.
+     *
+     * @param string $url
+     *
+     * @return bool true: it's ok, false: we need to stop
+     */
+    private function checkNumberRedirects($url)
+    {
+        ++self::$nbRedirect;
+
+        // keep initial url in case of endless redirect
+        if ('' === self::$initialUrl) {
+            self::$initialUrl = $url;
+        }
+
+        if (self::$nbRedirect > $this->config['max_redirect']) {
+            $this->logger->log('debug', 'Endless redirect: '.self::$nbRedirect.' on "{url}"', array('url' => $url));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Return results from fetch() and also re-init static variable for the next request.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    private function sendResults(array $data)
+    {
+        self::$nbRedirect = 0;
+        self::$initialUrl = '';
+
+        return $data;
     }
 
     /**
@@ -338,7 +392,7 @@ class HttpClient
             return false;
         }
 
-        $redirectUrl = trim($match[1]);
+        $redirectUrl = str_replace('&amp;', '&', trim($match[1]));
         if (preg_match('!^https?://!i', $redirectUrl)) {
             // already absolute
             $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirectUrl);

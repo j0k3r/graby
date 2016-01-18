@@ -532,4 +532,52 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Request throw exception (with no response): {error_message}', $records[1]['message']);
         $this->assertContains('cURL error 28: Operation timed out after', $records[1]['formatted']);
     }
+
+    public function testNbRedirectsReached()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->any())
+            ->method('getEffectiveUrl')
+            ->willReturn('http://fr.wikipedia.org/wiki/Copyright');
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?'.rand().'">');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->any())
+            ->method('get')
+            ->willReturn($response);
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($client);
+        $http->setLogger($logger);
+
+        $res = $http->fetch('http://fr.wikipedia.org/wiki/Copyright');
+
+        $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
+        $this->assertEquals(310, $res['status']);
+
+        $records = $handler->getRecords();
+        $record = end($records);
+
+        $this->assertEquals('Endless redirect: 11 on "{url}"', $record['message']);
+    }
 }
