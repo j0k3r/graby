@@ -72,6 +72,8 @@ class HttpClient
                 '<meta content="!" name="fragment"',
                 ' ng-controller=',
             ),
+            // timeout of the request in seconds
+            'timeout' => 10,
         ));
 
         $this->config = $resolver->resolve($config);
@@ -118,6 +120,8 @@ class HttpClient
                         // add referer for picky sites
                         'Referer' => $this->config['default_referer'],
                     ),
+                    'timeout' => $this->config['timeout'],
+                    'connect_timeout' => $this->config['timeout'],
                 )
             );
         } catch (RequestException $e) {

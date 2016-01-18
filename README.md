@@ -201,6 +201,8 @@ $graby = new Graby(
             "<meta content='!' name='fragment'",
             '<meta content="!" name="fragment"',
         ),
+        // timeout of the request in seconds
+        'timeout' => 10,
     ),
     'extractor' => array(
         'default_parser' => 'libxml',
