@@ -530,7 +530,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $records = $handler->getRecords();
 
         $this->assertEquals('Request throw exception (with no response): {error_message}', $records[1]['message']);
-        $this->assertContains('cURL error 28: Operation timed out after', $records[1]['formatted']);
+        // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
+        $this->assertContains('cURL error 28', $records[1]['formatted']);
     }
 
     public function testNbRedirectsReached()
