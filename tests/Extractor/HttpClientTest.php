@@ -21,8 +21,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 'http://fr.wikipedia.org/wiki/Copyright',
                 'http://fr.wikipedia.org/wiki/Copyright',
                 array(
-                    'User-Agent' => 'Mozilla/5.2',
-                    'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                    'headers' => array(
+                        'User-Agent' => 'Mozilla/5.2',
+                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                    ),
+                    'timeout' => 10,
+                    'connect_timeout' => 10,
                 ),
             ),
             array(
@@ -30,8 +34,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/?_escaped_fragment_=test',
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html',
                 array(
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
-                    'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                    'headers' => array(
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
+                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                    ),
+                    'timeout' => 10,
+                    'connect_timeout' => 10,
                 ),
             ),
             array(
@@ -39,8 +47,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 'http://www.lexpress.io/my-map.html',
                 'http://www.lexpress.io/my-map.html',
                 array(
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
-                    'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                    'headers' => array(
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
+                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                    ),
+                    'timeout' => 10,
+                    'connect_timeout' => 10,
                 ),
             ),
         );
@@ -49,7 +61,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForFetchGet
      */
-    public function testFetchGet($url, $urlRewritten, $urlEffective, $headers)
+    public function testFetchGet($url, $urlRewritten, $urlEffective, $options)
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -79,7 +91,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($urlRewritten),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo($options)
             )
             ->willReturn($response);
 
@@ -94,9 +106,13 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchHeadGoodContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $headers = array(
-            'User-Agent' => 'Mozilla/5.2',
-            'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+        $options = array(
+            'headers' => array(
+                'User-Agent' => 'Mozilla/5.2',
+                'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+            ),
+            'timeout' => 10,
+            'connect_timeout' => 10,
         );
 
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
@@ -127,7 +143,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo($options)
             )
             ->willReturn($response);
 
@@ -143,9 +159,13 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchHeadBadContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $headers = array(
-            'User-Agent' => 'Mozilla/5.2',
-            'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+        $options = array(
+            'headers' => array(
+                'User-Agent' => 'Mozilla/5.2',
+                'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+            ),
+            'timeout' => 10,
+            'connect_timeout' => 10,
         );
 
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
@@ -178,7 +198,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo($options)
             )
             ->willReturn($response);
 
@@ -187,7 +207,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo($options)
             )
             ->willReturn($response);
 
@@ -203,9 +223,13 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchHeadReallyBadContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $headers = array(
-            'User-Agent' => 'Mozilla/5.2',
-            'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+        $options = array(
+            'headers' => array(
+                'User-Agent' => 'Mozilla/5.2',
+                'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+            ),
+            'timeout' => 10,
+            'connect_timeout' => 10,
         );
 
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
@@ -238,7 +262,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo($options)
             )
             ->willReturn($response);
 
@@ -247,7 +271,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo($url),
-                $this->equalTo(array('headers' => $headers))
+                $this->equalTo($options)
             )
             ->willReturn($response);
 
@@ -450,10 +474,14 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo('http://fr.wikipedia.org/wiki/Copyright'),
-                $this->equalTo(array('headers' => array(
-                    'User-Agent' => 'Mozilla/5.2',
-                    'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                )))
+                $this->equalTo(array(
+                    'headers' => array(
+                        'User-Agent' => 'Mozilla/5.2',
+                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+                    ),
+                    'timeout' => 10,
+                    'connect_timeout' => 10,
+                ))
             )
             ->willReturn($response);
 
@@ -483,5 +511,74 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             'headers' => '',
             'status' => 200,
         ), $records[1]['context']['data']);
+    }
+
+    public function testTimeout()
+    {
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $client = new Client();
+        $http = new HttpClient($client, array('timeout' => 2), $logger);
+
+        $res = $http->fetch('http://blackhole.webpagetest.org/');
+
+        $this->assertEquals('http://blackhole.webpagetest.org/', $res['effective_url']);
+        $this->assertEquals(500, $res['status']);
+
+        $records = $handler->getRecords();
+
+        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[1]['message']);
+        // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
+        $this->assertContains('cURL error 28', $records[1]['formatted']);
+    }
+
+    public function testNbRedirectsReached()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->any())
+            ->method('getEffectiveUrl')
+            ->willReturn('http://fr.wikipedia.org/wiki/Copyright');
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?'.rand().'">');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->any())
+            ->method('get')
+            ->willReturn($response);
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($client);
+        $http->setLogger($logger);
+
+        $res = $http->fetch('http://fr.wikipedia.org/wiki/Copyright');
+
+        $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
+        $this->assertEquals(310, $res['status']);
+
+        $records = $handler->getRecords();
+        $record = end($records);
+
+        $this->assertEquals('Endless redirect: 11 on "{url}"', $record['message']);
     }
 }

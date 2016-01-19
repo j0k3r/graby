@@ -191,9 +191,9 @@ class Graby
         // @TODO: log raw html + headers
 
         // check site config for single page URL - fetch it if found
-        $is_single_page = false;
+        $isSinglePage = false;
         if ($this->config['singlepage'] && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
-            $is_single_page = true;
+            $isSinglePage = true;
             $effectiveUrl = $singlePageResponse['effective_url'];
 
             // check if action defined for returned Content-Type
@@ -218,7 +218,7 @@ class Graby
         $extractedLanguage = $this->extractor->getLanguage();
 
         // Deal with multi-page articles
-        $isMultiPage = (!$is_single_page && $extractResult && null !== $this->extractor->getNextPageUrl());
+        $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $isMultiPage) {
             $this->logger->log('debug', 'Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
