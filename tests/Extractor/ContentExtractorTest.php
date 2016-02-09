@@ -166,7 +166,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $content_block = $contentExtractor->getContent();
 
-        $this->assertContains('<iframe src=""/>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertContains('<iframe src="">[embedded content]</iframe>', $content_block->ownerDocument->saveXML($content_block));
     }
 
     public function dataForNextPage()

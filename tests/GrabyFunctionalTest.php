@@ -166,4 +166,30 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('image/jpeg', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }
+
+    public function testYoutubeOembed()
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent('http://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
+        $this->assertEquals('', $res['language']);
+        $this->assertEquals('http://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml', $res['url']);
+        $this->assertEquals('[Review] The Matrix Falling (Rain) Source Code C++', $res['title']);
+        $this->assertEquals('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="">[embedded content]</iframe>', $res['html']);
+        $this->assertEquals('[embedded content]', $res['summary']);
+        $this->assertEquals('text/xml', $res['content_type']);
+        $this->assertEquals(array(), $res['open_graph']);
+    }
 }
