@@ -30,7 +30,7 @@ That's why I made this fork:
 
 Add the lib using composer:
 
-    composer require j0k3r/graby~1.0
+    composer require j0k3r/graby
 
 Use the class to retrieve content:
 
