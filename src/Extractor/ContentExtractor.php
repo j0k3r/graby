@@ -408,7 +408,7 @@ class ContentExtractor
         if (isset($this->body)) {
             // remove any h1-h6 elements that appear as first thing in the body
             // and which match our title
-            if (isset($this->title) && $this->title != '') {
+            if (isset($this->title) && $this->title != '' && null !== $this->body->firstChild) {
                 $firstChild = $this->body->firstChild;
 
                 while ($firstChild->nextSibling != null && $firstChild->nodeType && ($firstChild->nodeType !== XML_ELEMENT_NODE)) {
@@ -427,6 +427,11 @@ class ContentExtractor
                 if (!$e->hasChildNodes()) {
                     $e->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
                 }
+            }
+
+            // prevent self-closing iframe when content is ONLY an iframe
+            if ('iframe' === $this->body->nodeName && !$this->body->hasChildNodes()) {
+                $this->body->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
             }
 
             // remove image lazy loading
