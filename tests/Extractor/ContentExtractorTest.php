@@ -30,10 +30,30 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $contentExtractor->getNextPageUrl());
     }
 
+    public function dataFingerPrints()
+    {
+        return array(
+            'blogger double quote' => array(
+                '<html><head><meta name="generator" content="Blogger" /></head></html>',
+                'fingerprint.blogspot.com'
+            ),
+            'blogger simple quote' => array(
+                "<html><head><meta content='blogger' name='generator'/></head></html>",
+                'fingerprint.blogspot.com'
+            ),
+            'wordpress with version number' => array(
+                '<html><head><meta name="generator" content="WordPress 4.4.2" /></head></html>',
+                'fingerprint.wordpress.com'
+            ),
+        );
+    }
+
     /**
      * Test if fingerprints are well extract from meta node.
+     *
+     * @dataProvider dataFingerPrints
      */
-    public function testFingerPrints()
+    public function testFingerPrints($html, $fingerprints)
     {
         $contentExtractor = new ContentExtractor(array(
             'config_builder' => array('site_config' => array(dirname(__FILE__))),
@@ -43,9 +63,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($res, 'Nothing host found because empty html');
 
-        $res = $contentExtractor->findHostUsingFingerprints('<html><head><meta name="generator" content="Blogger" /></head></html>');
+        $res = $contentExtractor->findHostUsingFingerprints($html);
 
-        $this->assertEquals('fingerprint.blogspot.com', $res);
+        $this->assertEquals($fingerprints, $res);
     }
 
     /**
