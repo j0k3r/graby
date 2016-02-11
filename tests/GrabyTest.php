@@ -1058,7 +1058,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(8, $res);
         $this->assertEquals('', $res['language']);
-        $this->assertEquals('', $res['title']);
+        $this->assertEquals('No title found', $res['title']);
         $this->assertEquals('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
         $this->assertEquals('http://removelinks.io', $res['url']);
         $this->assertEquals('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
@@ -1098,7 +1098,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(8, $res);
         $this->assertEquals('', $res['language']);
-        $this->assertEquals('', $res['title']);
+        $this->assertEquals('No title found', $res['title']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
         $this->assertEquals('http://lexpress.io', $res['url']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['summary']);
@@ -1130,11 +1130,50 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(8, $res);
         $this->assertEquals('', $res['language']);
-        $this->assertEquals('', $res['title']);
+        $this->assertEquals('No title found', $res['title']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['summary']);
         $this->assertEquals('', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
         $this->assertEquals(500, $res['status']);
+    }
+
+    public function testErrorMessages()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->once())
+            ->method('getEffectiveUrl')
+            ->willReturn('http://lexpress.io');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(400);
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('get')
+            ->willReturn($response);
+
+        $graby = new Graby(array(
+            'error_message' => 'Nothing found, hu?',
+            'error_message_title' => 'No title detected',
+        ), $client);
+
+        $res = $graby->fetchContent('lexpress.io');
+
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
+        $this->assertEquals('No title detected', $res['title']);
+        $this->assertEquals('Nothing found, hu?', $res['html']);
+        $this->assertEquals('http://lexpress.io', $res['url']);
+        $this->assertEquals('Nothing found, hu?', $res['summary']);
+        $this->assertEquals('', $res['content_type']);
+        $this->assertEquals(array(), $res['open_graph']);
     }
 }

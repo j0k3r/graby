@@ -121,6 +121,8 @@ $graby = new Graby(
     'multipage' => true,
     // Error message when content extraction fails
     'error_message' => '[unable to retrieve full-text content]',
+    // Default title when we won't be able to extract a title
+    'error_message_title' => 'No title found',
     // List of URLs (or parts of a URL) which will be accept.
     // If the list is empty, all URLs (except those specified in the blocked list below)
     // will be permitted.
