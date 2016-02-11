@@ -679,6 +679,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Trying {pattern} for language', $records[1]['message']);
         $this->assertEquals('Using Readability', $records[3]['message']);
         $this->assertEquals('Detected title: {title}', $records[4]['message']);
-        $this->assertEquals('Trying again without tidy', $records[5]['message']);
+
+        if (function_exists('tidy_parse_string')) {
+            $this->assertEquals('Trying again without tidy', $records[5]['message']);
+        }
     }
 }

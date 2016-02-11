@@ -13,3 +13,6 @@ insert_final_newline = true
 
 [*.txt]
 insert_final_newline = false
+
+[*.test]
+insert_final_newline = false
