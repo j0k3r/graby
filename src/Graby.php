@@ -47,6 +47,7 @@ class Graby
             'singlepage' => true,
             'multipage' => true,
             'error_message' => '[unable to retrieve full-text content]',
+            'error_message_title' => 'No title found',
             'allowed_urls' => array(),
             'blocked_urls' => array(),
             'xss_filter' => true,
@@ -291,7 +292,7 @@ class Graby
             return array(
                 'status' => $response['status'],
                 'html' => $this->config['error_message'],
-                'title' => $extractedTitle,
+                'title' => $extractedTitle ?: $this->config['error_message_title'],
                 'language' => $extractedLanguage,
                 'url' => $effectiveUrl,
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
@@ -356,7 +357,7 @@ class Graby
         return array(
             'status' => $response['status'],
             'html' => $html,
-            'title' => $extractedTitle,
+            'title' => $extractedTitle ?: $this->config['error_message_title'],
             'language' => $extractedLanguage,
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],

@@ -108,7 +108,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(404, $res['status']);
         $this->assertEmpty($res['language']);
         $this->assertEquals('http://bjori.blogspot.fr/201', $res['url']);
-        $this->assertEmpty($res['title']);
+        $this->assertEquals('No title found', $res['title']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
         $this->assertEquals('[unable to retrieve full-text content]', $res['summary']);
         $this->assertEquals('text/html', $res['content_type']);
