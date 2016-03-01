@@ -1059,7 +1059,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(8, $res);
         $this->assertEquals('', $res['language']);
         $this->assertEquals('No title found', $res['title']);
-        $this->assertEquals('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
+        $this->assertContains('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
         $this->assertEquals('http://removelinks.io', $res['url']);
         $this->assertEquals('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
         $this->assertEquals('text/html', $res['content_type']);
