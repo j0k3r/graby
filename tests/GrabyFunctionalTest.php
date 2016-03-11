@@ -86,7 +86,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Next Generation MongoDB Driver for PHP!', $res['title']);
         $this->assertContains('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
         $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEquals(array('og_url' => 'http://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html'), $res['open_graph']);
     }
 
     public function testBadUrl()
