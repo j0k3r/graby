@@ -1022,6 +1022,22 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://example.org/path/to/image.jpg', $e->firstChild->getAttribute('src'));
     }
 
+    public function testAvoidDataUriImageInOpenGraph()
+    {
+        $graby = new Graby();
+
+        $reflection = new \ReflectionClass(get_class($graby));
+        $method = $reflection->getMethod('extractOpenGraph');
+        $method->setAccessible(true);
+
+        $ogData = $method->invokeArgs($graby, array('<html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>'));
+
+        $this->assertCount(1, $ogData);
+        $this->assertArrayHasKey('og_url', $ogData);
+        $this->assertEquals('http://www.io.lol', $ogData['og_url']);
+        $this->assertFalse(isset($ogData['og_image']), 'og_image key does not exist');
+    }
+
     public function testContentLinksRemove()
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
