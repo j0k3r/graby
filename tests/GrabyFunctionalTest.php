@@ -86,7 +86,6 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Next Generation MongoDB Driver for PHP!', $res['title']);
         $this->assertContains('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
         $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array('og_url' => 'http://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html'), $res['open_graph']);
     }
 
     public function testBadUrl()
@@ -165,6 +164,38 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($res['summary']);
         $this->assertEquals('image/jpeg', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function dataWithAccent()
+    {
+        return array(
+            array('http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'),
+            array('https://en.wikipedia.org/wiki/Café'),
+            array('http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement'),
+            array('http://www.pro-linux.de/news/1/23430/linus-torvalds-über-das-internet-der-dinge.html'),
+        );
+    }
+
+    /**
+     * @dataProvider dataWithAccent
+     */
+    public function testAccentuedUrls($url)
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent($url);
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
     }
 
     public function testYoutubeOembed()
