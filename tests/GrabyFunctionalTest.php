@@ -86,7 +86,6 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Next Generation MongoDB Driver for PHP!', $res['title']);
         $this->assertContains('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
         $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array('og_url' => 'http://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html'), $res['open_graph']);
     }
 
     public function testBadUrl()
@@ -191,5 +190,24 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('[embedded content]', $res['summary']);
         $this->assertEquals('text/xml', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function testEncodedUrl()
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent('http://blog.niqnutn.com/index.php?article49/commandes-de-base');
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
     }
 }
