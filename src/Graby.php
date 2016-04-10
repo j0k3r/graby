@@ -775,21 +775,21 @@ class Graby
      * Rebuild an url using the response from parse_url.
      * Useful to rebuild an url after editing only the host, for example.
      *
-     * @param  array $data
+     * @param array $data
      *
      * @return array
      */
     private function unparse_url($data)
     {
-        $scheme   = isset($data['scheme']) ? $data['scheme'] . '://' : '';
-        $host     = isset($data['host']) ? $data['host'] : '';
-        $port     = isset($data['port']) ? ':' . $data['port'] : '';
-        $user     = isset($data['user']) ? $data['user'] : '';
-        $pass     = isset($data['pass']) ? ':' . $data['pass']  : '';
-        $pass     = ($user || $pass) ? "$pass@" : '';
-        $path     = isset($data['path']) ? $data['path'] : '';
-        $query    = isset($data['query']) ? '?' . $data['query'] : '';
-        $fragment = isset($data['fragment']) ? '#' . $data['fragment'] : '';
+        $scheme = isset($data['scheme']) ? $data['scheme'].'://' : '';
+        $host = isset($data['host']) ? $data['host'] : '';
+        $port = isset($data['port']) ? ':'.$data['port'] : '';
+        $user = isset($data['user']) ? $data['user'] : '';
+        $pass = isset($data['pass']) ? ':'.$data['pass'] : '';
+        $pass = ($user || $pass) ? "$pass@" : '';
+        $path = isset($data['path']) ? $data['path'] : '';
+        $query = isset($data['query']) ? '?'.$data['query'] : '';
+        $fragment = isset($data['fragment']) ? '#'.$data['fragment'] : '';
 
         return "$scheme$user$pass$host$port$path$query$fragment";
     }

@@ -35,15 +35,15 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         return array(
             'blogger double quote' => array(
                 '<html><head><meta name="generator" content="Blogger" /></head></html>',
-                'fingerprint.blogspot.com'
+                'fingerprint.blogspot.com',
             ),
             'blogger simple quote' => array(
                 "<html><head><meta content='blogger' name='generator'/></head></html>",
-                'fingerprint.blogspot.com'
+                'fingerprint.blogspot.com',
             ),
             'wordpress with version number' => array(
                 '<html><head><meta name="generator" content="WordPress 4.4.2" /></head></html>',
-                'fingerprint.wordpress.com'
+                'fingerprint.wordpress.com',
             ),
         );
     }
