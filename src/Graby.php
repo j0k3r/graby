@@ -739,7 +739,14 @@ class Graby
 
         $rmetas = array();
         foreach ($metas as $meta) {
-            $rmetas[str_replace(':', '_', $meta->getAttribute('property'))] = $meta->getAttribute('content');
+            $property = str_replace(':', '_', $meta->getAttribute('property'));
+
+            // avoid image data:uri to avoid sending too much data
+            if ('og_image' === $property && 0 === stripos($meta->getAttribute('content'), 'data:image')) {
+                continue;
+            }
+
+            $rmetas[$property] = $meta->getAttribute('content');
         }
 
         return $rmetas;

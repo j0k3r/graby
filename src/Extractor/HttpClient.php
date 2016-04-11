@@ -185,9 +185,7 @@ class HttpClient
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
         // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
         if (strpos($effectiveUrl, '_escaped_fragment_') === false) {
-            $html = substr($body, 0, 4000);
-
-            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $html) ?: $this->getUglyURL($effectiveUrl, $html);
+            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?: $this->getUglyURL($effectiveUrl, $body);
 
             if (false !== $redirectURL) {
                 return $this->fetch($redirectURL, true);
@@ -440,6 +438,8 @@ class HttpClient
         if (!$found) {
             return false;
         }
+
+        $this->logger->log('debug', 'Added escaped fragment to url');
 
         $query = array('_escaped_fragment_' => '');
 
