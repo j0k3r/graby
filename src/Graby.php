@@ -15,6 +15,7 @@ use Monolog\Handler\StreamHandler;
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 use Smalot\PdfParser\Parser as PdfParser;
+use TrueBV\Punycode;
 
 /**
  * @todo add proxy
@@ -32,6 +33,7 @@ class Graby
 
     /** @var \Graby\SiteConfig\ConfigBuilder */
     private $configBuilder;
+    private $punycode;
 
     /**
      * @param array                           $config
@@ -93,7 +95,9 @@ class Graby
                 $this->logger
             );
         }
+
         $this->configBuilder = $configBuilder;
+        $this->punycode = new Punycode();
     }
 
     /**
@@ -383,6 +387,28 @@ class Graby
         if (!preg_match('!^https?://.+!i', $url)) {
             $url = 'http://'.$url;
         }
+
+        // explode url to convert accents
+        $parsedUrl = parse_url($url);
+
+        if (false === $parsedUrl) {
+            throw new \Exception(sprintf('Url "%s" is not valid.', $url));
+        }
+
+        if (isset($parsedUrl['host']) && preg_match('/[\x80-\xff]/', $parsedUrl['host'])) {
+            $parsedUrl['host'] = $this->punycode->encode($parsedUrl['host']);
+        }
+
+        if (isset($parsedUrl['path']) && preg_match('/[\x80-\xff]/', $parsedUrl['path'])) {
+            $path = array();
+            foreach (explode('/', $parsedUrl['path']) as $value) {
+                $path[] = urlencode($value);
+            }
+            $parsedUrl['path'] = implode('/', $path);
+        }
+
+        // everything should be converted, rebuild the final url
+        $url = $this->unparse_url($parsedUrl);
 
         if (false === filter_var($url, FILTER_VALIDATE_URL)) {
             throw new \Exception(sprintf('Url "%s" is not valid.', $url));
@@ -750,5 +776,28 @@ class Graby
         }
 
         return $rmetas;
+    }
+
+    /**
+     * Rebuild an url using the response from parse_url.
+     * Useful to rebuild an url after editing only the host, for example.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    private function unparse_url($data)
+    {
+        $scheme = isset($data['scheme']) ? $data['scheme'].'://' : '';
+        $host = isset($data['host']) ? $data['host'] : '';
+        $port = isset($data['port']) ? ':'.$data['port'] : '';
+        $user = isset($data['user']) ? $data['user'] : '';
+        $pass = isset($data['pass']) ? ':'.$data['pass'] : '';
+        $pass = ($user || $pass) ? "$pass@" : '';
+        $path = isset($data['path']) ? $data['path'] : '';
+        $query = isset($data['query']) ? '?'.$data['query'] : '';
+        $fragment = isset($data['fragment']) ? '#'.$data['fragment'] : '';
+
+        return "$scheme$user$pass$host$port$path$query$fragment";
     }
 }

@@ -206,7 +206,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('http://lexpress devant.fr'),
-            array('http://cestmôcje.fr'),
+            array('http://user@:80'),
             array('http://cest^long.fr'),
         );
     }
@@ -1191,5 +1191,31 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Nothing found, hu?', $res['summary']);
         $this->assertEquals('', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function dataWithAccent()
+    {
+        return array(
+            'host with accent' => array('http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien', 'http://xn--protin-bva.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'),
+            'url with accent 1' => array('https://en.wikipedia.org/wiki/Café', 'https://en.wikipedia.org/wiki/Caf%C3%A9'),
+            'url with accent 2' => array('http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement', 'http://www.atterres.org/article/budget-2016-les-10-m%C3%A9prises-lib%C3%A9rales-du-gouvernement'),
+            'url with accent 3' => array('http://www.pro-linux.de/news/1/23430/linus-torvalds-über-das-internet-der-dinge.html', 'http://www.pro-linux.de/news/1/23430/linus-torvalds-%C3%BCber-das-internet-der-dinge.html'),
+        );
+    }
+
+    /**
+     * @dataProvider dataWithAccent
+     */
+    public function testUrlWithAccent($url, $urlExpected)
+    {
+        $graby = new Graby();
+
+        $reflection = new \ReflectionClass(get_class($graby));
+        $method = $reflection->getMethod('validateUrl');
+        $method->setAccessible(true);
+
+        $res = $method->invokeArgs($graby, array($url));
+
+        $this->assertEquals($urlExpected, $res);
     }
 }

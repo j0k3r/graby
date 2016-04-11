@@ -166,6 +166,38 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $res['open_graph']);
     }
 
+    public function dataWithAccent()
+    {
+        return array(
+            array('http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'),
+            array('https://en.wikipedia.org/wiki/Café'),
+            array('http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement'),
+            array('http://www.pro-linux.de/news/1/23430/linus-torvalds-über-das-internet-der-dinge.html'),
+        );
+    }
+
+    /**
+     * @dataProvider dataWithAccent
+     */
+    public function testAccentuedUrls($url)
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent($url);
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
+    }
+
     public function testYoutubeOembed()
     {
         $graby = new Graby(array('debug' => true));
