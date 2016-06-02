@@ -55,7 +55,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
             $test = file_get_contents($file->getRealpath());
 
-            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
+            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT_WITHOUT_TIDY-----\s*(.*)/sx', $test, $match);
 
             $tests[] = array(
                 $match[1], // url
@@ -66,6 +66,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
                 $match[6], // summary
                 $match[7], // raw content
                 $match[8], // parsed content
+                $match[9], // parsed content without tidy
             );
         }
 
@@ -75,7 +76,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $urlEffective, $header, $language, $title, $summary, $rawContent, $parsedContent)
+    public function testFetchContent($url, $urlEffective, $header, $language, $title, $summary, $rawContent, $parsedContent, $parsedContentWithoutTidy)
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -126,7 +127,13 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($urlEffective, $res['url'], 'Same url');
         $this->assertEquals($title, $res['title'], 'Same title');
         $this->assertEquals($summary, $res['summary'], 'Same summary');
-        $this->assertEquals($parsedContent, $res['html'], 'Same html');
+
+        if (function_exists('tidy_parse_string')) {
+            $this->assertEquals($parsedContent, $res['html'], 'Same html');
+        } else {
+            $this->assertEquals($parsedContentWithoutTidy, $res['html'], 'Same html');
+        }
+
         $this->assertEquals('text/html', $res['content_type']);
 
         // blogger doesn't have OG data, but lemonde has

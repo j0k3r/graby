@@ -360,7 +360,7 @@ class Graby
 
         return array(
             'status' => $response['status'],
-            'html' => $html,
+            'html' => trim($html),
             'title' => $extractedTitle ?: $this->config['error_message_title'],
             'language' => $extractedLanguage,
             'url' => $effectiveUrl,
