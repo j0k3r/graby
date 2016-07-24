@@ -801,7 +801,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href=".//oops :)">next page</a></li></ul></html>',
+                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="/:/">next page</a></li></ul></html>',
                 '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
             ));
 
