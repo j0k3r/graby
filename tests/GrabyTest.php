@@ -260,7 +260,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->once())
             ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io');
+            ->willReturn('http://lexpress.io/my awesome image.jpg');
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -285,8 +285,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(8, $res);
         $this->assertEquals('', $res['language']);
         $this->assertEquals('Image', $res['title']);
-        $this->assertEquals('<a href="http://lexpress.io"><img src="http://lexpress.io" alt="Image" /></a>', $res['html']);
-        $this->assertEquals('http://lexpress.io', $res['url']);
+        $this->assertEquals('<a href="http://lexpress.io/my%20awesome%20image.jpg"><img src="http://lexpress.io/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
+        $this->assertEquals('http://lexpress.io/my%20awesome%20image.jpg', $res['url']);
         $this->assertEmpty($res['summary']);
         $this->assertEquals('image/jpeg', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
