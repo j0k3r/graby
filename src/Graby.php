@@ -176,6 +176,7 @@ class Graby
         $response = $this->httpClient->fetch($url);
 
         $effectiveUrl = $response['effective_url'];
+        $effectiveUrl = str_replace(' ', '%20', $effectiveUrl);
         if (!$this->isUrlAllowed($effectiveUrl)) {
             throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
         }

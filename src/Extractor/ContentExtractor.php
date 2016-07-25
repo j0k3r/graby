@@ -394,7 +394,7 @@ class ContentExtractor
             $this->logger->log('debug', 'Detecting body');
             $this->body = $this->readability->getContent();
 
-            if ($this->body->childNodes->length == 1 && $this->body->firstChild->nodeType === XML_ELEMENT_NODE) {
+            if ($this->body->childNodes->length === 1 && $this->body->firstChild->nodeType === XML_ELEMENT_NODE) {
                 $this->body = $this->body->firstChild;
             }
 
@@ -601,9 +601,9 @@ class ContentExtractor
             return $detectBody;
         }
 
-        $this->logger->log('debug', $type.': found "'.$elems->length.'" with '.$xpathExpression.'');
+        $this->logger->log('debug', $type.': found "'.$elems->length.'" with '.$xpathExpression);
 
-        if ($elems->length == 1) {
+        if ($elems->length === 1) {
             $this->body = $elems->item(0);
 
             // prune (clean up elements that may not be content)

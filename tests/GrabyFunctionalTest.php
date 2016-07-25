@@ -117,7 +117,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
     public function testPdfFile()
     {
         $graby = new Graby(array('debug' => true));
-        $res = $graby->fetchContent('http://www.relacweb.org/conferencia/images/documentos/Hoteles_cerca.pdf');
+        $res = $graby->fetchContent('http://img3.free.fr/im_tv/telesites/documentation.pdf');
 
         $this->assertCount(8, $res);
 
@@ -132,10 +132,10 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(200, $res['status']);
         $this->assertEquals('', $res['language']);
-        $this->assertEquals('http://www.relacweb.org/conferencia/images/documentos/Hoteles_cerca.pdf', $res['url']);
-        $this->assertEquals('1725.PDF', $res['title']);
-        $this->assertContains('University of Liverpool', $res['html']);
-        $this->assertContains('University of Liverpool', $res['summary']);
+        $this->assertEquals('http://img3.free.fr/im_tv/telesites/documentation.pdf', $res['url']);
+        $this->assertEquals('PDF', $res['title']);
+        $this->assertContains('Free 2008', $res['html']);
+        $this->assertContains('Free 2008', $res['summary']);
         $this->assertEquals('application/pdf', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }
