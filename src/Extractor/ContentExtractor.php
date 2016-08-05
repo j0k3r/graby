@@ -108,7 +108,7 @@ class ContentExtractor
      * @param string $html
      * @param bool   $addToCache
      *
-     * @return \Graby\SiteConfig\SiteConfig
+     * @return SiteConfig
      */
     public function buildSiteConfig($url, $html = '', $addToCache = true)
     {

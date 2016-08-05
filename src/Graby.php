@@ -31,14 +31,14 @@ class Graby
     private $httpClient = null;
     private $extractor = null;
 
-    /** @var \Graby\SiteConfig\ConfigBuilder */
+    /** @var ConfigBuilder */
     private $configBuilder;
     private $punycode;
 
     /**
-     * @param array                           $config
-     * @param Client|null                     $client        Guzzle client
-     * @param \Graby\SiteConfig\ConfigBuilder $configBuilder
+     * @param array         $config
+     * @param Client|null   $client        Guzzle client
+     * @param ConfigBuilder $configBuilder
      */
     public function __construct($config = array(), Client $client = null, ConfigBuilder $configBuilder = null)
     {
