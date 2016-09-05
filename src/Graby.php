@@ -54,6 +54,7 @@ class Graby
             'blocked_urls' => array(),
             'xss_filter' => true,
             'content_type_exc' => array(
+                'application/zip' => array('action' => 'link', 'name' => 'ZIP'),
                 'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
                 'image' => array('action' => 'link', 'name' => 'Image'),
                 'audio' => array('action' => 'link', 'name' => 'Audio'),

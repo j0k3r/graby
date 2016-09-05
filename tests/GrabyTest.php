@@ -434,6 +434,48 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $res['open_graph']);
     }
 
+    public function testAssetExtensionZIP()
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->exactly(2))
+            ->method('getEffectiveUrl')
+            ->willReturn('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('application/zip');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('get')
+            ->willReturn($response);
+
+        $client->expects($this->once())
+            ->method('head')
+            ->willReturn($response);
+
+        $graby = new Graby(array(), $client);
+
+        $res = $graby->fetchContent('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
+
+        $this->assertCount(8, $res);
+        $this->assertEquals('', $res['language']);
+        $this->assertEquals('ZIP', $res['title']);
+        $this->assertContains('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
+        $this->assertEquals('application/zip', $res['content_type']);
+        $this->assertEquals(array(), $res['open_graph']);
+    }
+
     public function testAssetExtensionPDFWithArrayDetails()
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')

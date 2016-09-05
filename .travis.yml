@@ -5,6 +5,7 @@ php:
     - 5.5
     - 5.6
     - 7.0
+    - 7.1
     - hhvm
 
 # run build against nightly but allow them to fail
@@ -14,7 +15,7 @@ matrix:
         - php: hhvm
     # only one build will send the coverage, this'll speed up other one
     include:
-        - php: 5.6
+        - php: 7.0
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml"
 
 # faster builds on new travis setup not using sudo
