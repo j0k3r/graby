@@ -436,7 +436,7 @@ class ContentExtractor
 
             // remove image lazy loading
             foreach ($this->body->getElementsByTagName('img') as $e) {
-                if (!$e->hasAttribute('data-lazy-src') && !$e->hasAttribute('data-src')) {
+                if (!$e->hasAttribute('data-lazy-src') && !$e->hasAttribute('data-src') && !$e->hasAttribute('data-original')) {
                     continue;
                 }
 
@@ -460,6 +460,11 @@ class ContentExtractor
                 if ($e->hasAttribute('data-lazy-src')) {
                     $src = $e->getAttribute('data-lazy-src');
                     $e->removeAttribute('data-lazy-src');
+                }
+
+                if ($e->hasAttribute('data-original')) {
+                    $src = $e->getAttribute('data-original');
+                    $e->removeAttribute('data-original');
                 }
 
                 $e->setAttribute('src', $src);

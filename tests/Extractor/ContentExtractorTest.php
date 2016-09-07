@@ -601,6 +601,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
                 '<div>'.str_repeat('this is the best part of the show', 10).'<img data-lazy-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><noscript><img src="http://0.0.0.0/big_image_noscript.jpg"></noscript></div>',
                 '<img src="http://0.0.0.0/big_image_noscript.jpg"',
             ),
+            // test with img attribute data-original and image in noscript
+            array(
+                '<div>'.str_repeat('this is the best part of the show', 10).'<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-original="http://0.0.0.0/big_image.jpg" class="lazy"/></div>',
+                '<img src="http://0.0.0.0/big_image.jpg"',
+            ),
         );
     }
 
