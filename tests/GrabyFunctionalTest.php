@@ -244,4 +244,27 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(200, $res['status']);
     }
+
+    public function testUTF16Content()
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent('http://www.ufocasebook.com/gulfbreeze.html');
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
+        $this->assertContains('The Gulf Breeze, Florida UFOs (Ed Walters), UFO Casebook files', $res['title']);
+        $this->assertContains('Location of last UFO sighting in Gulf Breeze on Soundside Drive', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
+        $this->assertEquals(array(), $res['open_graph']);
+    }
 }
