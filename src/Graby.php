@@ -191,6 +191,13 @@ class Graby
 
         $html = Encoding::toUTF8($response['body']);
 
+        // some non utf8 enconding might be breaking after converting to utf8
+        // when it happen the string (usually) starts with this character
+        // in that case, we'll take the default response instead of the utf8 forced one
+        if (0 === strpos($html, 'ÿþ')) {
+            $html = $response['body'];
+        }
+
         $ogData = $this->extractOpenGraph($html);
 
         $this->logger->log('debug', 'Opengraph data: {ogData}', array('ogData' => $ogData));
