@@ -34,8 +34,9 @@ class ContentExtractor
     /**
      * @param array                $config
      * @param LoggerInterface|null $logger
+     * @param ConfigBuilder        $configBuilder
      */
-    public function __construct($config = array(), LoggerInterface $logger = null)
+    public function __construct($config = array(), LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
@@ -59,8 +60,10 @@ class ContentExtractor
             $this->logger = new NullLogger();
         }
 
-        // Set up Content Extractor
-        $this->configBuilder = new ConfigBuilder($this->config['config_builder'], $this->logger);
+        $this->configBuilder = $configBuilder;
+        if (null === $this->configBuilder) {
+            $this->configBuilder = new ConfigBuilder($this->config['config_builder'], $this->logger);
+        }
     }
 
     public function setLogger(LoggerInterface $logger)
