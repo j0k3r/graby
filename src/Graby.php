@@ -9,7 +9,6 @@ use Readability\Readability;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
 use Graby\Ring\Client\SafeCurlHandler;
-use ForceUTF8\Encoding;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Psr\Log\NullLogger;
@@ -190,7 +189,7 @@ class Graby
             return $infos;
         }
 
-        $html = Encoding::toUTF8($response['body']);
+        $html = $this->convert2Utf8($response['body'], $response['headers']);
 
         // some non utf8 enconding might be breaking after converting to utf8
         // when it happen the string (usually) starts with this character
@@ -218,7 +217,7 @@ class Graby
                 return $infos;
             }
 
-            $html = Encoding::toUTF8($singlePageResponse['body']);
+            $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['headers']);
             $this->logger->log('debug', 'Retrieved single-page view from "{url}"', array('url' => $effectiveUrl));
 
             unset($singlePageResponse);
@@ -272,7 +271,7 @@ class Graby
                 }
 
                 $extracSuccess = $this->extractor->process(
-                    Encoding::toUTF8($response['body']),
+                    $this->convert2Utf8($response['body'], $response['headers']),
                     $nextPageUrl
                 );
 
@@ -534,7 +533,8 @@ class Graby
                     $parser = new PdfParser();
                     $pdf = $parser->parseFile($effectiveUrl);
 
-                    $html = Encoding::toUTF8(nl2br($pdf->getText()));
+                    // tiny hack to avoid character like �
+                    $html = mb_convert_encoding(nl2br($pdf->getText()), 'UTF-8', 'UTF-8');
 
                     // strip away unwanted chars (that usualy came from PDF extracted content)
                     // @see http://www.phpwact.org/php/i18n/charsets#common_problem_areas_with_utf-8
@@ -811,5 +811,118 @@ class Graby
         $fragment = isset($data['fragment']) ? '#'.$data['fragment'] : '';
 
         return "$scheme$user$pass$host$port$path$query$fragment";
+    }
+
+    /**
+     * Convert string to utf8
+     * (uses HTTP headers and HTML to find encoding).
+     *
+     * Adapted from http://stackoverflow.com/questions/910793/php-detect-encoding-and-make-everything-utf-8
+     *
+     * @param string $html
+     * @param string $header Content-type header content
+     *
+     * @return string
+     */
+    private function convert2Utf8($html, $header = null)
+    {
+        if (!($html || $header)) {
+            return $html;
+        }
+
+        $encoding = null;
+        // remove strange things
+        $html = str_replace('</[>', '', $html);
+
+        if (is_array($header)) {
+            $header = implode("\n", $header);
+        }
+
+        if (!$header || !preg_match_all('/^Content-Type:\s+([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $header, $match, PREG_SET_ORDER)) {
+            // error parsing the response
+            // debug('Could not find Content-Type header in HTTP response');
+        } else {
+            // get last matched element (in case of redirects)
+            $match = end($match);
+
+            if (isset($match[2])) {
+                $encoding = trim($match[2], "\"' \r\n\0\x0B\t");
+            }
+        }
+
+        // TODO: check to see if encoding is supported (can we convert it?)
+        // If it's not, result will be empty string.
+        // For now we'll check for invalid encoding types returned by some sites, e.g. 'none'
+        // Problem URL: http://facta.co.jp/blog/archives/20111026001026.html
+        if (!$encoding || $encoding == 'none') {
+            // search for encoding in HTML - only look at the first 50000 characters
+            // Why 50000? See, for example, http://www.lemonde.fr/festival-de-cannes/article/2012/05/23/deux-cretes-en-goguette-sur-la-croisette_1705732_766360.html
+            // TODO: improve this so it looks at smaller chunks first
+            $html_head = substr($html, 0, 50000);
+            if (preg_match('/^<\?xml\s+version=(?:"[^"]*"|\'[^\']*\')\s+encoding=("[^"]*"|\'[^\']*\')/s', $html_head, $match)) {
+                $encoding = trim($match[1], '"\'');
+            } elseif (preg_match('/<meta\s+http-equiv=["\']?Content-Type["\']? content=["\'][^;]+;\s*charset=["\']?([^;"\'>]+)/i', $html_head, $match)) {
+                $encoding = trim($match[1]);
+            } elseif (preg_match_all('/<meta\s+([^>]+)>/i', $html_head, $match)) {
+                foreach ($match[1] as $_test) {
+                    if (preg_match('/charset=["\']?([^"\']+)/i', $_test, $_m)) {
+                        $encoding = trim($_m[1]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (isset($encoding)) {
+            $encoding = strtolower(trim($encoding));
+        }
+
+        // fix bad encoding values
+        if ($encoding === 'iso-8850-1') {
+            $encoding = 'iso-8859-1';
+        }
+
+        if (!$encoding || $encoding === 'iso-8859-1') {
+            // replace MS Word smart qutoes
+            $trans = array();
+            $trans[chr(130)] = '&sbquo;';    // Single Low-9 Quotation Mark
+            $trans[chr(131)] = '&fnof;';    // Latin Small Letter F With Hook
+            $trans[chr(132)] = '&bdquo;';    // Double Low-9 Quotation Mark
+            $trans[chr(133)] = '&hellip;';    // Horizontal Ellipsis
+            $trans[chr(134)] = '&dagger;';    // Dagger
+            $trans[chr(135)] = '&Dagger;';    // Double Dagger
+            $trans[chr(136)] = '&circ;';    // Modifier Letter Circumflex Accent
+            $trans[chr(137)] = '&permil;';    // Per Mille Sign
+            $trans[chr(138)] = '&Scaron;';    // Latin Capital Letter S With Caron
+            $trans[chr(139)] = '&lsaquo;';    // Single Left-Pointing Angle Quotation Mark
+            $trans[chr(140)] = '&OElig;';    // Latin Capital Ligature OE
+            $trans[chr(145)] = '&lsquo;';    // Left Single Quotation Mark
+            $trans[chr(146)] = '&rsquo;';    // Right Single Quotation Mark
+            $trans[chr(147)] = '&ldquo;';    // Left Double Quotation Mark
+            $trans[chr(148)] = '&rdquo;';    // Right Double Quotation Mark
+            $trans[chr(149)] = '&bull;';    // Bullet
+            $trans[chr(150)] = '&ndash;';    // En Dash
+            $trans[chr(151)] = '&mdash;';    // Em Dash
+            $trans[chr(152)] = '&tilde;';    // Small Tilde
+            $trans[chr(153)] = '&trade;';    // Trade Mark Sign
+            $trans[chr(154)] = '&scaron;';    // Latin Small Letter S With Caron
+            $trans[chr(155)] = '&rsaquo;';    // Single Right-Pointing Angle Quotation Mark
+            $trans[chr(156)] = '&oelig;';    // Latin Small Ligature OE
+            $trans[chr(159)] = '&Yuml;';    // Latin Capital Letter Y With Diaeresis
+            $html = strtr($html, $trans);
+        }
+
+        if (!$encoding) {
+            // debug('No character encoding found, so treating as UTF-8');
+            $encoding = 'utf-8';
+        } else {
+            // debug('Character encoding: '.$encoding);
+            if ($encoding != 'utf-8') {
+                // debug('Converting to UTF-8');
+                $html = \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8');
+            }
+        }
+
+        return $html;
     }
 }
