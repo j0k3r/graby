@@ -79,9 +79,18 @@ class Graby
             $this->logger->pushHandler(new StreamHandler(dirname(__FILE__).'/../log/graby.log'));
         }
 
+        $this->configBuilder = $configBuilder;
+        if (null === $this->configBuilder) {
+            $this->configBuilder = new ConfigBuilder(
+                isset($this->config['extractor']['config_builder']) ? $this->config['extractor']['config_builder'] : [],
+                $this->logger
+            );
+        }
+
         $this->extractor = new ContentExtractor(
             $this->config['extractor'],
-            $this->logger
+            $this->logger,
+            $this->configBuilder
         );
 
         $this->httpClient = new HttpClient(
@@ -90,14 +99,6 @@ class Graby
             $this->logger
         );
 
-        if ($configBuilder === null) {
-            $configBuilder = new ConfigBuilder(
-                isset($this->config['extractor']['config_builder']) ? $this->config['extractor']['config_builder'] : [],
-                $this->logger
-            );
-        }
-
-        $this->configBuilder = $configBuilder;
         $this->punycode = new Punycode();
     }
 
@@ -579,6 +580,8 @@ class Graby
 
         // no single page found?
         if (empty($siteConfig->single_page_link)) {
+            $this->logger->log('debug', 'No "single_page_link" config found');
+
             return false;
         }
 
