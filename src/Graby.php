@@ -194,7 +194,7 @@ class Graby
         // some non utf8 enconding might be breaking after converting to utf8
         // when it happen the string (usually) starts with this character
         // in that case, we'll take the default response instead of the utf8 forced one
-        if (0 === strpos($html, 'ÿþ')) {
+        if (0 === strpos(utf8_encode($response['body']), 'ÿþ')) {
             $html = $response['body'];
         }
 
@@ -612,6 +612,7 @@ class Graby
         }
 
         if (!$singlePageUrl) {
+            $this->logger->log('debug', 'No url found');
             return false;
         }
 
@@ -621,8 +622,16 @@ class Graby
         // check it's not what we have already!
         if (false !== $singlePageUrl && $singlePageUrl != $url) {
             // it's not, so let's try to fetch it...
-            return $this->httpClient->fetch($singlePageUrl);
+            $response = $this->httpClient->fetch($singlePageUrl);
+
+            if ($response['status'] < 300) {
+                $this->logger->log('debug', 'Single page content found with url', ['url' => $singlePageUrl]);
+
+                return $response;
+            }
         }
+
+        $this->logger->log('debug', 'No content found with url', ['url' => $singlePageUrl]);
 
         return false;
     }
@@ -826,7 +835,7 @@ class Graby
      */
     private function convert2Utf8($html, $header = null)
     {
-        if (!($html || $header)) {
+        if (empty($html) || empty($header)) {
             return $html;
         }
 
@@ -838,9 +847,9 @@ class Graby
             $header = implode("\n", $header);
         }
 
-        if (!$header || !preg_match_all('/^Content-Type:\s+([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $header, $match, PREG_SET_ORDER)) {
+        if (empty($header) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $header, $match, PREG_SET_ORDER)) {
             // error parsing the response
-            // debug('Could not find Content-Type header in HTTP response');
+            $this->logger->log('debug', 'Could not find Content-Type header in HTTP response', ['header' => $header]);
         } else {
             // get last matched element (in case of redirects)
             $match = end($match);
@@ -854,7 +863,7 @@ class Graby
         // If it's not, result will be empty string.
         // For now we'll check for invalid encoding types returned by some sites, e.g. 'none'
         // Problem URL: http://facta.co.jp/blog/archives/20111026001026.html
-        if (!$encoding || $encoding == 'none') {
+        if (empty($encoding) || $encoding == 'none') {
             // search for encoding in HTML - only look at the first 50000 characters
             // Why 50000? See, for example, http://www.lemonde.fr/festival-de-cannes/article/2012/05/23/deux-cretes-en-goguette-sur-la-croisette_1705732_766360.html
             // TODO: improve this so it looks at smaller chunks first
@@ -873,55 +882,51 @@ class Graby
             }
         }
 
-        if (isset($encoding)) {
-            $encoding = strtolower(trim($encoding));
-        }
+        $encoding = strtolower(trim($encoding));
 
         // fix bad encoding values
         if ($encoding === 'iso-8850-1') {
             $encoding = 'iso-8859-1';
         }
 
-        if (!$encoding || $encoding === 'iso-8859-1') {
+        if (empty($encoding) || $encoding === 'iso-8859-1') {
             // replace MS Word smart qutoes
             $trans = array();
-            $trans[chr(130)] = '&sbquo;';    // Single Low-9 Quotation Mark
-            $trans[chr(131)] = '&fnof;';    // Latin Small Letter F With Hook
-            $trans[chr(132)] = '&bdquo;';    // Double Low-9 Quotation Mark
-            $trans[chr(133)] = '&hellip;';    // Horizontal Ellipsis
-            $trans[chr(134)] = '&dagger;';    // Dagger
-            $trans[chr(135)] = '&Dagger;';    // Double Dagger
-            $trans[chr(136)] = '&circ;';    // Modifier Letter Circumflex Accent
-            $trans[chr(137)] = '&permil;';    // Per Mille Sign
-            $trans[chr(138)] = '&Scaron;';    // Latin Capital Letter S With Caron
-            $trans[chr(139)] = '&lsaquo;';    // Single Left-Pointing Angle Quotation Mark
-            $trans[chr(140)] = '&OElig;';    // Latin Capital Ligature OE
-            $trans[chr(145)] = '&lsquo;';    // Left Single Quotation Mark
-            $trans[chr(146)] = '&rsquo;';    // Right Single Quotation Mark
-            $trans[chr(147)] = '&ldquo;';    // Left Double Quotation Mark
-            $trans[chr(148)] = '&rdquo;';    // Right Double Quotation Mark
-            $trans[chr(149)] = '&bull;';    // Bullet
-            $trans[chr(150)] = '&ndash;';    // En Dash
-            $trans[chr(151)] = '&mdash;';    // Em Dash
-            $trans[chr(152)] = '&tilde;';    // Small Tilde
-            $trans[chr(153)] = '&trade;';    // Trade Mark Sign
-            $trans[chr(154)] = '&scaron;';    // Latin Small Letter S With Caron
-            $trans[chr(155)] = '&rsaquo;';    // Single Right-Pointing Angle Quotation Mark
-            $trans[chr(156)] = '&oelig;';    // Latin Small Ligature OE
-            $trans[chr(159)] = '&Yuml;';    // Latin Capital Letter Y With Diaeresis
+            $trans[chr(130)] = '&sbquo;'; // Single Low-9 Quotation Mark
+            $trans[chr(131)] = '&fnof;'; // Latin Small Letter F With Hook
+            $trans[chr(132)] = '&bdquo;'; // Double Low-9 Quotation Mark
+            $trans[chr(133)] = '&hellip;'; // Horizontal Ellipsis
+            $trans[chr(134)] = '&dagger;'; // Dagger
+            $trans[chr(135)] = '&Dagger;'; // Double Dagger
+            $trans[chr(136)] = '&circ;'; // Modifier Letter Circumflex Accent
+            $trans[chr(137)] = '&permil;'; // Per Mille Sign
+            $trans[chr(138)] = '&Scaron;'; // Latin Capital Letter S With Caron
+            $trans[chr(139)] = '&lsaquo;'; // Single Left-Pointing Angle Quotation Mark
+            $trans[chr(140)] = '&OElig;'; // Latin Capital Ligature OE
+            $trans[chr(145)] = '&lsquo;'; // Left Single Quotation Mark
+            $trans[chr(146)] = '&rsquo;'; // Right Single Quotation Mark
+            $trans[chr(147)] = '&ldquo;'; // Left Double Quotation Mark
+            $trans[chr(148)] = '&rdquo;'; // Right Double Quotation Mark
+            $trans[chr(149)] = '&bull;'; // Bullet
+            $trans[chr(150)] = '&ndash;'; // En Dash
+            $trans[chr(151)] = '&mdash;'; // Em Dash
+            $trans[chr(152)] = '&tilde;'; // Small Tilde
+            $trans[chr(153)] = '&trade;'; // Trade Mark Sign
+            $trans[chr(154)] = '&scaron;'; // Latin Small Letter S With Caron
+            $trans[chr(155)] = '&rsaquo;'; // Single Right-Pointing Angle Quotation Mark
+            $trans[chr(156)] = '&oelig;'; // Latin Small Ligature OE
+            $trans[chr(159)] = '&Yuml;'; // Latin Capital Letter Y With Diaeresis
             $html = strtr($html, $trans);
         }
 
-        if (!$encoding) {
-            // debug('No character encoding found, so treating as UTF-8');
-            $encoding = 'utf-8';
-        } else {
-            // debug('Character encoding: '.$encoding);
-            if ($encoding != 'utf-8') {
-                // debug('Converting to UTF-8');
-                $html = \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8');
-            }
+        if ($encoding !== 'utf-8') {
+            // debug('Converting to UTF-8');
+            $this->logger->log('debug', 'Converting to UTF-8', ['encoding' => $encoding]);
+
+            return \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8');
         }
+
+        $this->logger->log('debug', 'Treating as UTF-8', ['encoding' => $encoding]);
 
         return $html;
     }
