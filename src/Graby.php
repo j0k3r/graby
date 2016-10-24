@@ -920,10 +920,9 @@ class Graby
         }
 
         if ($encoding !== 'utf-8') {
-            // debug('Converting to UTF-8');
             $this->logger->log('debug', 'Converting to UTF-8', ['encoding' => $encoding]);
 
-            return \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8');
+            return \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8') ?: $html;
         }
 
         $this->logger->log('debug', 'Treating as UTF-8', ['encoding' => $encoding]);
