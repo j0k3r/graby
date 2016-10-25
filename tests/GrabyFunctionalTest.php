@@ -61,7 +61,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[2]['message']);
         $this->assertEquals('get', $records[2]['context']['method']);
         $this->assertEquals('Data fetched: {data}', $records[3]['message']);
-        $this->assertEquals('Opengraph data: {ogData}', $records[4]['message']);
+        $this->assertEquals('Opengraph data: {ogData}', $records[5]['message']);
     }
 
     public function testRealFetchContent2()
@@ -136,6 +136,32 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('PDF', $res['title']);
         $this->assertContains('Free 2008', $res['html']);
         $this->assertContains('Free 2008', $res['summary']);
+        $this->assertEquals('application/pdf', $res['content_type']);
+        $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function testPdfFileBadEncoding()
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent('http://a-eon.biz/PDF/News_Release_Developer.pdf');
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
+        $this->assertEquals('', $res['language']);
+        $this->assertEquals('http://a-eon.biz/PDF/News_Release_Developer.pdf', $res['url']);
+        $this->assertEquals('News_Release_Developer', $res['title']);
+        $this->assertContains('Amiga developers and users', $res['html']);
+        $this->assertContains('Kickstarting', $res['summary']);
         $this->assertEquals('application/pdf', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
     }
@@ -266,5 +292,27 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Location of last UFO sighting in Gulf Breeze on Soundside Drive', $res['summary']);
         $this->assertEquals('text/html', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
+    }
+
+    public function testKoreanPage()
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
+        $this->assertContains('뉴스타운', $res['title']);
+        $this->assertContains('프랑스 현대적 자연주의 브랜드', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
     }
 }
