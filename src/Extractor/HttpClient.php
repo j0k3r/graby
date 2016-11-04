@@ -131,7 +131,7 @@ class HttpClient
                 $url,
                 array(
                     'headers' => array(
-                        'User-Agent' => $this->getUserAgent($url),
+                        'User-Agent' => $this->getUserAgent($url, $httpHeader),
                         // add referer for picky sites
                         'Referer' => $this->config['default_referer'],
                     ),
@@ -330,12 +330,19 @@ class HttpClient
      * Otherwise it will use the default one.
      *
      * @param string $url Absolute url
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
      * @return string
      */
-    private function getUserAgent($url)
+    private function getUserAgent($url, $httpHeader = array())
     {
         $ua = $this->config['ua_browser'];
+
+        if (!empty($httpHeader['user-agent'])) {
+            $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from site config', array('user-agent' => $httpHeader['user-agent'], 'url' => $url));
+            return $httpHeader['user-agent'];
+        }
+
         $host = parse_url($url, PHP_URL_HOST);
 
         if (strtolower(substr($host, 0, 4)) == 'www.') {
