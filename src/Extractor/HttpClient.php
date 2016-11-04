@@ -101,10 +101,11 @@ class HttpClient
      *
      * @param string $url
      * @param bool   $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
      * @return array With keys effective_url, body & headers
      */
-    public function fetch($url, $skipTypeVerification = false)
+    public function fetch($url, $skipTypeVerification = false, $httpHeader = array())
     {
         if (false === $this->checkNumberRedirects($url)) {
             return $this->sendResults(array(
@@ -176,7 +177,7 @@ class HttpClient
         // but we'd issues a HEAD request because we assumed it would. So
         // let's queue a proper GET request for this item...
         if ('head' === $method && !$this->headerOnlyType($contentType)) {
-            return $this->fetch($effectiveUrl, true);
+            return $this->fetch($effectiveUrl, true, $httpHeader);
         }
 
         $body = (string) $response->getBody();
@@ -204,7 +205,7 @@ class HttpClient
             $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?: $this->getUglyURL($effectiveUrl, $body);
 
             if (false !== $redirectURL) {
-                return $this->fetch($redirectURL, true);
+                return $this->fetch($redirectURL, true, $httpHeader);
             }
         }
 
