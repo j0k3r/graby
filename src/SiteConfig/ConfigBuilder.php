@@ -274,7 +274,7 @@ class ConfigBuilder
     public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
     {
         // check for commands where we accept multiple statements (no test_url)
-        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'http_header') as $var) {
+        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link') as $var) {
             // append array elements for this config variable from $newConfig to this config
             $currentConfig->$var = array_unique(array_merge($currentConfig->$var, $newConfig->$var));
         }
@@ -292,6 +292,10 @@ class ConfigBuilder
             // append array elements for this config variable from $newConfig to this config
             $currentConfig->$var = array_merge($currentConfig->$var, $newConfig->$var);
         }
+
+        // merge http_header array from currentConfig into newConfig
+        // because final values override former values in case of named keys
+        $currentConfig->http_header = array_merge($newConfig->http_header, $currentConfig->http_header);
 
         return $currentConfig;
     }
@@ -329,7 +333,7 @@ class ConfigBuilder
             }
 
             // check for commands where we accept multiple statements
-            if (in_array($command, array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'http_header', 'test_url', 'find_string', 'replace_string', 'login_extra_fields'))) {
+            if (in_array($command, array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields'))) {
                 array_push($config->$command, $val);
             // check for single statement commands that evaluate to true or false
             } elseif (in_array($command, array('tidy', 'prune', 'autodetect_on_failure', 'requires_login'))) {
@@ -341,6 +345,8 @@ class ConfigBuilder
             } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && $match[1] == 'replace_string') {
                 array_push($config->find_string, $match[2]);
                 array_push($config->replace_string, $val);
+            } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && $match[1] == 'http_header' && in_array($match[2], array('user-agent'))) {
+                $config->http_header[$match[2]] = $val;
             }
         }
 

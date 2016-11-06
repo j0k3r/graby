@@ -36,7 +36,6 @@ class SiteConfig
     public $strip_image_src = array();
 
     // Additional HTTP headers to send
-    // NOT YET USED
     public $http_header = array();
 
     // Process HTML with tidy before creating DOM (bool or null if undeclared)
