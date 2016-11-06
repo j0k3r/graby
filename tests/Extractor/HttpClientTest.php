@@ -500,17 +500,17 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertCount(2, $records);
+        $this->assertCount(3, $records);
         $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[0]['message']);
         $this->assertEquals('get', $records[0]['context']['method']);
         $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $records[0]['context']['url']);
-        $this->assertEquals('Data fetched: {data}', $records[1]['message']);
+        $this->assertEquals('Data fetched: {data}', $records[2]['message']);
         $this->assertEquals(array(
             'effective_url' => 'http://fr.wikipedia.org/wiki/Copyright',
             'body' => '(only length for debug): 3',
             'headers' => '',
             'status' => 200,
-        ), $records[1]['context']['data']);
+        ), $records[2]['context']['data']);
     }
 
     public function testTimeout()
@@ -529,9 +529,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[1]['message']);
+        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[2]['message']);
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
-        $this->assertContains('cURL error 28', $records[1]['formatted']);
+        $this->assertContains('cURL error 28', $records[2]['formatted']);
     }
 
     public function testNbRedirectsReached()

@@ -71,8 +71,8 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $records[12]['context']['url']);
         $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[13]['message']);
         $this->assertEquals('get', $records[13]['context']['method']);
-        $this->assertEquals('Data fetched: {data}', $records[14]['message']);
-        $this->assertEquals('Opengraph data: {ogData}', $records[16]['message']);
+        $this->assertEquals('Data fetched: {data}', $records[15]['message']);
+        $this->assertEquals('Opengraph data: {ogData}', $records[17]['message']);
     }
 
     public function testRealFetchContent2()

@@ -360,10 +360,12 @@ class HttpClient
 
         foreach ($try as $h) {
             if (isset($this->config['user_agents'][$h])) {
+                $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from config', array('user-agent' => $this->config['user_agents'][$h], 'url' => $url));
                 return $this->config['user_agents'][$h];
             }
         }
 
+        $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', array('user-agent' => $ua, 'url' => $url));
         return $ua;
     }
 
