@@ -52,19 +52,7 @@ class HttpClient
             // to see if returned content type matches $headerOnlyTypes.
             'header_only_clues' => array('pdf', 'mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
             // User Agent strings - mapping domain names
-            'user_agents' => array(
-                'lifehacker.com' => 'PHP/5.2',
-                'gawker.com' => 'PHP/5.2',
-                'deadspin.com' => 'PHP/5.2',
-                'kotaku.com' => 'PHP/5.2',
-                'jezebel.com' => 'PHP/5.2',
-                'io9.com' => 'PHP/5.2',
-                'jalopnik.com' => 'PHP/5.2',
-                'gizmodo.com' => 'PHP/5.2',
-                '.wikipedia.org' => 'Mozilla/5.2',
-                '.fok.nl' => 'Googlebot/2.1',
-                'getpocket.com' => 'PHP/5.2',
-            ),
+            'user_agents' => array(),
             // AJAX triggers to search for.
             // for AJAX sites, e.g. Blogger with its dynamic views templates.
             'ajax_triggers' => array(

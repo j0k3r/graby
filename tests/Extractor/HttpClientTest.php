@@ -95,7 +95,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($urlEffective, $res['effective_url']);
@@ -147,7 +147,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($url, $res['effective_url']);
@@ -211,7 +211,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($url, $res['effective_url']);
@@ -275,7 +275,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($url, $res['effective_url']);
@@ -489,7 +489,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $http->setLogger($logger);
 
         $res = $http->fetch('http://fr.m.wikipedia.org/wiki/Copyright#bottom');
