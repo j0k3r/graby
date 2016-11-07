@@ -613,6 +613,7 @@ class Graby
 
         if (!$singlePageUrl) {
             $this->logger->log('debug', 'No url found');
+
             return false;
         }
 

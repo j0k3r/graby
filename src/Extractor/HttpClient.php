@@ -181,6 +181,22 @@ class HttpClient
 
         $body = (string) $response->getBody();
 
+        // be sure to remove conditional comments for IE
+        // we only remove conditional comments until we found the <head> tag
+        // they usually contains the <html> tag which we try to found and replace the last occurence
+        // with the whole conditional comments
+        preg_match('/^\<!--\[if(\X+)\<!\[endif\]--\>(\X+)\<head\>$/mi', $body, $matchesConditional);
+
+        if (count($matchesConditional) > 1) {
+            preg_match_all('/\<html([\sa-z0-9\=\"\"\-]+)\>$/mi', $matchesConditional[0], $matchesHtml);
+
+            if (count($matchesHtml) > 1) {
+                $htmlTag = end($matchesHtml[0]);
+
+                $body = str_replace($matchesConditional[0], $htmlTag.'<head>', $body);
+            }
+        }
+
         // check for <meta name='fragment' content='!'/>
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
         // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
