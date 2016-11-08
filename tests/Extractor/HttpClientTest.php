@@ -581,4 +581,90 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('Endless redirect: 11 on "{url}"', $record['message']);
     }
+
+    public function dataForConditionalComments()
+    {
+        return [
+            [
+                'url' => 'http://osqledaren.se/ol-gor-bangladesh/',
+                'html' => '<!DOCTYPE html>
+<!--[if IE 6]>
+<html id="ie6" >
+<![endif]-->
+<!--[if IE 7]>
+<html id="ie7" >
+<![endif]-->
+<!--[if IE 8]>
+<html id="ie8" >
+<![endif]-->
+<!--[if lte IE 8]>
+<meta http-equiv="refresh" content="0; url=/ie.html" />
+<![endif]-->
+<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
+<html lang="sv-SE">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Osqledaren">
+<meta name="keywords" content="osqledaren, newspaper">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1, minimum-scale=1, maximum-scale=1">',
+                'expectedBody' => '<html lang="sv-SE"><head>',
+            ],
+            [
+                'url' => 'http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html',
+                'html' => '<!doctype html>
+<!--[if lt IE 9]><html class="ie"><![endif]-->
+<!--[if IE 9]><html class="ie9"><![endif]-->
+<!--[if gte IE 9]><!-->
+<html lang="fr">
+<!--<![endif]-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">',
+                'expectedBody' => '<html lang="fr"><head>',
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider dataForConditionalComments
+     */
+    public function testWithMetaRefreshInConditionalComments($url, $html, $expectedBody)
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->once())
+            ->method('getEffectiveUrl')
+            ->willReturn($url);
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('text/html');
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn($html);
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('get')
+            ->willReturn($response);
+
+        $http = new HttpClient($client);
+        $res = $http->fetch($url);
+
+        $this->assertEquals($url, $res['effective_url']);
+        $this->assertContains($expectedBody, $res['body']);
+        $this->assertEquals('text/html', $res['headers']);
+        $this->assertEquals(200, $res['status']);
+    }
 }
