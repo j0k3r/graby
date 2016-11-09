@@ -56,12 +56,23 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->assertGreaterThan(30, $records);
         $this->assertEquals('Graby is ready to fetch', $records[0]['message']);
-        $this->assertEquals('Fetching url: {url}', $records[1]['message']);
-        $this->assertEquals('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $records[1]['context']['url']);
-        $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[2]['message']);
-        $this->assertEquals('get', $records[2]['context']['method']);
-        $this->assertEquals('Data fetched: {data}', $records[3]['message']);
-        $this->assertEquals('Opengraph data: {ogData}', $records[5]['message']);
+        $this->assertEquals('. looking for site config for {host} in primary folder', $records[1]['message']);
+        $this->assertEquals('... found site config {host}', $records[2]['message']);
+        $this->assertEquals('Appending site config settings from global.txt', $records[3]['message']);
+        $this->assertEquals('. looking for site config for {host} in primary folder', $records[4]['message']);
+        $this->assertEquals('... found site config {host}', $records[5]['message']);
+        $this->assertEquals('Cached site config with key: {key}', $records[6]['message']);
+        $this->assertEquals('. looking for site config for {host} in primary folder', $records[7]['message']);
+        $this->assertEquals('... found site config {host}', $records[8]['message']);
+        $this->assertEquals('Appending site config settings from global.txt', $records[9]['message']);
+        $this->assertEquals('Cached site config with key: {key}', $records[10]['message']);
+        $this->assertEquals('Cached site config with key: {key}', $records[11]['message']);
+        $this->assertEquals('Fetching url: {url}', $records[12]['message']);
+        $this->assertEquals('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $records[12]['context']['url']);
+        $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[13]['message']);
+        $this->assertEquals('get', $records[13]['context']['method']);
+        $this->assertEquals('Data fetched: {data}', $records[15]['message']);
+        $this->assertEquals('Opengraph data: {ogData}', $records[17]['message']);
     }
 
     public function testRealFetchContent2()

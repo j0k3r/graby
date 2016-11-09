@@ -52,19 +52,7 @@ class HttpClient
             // to see if returned content type matches $headerOnlyTypes.
             'header_only_clues' => array('pdf', 'mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
             // User Agent strings - mapping domain names
-            'user_agents' => array(
-                'lifehacker.com' => 'PHP/5.2',
-                'gawker.com' => 'PHP/5.2',
-                'deadspin.com' => 'PHP/5.2',
-                'kotaku.com' => 'PHP/5.2',
-                'jezebel.com' => 'PHP/5.2',
-                'io9.com' => 'PHP/5.2',
-                'jalopnik.com' => 'PHP/5.2',
-                'gizmodo.com' => 'PHP/5.2',
-                '.wikipedia.org' => 'Mozilla/5.2',
-                '.fok.nl' => 'Googlebot/2.1',
-                'getpocket.com' => 'PHP/5.2',
-            ),
+            'user_agents' => array(),
             // AJAX triggers to search for.
             // for AJAX sites, e.g. Blogger with its dynamic views templates.
             'ajax_triggers' => array(
@@ -101,10 +89,11 @@ class HttpClient
      *
      * @param string $url
      * @param bool   $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
      * @return array With keys effective_url, body & headers
      */
-    public function fetch($url, $skipTypeVerification = false)
+    public function fetch($url, $skipTypeVerification = false, $httpHeader = array())
     {
         if (false === $this->checkNumberRedirects($url)) {
             return $this->sendResults(array(
@@ -130,7 +119,7 @@ class HttpClient
                 $url,
                 array(
                     'headers' => array(
-                        'User-Agent' => $this->getUserAgent($url),
+                        'User-Agent' => $this->getUserAgent($url, $httpHeader),
                         // add referer for picky sites
                         'Referer' => $this->config['default_referer'],
                     ),
@@ -176,7 +165,7 @@ class HttpClient
         // but we'd issues a HEAD request because we assumed it would. So
         // let's queue a proper GET request for this item...
         if ('head' === $method && !$this->headerOnlyType($contentType)) {
-            return $this->fetch($effectiveUrl, true);
+            return $this->fetch($effectiveUrl, true, $httpHeader);
         }
 
         $body = (string) $response->getBody();
@@ -204,7 +193,7 @@ class HttpClient
             $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?: $this->getUglyURL($effectiveUrl, $body);
 
             if (false !== $redirectURL) {
-                return $this->fetch($redirectURL, true);
+                return $this->fetch($redirectURL, true, $httpHeader);
             }
         }
 
@@ -329,12 +318,19 @@ class HttpClient
      * Otherwise it will use the default one.
      *
      * @param string $url Absolute url
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
      * @return string
      */
-    private function getUserAgent($url)
+    private function getUserAgent($url, $httpHeader = array())
     {
         $ua = $this->config['ua_browser'];
+
+        if (!empty($httpHeader['user-agent'])) {
+            $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from site config', array('user-agent' => $httpHeader['user-agent'], 'url' => $url));
+            return $httpHeader['user-agent'];
+        }
+
         $host = parse_url($url, PHP_URL_HOST);
 
         if (strtolower(substr($host, 0, 4)) == 'www.') {
@@ -352,10 +348,12 @@ class HttpClient
 
         foreach ($try as $h) {
             if (isset($this->config['user_agents'][$h])) {
+                $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from config', array('user-agent' => $this->config['user_agents'][$h], 'url' => $url));
                 return $this->config['user_agents'][$h];
             }
         }
 
+        $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', array('user-agent' => $ua, 'url' => $url));
         return $ua;
     }
 

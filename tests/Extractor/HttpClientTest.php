@@ -95,7 +95,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($urlEffective, $res['effective_url']);
@@ -147,7 +147,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($url, $res['effective_url']);
@@ -211,7 +211,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($url, $res['effective_url']);
@@ -275,7 +275,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $res = $http->fetch($url);
 
         $this->assertEquals($url, $res['effective_url']);
@@ -489,7 +489,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
         $http->setLogger($logger);
 
         $res = $http->fetch('http://fr.m.wikipedia.org/wiki/Copyright#bottom');
@@ -500,17 +500,17 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertCount(2, $records);
+        $this->assertCount(3, $records);
         $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[0]['message']);
         $this->assertEquals('get', $records[0]['context']['method']);
         $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $records[0]['context']['url']);
-        $this->assertEquals('Data fetched: {data}', $records[1]['message']);
+        $this->assertEquals('Data fetched: {data}', $records[2]['message']);
         $this->assertEquals(array(
             'effective_url' => 'http://fr.wikipedia.org/wiki/Copyright',
             'body' => '(only length for debug): 3',
             'headers' => '',
             'status' => 200,
-        ), $records[1]['context']['data']);
+        ), $records[2]['context']['data']);
     }
 
     public function testTimeout()
@@ -529,9 +529,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[1]['message']);
+        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[2]['message']);
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
-        $this->assertContains('cURL error 28', $records[1]['formatted']);
+        $this->assertContains('cURL error 28', $records[2]['formatted']);
     }
 
     public function testNbRedirectsReached()
@@ -666,5 +666,80 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertContains($expectedBody, $res['body']);
         $this->assertEquals('text/html', $res['headers']);
         $this->assertEquals(200, $res['status']);
+    }
+
+    public function dataForUserAgent()
+    {
+        return array(
+            array(
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'http_header' => array(),
+                'expected_ua' => 'UA/Default'),
+            array(
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'http_header' => array('user-agent' => null),
+                'expected_ua' => 'UA/Default'),
+            array(
+                'url' => 'http://customua.com/foo',
+                'http_header' => array('user-agent' => ""),
+                'expected_ua' => 'UA/Config'),
+            array(
+                'url' => 'http://customua.com/foo',
+                'http_header' => array('user-agent' => 'UA/SiteConfig'),
+                'expected_ua' => 'UA/SiteConfig')
+        );
+    }
+
+    /**
+     * @dataProvider dataForUserAgent
+     */
+    public function testUserAgent($url, $http_header, $expected_ua)
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->any())
+            ->method('getEffectiveUrl')
+            ->willReturn($url);
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->any())
+            ->method('get')
+            ->willReturn($response);
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($client, array(
+            'ua_browser' => 'UA/Default',
+            'user_agents' => array(
+                'customua.com' => 'UA/Config'
+            )
+        ));
+        $http->setLogger($logger);
+
+        $res = $http->fetch($url, false, $http_header);
+
+        $records = $handler->getRecords();
+
+        $this->assertEquals($expected_ua, $records[1]['context']['user-agent']);
+        $this->assertEquals($url, $records[1]['context']['url']);
     }
 }

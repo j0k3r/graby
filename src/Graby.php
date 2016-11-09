@@ -171,10 +171,11 @@ class Graby
     private function doFetchContent($url)
     {
         $url = $this->validateUrl($url);
+        $siteConfig = $this->configBuilder->buildFromUrl($url);
 
         $this->logger->log('debug', 'Fetching url: {url}', array('url' => $url));
 
-        $response = $this->httpClient->fetch($url);
+        $response = $this->httpClient->fetch($url, false, $siteConfig->http_header);
 
         $effectiveUrl = $response['effective_url'];
         $effectiveUrl = str_replace(' ', '%20', $effectiveUrl);
@@ -259,7 +260,7 @@ class Graby
                 // it's not, store it for later check & so let's attempt to fetch it
                 $multiPageUrls[] = $nextPageUrl;
 
-                $response = $this->httpClient->fetch($nextPageUrl);
+                $response = $this->httpClient->fetch($nextPageUrl, false, $siteConfig->http_header);
 
                 // make sure mime type is not something with a different action associated
                 $mimeInfo = $this->getMimeActionInfo($response['headers']);
@@ -623,7 +624,7 @@ class Graby
         // check it's not what we have already!
         if (false !== $singlePageUrl && $singlePageUrl != $url) {
             // it's not, so let's try to fetch it...
-            $response = $this->httpClient->fetch($singlePageUrl);
+            $response = $this->httpClient->fetch($singlePageUrl, false, $siteConfig->http_header);
 
             if ($response['status'] < 300) {
                 $this->logger->log('debug', 'Single page content found with url', ['url' => $singlePageUrl]);
