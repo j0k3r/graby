@@ -121,7 +121,7 @@ class HttpClient
                     'headers' => array(
                         'User-Agent' => $this->getUserAgent($url, $httpHeader),
                         // add referer for picky sites
-                        'Referer' => $this->config['default_referer'],
+                        'Referer' => $this->getReferer($url, $httpHeader),
                     ),
                     'timeout' => $this->config['timeout'],
                     'connect_timeout' => $this->config['timeout'],
@@ -355,6 +355,29 @@ class HttpClient
 
         $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', array('user-agent' => $ua, 'url' => $url));
         return $ua;
+    }
+
+    /**
+     * Find a Referer for this url.
+     * Based on the site config, it will return the Referer if any.
+     * Otherwise it will use the default one
+     *
+     * @param string $url Absolute url
+     * @param array $httpHeader Custom HTTP Headers from SiteConfig
+     *
+     * @return string
+     */
+    private function getReferer($url, $httpHeader = array())
+    {
+        $default_referer = $this->config['default_referer'];
+
+        if (!empty($httpHeader['referer'])) {
+            $this->logger->log('debug', 'Found referer "{referer}" for url "{url}" from site config', array('referer' => $httpHeader['referer'], 'url' => $url));
+            return $httpHeader['referer'];
+        }
+
+        $this->logger->log('debug', 'Use default referer "{referer}" for url "{url}"', array('referer' => $default_referer, 'url' => $url));
+        return $default_referer;
     }
 
     /**
