@@ -33,6 +33,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'tidy: yes',
             'parser: bob',
             'replace_string(toto): titi',
+            'http_header(user-agent): my-user-agent',
             'http_header(referer): http://idontl.ie',
         ));
 
@@ -43,7 +44,8 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $configExpected->find_string = array('toto');
         $configExpected->replace_string = array('titi');
         $configExpected->http_header = array(
-            'referer' => 'http://idontl.ie'
+            'user-agent' => 'my-user-agent',
+            'referer' => 'http://idontl.ie',
         );
 
         $this->assertEquals($configExpected, $configActual);
