@@ -33,6 +33,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'tidy: yes',
             'parser: bob',
             'replace_string(toto): titi',
+            'http_header(referer): http://idontl.ie',
         ));
 
         $configExpected = new SiteConfig();
@@ -41,6 +42,9 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $configExpected->parser = 'bob';
         $configExpected->find_string = array('toto');
         $configExpected->replace_string = array('titi');
+        $configExpected->http_header = array(
+            'referer' => 'http://idontl.ie'
+        );
 
         $this->assertEquals($configExpected, $configActual);
 
