@@ -674,27 +674,27 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         return array(
             array(
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'http_header' => array(),
-                'expected_ua' => 'UA/Default'),
+                'httpHeader' => array(),
+                'expectedUa' => 'UA/Default'),
             array(
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'http_header' => array('user-agent' => null),
-                'expected_ua' => 'UA/Default'),
+                'httpHeader' => array('user-agent' => null),
+                'expectedUa' => 'UA/Default'),
             array(
                 'url' => 'http://customua.com/foo',
-                'http_header' => array('user-agent' => ""),
-                'expected_ua' => 'UA/Config'),
+                'httpHeader' => array('user-agent' => ""),
+                'expectedUa' => 'UA/Config'),
             array(
                 'url' => 'http://customua.com/foo',
-                'http_header' => array('user-agent' => 'UA/SiteConfig'),
-                'expected_ua' => 'UA/SiteConfig')
+                'httpHeader' => array('user-agent' => 'UA/SiteConfig'),
+                'expectedUa' => 'UA/SiteConfig')
         );
     }
 
     /**
      * @dataProvider dataForUserAgent
      */
-    public function testUserAgent($url, $http_header, $expected_ua)
+    public function testUserAgent($url, $httpHeader, $expectedUa)
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -736,11 +736,11 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         ));
         $http->setLogger($logger);
 
-        $res = $http->fetch($url, false, $http_header);
+        $res = $http->fetch($url, false, $httpHeader);
 
         $records = $handler->getRecords();
 
-        $this->assertEquals($expected_ua, $records[1]['context']['user-agent']);
+        $this->assertEquals($expectedUa, $records[1]['context']['user-agent']);
         $this->assertEquals($url, $records[1]['context']['url']);
     }
 
