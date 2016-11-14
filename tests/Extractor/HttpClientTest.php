@@ -500,17 +500,18 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertCount(3, $records);
+        $this->assertCount(4, $records);
         $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[0]['message']);
         $this->assertEquals('get', $records[0]['context']['method']);
         $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $records[0]['context']['url']);
-        $this->assertEquals('Data fetched: {data}', $records[2]['message']);
+        $this->assertEquals('Use default referer "{referer}" for url "{url}"', $records[2]['message']);
+        $this->assertEquals('Data fetched: {data}', $records[3]['message']);
         $this->assertEquals(array(
             'effective_url' => 'http://fr.wikipedia.org/wiki/Copyright',
             'body' => '(only length for debug): 3',
             'headers' => '',
             'status' => 200,
-        ), $records[2]['context']['data']);
+        ), $records[3]['context']['data']);
     }
 
     public function testTimeout()
@@ -529,9 +530,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[2]['message']);
+        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[3]['message']);
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
-        $this->assertContains('cURL error 28', $records[2]['formatted']);
+        $this->assertContains('cURL error 28', $records[3]['formatted']);
     }
 
     public function testNbRedirectsReached()
@@ -741,5 +742,81 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected_ua, $records[1]['context']['user-agent']);
         $this->assertEquals($url, $records[1]['context']['url']);
+    }
+
+    public function dataForReferer()
+    {
+        return array(
+            array(
+                'url' => 'http://www.google.com',
+                'httpHeader' => array(),
+                'expectedReferer' => 'http://defaultreferer.local'
+            ),
+            array(
+                'url' => 'http://www.mozilla.org',
+                'httpHeader' => array('referer' => null),
+                'expectedReferer' => 'http://defaultreferer.local'
+            ),
+            array(
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => array('referer' => ""),
+                'expectedReferer' => 'http://defaultreferer.local'
+            ),
+            array(
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => array('referer' => "http://fr.wikipedia.org/wiki/Accueil"),
+                'expectedReferer' => 'http://fr.wikipedia.org/wiki/Accueil'
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider dataForReferer
+     */
+    public function testReferer($url, $httpHeader, $expectedReferer)
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->any())
+            ->method('getEffectiveUrl')
+            ->willReturn($url);
+
+        $response->expects($this->any())
+            ->method('getHeader')
+            ->willReturn('');
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->any())
+            ->method('get')
+            ->willReturn($response);
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($client, array(
+            'default_referer' => 'http://defaultreferer.local'
+        ));
+        $http->setLogger($logger);
+
+        $res = $http->fetch($url, false, $httpHeader);
+
+        $records = $handler->getRecords();
+
+        $this->assertEquals($expectedReferer, $records[2]['context']['referer']);
+        $this->assertEquals($url, $records[2]['context']['url']);
     }
 }
