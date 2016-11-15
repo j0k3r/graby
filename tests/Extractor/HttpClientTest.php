@@ -623,6 +623,22 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">',
                 'expectedBody' => '<html lang="fr"><head>',
+            ],
+            [
+                'url' => 'https://venngage.com/blog/hashtags-are-worthless/',
+                'html' => '<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<![endif]-->
+<!--[if !(IE 7) | !(IE 8)  ]><!-->
+<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<!--<![endif]-->
+        <head>
+                <meta charset="UTF-8" />',
+                'expectedBody' => '<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#"><head>',
             ]
         ];
     }

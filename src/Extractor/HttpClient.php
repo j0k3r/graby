@@ -177,9 +177,9 @@ class HttpClient
         preg_match('/^\<!--\[if(\X+)\<!\[endif\]--\>(\X+)\<head\>$/mi', $body, $matchesConditional);
 
         if (count($matchesConditional) > 1) {
-            preg_match_all('/\<html([\sa-z0-9\=\"\"\-]+)\>$/mi', $matchesConditional[0], $matchesHtml);
+            preg_match_all('/\<html([\sa-z0-9\=\"\"\-:\/\.\#]+)\>$/mi', $matchesConditional[0], $matchesHtml);
 
-            if (count($matchesHtml) > 1) {
+            if (count($matchesHtml) > 1 && !empty(end($matchesHtml[0]))) {
                 $htmlTag = end($matchesHtml[0]);
 
                 $body = str_replace($matchesConditional[0], $htmlTag.'<head>', $body);
