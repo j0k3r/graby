@@ -230,24 +230,8 @@ class ContentExtractor
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for title', array('pattern' => $pattern));
-            $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
-
-            if (is_string($elems)) {
-                $this->title = trim($elems);
-                $this->logger->log('debug', 'Title expression evaluated as string: {title}', array('title' => $this->title));
-                $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
-                break;
-            } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
-                $this->title = $elems->item(0)->textContent;
-                $this->logger->log('debug', 'Title matched: {title}', array('title' => $this->title));
-                $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
-
-                // remove title from document
-                try {
-                    $elems->item(0)->parentNode->removeChild($elems->item(0));
-                } catch (\DOMException $e) {
-                    // do nothing
-                }
+            
+            if ($this->extractEntityFromPattern('title', $pattern)) {
                 break;
             }
         }
@@ -586,7 +570,14 @@ class ContentExtractor
     /**
      * Extract entity for a given CSS class a node.
      *
-     * @param string   $entity       Entity to look for
+     * The $entity argument is used as the name of the property to set in
+     * the current ContentExtractor instance (variable reference) and as
+     * the name to use in log messages
+     *
+     * Example: extractEntity('title', $detectEntity, $cssClass, $node, $log)
+     * will search for css pattern and set the found value in $this->title
+     *
+     * @param string   $entity       Entity to look for ('title', 'date')
      * @param bool     $detectEntity Do we have to detect entity?
      * @param string   $cssClass     CSS class to look for
      * @param \DOMNode $node         DOMNode to look into
@@ -750,5 +741,59 @@ class ContentExtractor
         }
 
         return $readability;
+    }
+
+    /**
+     * Extract and apply a callback to an entity according to a pattern
+     *
+     * The $entity argument is used as the name of the property to set in
+     * the current ContentExtractor instance (variable reference) and as
+     * the name to use in log messages
+     *
+     * Example: extractEntityFromPattern('title', $pattern) will search
+     * for pattern and set the found value in $this->title
+     *
+     * @param string $entity            Entity to look for ('title', 'date')
+     * @param string $pattern           Pattern to look for
+     * @param callable $returnCallback  Function to apply on the value
+     *
+     * @return bool Telling if the entity has been found
+     */
+    private function extractEntityFromPattern($entity, $pattern, $returnCallback = null)
+    {
+        // we define the default callback here
+        if (!is_callable($returnCallback)) {
+            $returnCallback = function($e) {
+                return trim($e);
+            };
+        }
+
+        $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
+        $entityValue = null;
+
+        if (is_string($elems)) {
+            $entityValue = $returnCallback($elems);
+            $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", array($entity => $entityValue));
+            $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
+        } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
+            $entityValue = $returnCallback($elems->item(0)->textContent);
+            $this->logger->log('debug', "{$entity} matched: {{$entity}}", array($entity => $entityValue));
+            $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
+
+            // remove entity from document
+            try {
+                $elems->item(0)->parentNode->removeChild($elems->item(0));
+            } catch (\DOMException $e) {
+                // do nothing
+            }
+        }
+
+        if ($entityValue !== null)
+        {
+            $this->{$entity} = $entityValue;
+            return true;
+        }
+
+        return false;
     }
 }
