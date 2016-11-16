@@ -584,18 +584,19 @@ class ContentExtractor
     }
 
     /**
-     * Extract title for a given CSS class a node.
+     * Extract entity for a given CSS class a node.
      *
-     * @param bool     $detectTitle Do we have to detect title ?
-     * @param string   $cssClass    CSS class to look for
-     * @param \DOMNode $node        DOMNode to look into
+     * @param string   $entity       Entity to look for
+     * @param bool     $detectEntity Do we have to detect entity?
+     * @param string   $cssClass     CSS class to look for
+     * @param \DOMNode $node         DOMNode to look into
      * @param string   $logMessage
      *
-     * @return bool Telling if we have to detect title again or not
+     * @return bool Telling if we have to detect entity again or not
      */
-    private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
+    private function extractEntity($entity, $detectEntity, $cssClass, \DOMNode $node, $logMessage)
     {
-        if (false === $detectTitle) {
+        if (false === $detectEntity) {
             return false;
         }
 
@@ -603,15 +604,45 @@ class ContentExtractor
         $elems = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node);
 
         if (false === $this->hasElements($elems)) {
-            return $detectTitle;
+            return $detectEntity;
         }
 
-        $this->title = $elems->item(0)->textContent;
-        $this->logger->log('debug', $logMessage, array('title' => $this->title));
-        // remove title from document
+        $this->{$entity} = $elems->item(0)->textContent;
+        $this->logger->log('debug', $logMessage, array($entity => $this->{$entity}));
+        // remove entity from document
         $elems->item(0)->parentNode->removeChild($elems->item(0));
 
         return false;
+    }
+
+    /**
+     * Extract title for a given CSS class a node.
+     *
+     * @param bool    $detectTitle Do we have to detect title ?
+     * @param string  $cssClass    CSS class to look for
+     * @param DOMNode $node        DOMNode to look into
+     * @param string  $logMessage
+     *
+     * @return bool Telling if we have to detect title again or not
+     */
+    private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
+    {
+        return $this->extractEntity('title', $detectTitle, $cssClass, $node, $logMessage);
+    }
+
+    /**
+     * Extract date for a given CSS class a node.
+     *
+     * @param bool    $detectDate  Do we have to detect date ?
+     * @param string  $cssClass    CSS class to look for
+     * @param DOMNode $node        DOMNode to look into
+     * @param string  $logMessage
+     *
+     * @return bool Telling if we have to detect date again or not
+     */
+    private function extractDate($detectDate, $cssClass, \DOMNode $node, $logMessage)
+    {
+        return $this->extractEntity('date', $detectDate, $cssClass, $node, $logMessage);
     }
 
     /**
