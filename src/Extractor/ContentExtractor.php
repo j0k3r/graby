@@ -517,6 +517,11 @@ class ContentExtractor
         return trim($this->title);
     }
 
+    public function getDate()
+    {
+        return $this->date;
+    }
+
     public function getLanguage()
     {
         return $this->language;
