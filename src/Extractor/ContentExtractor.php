@@ -579,34 +579,45 @@ class ContentExtractor
      * the current ContentExtractor instance (variable reference) and as
      * the name to use in log messages
      *
-     * Example: extractEntity('title', $detectEntity, $cssClass, $node, $log)
-     * will search for css pattern and set the found value in $this->title
+     * Example: extractEntityFromQuery('title', $detectEntity, $xpathExpression, $node, $log, $returnCallback)
+     * will search for expression and set the found value in $this->title
      *
      * @param string   $entity       Entity to look for ('title', 'date')
      * @param bool     $detectEntity Do we have to detect entity?
-     * @param string   $cssClass     CSS class to look for
+     * @param string   $xpathExpression  XPath query to look for
      * @param \DOMNode $node         DOMNode to look into
      * @param string   $logMessage
      *
      * @return bool Telling if we have to detect entity again or not
      */
-    private function extractEntity($entity, $detectEntity, $cssClass, \DOMNode $node, $logMessage)
+    private function extractEntityFromQuery($entity, $detectEntity, $xpathExpression, \DOMNode $node, $logMessage, $returnCallback = null)
     {
         if (false === $detectEntity) {
             return false;
         }
 
+        // we define the default callback here
+        if (!is_callable($returnCallback)) {
+            $returnCallback = function($e) {
+                return trim($e);
+            };
+        }
+
         // check for given css class
-        $elems = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node);
+        $elems = $this->xpath->query($xpathExpression, $node);
 
         if (false === $this->hasElements($elems)) {
             return $detectEntity;
         }
 
-        $this->{$entity} = $elems->item(0)->textContent;
+        $this->{$entity} = $returnCallback($elems->item(0)->textContent);
         $this->logger->log('debug', $logMessage, array($entity => $this->{$entity}));
         // remove entity from document
-        $elems->item(0)->parentNode->removeChild($elems->item(0));
+        try {
+            $elems->item(0)->parentNode->removeChild($elems->item(0));
+        } catch (\DOMException $e) {
+            // do nothing
+        }
 
         return false;
     }
@@ -623,7 +634,7 @@ class ContentExtractor
      */
     private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
     {
-        return $this->extractEntity('title', $detectTitle, $cssClass, $node, $logMessage);
+        return $this->extractEntityFromQuery('title', $detectTitle, ".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node, $logMessage);
     }
 
     /**
@@ -638,7 +649,7 @@ class ContentExtractor
      */
     private function extractDate($detectDate, $cssClass, \DOMNode $node, $logMessage)
     {
-        return $this->extractEntity('date', $detectDate, $cssClass, $node, $logMessage);
+        return $this->extractEntityFromQuery('date', $detectDate, ".//time[@pubdate or @pubDate] | .//abbr[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node, $logMessage);
     }
 
     /**
