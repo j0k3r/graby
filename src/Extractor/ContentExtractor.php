@@ -20,11 +20,12 @@ class ContentExtractor
     private $xpath;
     private $html;
     private $config;
-    private $siteConfig;
-    private $title;
-    private $language;
-    private $body;
+    private $siteConfig = null;
+    private $title = null;
+    private $language = null;
+    private $body = null;
     private $nativeAd = false;
+    private $date = null;
     private $success = false;
     private $nextPageUrl;
     private $logger;
@@ -86,6 +87,7 @@ class ContentExtractor
         $this->title = null;
         $this->body = null;
         $this->nativeAd = false;
+        $this->date = null;
         $this->language = null;
         $this->nextPageUrl = null;
         $this->success = false;
@@ -236,6 +238,15 @@ class ContentExtractor
             }
         }
 
+        // try to get date
+        foreach ($this->siteConfig->date as $pattern) {
+            $this->logger->log('debug', 'Trying {pattern} for date', array('pattern' => $pattern));
+
+            if ($this->extractEntityFromPattern('date', $pattern)) {
+                break;
+            }
+        }
+
         // try to get language
         $langXpath = array('//html[@lang]/@lang', '//meta[@name="DC.language"]/@content');
         foreach ($langXpath as $pattern) {
@@ -314,7 +325,7 @@ class ContentExtractor
         }
 
         // auto detect?
-        $detectTitle = $detectBody = false;
+        $detectTitle = $detectBody = $detectDate = false;
 
         // detect title?
         if (!isset($this->title) && (empty($this->siteConfig->title) || $this->siteConfig->autodetect_on_failure())) {
@@ -324,9 +335,13 @@ class ContentExtractor
         if (!isset($this->body) && (empty($this->siteConfig->body) || $this->siteConfig->autodetect_on_failure())) {
             $detectBody = true;
         }
+        // detect date?
+        if (!isset($this->date) && (empty($this->siteConfig->date) || $this->siteConfig->autodetect_on_failure())) {
+            $detectDate = true;
+        }
 
         // check for hNews
-        if ($detectTitle || $detectBody) {
+        if ($detectTitle || $detectBody || $detectDate) {
             // check for hentry
             $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
@@ -340,6 +355,14 @@ class ContentExtractor
                     'entry-title',
                     $hentry,
                     'hNews: found entry-title: {title}'
+                );
+
+                // check for published
+                $detectDate = $this->extractDate(
+                    $detectDate,
+                    'published',
+                    $hentry,
+                    'hNews: found publication date: {date}'
                 );
 
                 // check for entry-content.
@@ -376,6 +399,15 @@ class ContentExtractor
             "//*[@itemprop='articleBody']",
             $this->readability->dom,
             'Schema.org'
+        );
+
+        // Find date in pubdate marked time element
+        $detectDate = $this->extractEntityFromQuery(
+            'date',
+            $detectDate,
+            "//time/@datetime",
+            $this->readability->dom,
+            'Date found (datetime marked time element): {date}'
         );
 
         // still missing title or body, so we detect using Readability
