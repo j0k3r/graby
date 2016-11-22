@@ -639,7 +639,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         <head>
                 <meta charset="UTF-8" />',
                 'expectedBody' => '<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#"><head>',
-            ]
+            ],
         ];
     }
 
@@ -691,19 +691,23 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             array(
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
                 'httpHeader' => array(),
-                'expectedUa' => 'UA/Default'),
+                'expectedUa' => 'UA/Default',
+            ),
             array(
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
                 'httpHeader' => array('user-agent' => null),
-                'expectedUa' => 'UA/Default'),
+                'expectedUa' => 'UA/Default',
+            ),
             array(
                 'url' => 'http://customua.com/foo',
-                'httpHeader' => array('user-agent' => ""),
-                'expectedUa' => 'UA/Config'),
+                'httpHeader' => array('user-agent' => ''),
+                'expectedUa' => 'UA/Config',
+            ),
             array(
                 'url' => 'http://customua.com/foo',
                 'httpHeader' => array('user-agent' => 'UA/SiteConfig'),
-                'expectedUa' => 'UA/SiteConfig')
+                'expectedUa' => 'UA/SiteConfig',
+            ),
         );
     }
 
@@ -747,8 +751,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($client, array(
             'ua_browser' => 'UA/Default',
             'user_agents' => array(
-                'customua.com' => 'UA/Config'
-            )
+                'customua.com' => 'UA/Config',
+            ),
         ));
         $http->setLogger($logger);
 
@@ -766,22 +770,22 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             array(
                 'url' => 'http://www.google.com',
                 'httpHeader' => array(),
-                'expectedReferer' => 'http://defaultreferer.local'
+                'expectedReferer' => 'http://defaultreferer.local',
             ),
             array(
                 'url' => 'http://www.mozilla.org',
                 'httpHeader' => array('referer' => null),
-                'expectedReferer' => 'http://defaultreferer.local'
+                'expectedReferer' => 'http://defaultreferer.local',
             ),
             array(
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'httpHeader' => array('referer' => ""),
-                'expectedReferer' => 'http://defaultreferer.local'
+                'httpHeader' => array('referer' => ''),
+                'expectedReferer' => 'http://defaultreferer.local',
             ),
             array(
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'httpHeader' => array('referer' => "http://fr.wikipedia.org/wiki/Accueil"),
-                'expectedReferer' => 'http://fr.wikipedia.org/wiki/Accueil'
+                'httpHeader' => array('referer' => 'http://fr.wikipedia.org/wiki/Accueil'),
+                'expectedReferer' => 'http://fr.wikipedia.org/wiki/Accueil',
             ),
         );
     }
@@ -824,7 +828,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $logger->pushHandler($handler);
 
         $http = new HttpClient($client, array(
-            'default_referer' => 'http://defaultreferer.local'
+            'default_referer' => 'http://defaultreferer.local',
         ));
         $http->setLogger($logger);
 

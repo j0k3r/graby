@@ -1083,7 +1083,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             $graby,
             array(
                 '<html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
-                'http://www.io.lol'
+                'http://www.io.lol',
             )
         );
 
@@ -1286,7 +1286,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             $graby,
             array(
                 '<html><meta content="/assets/lol.jpg" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
-                'http://www.io.lol'
+                'http://www.io.lol',
             )
         );
 

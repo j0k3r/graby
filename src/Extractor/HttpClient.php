@@ -89,7 +89,7 @@ class HttpClient
      *
      * @param string $url
      * @param bool   $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
-     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     * @param array  $httpHeader           Custom HTTP Headers from SiteConfig
      *
      * @return array With keys effective_url, body & headers
      */
@@ -319,7 +319,7 @@ class HttpClient
      * Based on the config, it will try to find a UserAgent from an host.
      * Otherwise it will use the default one.
      *
-     * @param string $url Absolute url
+     * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
      * @return string
@@ -330,6 +330,7 @@ class HttpClient
 
         if (!empty($httpHeader['user-agent'])) {
             $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from site config', array('user-agent' => $httpHeader['user-agent'], 'url' => $url));
+
             return $httpHeader['user-agent'];
         }
 
@@ -351,21 +352,23 @@ class HttpClient
         foreach ($try as $h) {
             if (isset($this->config['user_agents'][$h])) {
                 $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from config', array('user-agent' => $this->config['user_agents'][$h], 'url' => $url));
+
                 return $this->config['user_agents'][$h];
             }
         }
 
         $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', array('user-agent' => $ua, 'url' => $url));
+
         return $ua;
     }
 
     /**
      * Find a Referer for this url.
      * Based on the site config, it will return the Referer if any.
-     * Otherwise it will use the default one
+     * Otherwise it will use the default one.
      *
-     * @param string $url Absolute url
-     * @param array $httpHeader Custom HTTP Headers from SiteConfig
+     * @param string $url        Absolute url
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
      * @return string
      */
@@ -375,10 +378,12 @@ class HttpClient
 
         if (!empty($httpHeader['referer'])) {
             $this->logger->log('debug', 'Found referer "{referer}" for url "{url}" from site config', array('referer' => $httpHeader['referer'], 'url' => $url));
+
             return $httpHeader['referer'];
         }
 
         $this->logger->log('debug', 'Use default referer "{referer}" for url "{url}"', array('referer' => $default_referer, 'url' => $url));
+
         return $default_referer;
     }
 
