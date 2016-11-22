@@ -1079,7 +1079,13 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('extractOpenGraph');
         $method->setAccessible(true);
 
-        $ogData = $method->invokeArgs($graby, array('<html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>'));
+        $ogData = $method->invokeArgs(
+            $graby,
+            array(
+                '<html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
+                'http://www.io.lol'
+            )
+        );
 
         $this->assertCount(1, $ogData);
         $this->assertArrayHasKey('og_url', $ogData);
@@ -1266,5 +1272,27 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $res = $method->invokeArgs($graby, array($url));
 
         $this->assertEquals($urlExpected, $res);
+    }
+
+    public function testAbsolutePreviewInOgImage()
+    {
+        $graby = new Graby();
+
+        $reflection = new \ReflectionClass(get_class($graby));
+        $method = $reflection->getMethod('extractOpenGraph');
+        $method->setAccessible(true);
+
+        $ogData = $method->invokeArgs(
+            $graby,
+            array(
+                '<html><meta content="/assets/lol.jpg" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
+                'http://www.io.lol'
+            )
+        );
+
+        $this->assertCount(2, $ogData);
+        $this->assertArrayHasKey('og_url', $ogData);
+        $this->assertEquals('http://www.io.lol', $ogData['og_url']);
+        $this->assertEquals('http://www.io.lol/assets/lol.jpg', $ogData['og_image']);
     }
 }
