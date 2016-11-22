@@ -199,7 +199,7 @@ class Graby
             $html = $response['body'];
         }
 
-        $ogData = $this->extractOpenGraph($html);
+        $ogData = $this->extractOpenGraph($html, $effectiveUrl);
 
         $this->logger->log('debug', 'Opengraph data: {ogData}', array('ogData' => $ogData));
 
@@ -764,12 +764,13 @@ class Graby
      * Extract OpenGraph data from the response.
      *
      * @param string $html
+     * @param string $baseUrl Used to make the og:image absolute
      *
      * @return array
      *
      * @see http://stackoverflow.com/a/7454737/569101
      */
-    private function extractOpenGraph($html)
+    private function extractOpenGraph($html, $baseUrl)
     {
         if ('' === trim($html)) {
             return array();
@@ -791,7 +792,13 @@ class Graby
             $property = str_replace(':', '_', $meta->getAttribute('property'));
 
             // avoid image data:uri to avoid sending too much data
-            if ('og_image' === $property && 0 === stripos($meta->getAttribute('content'), 'data:image')) {
+            if ('og_image' === $property) {
+                if (0 === stripos($meta->getAttribute('content'), 'data:image')) {
+                    continue;
+                }
+
+                $rmetas[$property] = $this->makeAbsoluteStr($baseUrl, $meta->getAttribute('content'));
+
                 continue;
             }
 
