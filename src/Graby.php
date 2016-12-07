@@ -282,7 +282,7 @@ class Graby
                     break;
                 }
 
-                $multiPageContent[] = $this->extractor->getContent();
+                $multiPageContent[] = clone $this->extractor->getContent();
             }
 
             // did we successfully deal with this multi-page article?
