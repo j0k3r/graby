@@ -327,4 +327,33 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('프랑스 현대적 자연주의 브랜드', $res['summary']);
         $this->assertEquals('text/html', $res['content_type']);
     }
+
+    public function testMultipage()
+    {
+        $graby = new Graby(array(
+            'debug' => true,
+            'extractor' => array(
+                'config_builder' => array(
+                    'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
+                )
+            )
+        ));
+        $res = $graby->fetchContent('http://www.journaldugamer.com/tests/rencontre-ils-bossaient-sur-une-exclu-kinect-qui-ne-sortira-jamais/');
+
+        $this->assertCount(8, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+
+        $this->assertEquals(200, $res['status']);
+        $this->assertContains('[Rencontre] Ils bossaient sur une exclu Kinect qui ne sortira jamais', $res['title']);
+        $this->assertContains('Le Journal du Gamer', $res['summary']);
+        $this->assertEquals('text/html', $res['content_type']);
+    }
 }
