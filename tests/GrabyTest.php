@@ -197,7 +197,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForBlocked
      *
-     * @expectedException Exception
+     * @expectedException \Exception
      * @expectedExceptionMessage is not allowed to be parsed.
      */
     public function testBlockedUrls($url)
@@ -221,7 +221,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForNotValid
      *
-     * @expectedException Exception
+     * @expectedException \Exception
      * @expectedExceptionMessage is not valid.
      */
     public function testNotValidUrls($url)
@@ -231,7 +231,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      * @expectedExceptionMessage is not allowed to be parsed.
      */
     public function testBlockedUrlsAfterFetch()
@@ -300,7 +300,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
      * @expectedExceptionMessage is blocked by mime action.
      */
     public function testMimeTypeActionExclude()
