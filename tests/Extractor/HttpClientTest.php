@@ -417,6 +417,25 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(404, $res['status']);
     }
 
+    public function testWithUrlencodedContentType()
+    {
+        $client = new Client();
+
+        $mock = new Mock([
+            new Response(200, ['Content-Type' => 'image%2Fjpeg'], Stream::factory('test')),
+        ]);
+
+        $client->getEmitter()->attach($mock);
+
+        $http = new HttpClient($client);
+        $res = $http->fetch('http://www.lexpress.io/image.jpg');
+
+        $this->assertEquals('http://www.lexpress.io/image.jpg', $res['effective_url']);
+        $this->assertEquals('test', $res['body']);
+        $this->assertEquals('image/jpeg', $res['headers']);
+        $this->assertEquals(200, $res['status']);
+    }
+
     public function testWith404ResponseWithoutResponse()
     {
         $request = $this->getMockBuilder('GuzzleHttp\Message\Request')

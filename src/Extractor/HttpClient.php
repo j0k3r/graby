@@ -160,6 +160,8 @@ class HttpClient
         $effectiveUrl = $response->getEffectiveUrl();
 
         $contentType = (string) $response->getHeader('Content-Type');
+        // some Content-Type are urlencoded like: image%2Fjpeg
+        $contentType = urldecode($contentType);
 
         // the response content-type did not match our 'header only' types,
         // but we'd issues a HEAD request because we assumed it would. So
