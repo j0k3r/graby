@@ -71,7 +71,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     /**
      * With a non-existent config directory, it fails.
      *
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage directory does not exist
      */
     public function testBuildSiteConfigUnknownSite()
