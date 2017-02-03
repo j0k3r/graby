@@ -335,8 +335,8 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
             'extractor' => array(
                 'config_builder' => array(
                     'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-                )
-            )
+                ),
+            ),
         ));
         $res = $graby->fetchContent('http://www.journaldugamer.com/tests/rencontre-ils-bossaient-sur-une-exclu-kinect-qui-ne-sortira-jamais/');
 

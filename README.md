@@ -212,6 +212,12 @@ $graby = new Graby(
             'site_config' => array(),
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ),
+        'readability' => array(
+            // filters might be like array('regex' => 'replace with')
+            // for example, to remove script content: array('!<script[^>]*>(.*?)</script>!is' => '')
+            'pre_filters' => array(),
+            'post_filters' => array(),
+        ),
     ),
 );
 ```

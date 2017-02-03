@@ -51,6 +51,10 @@ class ContentExtractor
                 '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
             ),
             'config_builder' => array(),
+            'readability' => array(
+                'pre_filters' => array(),
+                'post_filters' => array(),
+            ),
         ));
 
         $this->config = $resolver->resolve($config);
@@ -183,7 +187,8 @@ class ContentExtractor
         }
 
         $this->logger->log('debug', 'Attempting to parse HTML with {parser}', array('parser' => $parser));
-        $this->readability = new Readability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
+
+        $this->readability = $this->getReadability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
         $tidied = $this->readability->tidied;
 
         // we use xpath to find elements in the given HTML document
@@ -564,10 +569,10 @@ class ContentExtractor
     /**
      * Extract title for a given CSS class a node.
      *
-     * @param bool    $detectTitle Do we have to detect title ?
-     * @param string  $cssClass    CSS class to look for
-     * @param DOMNode $node        DOMNode to look into
-     * @param string  $logMessage
+     * @param bool     $detectTitle Do we have to detect title ?
+     * @param string   $cssClass    CSS class to look for
+     * @param \DOMNode $node        DOMNode to look into
+     * @param string   $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
@@ -668,5 +673,34 @@ class ContentExtractor
         $this->logger->log('debug', '...{len} elements added to body', array('len' => $len));
 
         return false;
+    }
+
+    /**
+     * Return an instance of Readability with pre & post filters added.
+     *
+     * @param string $html       HTML to make readable from Readability lib
+     * @param string $url        URL of the content
+     * @param string $parser     Parser to use
+     * @param bool   $enableTidy Should it use tidy extension?
+     *
+     * @return Readability
+     */
+    private function getReadability($html, $url, $parser, $enableTidy)
+    {
+        $readability = new Readability($html, $url, $parser, $enableTidy);
+
+        if (isset($this->config['readability']['pre_filters']) && is_array($this->config['readability']['pre_filters'])) {
+            foreach ($this->config['readability']['pre_filters'] as $filter => $replacer) {
+                $readability->addPreFilter($filter, $replacer);
+            }
+        }
+
+        if (isset($this->config['readability']['post_filters']) && is_array($this->config['readability']['post_filters'])) {
+            foreach ($this->config['readability']['post_filters'] as $filter => $replacer) {
+                $readability->addPostFilter($filter, $replacer);
+            }
+        }
+
+        return $readability;
     }
 }

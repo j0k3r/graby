@@ -7,11 +7,13 @@ php:
     - 7.0
     - 7.1
     - hhvm
+    - nightly
 
 # run build against nightly but allow them to fail
 matrix:
     fast_finish: true
     allow_failures:
+        - php: nightly
         - php: hhvm
     # only one build will send the coverage, this'll speed up other one
     include:
@@ -36,7 +38,7 @@ install:
 
 script:
     - mkdir -p build/logs
-    - phpunit -v $PHPUNIT_FLAGS
+    - ./vendor/bin/simple-phpunit -v $PHPUNIT_FLAGS
 
 after_script:
     - if [[ "$PHPUNIT_FLAGS" != "" ]]; then php vendor/bin/coveralls -v; fi;
