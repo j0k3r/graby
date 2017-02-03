@@ -694,4 +694,73 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals('Trying again without tidy', $records[5]['message']);
         }
     }
+
+    public function testWithCustomFiltersForReadability()
+    {
+        $contentExtractor = new ContentExtractor(
+            self::$contentExtractorConfig
+            + array('readability' => array(
+                'post_filters' => array('!<head[^>]*>(.*?)</head>!is' => ''),
+                'pre_filters' => array('!</?noscript>!is' => ''),
+            ))
+        );
+
+        $config = new SiteConfig();
+
+        $res = $contentExtractor->process(
+            '<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<base href="http://www.lhc-france.fr/" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="SPIP 3.0.17 [21515]" />
+<link rel="shortcut icon" href="squelettes/favicon.ico" />
+<script type=\'text/javascript\'>
+document.createElement("header");document.createElement("footer");document.createElement("section");document.createElement("aside");document.createElement("nav");document.createElement("article");document.createElement("time");
+</script>
+<!--[if lt IE 9]>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <script type="text/javascript" src="http://www.lhc-france.fr/squelettes/js/ie.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="http://www.lhc-france.fr/squelettes/js/modernizr.js"></script>
+<script type="text/javascript">
+function handleError(){return true;}
+window.onerror = handleError;
+dossier_squelettes = \'squelettes\';
+secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
+</script>
+
+<link rel="alternate" type="application/rss+xml" title="Actualit��s du LHC" href="http://feeds.feedburner.com/lhcfranceactus?format=xml" />
+<link rel="alternate" type="application/rss+xml" title="La BD du LHC" href="http://www.lhc-france.fr/?page=backend&id_rubrique=65" />
+
+<link rel="stylesheet" href="http://www.lhc-france.fr/local/cache-css/styles-urlabs-b1fc-urlabs-b1fc-minify-3f10.css" type="text/css" media="all" />
+<link rel="stylesheet" href="http://www.lhc-france.fr/local/cache-css/milkbox-urlabs-fe01-urlabs-fe01-minify-1d16.css" media="screen" />
+<link rel="stylesheet" href="http://www.lhc-france.fr/local/cache-css/styles.print-urlabs-2157-urlabs-2157-minify-d3e7.css" type="text/css" media="print" />
+<link rel="stylesheet" href="http://www.lhc-france.fr/squelettes/styles.rouge.css" type="text/css" media="all" />
+
+<script type="text/javascript" src="http://www.lhc-france.fr/local/cache-js/AC_RunActiveContent-minify-d850.js"></script>
+<title>Novembre 2016 - Je voudrais de la mati��re noire �� No��l... | LHC France</title>
+<meta name="robots" content="index, follow, all" />
+<meta name="description" content="La contribution du CNRS et du CEA au LHC, un instrument international de physique des particules situ�� au Cern. Avec toute l\'actualit�� du projet et la BD du LHC." />
+<meta name="keywords" content="LHC,Higgs,Atlas,CMS,Alice,LHCb,acc��l��rateur,particule,Cern,grille,d��tecteur,exp��riences,boson de higgs" />
+
+<meta name="verify-v1" content="WWk3UJy6FdmEUs2ZATuUi6+OQnIL3Sci3WmPHmaWQWs=" />
+<meta name="verify-v1" content="VAs7L6UxdHUoi699A76rt8aDBfL4c6hBE3vJw2SRbh4=" />
+<meta property="og:image" content="http://www.lhc-france.fr/IMG/arton907.jpg" />
+<meta property="fb:admins" content="thomas.diluccio,proyoledegieux"/>
+</head>
+<body class="rouge "><p>'.str_repeat('This is important. ', 20).'</p></body></html>',
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $domElement = $contentExtractor->getContent();
+        $content = $domElement->ownerDocument->saveXML($domElement);
+
+        $this->assertNotContains('<head>', $content);
+        $this->assertNotContains('<base>', $content);
+    }
 }
