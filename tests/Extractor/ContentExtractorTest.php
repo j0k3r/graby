@@ -763,4 +763,21 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertNotContains('<head>', $content);
         $this->assertNotContains('<base>', $content);
     }
+
+    public function testNativeAd()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p><hihi/p>',
+            'https://nativead.io/woops!'
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertTrue($contentExtractor->isNativeAd());
+        $this->assertContains('<p><hihi/></p>', $content_block->ownerDocument->saveXML($content_block));
+    }
 }

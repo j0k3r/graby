@@ -1,0 +1,3 @@
+native_ad_clue: //meta[@property="og:url" and contains(@content, '/sponsored/')]
+
+body: //p
