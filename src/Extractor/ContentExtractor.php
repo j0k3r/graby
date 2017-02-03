@@ -569,10 +569,10 @@ class ContentExtractor
     /**
      * Extract title for a given CSS class a node.
      *
-     * @param bool    $detectTitle Do we have to detect title ?
-     * @param string  $cssClass    CSS class to look for
-     * @param DOMNode $node        DOMNode to look into
-     * @param string  $logMessage
+     * @param bool     $detectTitle Do we have to detect title ?
+     * @param string   $cssClass    CSS class to look for
+     * @param \DOMNode $node        DOMNode to look into
+     * @param string   $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
