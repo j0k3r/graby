@@ -38,7 +38,7 @@ install:
 
 script:
     - mkdir -p build/logs
-    - phpunit -v $PHPUNIT_FLAGS
+    - ./vendor/bin/simple-phpunit -v $PHPUNIT_FLAGS
 
 after_script:
     - if [[ "$PHPUNIT_FLAGS" != "" ]]; then php vendor/bin/coveralls -v; fi;

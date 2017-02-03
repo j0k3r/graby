@@ -28,7 +28,8 @@
         "true/punycode": "~2.0"
     },
     "require-dev": {
-        "satooshi/php-coveralls": "~0.6"
+        "satooshi/php-coveralls": "~0.6",
+        "symfony/phpunit-bridge": "~2.6|~3.0"
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
