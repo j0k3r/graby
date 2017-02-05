@@ -17,19 +17,20 @@ use Psr\Log\LoggerInterface;
  */
 class ContentExtractor
 {
-    private $xpath = null;
-    private $html = null;
+    private $xpath;
+    private $html;
     private $config;
-    private $siteConfig = null;
-    private $title = null;
-    private $language = null;
-    private $body = null;
+    private $siteConfig;
+    private $title;
+    private $language;
+    private $body;
+    private $nativeAd = false;
     private $success = false;
-    private $nextPageUrl = null;
+    private $nextPageUrl;
     private $logger;
-    private $configBuilder = null;
+    private $configBuilder;
 
-    public $readability = null;
+    public $readability;
 
     /**
      * @param array                $config
@@ -84,6 +85,7 @@ class ContentExtractor
         $this->siteConfig = null;
         $this->title = null;
         $this->body = null;
+        $this->nativeAd = false;
         $this->language = null;
         $this->nextPageUrl = null;
         $this->success = false;
@@ -212,6 +214,16 @@ class ContentExtractor
                         break 2;
                     }
                 }
+            }
+        }
+
+        // check if this is a native ad
+        foreach ($this->siteConfig->native_ad_clue as $pattern) {
+            $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
+
+            if ($elems instanceof \DOMNodeList && $elems->length > 0) {
+                $this->nativeAd = true;
+                break;
             }
         }
 
@@ -509,6 +521,11 @@ class ContentExtractor
     public function getContent()
     {
         return $this->body;
+    }
+
+    public function isNativeAd()
+    {
+        return $this->nativeAd;
     }
 
     public function getTitle()

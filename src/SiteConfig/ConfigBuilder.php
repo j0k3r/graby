@@ -333,7 +333,7 @@ class ConfigBuilder
             }
 
             // check for commands where we accept multiple statements
-            if (in_array($command, array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields'))) {
+            if (in_array($command, array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue'))) {
                 array_push($config->$command, $val);
             // check for single statement commands that evaluate to true or false
             } elseif (in_array($command, array('tidy', 'prune', 'autodetect_on_failure', 'requires_login'))) {

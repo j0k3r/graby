@@ -35,6 +35,9 @@ class SiteConfig
     // Strip images which contain these strings (0 or more) in the src attribute
     public $strip_image_src = array();
 
+    // Mark article as a native ad if any of these expressions match (0 or more xpath expressions)
+    public $native_ad_clue = array();
+
     // Additional HTTP headers to send
     public $http_header = array();
 

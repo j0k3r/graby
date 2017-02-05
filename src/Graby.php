@@ -311,6 +311,7 @@ class Graby
                 'url' => $effectiveUrl,
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
                 'open_graph' => $ogData,
+                'native_ad' => $this->extractor->isNativeAd(),
             );
         }
 
@@ -376,6 +377,7 @@ class Graby
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
             'open_graph' => $ogData,
+            'native_ad' => $this->extractor->isNativeAd(),
         );
     }
 
@@ -517,6 +519,7 @@ class Graby
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
             'open_graph' => array(),
+            'native_ad' => false,
         );
 
         switch ($mimeInfo['action']) {
