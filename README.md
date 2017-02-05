@@ -69,7 +69,9 @@ array(8) {
       'og_url' => string 'http://www.bbc.com/news/entertainment-arts-32547474'
       'og_image' => string 'http://ichef-1.bbci.co.uk/news/1024/media/images/82695000/jpg/_82695869_kingap.jpg'
   'summary' =>
-  string() "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
+  string() "Ben E King received an award from the Songwriters Hall of Fame in &hellip;",
+  'native_ad' =>
+  string() "false"
 }
 */
 ```
