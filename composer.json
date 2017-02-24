@@ -25,6 +25,7 @@
         "symfony/options-resolver": "~2.6|~3.0",
         "monolog/monolog": "^1.13.1",
         "smalot/pdfparser": "~0.9.24",
+        "wallabag/tcpdf": "^6.2",
         "true/punycode": "~2.0"
     },
     "require-dev": {
