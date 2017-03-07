@@ -102,6 +102,14 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('text/html', $res['content_type']);
     }
 
+    public function testContentWithXSS()
+    {
+        $graby = new Graby(array('debug' => true));
+        $res = $graby->fetchContent('https://gist.githubusercontent.com/nicosomb/e58ca3585324b124e5146500ab2ac45a/raw/53f53bb7e5a6f99f4e84d263e9dd36ab0e154ff8/html.txt');
+
+        $this->assertNotContains('<script>', $res['html']);
+    }
+
     public function testBadUrl()
     {
         $graby = new Graby(array('debug' => true));
@@ -185,7 +193,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
     public function testImageFile()
     {
-        $graby = new Graby(array('debug' => true));
+        $graby = new Graby(array('debug' => true, 'xss_filter' => false));
         $res = $graby->fetchContent('http://i.imgur.com/w9n2ID2.jpg');
 
         $this->assertCount(9, $res);
@@ -225,7 +233,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
      */
     public function testAccentuedUrls($url)
     {
-        $graby = new Graby(array('debug' => true));
+        $graby = new Graby(array('debug' => true, 'xss_filter' => false));
         $res = $graby->fetchContent($url);
 
         $this->assertCount(9, $res);
@@ -245,7 +253,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
     public function testYoutubeOembed()
     {
-        $graby = new Graby(array('debug' => true));
+        $graby = new Graby(array('debug' => true, 'xss_filter' => false));
         $res = $graby->fetchContent('http://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
 
         $this->assertCount(9, $res);
@@ -318,7 +326,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
     public function testKoreanPage()
     {
-        $graby = new Graby(array('debug' => true));
+        $graby = new Graby(array('debug' => true, 'xss_filter' => false));
         $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
 
         $this->assertCount(9, $res);

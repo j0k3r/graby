@@ -116,7 +116,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->with($url)
             ->willReturn($response);
 
-        $graby = new Graby(array('extractor' => array('config_builder' => array(
+        $graby = new Graby(array('xss_filter' => false, 'extractor' => array('config_builder' => array(
             'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
@@ -286,7 +286,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array(), $client);
+        $graby = new Graby(array('xss_filter' => false), $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
@@ -381,7 +381,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->willReturn($response);
 
-        $graby = new Graby(array(), $client);
+        $graby = new Graby(array('xss_filter' => false), $client);
 
         $res = $graby->fetchContent($url);
 
@@ -668,7 +668,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('extractor' => array('config_builder' => array(
+        $graby = new Graby(array('xss_filter' => false, 'extractor' => array('config_builder' => array(
             'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
         ))), $client);
 
