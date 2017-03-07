@@ -147,7 +147,7 @@ class Graby
         // filter xss?
         if ($this->config['xss_filter']) {
             $this->logger->log('debug', 'Filtering HTML to remove XSS');
-            $html = htmLawed($html, array(
+            $infos['html'] = htmLawed($html, array(
                 'safe' => 1,
                 'deny_attribute' => 'style',
                 'comment' => 1,
@@ -156,7 +156,7 @@ class Graby
         }
 
         // generate summary
-        $infos['summary'] = $this->getExcerpt($html);
+        $infos['summary'] = $this->getExcerpt($infos['html']);
 
         return $infos;
     }
