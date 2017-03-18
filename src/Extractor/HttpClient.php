@@ -42,7 +42,6 @@ class HttpClient
             // HTTP responses which match these content types will
             // be returned without body.
             'header_only_types' => array(
-                'application/pdf',
                 'image',
                 'audio',
                 'video',
