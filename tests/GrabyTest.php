@@ -402,10 +402,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        // hacking stuff to avoid to mock the file_get_contents from PdfParser->parseFile()
         $response->expects($this->once())
             ->method('getEffectiveUrl')
-            ->willReturn(dirname(__FILE__).'/fixtures/document1.pdf');
+            ->willReturn('http://lexpress.io/test.pdf');
 
         $response->expects($this->any())
             ->method('getHeader')
@@ -415,12 +414,16 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('getStatusCode')
             ->willReturn(200);
 
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn(file_get_contents(dirname(__FILE__).'/fixtures/document1.pdf'));
+
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
             ->getMock();
 
         $client->expects($this->once())
-            ->method('head')
+            ->method('get')
             ->willReturn($response);
 
         $graby = new Graby(array(), $client);
@@ -432,7 +435,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Document1', $res['title']);
         $this->assertContains('Document title', $res['html']);
         $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
-        $this->assertContains('fixtures/document1.pdf', $res['url']);
+        $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
         $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
         $this->assertEquals('application/pdf', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
@@ -488,10 +491,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        // hacking stuff to avoid to mock the file_get_contents from PdfParser->parseFile()
         $response->expects($this->once())
             ->method('getEffectiveUrl')
-            ->willReturn(dirname(__FILE__).'/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf');
+            ->willReturn('http://lexpress.io/test.pdf');
 
         $response->expects($this->any())
             ->method('getHeader')
@@ -501,12 +503,16 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('getStatusCode')
             ->willReturn(200);
 
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn(file_get_contents(dirname(__FILE__).'/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf'));
+
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
             ->getMock();
 
         $client->expects($this->once())
-            ->method('head')
+            ->method('get')
             ->willReturn($response);
 
         $graby = new Graby(array(), $client);
@@ -517,7 +523,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $res['language']);
         $this->assertEquals('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
-        $this->assertContains('fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf', $res['url']);
+        $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['summary']);
         $this->assertEquals('application/pdf', $res['content_type']);
         $this->assertEquals(array(), $res['open_graph']);
@@ -767,12 +773,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $client->expects($this->once())
+        $client->expects($this->exactly(2))
             ->method('get')
-            ->willReturn($response);
-
-        $client->expects($this->once())
-            ->method('head')
             ->willReturn($response);
 
         $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
