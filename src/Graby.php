@@ -535,7 +535,7 @@ class Graby
 
                 if ($mimeInfo['mime'] == 'application/pdf') {
                     $parser = new PdfParser();
-                    $pdf = $parser->parseFile($effectiveUrl);
+                    $pdf = $parser->parseContent($body);
 
                     // tiny hack to avoid character like �
                     $html = mb_convert_encoding(nl2br($pdf->getText()), 'UTF-8', 'UTF-8');

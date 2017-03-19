@@ -42,15 +42,14 @@ class HttpClient
             // HTTP responses which match these content types will
             // be returned without body.
             'header_only_types' => array(
-                'application/pdf',
                 'image',
                 'audio',
                 'video',
             ),
             // URLs ending with one of these extensions will
-            // prompt Humble HTTP Agent to send a HEAD request first
+            // prompt client to send a HEAD request first
             // to see if returned content type matches $headerOnlyTypes.
-            'header_only_clues' => array('pdf', 'mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
+            'header_only_clues' => array('mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
             // User Agent strings - mapping domain names
             'user_agents' => array(),
             // AJAX triggers to search for.
