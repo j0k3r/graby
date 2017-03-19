@@ -232,7 +232,7 @@ class ContentExtractor
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for title', array('pattern' => $pattern));
-            
+
             if ($this->extractEntityFromPattern('title', $pattern)) {
                 break;
             }
@@ -405,7 +405,7 @@ class ContentExtractor
         $detectDate = $this->extractEntityFromQuery(
             'date',
             $detectDate,
-            "//time/@datetime",
+            '//time[@pubdate or @pubDate]',
             $this->readability->dom,
             'Date found (datetime marked time element): {date}'
         );
@@ -424,6 +424,11 @@ class ContentExtractor
         if ($detectTitle && $this->readability->getTitle()) {
             $this->title = $this->readability->getTitle()->textContent;
             $this->logger->log('debug', 'Detected title: {title}', array('title' => $this->title));
+        }
+
+        if ($this->date) {
+            $this->date = strtotime(trim($this->date));
+            $this->logger->log('debug', 'Detected date: {date}', array('date' => $this->date));
         }
 
         if ($detectBody && $success) {
@@ -614,10 +619,10 @@ class ContentExtractor
      * Example: extractEntityFromQuery('title', $detectEntity, $xpathExpression, $node, $log, $returnCallback)
      * will search for expression and set the found value in $this->title
      *
-     * @param string   $entity       Entity to look for ('title', 'date')
-     * @param bool     $detectEntity Do we have to detect entity?
-     * @param string   $xpathExpression  XPath query to look for
-     * @param \DOMNode $node         DOMNode to look into
+     * @param string   $entity          Entity to look for ('title', 'date')
+     * @param bool     $detectEntity    Do we have to detect entity?
+     * @param string   $xpathExpression XPath query to look for
+     * @param \DOMNode $node            DOMNode to look into
      * @param string   $logMessage
      *
      * @return bool Telling if we have to detect entity again or not
@@ -630,7 +635,7 @@ class ContentExtractor
 
         // we define the default callback here
         if (!is_callable($returnCallback)) {
-            $returnCallback = function($e) {
+            $returnCallback = function ($e) {
                 return trim($e);
             };
         }
@@ -644,6 +649,7 @@ class ContentExtractor
 
         $this->{$entity} = $returnCallback($elems->item(0)->textContent);
         $this->logger->log('debug', $logMessage, array($entity => $this->{$entity}));
+
         // remove entity from document
         try {
             $elems->item(0)->parentNode->removeChild($elems->item(0));
@@ -666,22 +672,34 @@ class ContentExtractor
      */
     private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
     {
-        return $this->extractEntityFromQuery('title', $detectTitle, ".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node, $logMessage);
+        return $this->extractEntityFromQuery(
+            'title',
+            $detectTitle,
+            ".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]",
+            $node,
+            $logMessage
+        );
     }
 
     /**
      * Extract date for a given CSS class a node.
      *
-     * @param bool    $detectDate  Do we have to detect date ?
-     * @param string  $cssClass    CSS class to look for
-     * @param DOMNode $node        DOMNode to look into
+     * @param bool    $detectDate Do we have to detect date ?
+     * @param string  $cssClass   CSS class to look for
+     * @param DOMNode $node       DOMNode to look into
      * @param string  $logMessage
      *
      * @return bool Telling if we have to detect date again or not
      */
     private function extractDate($detectDate, $cssClass, \DOMNode $node, $logMessage)
     {
-        return $this->extractEntityFromQuery('date', $detectDate, ".//time[@pubdate or @pubDate] | .//abbr[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node, $logMessage);
+        return $this->extractEntityFromQuery(
+            'date',
+            $detectDate,
+            ".//time[@pubdate or @pubDate] | .//abbr[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]",
+            $node,
+            $logMessage
+        );
     }
 
     /**
@@ -792,7 +810,7 @@ class ContentExtractor
     }
 
     /**
-     * Extract and apply a callback to an entity according to a pattern
+     * Extract and apply a callback to an entity according to a pattern.
      *
      * The $entity argument is used as the name of the property to set in
      * the current ContentExtractor instance (variable reference) and as
@@ -801,9 +819,9 @@ class ContentExtractor
      * Example: extractEntityFromPattern('title', $pattern) will search
      * for pattern and set the found value in $this->title
      *
-     * @param string $entity            Entity to look for ('title', 'date')
-     * @param string $pattern           Pattern to look for
-     * @param callable $returnCallback  Function to apply on the value
+     * @param string   $entity         Entity to look for ('title', 'date')
+     * @param string   $pattern        Pattern to look for
+     * @param callable $returnCallback Function to apply on the value
      *
      * @return bool Telling if the entity has been found
      */
@@ -811,7 +829,7 @@ class ContentExtractor
     {
         // we define the default callback here
         if (!is_callable($returnCallback)) {
-            $returnCallback = function($e) {
+            $returnCallback = function ($e) {
                 return trim($e);
             };
         }
@@ -836,9 +854,9 @@ class ContentExtractor
             }
         }
 
-        if ($entityValue !== null)
-        {
+        if ($entityValue !== null) {
             $this->{$entity} = $entityValue;
+
             return true;
         }
 
