@@ -134,7 +134,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             '<html><meta name="generator" content="WordPress.com" /></html>'
         );
 
-        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src') as $value) {
+        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'date') as $value) {
             $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: '.$value);
         }
     }

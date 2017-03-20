@@ -224,6 +224,38 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $res['open_graph']);
     }
 
+    public function dataDate()
+    {
+        return array(
+            array('http://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html', '2011-07-05T22:09:59+02:00'),
+            array('https://www.reddit.com/r/LinuxActionShow/comments/1fccny/arch_linux_survival_guide/', '2013-05-30T16:01:58+00:00'),
+        );
+    }
+
+    /**
+     * @dataProvider dataDate
+     */
+    public function testDate($url, $expectedDate)
+    {
+        $graby = new Graby(array('debug' => true, 'xss_filter' => false));
+        $res = $graby->fetchContent($url);
+
+        $this->assertCount(10, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+
+        $this->assertEquals($expectedDate, $res['date']);
+    }
+
     public function dataWithAccent()
     {
         return array(
