@@ -426,8 +426,15 @@ class ContentExtractor
             $this->logger->log('debug', 'Detected title: {title}', array('title' => $this->title));
         }
 
+        $parseDate = date_parse($this->date);
+
+        // If no year has been found during date_parse, we nuke the whole value
+        // because the date is invalid
+        if ($parseDate['year'] === FALSE) {
+            $this->date = null;
+        }
+
         if ($this->date) {
-            $this->date = strtotime(trim($this->date));
             $this->logger->log('debug', 'Detected date: {date}', array('date' => $this->date));
         }
 

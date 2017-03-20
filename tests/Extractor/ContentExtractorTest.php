@@ -280,13 +280,13 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             // good time format
-            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
+            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
             // bad time format, null result
             array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">date</time></html>', null),
             // bad pattern but good @pubdate
-            array('//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
+            array('//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
             // good time format
-            array('string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', strtotime('2015-01-01')),
+            array('string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
         );
     }
 
@@ -485,7 +485,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
                 '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
                 array(
                     'title' => 'hello !',
-                    'date' => strtotime('2015-01-01'),
+                    'date' => '2015-01-01',
                 ),
             ),
             // hNews with bad date
