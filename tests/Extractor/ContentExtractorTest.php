@@ -26,6 +26,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $contentExtractor->getContent());
         $this->assertEquals(null, $contentExtractor->getTitle());
         $this->assertEquals(null, $contentExtractor->getLanguage());
+        $this->assertEquals(null, $contentExtractor->getDate());
         $this->assertEquals(null, $contentExtractor->getSiteConfig());
         $this->assertEquals(null, $contentExtractor->getNextPageUrl());
     }
@@ -96,11 +97,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
         }
 
-        foreach (array('strip_image_src', 'http_header') as $value) {
+        foreach (array('date', 'strip_image_src', 'http_header') as $value) {
             $this->assertNotEmpty($res->$value, 'Check not empty value for: '.$value);
         }
 
-        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'test_url') as $value) {
+        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'test_url', 'date') as $value) {
             $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: '.$value);
         }
     }
@@ -133,7 +134,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             '<html><meta name="generator" content="WordPress.com" /></html>'
         );
 
-        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src') as $value) {
+        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'date') as $value) {
             $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: '.$value);
         }
     }
@@ -273,6 +274,39 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($languageExpected, $contentExtractor->getLanguage());
+    }
+
+    public function dataForDate()
+    {
+        return array(
+            // good time format
+            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
+            // bad time format, null result
+            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">date</time></html>', null),
+            // bad pattern but good @pubdate
+            array('//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
+            // good time format
+            array('string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
+        );
+    }
+
+    /**
+     * @dataProvider dataForDate
+     */
+    public function testExtractDate($pattern, $html, $dateExpected)
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        $config->date = array($pattern);
+
+        $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertEquals($dateExpected, $contentExtractor->getDate());
     }
 
     public function dataForStrip()
@@ -451,6 +485,15 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
                 '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
                 array(
                     'title' => 'hello !',
+                    'date' => '2015-01-01',
+                ),
+            ),
+            // hNews with bad date
+            array(
+                '<html><body><div class="hentry"><time pubdate="2015-01-01">aweomse!</time>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
+                '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
+                array(
+                    'date' => null,
                 ),
             ),
             // hNews with many content

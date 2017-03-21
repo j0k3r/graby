@@ -32,6 +32,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'title: hoho',
             'tidy: yes',
             'parser: bob',
+            'date: foo',
             'replace_string(toto): titi',
             'http_header(user-agent): my-user-agent',
             'http_header(referer): http://idontl.ie',
@@ -47,6 +48,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'user-agent' => 'my-user-agent',
             'referer' => 'http://idontl.ie',
         );
+        $configExpected->date = array('foo');
 
         $this->assertEquals($configExpected, $configActual);
 

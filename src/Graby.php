@@ -231,6 +231,7 @@ class Graby
         $contentBlock = $this->extractor->getContent();
         $extractedTitle = $this->extractor->getTitle();
         $extractedLanguage = $this->extractor->getLanguage();
+        $extractedDate = $this->extractor->getDate();
 
         // Deal with multi-page articles
         $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
@@ -308,6 +309,7 @@ class Graby
                 'html' => $this->config['error_message'],
                 'title' => $extractedTitle ?: $this->config['error_message_title'],
                 'language' => $extractedLanguage,
+                'date' => $extractedDate,
                 'url' => $effectiveUrl,
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
                 'open_graph' => $ogData,
@@ -365,6 +367,7 @@ class Graby
         $this->logger->log('debug', 'Returning data (most interesting ones): {data}', array('data' => array(
             'title' => $extractedTitle,
             'language' => $extractedLanguage,
+            'date' => $extractedDate,
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
         )));
@@ -374,6 +377,7 @@ class Graby
             'html' => trim($html),
             'title' => $extractedTitle ?: $this->config['error_message_title'],
             'language' => $extractedLanguage,
+            'date' => $extractedDate,
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
             'open_graph' => $ogData,
@@ -515,6 +519,7 @@ class Graby
             'status' => 200,
             'title' => $mimeInfo['name'],
             'language' => '',
+            'date' => '',
             'html' => '',
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],

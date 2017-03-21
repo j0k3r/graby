@@ -20,11 +20,12 @@ class ContentExtractor
     private $xpath;
     private $html;
     private $config;
-    private $siteConfig;
-    private $title;
-    private $language;
-    private $body;
+    private $siteConfig = null;
+    private $title = null;
+    private $language = null;
+    private $body = null;
     private $nativeAd = false;
+    private $date = null;
     private $success = false;
     private $nextPageUrl;
     private $logger;
@@ -86,6 +87,7 @@ class ContentExtractor
         $this->title = null;
         $this->body = null;
         $this->nativeAd = false;
+        $this->date = null;
         $this->language = null;
         $this->nextPageUrl = null;
         $this->success = false;
@@ -230,24 +232,17 @@ class ContentExtractor
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for title', array('pattern' => $pattern));
-            $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
 
-            if (is_string($elems)) {
-                $this->title = trim($elems);
-                $this->logger->log('debug', 'Title expression evaluated as string: {title}', array('title' => $this->title));
-                $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
+            if ($this->extractEntityFromPattern('title', $pattern)) {
                 break;
-            } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
-                $this->title = $elems->item(0)->textContent;
-                $this->logger->log('debug', 'Title matched: {title}', array('title' => $this->title));
-                $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
+            }
+        }
 
-                // remove title from document
-                try {
-                    $elems->item(0)->parentNode->removeChild($elems->item(0));
-                } catch (\DOMException $e) {
-                    // do nothing
-                }
+        // try to get date
+        foreach ($this->siteConfig->date as $pattern) {
+            $this->logger->log('debug', 'Trying {pattern} for date', array('pattern' => $pattern));
+
+            if ($this->extractEntityFromPattern('date', $pattern)) {
                 break;
             }
         }
@@ -330,7 +325,7 @@ class ContentExtractor
         }
 
         // auto detect?
-        $detectTitle = $detectBody = false;
+        $detectTitle = $detectBody = $detectDate = false;
 
         // detect title?
         if (!isset($this->title) && (empty($this->siteConfig->title) || $this->siteConfig->autodetect_on_failure())) {
@@ -340,9 +335,13 @@ class ContentExtractor
         if (!isset($this->body) && (empty($this->siteConfig->body) || $this->siteConfig->autodetect_on_failure())) {
             $detectBody = true;
         }
+        // detect date?
+        if (!isset($this->date) && (empty($this->siteConfig->date) || $this->siteConfig->autodetect_on_failure())) {
+            $detectDate = true;
+        }
 
         // check for hNews
-        if ($detectTitle || $detectBody) {
+        if ($detectTitle || $detectBody || $detectDate) {
             // check for hentry
             $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
@@ -356,6 +355,14 @@ class ContentExtractor
                     'entry-title',
                     $hentry,
                     'hNews: found entry-title: {title}'
+                );
+
+                // check for published
+                $detectDate = $this->extractDate(
+                    $detectDate,
+                    'published',
+                    $hentry,
+                    'hNews: found publication date: {date}'
                 );
 
                 // check for entry-content.
@@ -394,6 +401,15 @@ class ContentExtractor
             'Schema.org'
         );
 
+        // Find date in pubdate marked time element
+        $detectDate = $this->extractEntityFromQuery(
+            'date',
+            $detectDate,
+            '//time[@pubdate or @pubDate]',
+            $this->readability->dom,
+            'Date found (datetime marked time element): {date}'
+        );
+
         // still missing title or body, so we detect using Readability
         $success = false;
         if ($detectTitle || $detectBody) {
@@ -408,6 +424,18 @@ class ContentExtractor
         if ($detectTitle && $this->readability->getTitle()) {
             $this->title = $this->readability->getTitle()->textContent;
             $this->logger->log('debug', 'Detected title: {title}', array('title' => $this->title));
+        }
+
+        $parseDate = date_parse($this->date);
+
+        // If no year has been found during date_parse, we nuke the whole value
+        // because the date is invalid
+        if ($parseDate['year'] === FALSE) {
+            $this->date = null;
+        }
+
+        if ($this->date) {
+            $this->logger->log('debug', 'Detected date: {date}', array('date' => $this->date));
         }
 
         if ($detectBody && $success) {
@@ -533,6 +561,11 @@ class ContentExtractor
         return trim($this->title);
     }
 
+    public function getDate()
+    {
+        return $this->date;
+    }
+
     public function getLanguage()
     {
         return $this->language;
@@ -584,34 +617,96 @@ class ContentExtractor
     }
 
     /**
+     * Extract entity for a given CSS class a node.
+     *
+     * The $entity argument is used as the name of the property to set in
+     * the current ContentExtractor instance (variable reference) and as
+     * the name to use in log messages
+     *
+     * Example: extractEntityFromQuery('title', $detectEntity, $xpathExpression, $node, $log, $returnCallback)
+     * will search for expression and set the found value in $this->title
+     *
+     * @param string   $entity          Entity to look for ('title', 'date')
+     * @param bool     $detectEntity    Do we have to detect entity?
+     * @param string   $xpathExpression XPath query to look for
+     * @param \DOMNode $node            DOMNode to look into
+     * @param string   $logMessage
+     *
+     * @return bool Telling if we have to detect entity again or not
+     */
+    private function extractEntityFromQuery($entity, $detectEntity, $xpathExpression, \DOMNode $node, $logMessage, $returnCallback = null)
+    {
+        if (false === $detectEntity) {
+            return false;
+        }
+
+        // we define the default callback here
+        if (!is_callable($returnCallback)) {
+            $returnCallback = function ($e) {
+                return trim($e);
+            };
+        }
+
+        // check for given css class
+        $elems = $this->xpath->query($xpathExpression, $node);
+
+        if (false === $this->hasElements($elems)) {
+            return $detectEntity;
+        }
+
+        $this->{$entity} = $returnCallback($elems->item(0)->textContent);
+        $this->logger->log('debug', $logMessage, array($entity => $this->{$entity}));
+
+        // remove entity from document
+        try {
+            $elems->item(0)->parentNode->removeChild($elems->item(0));
+        } catch (\DOMException $e) {
+            // do nothing
+        }
+
+        return false;
+    }
+
+    /**
      * Extract title for a given CSS class a node.
      *
-     * @param bool     $detectTitle Do we have to detect title ?
-     * @param string   $cssClass    CSS class to look for
-     * @param \DOMNode $node        DOMNode to look into
-     * @param string   $logMessage
+     * @param bool    $detectTitle Do we have to detect title ?
+     * @param string  $cssClass    CSS class to look for
+     * @param DOMNode $node        DOMNode to look into
+     * @param string  $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
     private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
     {
-        if (false === $detectTitle) {
-            return false;
-        }
+        return $this->extractEntityFromQuery(
+            'title',
+            $detectTitle,
+            ".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]",
+            $node,
+            $logMessage
+        );
+    }
 
-        // check for given css class
-        $elems = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]", $node);
-
-        if (false === $this->hasElements($elems)) {
-            return $detectTitle;
-        }
-
-        $this->title = $elems->item(0)->textContent;
-        $this->logger->log('debug', $logMessage, array('title' => $this->title));
-        // remove title from document
-        $elems->item(0)->parentNode->removeChild($elems->item(0));
-
-        return false;
+    /**
+     * Extract date for a given CSS class a node.
+     *
+     * @param bool    $detectDate Do we have to detect date ?
+     * @param string  $cssClass   CSS class to look for
+     * @param DOMNode $node       DOMNode to look into
+     * @param string  $logMessage
+     *
+     * @return bool Telling if we have to detect date again or not
+     */
+    private function extractDate($detectDate, $cssClass, \DOMNode $node, $logMessage)
+    {
+        return $this->extractEntityFromQuery(
+            'date',
+            $detectDate,
+            ".//time[@pubdate or @pubDate] | .//abbr[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]",
+            $node,
+            $logMessage
+        );
     }
 
     /**
@@ -719,5 +814,59 @@ class ContentExtractor
         }
 
         return $readability;
+    }
+
+    /**
+     * Extract and apply a callback to an entity according to a pattern.
+     *
+     * The $entity argument is used as the name of the property to set in
+     * the current ContentExtractor instance (variable reference) and as
+     * the name to use in log messages
+     *
+     * Example: extractEntityFromPattern('title', $pattern) will search
+     * for pattern and set the found value in $this->title
+     *
+     * @param string   $entity         Entity to look for ('title', 'date')
+     * @param string   $pattern        Pattern to look for
+     * @param callable $returnCallback Function to apply on the value
+     *
+     * @return bool Telling if the entity has been found
+     */
+    private function extractEntityFromPattern($entity, $pattern, $returnCallback = null)
+    {
+        // we define the default callback here
+        if (!is_callable($returnCallback)) {
+            $returnCallback = function ($e) {
+                return trim($e);
+            };
+        }
+
+        $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
+        $entityValue = null;
+
+        if (is_string($elems)) {
+            $entityValue = $returnCallback($elems);
+            $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", array($entity => $entityValue));
+            $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
+        } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
+            $entityValue = $returnCallback($elems->item(0)->textContent);
+            $this->logger->log('debug', "{$entity} matched: {{$entity}}", array($entity => $entityValue));
+            $this->logger->log('debug', '...XPath match: {pattern}', array('pattern', $pattern));
+
+            // remove entity from document
+            try {
+                $elems->item(0)->parentNode->removeChild($elems->item(0));
+            } catch (\DOMException $e) {
+                // do nothing
+            }
+        }
+
+        if ($entityValue !== null) {
+            $this->{$entity} = $entityValue;
+
+            return true;
+        }
+
+        return false;
     }
 }
