@@ -2,30 +2,30 @@
 
 namespace Tests\Graby\SiteConfig;
 
-use Graby\SiteConfig\SiteConfig;
 use Graby\SiteConfig\ConfigBuilder;
-use Monolog\Logger;
+use Graby\SiteConfig\SiteConfig;
 use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 
 class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructDefault()
     {
-        $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
+        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
     }
 
     public function testBuildFromArrayNoLines()
     {
-        $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
-        $configActual = $configBuilder->parseLines(array());
+        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configActual = $configBuilder->parseLines([]);
 
         $this->assertEquals($configBuilder->create(), $configActual);
     }
 
     public function testBuildFromArray()
     {
-        $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
-        $configActual = $configBuilder->parseLines(array(
+        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configActual = $configBuilder->parseLines([
             '# this is a comment and it will be removed',
             'no colon on this line, it will be removed',
             '   : empty value before colon, it will be removed',
@@ -36,32 +36,32 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'replace_string(toto): titi',
             'http_header(user-agent): my-user-agent',
             'http_header(referer): http://idontl.ie',
-        ));
+        ]);
 
         $configExpected = new SiteConfig();
-        $configExpected->title = array('hoho');
+        $configExpected->title = ['hoho'];
         $configExpected->tidy = true;
         $configExpected->parser = 'bob';
-        $configExpected->find_string = array('toto');
-        $configExpected->replace_string = array('titi');
-        $configExpected->http_header = array(
+        $configExpected->find_string = ['toto'];
+        $configExpected->replace_string = ['titi'];
+        $configExpected->http_header = [
             'user-agent' => 'my-user-agent',
             'referer' => 'http://idontl.ie',
-        );
-        $configExpected->date = array('foo');
+        ];
+        $configExpected->date = ['foo'];
 
         $this->assertEquals($configExpected, $configActual);
 
         // without using default value
         $this->assertTrue($configActual->tidy(false));
-        $this->assertEquals('bob', $configActual->parser(false));
+        $this->assertSame('bob', $configActual->parser(false));
 
         $this->assertNull($configActual->prune(false));
         $this->assertNull($configActual->autodetect_on_failure(false));
 
         // using default values
         $this->assertTrue($configActual->tidy(true));
-        $this->assertEquals('bob', $configActual->parser(true));
+        $this->assertSame('bob', $configActual->parser(true));
 
         $this->assertTrue($configActual->prune(true));
         $this->assertTrue($configActual->autodetect_on_failure(true));
@@ -69,11 +69,11 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function dataForAddToCache()
     {
-        return array(
-            array('mykey', '', 'mykey'),
-            array('mykey', 'cachedkeyhihi', 'cachedkeyhihi'),
-            array('www.localhost.dev', '', 'localhost.dev'),
-        );
+        return [
+            ['mykey', '', 'mykey'],
+            ['mykey', 'cachedkeyhihi', 'cachedkeyhihi'],
+            ['www.localhost.dev', '', 'localhost.dev'],
+        ];
     }
 
     /**
@@ -81,10 +81,10 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddToCache($key, $cachedKey, $expectedKey)
     {
-        $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
+        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
 
         $config = $configBuilder->create();
-        $config->body = array('//test');
+        $config->body = ['//test'];
         if ($cachedKey) {
             $config->cache_key = $cachedKey;
         }
@@ -96,11 +96,11 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function dataForCachedVersion()
     {
-        return array(
-            array('mykey', false),
-            array('mykey', true),
-            array('www.localhost.dev', true),
-        );
+        return [
+            ['mykey', false],
+            ['mykey', true],
+            ['www.localhost.dev', true],
+        ];
     }
 
     /**
@@ -109,11 +109,11 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
     public function testCachedVersion($key, $cached)
     {
         $config = false;
-        $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
+        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
 
         if ($cached) {
             $config = $configBuilder->create();
-            $config->body = array('//test');
+            $config->body = ['//test'];
 
             $configBuilder->addToCache($key, $config);
         }
@@ -123,7 +123,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildOnCachedVersion()
     {
-        $configBuilder = new ConfigBuilder(array('site_config' => array(dirname(__FILE__))));
+        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
         $config1 = $configBuilder->buildForHost('www.host.io');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config1);
@@ -134,40 +134,40 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $config2 = $configBuilder->buildForHost('host.io');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config2);
-        $this->assertSame($config1, $config2);
+        $this->assertEquals($config1, $config2);
     }
 
     public function dataForBuild()
     {
-        return array(
+        return [
             // bar hostname
-            array('youknownothing/johnsnow', false),
-            array('www.'.str_repeat('yay', 70).'.com', false),
+            ['youknownothing/johnsnow', false],
+            ['www.' . str_repeat('yay', 70) . '.com', false],
             // no config file found (global to the rescue)
-            array('fr.m.localhost.dev', true),
+            ['fr.m.localhost.dev', true],
             // config exists
-            array('fr.wikipedia.org', true, '.wikipedia.org'),
+            ['fr.wikipedia.org', true, '.wikipedia.org'],
             // config exists
-            array('ted.com', true, 'ted.com'),
+            ['ted.com', true, 'ted.com'],
             // config exists
-            array('stackoverflow.com', true, 'stackoverflow.com'),
+            ['stackoverflow.com', true, 'stackoverflow.com'],
             // config with no lines
-            array('emptylines.com', false),
+            ['emptylines.com', false],
             // config with no auto_failure
-            array('nofailure.io', true, 'nofailure.io'),
+            ['nofailure.io', true, 'nofailure.io'],
             // config with no lines
-            array('emptylines.net', false),
-        );
+            ['emptylines.net', false],
+        ];
     }
 
     /**
      * @dataProvider dataForBuild
      */
-    public function testBuildSiteConfig($host, $expectedRes, $matchedHost = false)
+    public function testBuildSiteConfig($host, $expectedRes, $matchedHost = null)
     {
-        $configBuilder = new ConfigBuilder(array(
-            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
-        ));
+        $configBuilder = new ConfigBuilder([
+            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+        ]);
 
         $res = $configBuilder->loadSiteConfig($host);
 
@@ -175,15 +175,15 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             $this->assertFalse($res, 'No site config generated');
         } else {
             $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res, 'Site config generated');
-            $this->assertEquals($matchedHost, $res->cache_key);
+            $this->assertSame($matchedHost, $res->cache_key);
         }
     }
 
     public function testBuildWithCachedVersion()
     {
-        $configBuilder = new ConfigBuilder(array(
-            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
-        ));
+        $configBuilder = new ConfigBuilder([
+            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+        ]);
 
         $res = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
@@ -203,9 +203,9 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $configBuilder = new ConfigBuilder(array(
-            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
-        ));
+        $configBuilder = new ConfigBuilder([
+            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+        ]);
         $configBuilder->setLogger($logger);
 
         $res = $configBuilder->buildFromUrl('https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal');
@@ -213,10 +213,10 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $records = $handler->getRecords();
 
         $this->assertGreaterThan(5, $records);
-        $this->assertEquals('. looking for site config for {host} in primary folder', $records[0]['message']);
-        $this->assertEquals('fr.wikipedia.org', $records[0]['context']['host']);
-        $this->assertEquals('... found site config {host}', $records[1]['message']);
-        $this->assertEquals('.wikipedia.org.txt', $records[1]['context']['host']);
-        $this->assertEquals('Appending site config settings from global.txt', $records[2]['message']);
+        $this->assertSame('. looking for site config for {host} in primary folder', $records[0]['message']);
+        $this->assertSame('fr.wikipedia.org', $records[0]['context']['host']);
+        $this->assertSame('... found site config {host}', $records[1]['message']);
+        $this->assertSame('.wikipedia.org.txt', $records[1]['context']['host']);
+        $this->assertSame('Appending site config settings from global.txt', $records[2]['message']);
     }
 }

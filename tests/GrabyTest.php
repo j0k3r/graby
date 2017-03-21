@@ -8,7 +8,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructDefault()
     {
-        $graby = new Graby(array('debug' => true));
+        $graby = new Graby(['debug' => true]);
 
         $this->assertTrue($graby->getConfig('debug'));
     }
@@ -26,9 +26,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
     public function dataForConfigOverride()
     {
-        return array(
-            array('http_client', array('http_client' => array('rewrite_url' => array('dummy.io' => array('/foo' => '/bar'), 'docs.google.com' => array('/foo' => '/bar'))))),
-        );
+        return [
+            ['http_client', ['http_client' => ['rewrite_url' => ['dummy.io' => ['/foo' => '/bar'], 'docs.google.com' => ['/foo' => '/bar']]]]],
+        ];
     }
 
     /**
@@ -38,7 +38,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     {
         $graby = new Graby($config);
 
-        $this->assertEquals($config[$key], $graby->getConfig($key));
+        $this->assertSame($config[$key], $graby->getConfig($key));
     }
 
     /**
@@ -46,9 +46,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function dataForFetchContent()
     {
-        $tests = array();
+        $tests = [];
 
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(__DIR__.'/fixtures/sites/'), \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(__DIR__ . '/fixtures/sites/'), \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
             if (!preg_match('/\.test$/', $file)) {
                 continue;
             }
@@ -57,7 +57,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
             preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT_WITHOUT_TIDY-----\s*(.*)/sx', $test, $match);
 
-            $tests[] = array(
+            $tests[] = [
                 $match[1], // url
                 $match[2], // url effective
                 $match[3], // header
@@ -67,7 +67,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
                 $match[7], // raw content
                 $match[8], // parsed content
                 $match[9], // parsed content without tidy
-            );
+            ];
         }
 
         return $tests;
@@ -116,29 +116,33 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->with($url)
             ->willReturn($response);
 
-        $graby = new Graby(array('xss_filter' => false, 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['xss_filter' => false, 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent($url);
 
         $this->assertCount(10, $res);
-        $this->assertEquals($language, $res['language']);
-        $this->assertEquals($urlEffective, $res['url'], 'Same url');
-        $this->assertEquals($title, $res['title'], 'Same title');
-        $this->assertEquals($summary, $res['summary'], 'Same summary');
+        if ($language) {
+            $this->assertSame($language, $res['language']);
+        } else {
+            $this->assertEmpty($res['language']);
+        }
+        $this->assertSame($urlEffective, $res['url'], 'Same url');
+        $this->assertSame($title, $res['title'], 'Same title');
+        $this->assertSame($summary, $res['summary'], 'Same summary');
 
         if (function_exists('tidy_parse_string')) {
-            $this->assertEquals($parsedContent, $res['html'], 'Same html');
+            $this->assertSame($parsedContent, $res['html'], 'Same html');
         } else {
-            $this->assertEquals($parsedContentWithoutTidy, $res['html'], 'Same html');
+            $this->assertSame($parsedContentWithoutTidy, $res['html'], 'Same html');
         }
 
-        $this->assertEquals('text/html', $res['content_type']);
+        $this->assertSame('text/html', $res['content_type']);
 
         // blogger doesn't have OG data, but lemonde has
         if (empty($res['open_graph'])) {
-            $this->assertEquals(array(), $res['open_graph']);
+            $this->assertSame([], $res['open_graph']);
             $this->assertFalse($res['native_ad']);
         } else {
             $this->assertArrayHasKey('og_site_name', $res['open_graph']);
@@ -156,10 +160,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
     public function dataForAllowed()
     {
-        return array(
-            array('feed://wikipedia.org', 'http://wikipedia.org'),
-            array('www.wikipedia.org', 'http://www.wikipedia.org'),
-        );
+        return [
+            ['feed://wikipedia.org', 'http://wikipedia.org'],
+            ['www.wikipedia.org', 'http://www.wikipedia.org'],
+        ];
     }
 
     /**
@@ -180,19 +184,19 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->with($urlChanged)
             ->willReturn($response);
 
-        $graby = new Graby(array(
-            'allowed_urls' => array('wikipedia.org', 'wikimedia.com'),
-        ), $client);
+        $graby = new Graby([
+            'allowed_urls' => ['wikipedia.org', 'wikimedia.com'],
+        ], $client);
 
         $graby->fetchContent($url);
     }
 
     public function dataForBlocked()
     {
-        return array(
-            array('feed://lexpress.fr'),
-            array('www.t411.io'),
-        );
+        return [
+            ['feed://lexpress.fr'],
+            ['www.t411.io'],
+        ];
     }
 
     /**
@@ -203,20 +207,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
      */
     public function testBlockedUrls($url)
     {
-        $graby = new Graby(array(
-            'blocked_urls' => array('t411.io', 'lexpress.fr'),
-        ));
+        $graby = new Graby([
+            'blocked_urls' => ['t411.io', 'lexpress.fr'],
+        ]);
 
         $graby->fetchContent($url);
     }
 
     public function dataForNotValid()
     {
-        return array(
-            array('http://lexpress devant.fr'),
-            array('http://user@:80'),
-            array('http://cest^long.fr'),
-        );
+        return [
+            ['http://lexpress devant.fr'],
+            ['http://user@:80'],
+            ['http://cest^long.fr'],
+        ];
     }
 
     /**
@@ -253,9 +257,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array(
-            'blocked_urls' => array('t411.io'),
-        ), $client);
+        $graby = new Graby([
+            'blocked_urls' => ['t411.io'],
+        ], $client);
 
         $graby->fetchContent('lexpress.io');
     }
@@ -286,18 +290,18 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('xss_filter' => false), $client);
+        $graby = new Graby(['xss_filter' => false], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('Image', $res['title']);
-        $this->assertEquals('<a href="http://lexpress.io/my%20awesome%20image.jpg"><img src="http://lexpress.io/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
-        $this->assertEquals('http://lexpress.io/my%20awesome%20image.jpg', $res['url']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('Image', $res['title']);
+        $this->assertSame('<a href="http://lexpress.io/my%20awesome%20image.jpg"><img src="http://lexpress.io/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
+        $this->assertSame('http://lexpress.io/my%20awesome%20image.jpg', $res['url']);
         $this->assertEmpty($res['summary']);
-        $this->assertEquals('image/jpeg', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('image/jpeg', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
         $this->assertFalse($res['native_ad']);
     }
@@ -336,20 +340,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array(
-            'content_type_exc' => array(
-               'application/x-msdownload' => array('action' => 'exclude', 'name' => 'we do not want virus'),
-            ),
-        ), $client);
+        $graby = new Graby([
+            'content_type_exc' => [
+               'application/x-msdownload' => ['action' => 'exclude', 'name' => 'we do not want virus'],
+            ],
+        ], $client);
 
         $graby->fetchContent('http://lexpress.io/virus.exe');
     }
 
     public function dataForExtension()
     {
-        return array(
-            array('http://lexpress.io/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://lexpress.io/test.jpg"><img src="http://lexpress.io/test.jpg" alt="Image" /></a>'),
-        );
+        return [
+            ['http://lexpress.io/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://lexpress.io/test.jpg"><img src="http://lexpress.io/test.jpg" alt="Image" /></a>'],
+        ];
     }
 
     /**
@@ -381,18 +385,18 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->willReturn($response);
 
-        $graby = new Graby(array('xss_filter' => false), $client);
+        $graby = new Graby(['xss_filter' => false], $client);
 
         $res = $graby->fetchContent($url);
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals($title, $res['title']);
-        $this->assertEquals($html, $res['html']);
-        $this->assertEquals($url, $res['url']);
-        $this->assertEquals($summary, $res['summary']);
-        $this->assertEquals($header, $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame($title, $res['title']);
+        $this->assertSame($html, $res['html']);
+        $this->assertSame($url, $res['url']);
+        $this->assertSame($summary, $res['summary']);
+        $this->assertSame($header, $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -416,7 +420,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn(file_get_contents(dirname(__FILE__).'/fixtures/document1.pdf'));
+            ->willReturn(file_get_contents(dirname(__FILE__) . '/fixtures/document1.pdf'));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -426,19 +430,19 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array(), $client);
+        $graby = new Graby([], $client);
 
         $res = $graby->fetchContent('http://lexpress.io/test.pdf');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('Document1', $res['title']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('Document1', $res['title']);
         $this->assertContains('Document title', $res['html']);
         $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
         $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
         $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
-        $this->assertEquals('application/pdf', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('application/pdf', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -472,16 +476,16 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('head')
             ->willReturn($response);
 
-        $graby = new Graby(array(), $client);
+        $graby = new Graby([], $client);
 
         $res = $graby->fetchContent('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('ZIP', $res['title']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('ZIP', $res['title']);
         $this->assertContains('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
-        $this->assertEquals('application/zip', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('application/zip', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -505,7 +509,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn(file_get_contents(dirname(__FILE__).'/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf'));
+            ->willReturn(file_get_contents(dirname(__FILE__) . '/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf'));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -515,18 +519,18 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array(), $client);
+        $graby = new Graby([], $client);
 
         $res = $graby->fetchContent('http://lexpress.io/test.pdf');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
         $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['summary']);
-        $this->assertEquals('application/pdf', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('application/pdf', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -560,35 +564,35 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array(), $client);
+        $graby = new Graby([], $client);
 
         $res = $graby->fetchContent('http://lexpress.io/test.txt');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('Plain text', $res['title']);
-        $this->assertEquals('<pre>plain text :)</pre>', $res['html']);
-        $this->assertEquals('http://lexpress.io/test.txt', $res['url']);
-        $this->assertEquals('plain text :)', $res['summary']);
-        $this->assertEquals('text/plain', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('Plain text', $res['title']);
+        $this->assertSame('<pre>plain text :)</pre>', $res['html']);
+        $this->assertSame('http://lexpress.io/test.txt', $res['url']);
+        $this->assertSame('plain text :)', $res['summary']);
+        $this->assertSame('text/plain', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function dataForSinglePage()
     {
-        return array(
+        return [
             // single_page_link will return a string
-            array('singlepage1.com'),
+            ['singlepage1.com'],
             // single_page_link will return the a node
-            array('singlepage2.com'),
+            ['singlepage2.com'],
             // single_page_link will return the href from a node
-            array('singlepage3.com'),
+            ['singlepage3.com'],
             // single_page_link will return nothing useful
-            array('singlepage4.com'),
+            ['singlepage4.com'],
             // single_page_link will return the href from a node BUT the single page url will be the same
-            array('singlepage3.com', 'http://singlepage3.com'),
-        );
+            ['singlepage3.com', 'http://singlepage3.com'],
+        ];
     }
 
     /**
@@ -602,7 +606,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getEffectiveUrl')
-            ->willReturn('http://'.$url);
+            ->willReturn('http://' . $url);
 
         $response->expects($this->any())
             ->method('getHeader')
@@ -614,7 +618,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn('<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="'.$singlePageUrl.'" class="service-links-print">printed view</a></li></ul></html>');
+            ->willReturn('<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="' . $singlePageUrl . '" class="service-links-print">printed view</a></li></ul></html>');
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -624,20 +628,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('my title', $res['title']);
-        $this->assertEquals('my content', $res['html']);
-        $this->assertEquals('http://'.$url, $res['url']);
-        $this->assertEquals('my content', $res['summary']);
-        $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('my title', $res['title']);
+        $this->assertSame('my content', $res['html']);
+        $this->assertSame('http://' . $url, $res['url']);
+        $this->assertSame('my content', $res['summary']);
+        $this->assertSame('text/html', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -674,20 +678,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('xss_filter' => false, 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['xss_filter' => false, 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('Image', $res['title']);
-        $this->assertEquals('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res['html']);
-        $this->assertEquals('http://singlepage1.com/data.jpg', $res['url']);
-        $this->assertEquals('', $res['summary']);
-        $this->assertEquals('image/jpeg', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('Image', $res['title']);
+        $this->assertSame('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res['html']);
+        $this->assertSame('http://singlepage1.com/data.jpg', $res['url']);
+        $this->assertSame('', $res['summary']);
+        $this->assertSame('image/jpeg', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -724,20 +728,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('my title', $res['title']);
-        $this->assertEquals('my content<div class="story">my content</div>', $res['html']);
-        $this->assertEquals('http://multiplepage1.com', $res['url']);
-        $this->assertEquals('my content my content', $res['summary']);
-        $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('my title', $res['title']);
+        $this->assertSame('my content<div class="story">my content</div>', $res['html']);
+        $this->assertSame('http://multiplepage1.com', $res['url']);
+        $this->assertSame('my content my content', $res['summary']);
+        $this->assertSame('text/html', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -777,20 +781,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('my title', $res['title']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertEquals('http://multiplepage1.com', $res['url']);
-        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertEquals('application/pdf', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('http://multiplepage1.com', $res['url']);
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertSame('application/pdf', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -827,20 +831,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('my title', $res['title']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertEquals('http://multiplepage1.com', $res['url']);
-        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('http://multiplepage1.com', $res['url']);
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertSame('text/html', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -877,20 +881,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('my title', $res['title']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertEquals('http://multiplepage1.com', $res['url']);
-        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('http://multiplepage1.com', $res['url']);
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertSame('text/html', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -927,36 +931,36 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_links' => 'footnotes', 'extractor' => array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/fixtures/site_config'),
-        ))), $client);
+        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+        ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('my title', $res['title']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertEquals('http://multiplepage1.com', $res['url']);
-        $this->assertEquals('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertSame('http://multiplepage1.com', $res['url']);
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
+        $this->assertSame('text/html', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function dataForExcerpt()
     {
-        return array(
-            array('hello you are fine', 35, null, 'hello you are fine'),
-            array('hello you are fine ok ?', 14, null, 'hello you are fine'),
+        return [
+            ['hello you are fine', 35, null, 'hello you are fine'],
+            ['hello you are fine ok ?', 14, null, 'hello you are fine'],
             // breakpoint in on the last word, won't add separator
-            array('hello you are fine', 16, '...', 'hello you are fine'),
-            array('hello "you" are fine', 15, '...', 'hello "you" are...'),
-            array('hello <p>you</p> are fine', 13, '...', 'hello you are...'),
-            array("hello you\n are fine", 13, '...', 'hello you are...'),
-            array(chr(0xc2).chr(0xa0).'hello you are fine', 13, '...', 'hello you are...'),
-            array('hello you are fine'.chr(0xc2).chr(0xa0), 13, '...', 'hello you are...'),
-        );
+            ['hello you are fine', 16, '...', 'hello you are fine'],
+            ['hello "you" are fine', 15, '...', 'hello "you" are...'],
+            ['hello <p>you</p> are fine', 13, '...', 'hello you are...'],
+            ["hello you\n are fine", 13, '...', 'hello you are...'],
+            [chr(0xc2) . chr(0xa0) . 'hello you are fine', 13, '...', 'hello you are...'],
+            ['hello you are fine' . chr(0xc2) . chr(0xa0), 13, '...', 'hello you are...'],
+        ];
     }
 
     /**
@@ -970,20 +974,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('getExcerpt');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($graby, array($text, $length, $separator));
+        $res = $method->invokeArgs($graby, [$text, $length, $separator]);
 
-        $this->assertEquals($expectedResult, $res);
+        $this->assertSame($expectedResult, $res);
     }
 
     public function dataForMakeAbsoluteStr()
     {
-        return array(
-            array('example.org', '/test', false),
-            array('http://example.org', '/test', 'http://example.org/test'),
-            array('http://example.org', '', false),
-            array('http://example.org//test', 'super', 'http://example.org/super'),
-            array('http://example.org//test', 'http://sample.com', 'http://sample.com'),
-        );
+        return [
+            ['example.org', '/test', false],
+            ['http://example.org', '/test', 'http://example.org/test'],
+            ['http://example.org', '', false],
+            ['http://example.org//test', 'super', 'http://example.org/super'],
+            ['http://example.org//test', 'http://sample.com', 'http://sample.com'],
+        ];
     }
 
     /**
@@ -997,20 +1001,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('makeAbsoluteStr');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($graby, array($base, $url));
+        $res = $method->invokeArgs($graby, [$base, $url]);
 
-        $this->assertEquals($expectedResult, $res);
+        $this->assertSame($expectedResult, $res);
     }
 
     public function dataForMakeAbsoluteAttr()
     {
-        return array(
-            array('http://example.org', '<a href="/lol">test</a>', 'href', 'href', 'http://example.org/lol'),
-            array('http://example.org', '<img src="/lol.jpg">test</img>', 'src', 'src', 'http://example.org/lol.jpg'),
-            array('http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'src', 'http://example.org/path/to/image.jpg'),
-            array('http://example.org', '<a href="/lol">test</a>', 'src', 'src', ''),
-            array('http://example.org', '<iframe src="/lol" />', 'src', 'src', 'http://example.org/lol'),
-        );
+        return [
+            ['http://example.org', '<a href="/lol">test</a>', 'href', 'href', 'http://example.org/lol'],
+            ['http://example.org', '<img src="/lol.jpg">test</img>', 'src', 'src', 'http://example.org/lol.jpg'],
+            ['http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'src', 'http://example.org/path/to/image.jpg'],
+            ['http://example.org', '<a href="/lol">test</a>', 'src', 'src', ''],
+            ['http://example.org', '<iframe src="/lol" />', 'src', 'src', 'http://example.org/lol'],
+        ];
     }
 
     /**
@@ -1029,20 +1033,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('makeAbsoluteAttr');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, array($base, $e, $attr));
+        $method->invokeArgs($graby, [$base, $e, $attr]);
 
-        $this->assertEquals($expectedResult, $e->getAttribute($expectedAttr));
+        $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
 
     public function dataForMakeAbsolute()
     {
-        return array(
-            array('http://example.org', '<a href="/lol">test</a>', 'href', 'http://example.org/lol'),
-            array('http://example.org', '<img src="/lol.jpg">test</img>', 'src', 'http://example.org/lol.jpg'),
-            array('http://example.org', '<img src="//domain.com/lol.jpg">test</img>', 'src', 'http://domain.com/lol.jpg'),
-            array('http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'http://example.org/path/to/image.jpg'),
-            array('http://example.org', '<a href="/lol">test</a>', 'src', ''),
-        );
+        return [
+            ['http://example.org', '<a href="/lol">test</a>', 'href', 'http://example.org/lol'],
+            ['http://example.org', '<img src="/lol.jpg">test</img>', 'src', 'http://example.org/lol.jpg'],
+            ['http://example.org', '<img src="//domain.com/lol.jpg">test</img>', 'src', 'http://domain.com/lol.jpg'],
+            ['http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'http://example.org/path/to/image.jpg'],
+            ['http://example.org', '<a href="/lol">test</a>', 'src', ''],
+        ];
     }
 
     /**
@@ -1061,9 +1065,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, array($base, $e));
+        $method->invokeArgs($graby, [$base, $e]);
 
-        $this->assertEquals($expectedResult, $e->getAttribute($expectedAttr));
+        $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
 
     /**
@@ -1082,10 +1086,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, array('http://example.org', $e));
+        $method->invokeArgs($graby, ['http://example.org', $e]);
 
-        $this->assertEquals('http://example.org/lol', $e->getAttribute('href'));
-        $this->assertEquals('http://example.org/path/to/image.jpg', $e->firstChild->getAttribute('src'));
+        $this->assertSame('http://example.org/lol', $e->getAttribute('href'));
+        $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->getAttribute('src'));
     }
 
     public function testAvoidDataUriImageInOpenGraph()
@@ -1098,15 +1102,15 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $ogData = $method->invokeArgs(
             $graby,
-            array(
+            [
                 '<html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
                 'http://www.io.lol',
-            )
+            ]
         );
 
         $this->assertCount(1, $ogData);
         $this->assertArrayHasKey('og_url', $ogData);
-        $this->assertEquals('http://www.io.lol', $ogData['og_url']);
+        $this->assertSame('http://www.io.lol', $ogData['og_url']);
         $this->assertFalse(isset($ogData['og_image']), 'og_image key does not exist');
     }
 
@@ -1130,7 +1134,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn('<article><p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' <a href="#links">links :)</a></p></article>');
+            ->willReturn('<article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' <a href="#links">links :)</a></p></article>');
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -1140,18 +1144,18 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_links' => 'remove'), $client);
+        $graby = new Graby(['content_links' => 'remove'], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('No title found', $res['title']);
-        $this->assertContains('<p>'.str_repeat('This is an awesome text with some links, here there are the awesome', 7).' links :)</p>', $res['html']);
-        $this->assertEquals('http://removelinks.io', $res['url']);
-        $this->assertEquals('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
-        $this->assertEquals('text/html', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('No title found', $res['title']);
+        $this->assertContains('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res['html']);
+        $this->assertSame('http://removelinks.io', $res['url']);
+        $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
+        $this->assertSame('text/html', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -1181,33 +1185,33 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array('content_type_exc' => array('application/pdf' => array('action' => 'delete', 'name' => 'PDF'))), $client);
+        $graby = new Graby(['content_type_exc' => ['application/pdf' => ['action' => 'delete', 'name' => 'PDF']]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('No title found', $res['title']);
-        $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
-        $this->assertEquals('http://lexpress.io', $res['url']);
-        $this->assertEquals('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertEquals('application/pdf', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('No title found', $res['title']);
+        $this->assertSame('[unable to retrieve full-text content]', $res['html']);
+        $this->assertSame('http://lexpress.io', $res['url']);
+        $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
+        $this->assertSame('application/pdf', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function dataForSafeCurl()
     {
-        return array(
-            array('http://0.0.0.0:123'),
-            array('http://127.0.0.1/server-status'),
-            array('file:///etc/passwd'),
-            array('ssh://localhost'),
-            array('gopher://localhost'),
-            array('telnet://localhost:25'),
-            array('http://169.254.169.254/latest/meta-data/'),
-            array('ftp://myhost.com'),
-        );
+        return [
+            ['http://0.0.0.0:123'],
+            ['http://127.0.0.1/server-status'],
+            ['file:///etc/passwd'],
+            ['ssh://localhost'],
+            ['gopher://localhost'],
+            ['telnet://localhost:25'],
+            ['http://169.254.169.254/latest/meta-data/'],
+            ['ftp://myhost.com'],
+        ];
     }
 
     /**
@@ -1219,14 +1223,14 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $res = $graby->fetchContent($url);
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('No title found', $res['title']);
-        $this->assertEquals('[unable to retrieve full-text content]', $res['html']);
-        $this->assertEquals('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertEquals('', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('No title found', $res['title']);
+        $this->assertSame('[unable to retrieve full-text content]', $res['html']);
+        $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
+        $this->assertSame('', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
-        $this->assertEquals(500, $res['status']);
+        $this->assertSame(500, $res['status']);
     }
 
     public function testErrorMessages()
@@ -1251,32 +1255,32 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->willReturn($response);
 
-        $graby = new Graby(array(
+        $graby = new Graby([
             'error_message' => 'Nothing found, hu?',
             'error_message_title' => 'No title detected',
-        ), $client);
+        ], $client);
 
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(10, $res);
-        $this->assertEquals('', $res['language']);
-        $this->assertEquals('No title detected', $res['title']);
-        $this->assertEquals('Nothing found, hu?', $res['html']);
-        $this->assertEquals('http://lexpress.io', $res['url']);
-        $this->assertEquals('Nothing found, hu?', $res['summary']);
-        $this->assertEquals('', $res['content_type']);
-        $this->assertEquals(array(), $res['open_graph']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('No title detected', $res['title']);
+        $this->assertSame('Nothing found, hu?', $res['html']);
+        $this->assertSame('http://lexpress.io', $res['url']);
+        $this->assertSame('Nothing found, hu?', $res['summary']);
+        $this->assertSame('', $res['content_type']);
+        $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function dataWithAccent()
     {
-        return array(
-            'host with accent' => array('http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien', 'http://xn--protin-bva.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'),
-            'url with accent 1' => array('https://en.wikipedia.org/wiki/Café', 'https://en.wikipedia.org/wiki/Caf%C3%A9'),
-            'url with accent 2' => array('http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement', 'http://www.atterres.org/article/budget-2016-les-10-m%C3%A9prises-lib%C3%A9rales-du-gouvernement'),
-            'url with accent 3' => array('http://www.pro-linux.de/news/1/23430/linus-torvalds-über-das-internet-der-dinge.html', 'http://www.pro-linux.de/news/1/23430/linus-torvalds-%C3%BCber-das-internet-der-dinge.html'),
-        );
+        return [
+            'host with accent' => ['http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien', 'http://xn--protin-bva.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'],
+            'url with accent 1' => ['https://en.wikipedia.org/wiki/Café', 'https://en.wikipedia.org/wiki/Caf%C3%A9'],
+            'url with accent 2' => ['http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement', 'http://www.atterres.org/article/budget-2016-les-10-m%C3%A9prises-lib%C3%A9rales-du-gouvernement'],
+            'url with accent 3' => ['http://www.pro-linux.de/news/1/23430/linus-torvalds-über-das-internet-der-dinge.html', 'http://www.pro-linux.de/news/1/23430/linus-torvalds-%C3%BCber-das-internet-der-dinge.html'],
+        ];
     }
 
     /**
@@ -1290,9 +1294,9 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $method = $reflection->getMethod('validateUrl');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($graby, array($url));
+        $res = $method->invokeArgs($graby, [$url]);
 
-        $this->assertEquals($urlExpected, $res);
+        $this->assertSame($urlExpected, $res);
     }
 
     public function testAbsolutePreviewInOgImage()
@@ -1305,15 +1309,15 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $ogData = $method->invokeArgs(
             $graby,
-            array(
+            [
                 '<html><meta content="/assets/lol.jpg" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
                 'http://www.io.lol',
-            )
+            ]
         );
 
         $this->assertCount(2, $ogData);
         $this->assertArrayHasKey('og_url', $ogData);
-        $this->assertEquals('http://www.io.lol', $ogData['og_url']);
-        $this->assertEquals('http://www.io.lol/assets/lol.jpg', $ogData['og_image']);
+        $this->assertSame('http://www.io.lol', $ogData['og_url']);
+        $this->assertSame('http://www.io.lol/assets/lol.jpg', $ogData['og_image']);
     }
 }

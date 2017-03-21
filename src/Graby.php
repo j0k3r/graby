@@ -2,18 +2,18 @@
 
 namespace Graby;
 
-use Graby\SiteConfig\ConfigBuilder;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use GuzzleHttp\Client;
-use Readability\Readability;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
 use Graby\Ring\Client\SafeCurlHandler;
-use Monolog\Logger;
+use Graby\SiteConfig\ConfigBuilder;
+use GuzzleHttp\Client;
 use Monolog\Handler\StreamHandler;
-use Psr\Log\NullLogger;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Readability\Readability;
 use Smalot\PdfParser\Parser as PdfParser;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use TrueBV\Punycode;
 
 /**
@@ -25,7 +25,7 @@ class Graby
     private $debug = false;
     private $logger;
 
-    private $config = array();
+    private $config = [];
 
     private $httpClient = null;
     private $extractor = null;
@@ -39,34 +39,34 @@ class Graby
      * @param Client|null   $client        Guzzle client
      * @param ConfigBuilder $configBuilder
      */
-    public function __construct($config = array(), Client $client = null, ConfigBuilder $configBuilder = null)
+    public function __construct($config = [], Client $client = null, ConfigBuilder $configBuilder = null)
     {
         $resolver = new OptionsResolver();
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'debug' => false,
             'rewrite_relative_urls' => true,
             'singlepage' => true,
             'multipage' => true,
             'error_message' => '[unable to retrieve full-text content]',
             'error_message_title' => 'No title found',
-            'allowed_urls' => array(),
-            'blocked_urls' => array(),
+            'allowed_urls' => [],
+            'blocked_urls' => [],
             'xss_filter' => true,
-            'content_type_exc' => array(
-                'application/zip' => array('action' => 'link', 'name' => 'ZIP'),
-                'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
-                'image' => array('action' => 'link', 'name' => 'Image'),
-                'audio' => array('action' => 'link', 'name' => 'Audio'),
-                'video' => array('action' => 'link', 'name' => 'Video'),
-                'text/plain' => array('action' => 'link', 'name' => 'Plain text'),
-            ),
+            'content_type_exc' => [
+                'application/zip' => ['action' => 'link', 'name' => 'ZIP'],
+                'application/pdf' => ['action' => 'link', 'name' => 'PDF'],
+                'image' => ['action' => 'link', 'name' => 'Image'],
+                'audio' => ['action' => 'link', 'name' => 'Audio'],
+                'video' => ['action' => 'link', 'name' => 'Video'],
+                'text/plain' => ['action' => 'link', 'name' => 'Plain text'],
+            ],
             'content_links' => 'preserve',
-            'http_client' => array(),
-            'extractor' => array(),
-        ));
+            'http_client' => [],
+            'extractor' => [],
+        ]);
 
         // @TODO: add more validation ? (setAllowedTypes)
-        $resolver->setAllowedValues('content_links', array('preserve', 'footnotes', 'remove'));
+        $resolver->setAllowedValues('content_links', ['preserve', 'footnotes', 'remove']);
 
         $this->config = $resolver->resolve($config);
 
@@ -75,7 +75,7 @@ class Graby
 
         if ($this->debug) {
             $this->logger = new Logger('graby');
-            $this->logger->pushHandler(new StreamHandler(dirname(__FILE__).'/../log/graby.log'));
+            $this->logger->pushHandler(new StreamHandler(dirname(__FILE__) . '/../log/graby.log'));
         }
 
         $this->configBuilder = $configBuilder;
@@ -93,7 +93,7 @@ class Graby
         );
 
         $this->httpClient = new HttpClient(
-            $client ?: new Client(array('handler' => new SafeCurlHandler(), 'defaults' => array('cookies' => true))),
+            $client ?: new Client(['handler' => new SafeCurlHandler(), 'defaults' => ['cookies' => true]]),
             $this->config['http_client'],
             $this->logger
         );
@@ -147,12 +147,12 @@ class Graby
         // filter xss?
         if ($this->config['xss_filter']) {
             $this->logger->log('debug', 'Filtering HTML to remove XSS');
-            $infos['html'] = htmLawed($html, array(
+            $infos['html'] = htmLawed($html, [
                 'safe' => 1,
                 'deny_attribute' => 'style',
                 'comment' => 1,
                 'cdata' => 1,
-            ));
+            ]);
         }
 
         // generate summary
@@ -173,7 +173,7 @@ class Graby
         $url = $this->validateUrl($url);
         $siteConfig = $this->configBuilder->buildFromUrl($url);
 
-        $this->logger->log('debug', 'Fetching url: {url}', array('url' => $url));
+        $this->logger->log('debug', 'Fetching url: {url}', ['url' => $url]);
 
         $response = $this->httpClient->fetch($url, false, $siteConfig->http_header);
 
@@ -201,7 +201,7 @@ class Graby
 
         $ogData = $this->extractOpenGraph($html, $effectiveUrl);
 
-        $this->logger->log('debug', 'Opengraph data: {ogData}', array('ogData' => $ogData));
+        $this->logger->log('debug', 'Opengraph data: {ogData}', ['ogData' => $ogData]);
 
         // @TODO: log raw html + headers
 
@@ -219,7 +219,7 @@ class Graby
             }
 
             $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['headers']);
-            $this->logger->log('debug', 'Retrieved single-page view from "{url}"', array('url' => $effectiveUrl));
+            $this->logger->log('debug', 'Retrieved single-page view from "{url}"', ['url' => $effectiveUrl]);
 
             unset($singlePageResponse);
         }
@@ -238,23 +238,23 @@ class Graby
         if ($this->config['multipage'] && $isMultiPage) {
             $this->logger->log('debug', 'Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
-            $multiPageUrls = array($effectiveUrl);
-            $multiPageContent = array();
+            $multiPageUrls = [$effectiveUrl];
+            $multiPageContent = [];
 
             while ($nextPageUrl = $this->extractor->getNextPageUrl()) {
-                $this->logger->log('debug', 'Processing next page: {url}', array('url' => $nextPageUrl));
+                $this->logger->log('debug', 'Processing next page: {url}', ['url' => $nextPageUrl]);
                 // If we've got URL, resolve against $url
                 $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
                 if (!$nextPageUrl) {
-                    $this->logger->log('debug', 'Failed to resolve against: {url}', array('url' => $effectiveUrl));
-                    $multiPageContent = array();
+                    $this->logger->log('debug', 'Failed to resolve against: {url}', ['url' => $effectiveUrl]);
+                    $multiPageContent = [];
                     break;
                 }
 
                 // check it's not what we have already!
-                if (in_array($nextPageUrl, $multiPageUrls)) {
+                if (in_array($nextPageUrl, $multiPageUrls, true)) {
                     $this->logger->log('debug', 'URL already processed');
-                    $multiPageContent = array();
+                    $multiPageContent = [];
                     break;
                 }
 
@@ -268,7 +268,7 @@ class Graby
 
                 if (isset($mimeInfo['action'])) {
                     $this->logger->log('debug', 'MIME type requires different action');
-                    $multiPageContent = array();
+                    $multiPageContent = [];
                     break;
                 }
 
@@ -279,7 +279,7 @@ class Graby
 
                 if (!$extracSuccess) {
                     $this->logger->log('debug', 'Failed to extract content');
-                    $multiPageContent = array();
+                    $multiPageContent = [];
                     break;
                 }
 
@@ -304,7 +304,7 @@ class Graby
 
         // if we failed to extract content...
         if (!$extractResult || null === $contentBlock) {
-            return array(
+            return [
                 'status' => $response['status'],
                 'html' => $this->config['error_message'],
                 'title' => $extractedTitle ?: $this->config['error_message_title'],
@@ -314,7 +314,7 @@ class Graby
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
                 'open_graph' => $ogData,
                 'native_ad' => $this->extractor->isNativeAd(),
-            );
+            ];
         }
 
         $readability->clean($contentBlock, 'select');
@@ -324,7 +324,7 @@ class Graby
         }
 
         // footnotes
-        if ($this->config['content_links'] == 'footnotes' && strpos($effectiveUrl, 'wikipedia.org') === false) {
+        if ($this->config['content_links'] === 'footnotes' && strpos($effectiveUrl, 'wikipedia.org') === false) {
             $readability->addFootnotes($contentBlock);
         }
 
@@ -333,15 +333,15 @@ class Graby
 
         // remove empty text nodes
         foreach ($contentBlock->childNodes as $n) {
-            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) == '') {
+            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) === '') {
                 $contentBlock->removeChild($n);
             }
         }
 
         // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while ($contentBlock->childNodes->length == 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
+        while ($contentBlock->childNodes->length === 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
             // only follow these tag names
-            if (!in_array(strtolower($contentBlock->tagName), array('div', 'article', 'section', 'header', 'footer'))) {
+            if (!in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
                 break;
             }
 
@@ -350,7 +350,7 @@ class Graby
 
         // convert content block to HTML string
         // Need to preserve things like body: //img[@id='feature']
-        if (in_array(strtolower($contentBlock->tagName), array('div', 'article', 'section', 'header', 'footer', 'li', 'td'))) {
+        if (in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer', 'li', 'td'], true)) {
             $html = $contentBlock->innerHTML;
         } else {
             $html = $contentBlock->ownerDocument->saveXML($contentBlock); // essentially outerHTML
@@ -360,19 +360,19 @@ class Graby
 
         // post-processing cleanup
         $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', $html);
-        if ($this->config['content_links'] == 'remove') {
+        if ($this->config['content_links'] === 'remove') {
             $html = preg_replace('!</?a[^>]*>!', '', $html);
         }
 
-        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', array('data' => array(
+        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => [
             'title' => $extractedTitle,
             'language' => $extractedLanguage,
             'date' => $extractedDate,
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
-        )));
+        ]]);
 
-        return array(
+        return [
             'status' => $response['status'],
             'html' => trim($html),
             'title' => $extractedTitle ?: $this->config['error_message_title'],
@@ -382,7 +382,7 @@ class Graby
             'content_type' => $mimeInfo['mime'],
             'open_graph' => $ogData,
             'native_ad' => $this->extractor->isNativeAd(),
-        );
+        ];
     }
 
     /**
@@ -396,12 +396,12 @@ class Graby
     {
         // Check for feed URL
         $url = trim($url);
-        if (strtolower(substr($url, 0, 7)) == 'feed://') {
-            $url = 'http://'.substr($url, 7);
+        if (strtolower(substr($url, 0, 7)) === 'feed://') {
+            $url = 'http://' . substr($url, 7);
         }
 
         if (!preg_match('!^https?://.+!i', $url)) {
-            $url = 'http://'.$url;
+            $url = 'http://' . $url;
         }
 
         // explode url to convert accents
@@ -416,7 +416,7 @@ class Graby
         }
 
         if (isset($parsedUrl['path']) && preg_match('/[\x80-\xff]/', $parsedUrl['path'])) {
-            $path = array();
+            $path = [];
             foreach (explode('/', $parsedUrl['path']) as $value) {
                 $path[] = urlencode($value);
             }
@@ -472,9 +472,9 @@ class Graby
     private function getMimeActionInfo($headers)
     {
         // check if action defined for returned Content-Type
-        $info = array(
+        $info = [
             'mime' => '',
-        );
+        ];
 
         if (preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($headers), $match)) {
             // look for full mime type (e.g. image/jpeg) or just type (e.g. image)
@@ -485,7 +485,7 @@ class Graby
             $info['type'] = trim($match[2]);
             $info['subtype'] = trim($match[3]);
 
-            foreach (array($info['mime'], $info['type']) as $mime) {
+            foreach ([$info['mime'], $info['type']] as $mime) {
                 if (isset($this->config['content_type_exc'][$mime])) {
                     $info['action'] = $this->config['content_type_exc'][$mime]['action'];
                     $info['name'] = $this->config['content_type_exc'][$mime]['name'];
@@ -514,7 +514,7 @@ class Graby
             return;
         }
 
-        $infos = array(
+        $infos = [
             // at this point status will always be considered as 200
             'status' => 200,
             'title' => $mimeInfo['name'],
@@ -523,22 +523,21 @@ class Graby
             'html' => '',
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
-            'open_graph' => array(),
+            'open_graph' => [],
             'native_ad' => false,
-        );
+        ];
 
         switch ($mimeInfo['action']) {
             case 'exclude':
                 throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
-
             case 'link':
-                $infos['html'] = '<a href="'.$effectiveUrl.'">Download '.$mimeInfo['name'].'</a>';
+                $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
 
-                if ($mimeInfo['type'] == 'image') {
-                    $infos['html'] = '<a href="'.$effectiveUrl.'"><img src="'.$effectiveUrl.'" alt="'.$mimeInfo['name'].'" /></a>';
+                if ($mimeInfo['type'] === 'image') {
+                    $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
                 }
 
-                if ($mimeInfo['mime'] == 'application/pdf') {
+                if ($mimeInfo['mime'] === 'application/pdf') {
                     $parser = new PdfParser();
                     $pdf = $parser->parseContent($body);
 
@@ -564,14 +563,12 @@ class Graby
                     }
                 }
 
-                if ($mimeInfo['mime'] == 'text/plain') {
-                    $infos['html'] = '<pre>'.$body.'</pre>';
+                if ($mimeInfo['mime'] === 'text/plain') {
+                    $infos['html'] = '<pre>' . $body . '</pre>';
                 }
 
                 return $infos;
         }
-
-        return;
     }
 
     /**
@@ -630,7 +627,7 @@ class Graby
         $singlePageUrl = $this->makeAbsoluteStr($url, $singlePageUrl);
 
         // check it's not what we have already!
-        if (false !== $singlePageUrl && $singlePageUrl != $url) {
+        if (false !== $singlePageUrl && $singlePageUrl !== $url) {
             // it's not, so let's try to fetch it...
             $response = $this->httpClient->fetch($singlePageUrl, false, $siteConfig->http_header);
 
@@ -661,7 +658,7 @@ class Graby
             $base->ipath = str_replace('//', '/', $base->ipath);
         }
 
-        foreach (array('a' => 'href', 'img' => 'src', 'iframe' => 'src') as $tag => $attr) {
+        foreach (['a' => 'href', 'img' => 'src', 'iframe' => 'src'] as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
 
             for ($i = $elems->length - 1; $i >= 0; --$i) {
@@ -669,7 +666,7 @@ class Graby
                 $this->makeAbsoluteAttr($base, $e, $attr);
             }
 
-            if (strtolower($elem->nodeName) == $tag) {
+            if (strtolower($elem->nodeName) === $tag) {
                 $this->makeAbsoluteAttr($base, $elem, $attr);
             }
         }
@@ -762,7 +759,7 @@ class Graby
             }
             $length = $breakpoint;
 
-            return rtrim(mb_substr($text, 0, $length)).$separator;
+            return rtrim(mb_substr($text, 0, $length)) . $separator;
         }
 
         return $text;
@@ -781,7 +778,7 @@ class Graby
     private function extractOpenGraph($html, $baseUrl)
     {
         if ('' === trim($html)) {
-            return array();
+            return [];
         }
 
         libxml_use_internal_errors(true);
@@ -795,7 +792,7 @@ class Graby
         $query = '//*/meta[starts-with(@property, \'og:\')]';
         $metas = $xpath->query($query);
 
-        $rmetas = array();
+        $rmetas = [];
         foreach ($metas as $meta) {
             $property = str_replace(':', '_', $meta->getAttribute('property'));
 
@@ -826,15 +823,15 @@ class Graby
      */
     private function unparse_url($data)
     {
-        $scheme = isset($data['scheme']) ? $data['scheme'].'://' : '';
+        $scheme = isset($data['scheme']) ? $data['scheme'] . '://' : '';
         $host = isset($data['host']) ? $data['host'] : '';
-        $port = isset($data['port']) ? ':'.$data['port'] : '';
+        $port = isset($data['port']) ? ':' . $data['port'] : '';
         $user = isset($data['user']) ? $data['user'] : '';
-        $pass = isset($data['pass']) ? ':'.$data['pass'] : '';
+        $pass = isset($data['pass']) ? ':' . $data['pass'] : '';
         $pass = ($user || $pass) ? "$pass@" : '';
         $path = isset($data['path']) ? $data['path'] : '';
-        $query = isset($data['query']) ? '?'.$data['query'] : '';
-        $fragment = isset($data['fragment']) ? '#'.$data['fragment'] : '';
+        $query = isset($data['query']) ? '?' . $data['query'] : '';
+        $fragment = isset($data['fragment']) ? '#' . $data['fragment'] : '';
 
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
@@ -880,7 +877,7 @@ class Graby
         // If it's not, result will be empty string.
         // For now we'll check for invalid encoding types returned by some sites, e.g. 'none'
         // Problem URL: http://facta.co.jp/blog/archives/20111026001026.html
-        if (empty($encoding) || $encoding == 'none') {
+        if (empty($encoding) || $encoding === 'none') {
             // search for encoding in HTML - only look at the first 50000 characters
             // Why 50000? See, for example, http://www.lemonde.fr/festival-de-cannes/article/2012/05/23/deux-cretes-en-goguette-sur-la-croisette_1705732_766360.html
             // TODO: improve this so it looks at smaller chunks first
@@ -908,7 +905,7 @@ class Graby
 
         if (empty($encoding) || $encoding === 'iso-8859-1') {
             // replace MS Word smart qutoes
-            $trans = array();
+            $trans = [];
             $trans[chr(130)] = '&sbquo;'; // Single Low-9 Quotation Mark
             $trans[chr(131)] = '&fnof;'; // Latin Small Letter F With Hook
             $trans[chr(132)] = '&bdquo;'; // Double Low-9 Quotation Mark

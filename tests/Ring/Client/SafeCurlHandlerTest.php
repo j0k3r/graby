@@ -2,10 +2,10 @@
 
 namespace Graby\tests\Ring\Client;
 
-require __DIR__.'/../../../vendor/guzzlehttp/ringphp/tests/Client/Server.php';
+require __DIR__ . '/../../../vendor/guzzlehttp/ringphp/tests/Client/Server.php';
 
-use GuzzleHttp\Tests\Ring\Client\Server;
 use Graby\Ring\Client\SafeCurlHandler;
+use GuzzleHttp\Tests\Ring\Client\Server;
 
 class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
 {
@@ -14,11 +14,6 @@ class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
         if (!function_exists('curl_reset')) {
             $this->markTestSkipped('curl_reset() is not available');
         }
-    }
-
-    protected function getHandler($factory = null, $options = [])
-    {
-        return new SafeCurlHandler($options);
     }
 
     public function testCreatesCurlErrors()
@@ -32,13 +27,13 @@ class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
         ]);
         $this->assertNull($response['status']);
         $this->assertNull($response['reason']);
-        $this->assertEquals([], $response['headers']);
+        $this->assertSame([], $response['headers']);
         $this->assertInstanceOf(
             'GuzzleHttp\Ring\Exception\RingException',
             $response['error']
         );
 
-        $this->assertEquals('Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080', $response['error']->getMessage());
+        $this->assertSame('Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080', $response['error']->getMessage());
     }
 
     public function testReusesHandles()
@@ -53,5 +48,10 @@ class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
         ];
         $a($request);
         $a($request);
+    }
+
+    protected function getHandler($factory = null, $options = [])
+    {
+        return new SafeCurlHandler($options);
     }
 }

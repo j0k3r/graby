@@ -4,58 +4,58 @@ namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
 use GuzzleHttp\Client;
-use GuzzleHttp\Subscriber\Mock;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Stream\Stream;
-use GuzzleHttp\Exception\RequestException;
-use Monolog\Logger;
+use GuzzleHttp\Subscriber\Mock;
 use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {
     public function dataForFetchGet()
     {
-        return array(
-            array(
+        return [
+            [
                 'http://fr.m.wikipedia.org/wiki/Copyright#bottom',
                 'http://fr.wikipedia.org/wiki/Copyright',
                 'http://fr.wikipedia.org/wiki/Copyright',
-                array(
-                    'headers' => array(
+                [
+                    'headers' => [
                         'User-Agent' => 'Mozilla/5.2',
                         'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ),
+                    ],
                     'timeout' => 10,
                     'connect_timeout' => 10,
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/#!test',
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/?_escaped_fragment_=test',
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html',
-                array(
-                    'headers' => array(
+                [
+                    'headers' => [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
                         'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ),
+                    ],
                     'timeout' => 10,
                     'connect_timeout' => 10,
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'http://www.lexpress.io/my-map.html',
                 'http://www.lexpress.io/my-map.html',
                 'http://www.lexpress.io/my-map.html',
-                array(
-                    'headers' => array(
+                [
+                    'headers' => [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
                         'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ),
+                    ],
                     'timeout' => 10,
                     'connect_timeout' => 10,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     /**
@@ -95,25 +95,25 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
+        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
 
-        $this->assertEquals($urlEffective, $res['effective_url']);
-        $this->assertEquals('yay', $res['body']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame($urlEffective, $res['effective_url']);
+        $this->assertSame('yay', $res['body']);
+        $this->assertSame(200, $res['status']);
     }
 
     public function testFetchHeadGoodContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $options = array(
-            'headers' => array(
+        $options = [
+            'headers' => [
                 'User-Agent' => 'Mozilla/5.2',
                 'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            ),
+            ],
             'timeout' => 10,
             'connect_timeout' => 10,
-        );
+        ];
 
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -147,26 +147,26 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
+        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
 
-        $this->assertEquals($url, $res['effective_url']);
-        $this->assertEquals('yay', $res['body']);
-        $this->assertEquals('image/jpg', $res['headers']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame($url, $res['effective_url']);
+        $this->assertSame('yay', $res['body']);
+        $this->assertSame('image/jpg', $res['headers']);
+        $this->assertSame(200, $res['status']);
     }
 
     public function testFetchHeadBadContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $options = array(
-            'headers' => array(
+        $options = [
+            'headers' => [
                 'User-Agent' => 'Mozilla/5.2',
                 'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            ),
+            ],
             'timeout' => 10,
             'connect_timeout' => 10,
-        );
+        ];
 
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -211,26 +211,26 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
+        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
 
-        $this->assertEquals($url, $res['effective_url']);
-        $this->assertEquals('yay', $res['body']);
-        $this->assertEquals('text/html', $res['headers']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame($url, $res['effective_url']);
+        $this->assertSame('yay', $res['body']);
+        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame(200, $res['status']);
     }
 
     public function testFetchHeadReallyBadContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $options = array(
-            'headers' => array(
+        $options = [
+            'headers' => [
                 'User-Agent' => 'Mozilla/5.2',
                 'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            ),
+            ],
             'timeout' => 10,
             'connect_timeout' => 10,
-        );
+        ];
 
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -275,39 +275,39 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturn($response);
 
-        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
+        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
 
-        $this->assertEquals($url, $res['effective_url']);
-        $this->assertEquals('yay', $res['body']);
-        $this->assertEquals('fucked', $res['headers']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame($url, $res['effective_url']);
+        $this->assertSame('yay', $res['body']);
+        $this->assertSame('fucked', $res['headers']);
+        $this->assertSame(200, $res['status']);
     }
 
     public function dataForMetaRefresh()
     {
-        return array(
-            array(
+        return [
+            [
                 'http://fr.wikipedia.org/wiki/Copyright',
                 '<html><meta HTTP-EQUIV="REFRESH" content="0; url=http://www.bernama.com/bernama/v6/newsindex.php?id=943513"></html>',
                 'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
-            ),
-            array(
+            ],
+            [
                 'http://fr.wikipedia.org/wiki/Copyright',
                 '<html><meta HTTP-EQUIV="REFRESH" content="0; url=/bernama/v6/newsindex.php?id=943513"></html>',
                 'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
-            ),
-            array(
+            ],
+            [
                 'http://fr.wikipedia.org/wiki/Copyright',
                 '<html><meta name="fragment" content="!"></html>',
                 'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
-            ),
-            array(
+            ],
+            [
                 'http://fr.wikipedia.org/wiki/Copyright',
                 '<html><body ng-controller="MyCtrl"></body></html>',
                 'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -346,10 +346,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($client);
         $res = $http->fetch($url);
 
-        $this->assertEquals($metaUrl, $res['effective_url']);
+        $this->assertSame($metaUrl, $res['effective_url']);
         $this->assertEmpty($res['body']);
-        $this->assertEquals('text/html', $res['headers']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame(200, $res['status']);
     }
 
     /**
@@ -392,10 +392,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($client);
         $res = $http->fetch($url);
 
-        $this->assertEquals($url, $res['effective_url']);
-        $this->assertEquals($body, $res['body']);
-        $this->assertEquals('text/html', $res['headers']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame($url, $res['effective_url']);
+        $this->assertSame($body, $res['body']);
+        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame(200, $res['status']);
     }
 
     public function testWith404ResponseWithResponse()
@@ -411,10 +411,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($client);
         $res = $http->fetch('http://www.lexpress.io/my-map.html');
 
-        $this->assertEquals('http://www.lexpress.io/my-map.html', $res['effective_url']);
-        $this->assertEquals('', $res['body']);
-        $this->assertEquals('text/html', $res['headers']);
-        $this->assertEquals(404, $res['status']);
+        $this->assertSame('http://www.lexpress.io/my-map.html', $res['effective_url']);
+        $this->assertSame('', $res['body']);
+        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame(404, $res['status']);
     }
 
     public function testWithUrlencodedContentType()
@@ -430,10 +430,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($client);
         $res = $http->fetch('http://www.lexpress.io/image.jpg');
 
-        $this->assertEquals('http://www.lexpress.io/image.jpg', $res['effective_url']);
-        $this->assertEquals('test', $res['body']);
-        $this->assertEquals('image/jpeg', $res['headers']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame('http://www.lexpress.io/image.jpg', $res['effective_url']);
+        $this->assertSame('test', $res['body']);
+        $this->assertSame('image/jpeg', $res['headers']);
+        $this->assertSame(200, $res['status']);
     }
 
     public function testWith404ResponseWithoutResponse()
@@ -457,10 +457,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($client);
         $res = $http->fetch('http://0.0.0.0');
 
-        $this->assertEquals('http://0.0.0.0', $res['effective_url']);
-        $this->assertEquals('', $res['body']);
-        $this->assertEquals('', $res['headers']);
-        $this->assertEquals(500, $res['status']);
+        $this->assertSame('http://0.0.0.0', $res['effective_url']);
+        $this->assertSame('', $res['body']);
+        $this->assertSame('', $res['headers']);
+        $this->assertSame(500, $res['status']);
     }
 
     public function testLogMessage()
@@ -493,14 +493,14 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with(
                 $this->equalTo('http://fr.wikipedia.org/wiki/Copyright'),
-                $this->equalTo(array(
-                    'headers' => array(
+                $this->equalTo([
+                    'headers' => [
                         'User-Agent' => 'Mozilla/5.2',
                         'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ),
+                    ],
                     'timeout' => 10,
                     'connect_timeout' => 10,
-                ))
+                ])
             )
             ->willReturn($response);
 
@@ -508,29 +508,29 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client, array('user_agents' => array('.wikipedia.org' => 'Mozilla/5.2')));
+        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $http->setLogger($logger);
 
         $res = $http->fetch('http://fr.m.wikipedia.org/wiki/Copyright#bottom');
 
-        $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
-        $this->assertEquals('yay', $res['body']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
+        $this->assertSame('yay', $res['body']);
+        $this->assertSame(200, $res['status']);
 
         $records = $handler->getRecords();
 
         $this->assertCount(4, $records);
-        $this->assertEquals('Trying using method "{method}" on url "{url}"', $records[0]['message']);
-        $this->assertEquals('get', $records[0]['context']['method']);
-        $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $records[0]['context']['url']);
-        $this->assertEquals('Use default referer "{referer}" for url "{url}"', $records[2]['message']);
-        $this->assertEquals('Data fetched: {data}', $records[3]['message']);
-        $this->assertEquals(array(
+        $this->assertSame('Trying using method "{method}" on url "{url}"', $records[0]['message']);
+        $this->assertSame('get', $records[0]['context']['method']);
+        $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', $records[0]['context']['url']);
+        $this->assertSame('Use default referer "{referer}" for url "{url}"', $records[2]['message']);
+        $this->assertSame('Data fetched: {data}', $records[3]['message']);
+        $this->assertSame([
             'effective_url' => 'http://fr.wikipedia.org/wiki/Copyright',
             'body' => '(only length for debug): 3',
             'headers' => '',
             'status' => 200,
-        ), $records[3]['context']['data']);
+        ], $records[3]['context']['data']);
     }
 
     public function testTimeout()
@@ -540,16 +540,16 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $logger->pushHandler($handler);
 
         $client = new Client();
-        $http = new HttpClient($client, array('timeout' => 2), $logger);
+        $http = new HttpClient($client, ['timeout' => 2], $logger);
 
         $res = $http->fetch('http://blackhole.webpagetest.org/');
 
-        $this->assertEquals('http://blackhole.webpagetest.org/', $res['effective_url']);
-        $this->assertEquals(500, $res['status']);
+        $this->assertSame('http://blackhole.webpagetest.org/', $res['effective_url']);
+        $this->assertSame(500, $res['status']);
 
         $records = $handler->getRecords();
 
-        $this->assertEquals('Request throw exception (with no response): {error_message}', $records[3]['message']);
+        $this->assertSame('Request throw exception (with no response): {error_message}', $records[3]['message']);
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
         $this->assertContains('cURL error 28', $records[3]['formatted']);
     }
@@ -574,7 +574,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn('<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?'.rand().'">');
+            ->willReturn('<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?' . rand() . '">');
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -593,13 +593,13 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $res = $http->fetch('http://fr.wikipedia.org/wiki/Copyright');
 
-        $this->assertEquals('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
-        $this->assertEquals(310, $res['status']);
+        $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
+        $this->assertSame(310, $res['status']);
 
         $records = $handler->getRecords();
         $record = end($records);
 
-        $this->assertEquals('Endless redirect: 11 on "{url}"', $record['message']);
+        $this->assertSame('Endless redirect: 11 on "{url}"', $record['message']);
     }
 
     public function dataForConditionalComments()
@@ -698,36 +698,36 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($client);
         $res = $http->fetch($url);
 
-        $this->assertEquals($url, $res['effective_url']);
+        $this->assertSame($url, $res['effective_url']);
         $this->assertContains($expectedBody, $res['body']);
-        $this->assertEquals('text/html', $res['headers']);
-        $this->assertEquals(200, $res['status']);
+        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame(200, $res['status']);
     }
 
     public function dataForUserAgent()
     {
-        return array(
-            array(
+        return [
+            [
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'httpHeader' => array(),
+                'httpHeader' => [],
                 'expectedUa' => 'UA/Default',
-            ),
-            array(
+            ],
+            [
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'httpHeader' => array('user-agent' => null),
+                'httpHeader' => ['user-agent' => null],
                 'expectedUa' => 'UA/Default',
-            ),
-            array(
+            ],
+            [
                 'url' => 'http://customua.com/foo',
-                'httpHeader' => array('user-agent' => ''),
+                'httpHeader' => ['user-agent' => ''],
                 'expectedUa' => 'UA/Config',
-            ),
-            array(
+            ],
+            [
                 'url' => 'http://customua.com/foo',
-                'httpHeader' => array('user-agent' => 'UA/SiteConfig'),
+                'httpHeader' => ['user-agent' => 'UA/SiteConfig'],
                 'expectedUa' => 'UA/SiteConfig',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -767,46 +767,46 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client, array(
+        $http = new HttpClient($client, [
             'ua_browser' => 'UA/Default',
-            'user_agents' => array(
+            'user_agents' => [
                 'customua.com' => 'UA/Config',
-            ),
-        ));
+            ],
+        ]);
         $http->setLogger($logger);
 
         $res = $http->fetch($url, false, $httpHeader);
 
         $records = $handler->getRecords();
 
-        $this->assertEquals($expectedUa, $records[1]['context']['user-agent']);
-        $this->assertEquals($url, $records[1]['context']['url']);
+        $this->assertSame($expectedUa, $records[1]['context']['user-agent']);
+        $this->assertSame($url, $records[1]['context']['url']);
     }
 
     public function dataForReferer()
     {
-        return array(
-            array(
+        return [
+            [
                 'url' => 'http://www.google.com',
-                'httpHeader' => array(),
+                'httpHeader' => [],
                 'expectedReferer' => 'http://defaultreferer.local',
-            ),
-            array(
+            ],
+            [
                 'url' => 'http://www.mozilla.org',
-                'httpHeader' => array('referer' => null),
+                'httpHeader' => ['referer' => null],
                 'expectedReferer' => 'http://defaultreferer.local',
-            ),
-            array(
+            ],
+            [
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'httpHeader' => array('referer' => ''),
+                'httpHeader' => ['referer' => ''],
                 'expectedReferer' => 'http://defaultreferer.local',
-            ),
-            array(
+            ],
+            [
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
-                'httpHeader' => array('referer' => 'http://fr.wikipedia.org/wiki/Accueil'),
+                'httpHeader' => ['referer' => 'http://fr.wikipedia.org/wiki/Accueil'],
                 'expectedReferer' => 'http://fr.wikipedia.org/wiki/Accueil',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -846,16 +846,16 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client, array(
+        $http = new HttpClient($client, [
             'default_referer' => 'http://defaultreferer.local',
-        ));
+        ]);
         $http->setLogger($logger);
 
         $res = $http->fetch($url, false, $httpHeader);
 
         $records = $handler->getRecords();
 
-        $this->assertEquals($expectedReferer, $records[2]['context']['referer']);
-        $this->assertEquals($url, $records[2]['context']['url']);
+        $this->assertSame($expectedReferer, $records[2]['context']['referer']);
+        $this->assertSame($url, $records[2]['context']['url']);
     }
 }

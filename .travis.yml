@@ -18,7 +18,7 @@ matrix:
     # only one build will send the coverage, this'll speed up other one
     include:
         - php: 7.0
-          env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml"
+          env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
 
 # faster builds on new travis setup not using sudo
 sudo: false
@@ -38,7 +38,8 @@ install:
 
 script:
     - mkdir -p build/logs
-    - ./vendor/bin/simple-phpunit -v $PHPUNIT_FLAGS
+    - php vendor/bin/simple-phpunit -v $PHPUNIT_FLAGS
+    - if [ "$CS_FIXER" = "run" ]; then php vendor/bin/php-cs-fixer fix --verbose --dry-run ; fi;
 
 after_script:
     - if [[ "$PHPUNIT_FLAGS" != "" ]]; then php vendor/bin/coveralls -v; fi;

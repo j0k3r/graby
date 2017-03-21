@@ -2,12 +2,12 @@
 
 namespace Graby\Ring\Client;
 
-use GuzzleHttp\Ring\Future\CompletedFutureArray;
-use GuzzleHttp\Ring\Core;
-use GuzzleHttp\Ring\Client\CurlFactory;
-use GuzzleHttp\Stream\Stream;
-use fin1te\SafeCurl\SafeCurl;
 use fin1te\SafeCurl\Exception;
+use fin1te\SafeCurl\SafeCurl;
+use GuzzleHttp\Ring\Client\CurlFactory;
+use GuzzleHttp\Ring\Core;
+use GuzzleHttp\Ring\Future\CompletedFutureArray;
+use GuzzleHttp\Stream\Stream;
 
 /**
  * This is a hard copy/paste of the `GuzzleHttp\Ring\Client\CurlHandler`
