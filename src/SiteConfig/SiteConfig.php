@@ -15,36 +15,34 @@ namespace Graby\SiteConfig;
 class SiteConfig
 {
     // Use first matching element as title (0 or more xpath expressions)
-    public $title = array();
+    public $title = [];
 
     // Use first matching element as body (0 or more xpath expressions)
-    public $body = array();
+    public $body = [];
 
     // Use first matching element as author (0 or more xpath expressions)
-    public $author = array();
+    public $author = [];
 
     // Use first matching element as date (0 or more xpath expressions)
-    public $date = array();
+    public $date = [];
 
     // Strip elements matching these xpath expressions (0 or more)
-    public $strip = array();
+    public $strip = [];
 
     // Strip elements which contain these strings (0 or more) in the id or class attribute
-    public $strip_id_or_class = array();
+    public $strip_id_or_class = [];
 
     // Strip images which contain these strings (0 or more) in the src attribute
-    public $strip_image_src = array();
+    public $strip_image_src = [];
 
     // Mark article as a native ad if any of these expressions match (0 or more xpath expressions)
-    public $native_ad_clue = array();
+    public $native_ad_clue = [];
 
     // Additional HTTP headers to send
-    public $http_header = array();
+    public $http_header = [];
 
     // Process HTML with tidy before creating DOM (bool or null if undeclared)
     public $tidy = null;
-
-    protected $default_tidy = true; // used if undeclared
 
     // Autodetect title/body if xpath expressions fail to produce results.
     // Note that this applies to title and body separately, ie.
@@ -56,15 +54,13 @@ class SiteConfig
     // Usage scenario: you want to extract something specific from a set of URLs, e.g. a table, and if the table is not found, you want to ignore the entry completely. Auto-detection is unlikely to succeed here, so you construct your patterns and set this option to false. Another scenario may be a site where auto-detection has proven to fail (or worse, picked up the wrong content).
     // bool or null if undeclared
     public $autodetect_on_failure = null;
-    protected $default_autodetect_on_failure = true; // used if undeclared
 
     // Clean up content block - attempt to remove elements that appear to be superfluous
     // bool or null if undeclared
     public $prune = null;
-    protected $default_prune = true; // used if undeclared
 
     // Test URL - if present, can be used to test the config above
-    public $test_url = array();
+    public $test_url = [];
 
     // Single-page link - should identify a link element or URL pointing to the page holding the entire article
     // This is useful for sites which split their articles across multiple pages. Links to such pages tend to
@@ -72,19 +68,18 @@ class SiteConfig
     // which displays the entire article on one page (e.g. 'print view').
     // This should be an XPath expression identifying the link to that page. If present and we find a match,
     // we will retrieve that page and the rest of the options in this config will be applied to the new page.
-    public $single_page_link = array();
+    public $single_page_link = [];
 
-    public $next_page_link = array();
+    public $next_page_link = [];
 
     // Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib')
     // string or null if undeclared
     public $parser = null;
-    protected $default_parser = 'libxml'; // used if undeclared
 
     // Strings to search for in HTML before processing begins (used with $replace_string)
-    public $find_string = array();
+    public $find_string = [];
     // Strings to replace those found in $find_string before HTML processing begins
-    public $replace_string = array();
+    public $replace_string = [];
 
     // the options below cannot be set in the config files which this class represents
     public $cache_key = null;
@@ -129,7 +124,12 @@ class SiteConfig
      *
      * @var array hash of form field name => value
      */
-    public $login_extra_fields = array();
+    public $login_extra_fields = [];
+
+    protected $default_tidy = true; // used if undeclared
+    protected $default_autodetect_on_failure = true; // used if undeclared
+    protected $default_prune = true; // used if undeclared
+    protected $default_parser = 'libxml'; // used if undeclared
 
     /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).

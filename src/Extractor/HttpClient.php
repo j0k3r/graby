@@ -2,11 +2,11 @@
 
 namespace Graby\Extractor;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * HttpClient will make sure to retrieve the right content with the right url.
@@ -15,7 +15,7 @@ class HttpClient
 {
     private static $nbRedirect = 0;
     private static $initialUrl = '';
-    private $config = array();
+    private $config = [];
     private $client = null;
     private $logger = null;
 
@@ -24,48 +24,48 @@ class HttpClient
      * @param array                $config
      * @param LoggerInterface|null $logger
      */
-    public function __construct(Client $client, $config = array(), LoggerInterface $logger = null)
+    public function __construct(Client $client, $config = [], LoggerInterface $logger = null)
     {
         $this->client = $client;
 
         $resolver = new OptionsResolver();
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
             'default_referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            'rewrite_url' => array(
-                'docs.google.com' => array('/Doc?' => '/View?'),
-                'tnr.com' => array('tnr.com/article/' => 'tnr.com/print/article/'),
-                '.m.wikipedia.org' => array('.m.wikipedia.org' => '.wikipedia.org'),
-                'm.vanityfair.com' => array('m.vanityfair.com' => 'www.vanityfair.com'),
-            ),
+            'rewrite_url' => [
+                'docs.google.com' => ['/Doc?' => '/View?'],
+                'tnr.com' => ['tnr.com/article/' => 'tnr.com/print/article/'],
+                '.m.wikipedia.org' => ['.m.wikipedia.org' => '.wikipedia.org'],
+                'm.vanityfair.com' => ['m.vanityfair.com' => 'www.vanityfair.com'],
+            ],
             // Prevent certain file/mime types
             // HTTP responses which match these content types will
             // be returned without body.
-            'header_only_types' => array(
+            'header_only_types' => [
                 'image',
                 'audio',
                 'video',
-            ),
+            ],
             // URLs ending with one of these extensions will
             // prompt client to send a HEAD request first
             // to see if returned content type matches $headerOnlyTypes.
-            'header_only_clues' => array('mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
+            'header_only_clues' => ['mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'],
             // User Agent strings - mapping domain names
-            'user_agents' => array(),
+            'user_agents' => [],
             // AJAX triggers to search for.
             // for AJAX sites, e.g. Blogger with its dynamic views templates.
-            'ajax_triggers' => array(
+            'ajax_triggers' => [
                 "<meta name='fragment' content='!'",
                 '<meta name="fragment" content="!"',
                 "<meta content='!' name='fragment'",
                 '<meta content="!" name="fragment"',
                 ' ng-controller=',
-            ),
+            ],
             // timeout of the request in seconds
             'timeout' => 10,
             // number of redirection allowed until we assume request won't be complete
             'max_redirect' => 10,
-        ));
+        ]);
 
         $this->config = $resolver->resolve($config);
 
@@ -92,16 +92,16 @@ class HttpClient
      *
      * @return array With keys effective_url, body & headers
      */
-    public function fetch($url, $skipTypeVerification = false, $httpHeader = array())
+    public function fetch($url, $skipTypeVerification = false, $httpHeader = [])
     {
         if (false === $this->checkNumberRedirects($url)) {
-            return $this->sendResults(array(
+            return $this->sendResults([
                 'effective_url' => self::$initialUrl,
                 'body' => '',
                 'headers' => '',
                 // Too many Redirects
                 'status' => 310,
-            ));
+            ]);
         }
 
         $url = $this->cleanupUrl($url);
@@ -111,47 +111,47 @@ class HttpClient
             $method = 'head';
         }
 
-        $this->logger->log('debug', 'Trying using method "{method}" on url "{url}"', array('method' => $method, 'url' => $url));
+        $this->logger->log('debug', 'Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
 
         try {
             $response = $this->client->$method(
                 $url,
-                array(
-                    'headers' => array(
+                [
+                    'headers' => [
                         'User-Agent' => $this->getUserAgent($url, $httpHeader),
                         // add referer for picky sites
                         'Referer' => $this->getReferer($url, $httpHeader),
-                    ),
+                    ],
                     'timeout' => $this->config['timeout'],
                     'connect_timeout' => $this->config['timeout'],
-                )
+                ]
             );
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
 
-                $data = array(
+                $data = [
                     'effective_url' => $response->getEffectiveUrl(),
                     'body' => '',
                     'headers' => (string) $response->getHeader('Content-Type'),
                     'status' => $response->getStatusCode(),
-                );
+                ];
 
-                $this->logger->log('debug', 'Request throw exception (with a response): {error_message}', array('error_message' => $e->getMessage()));
-                $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
+                $this->logger->log('debug', 'Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
+                $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
 
                 return $this->sendResults($data);
             }
 
-            $data = array(
+            $data = [
                 'effective_url' => $url,
                 'body' => '',
                 'headers' => '',
                 'status' => 500,
-            );
+            ];
 
-            $this->logger->log('debug', 'Request throw exception (with no response): {error_message}', array('error_message' => $e->getMessage()));
-            $this->logger->log('debug', 'Data fetched: {data}', array('data' => $data));
+            $this->logger->log('debug', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
+            $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
 
             return $this->sendResults($data);
         }
@@ -184,7 +184,7 @@ class HttpClient
                 $htmlTag = end($matchesHtml[0]);
 
                 if (!empty($htmlTag)) {
-                    $body = str_replace($matchesConditional[0], $htmlTag.'<head>', $body);
+                    $body = str_replace($matchesConditional[0], $htmlTag . '<head>', $body);
                 }
             }
         }
@@ -203,19 +203,19 @@ class HttpClient
         // remove utm parameters & fragment
         $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', urldecode($effectiveUrl));
 
-        $this->logger->log('debug', 'Data fetched: {data}', array('data' => array(
+        $this->logger->log('debug', 'Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
-            'body' => '(only length for debug): '.strlen($body),
+            'body' => '(only length for debug): ' . strlen($body),
             'headers' => $contentType,
             'status' => $response->getStatusCode(),
-        )));
+        ]]);
 
-        return $this->sendResults(array(
+        return $this->sendResults([
             'effective_url' => $effectiveUrl,
             'body' => $body,
             'headers' => $contentType,
             'status' => $response->getStatusCode(),
-        ));
+        ]);
     }
 
     /**
@@ -239,7 +239,7 @@ class HttpClient
             $fragment = parse_url($url, PHP_URL_FRAGMENT);
             // strip '!'
             $fragment = substr($fragment, 1);
-            $query = array('_escaped_fragment_' => $fragment);
+            $query = ['_escaped_fragment_' => $fragment];
 
             // url without fragment
             $url = substr($url, 0, $fragmentPos);
@@ -273,7 +273,7 @@ class HttpClient
         }
 
         if (self::$nbRedirect > $this->config['max_redirect']) {
-            $this->logger->log('debug', 'Endless redirect: '.self::$nbRedirect.' on "{url}"', array('url' => $url));
+            $this->logger->log('debug', 'Endless redirect: ' . self::$nbRedirect . ' on "{url}"', ['url' => $url]);
 
             return false;
         }
@@ -312,7 +312,7 @@ class HttpClient
             return false;
         }
 
-        return in_array($ext, $this->config['header_only_clues']);
+        return in_array($ext, $this->config['header_only_clues'], true);
     }
 
     /**
@@ -325,40 +325,40 @@ class HttpClient
      *
      * @return string
      */
-    private function getUserAgent($url, $httpHeader = array())
+    private function getUserAgent($url, $httpHeader = [])
     {
         $ua = $this->config['ua_browser'];
 
         if (!empty($httpHeader['user-agent'])) {
-            $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from site config', array('user-agent' => $httpHeader['user-agent'], 'url' => $url));
+            $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => $url]);
 
             return $httpHeader['user-agent'];
         }
 
         $host = parse_url($url, PHP_URL_HOST);
 
-        if (strtolower(substr($host, 0, 4)) == 'www.') {
+        if (strtolower(substr($host, 0, 4)) === 'www.') {
             $host = substr($host, 4);
         }
 
-        $try = array($host);
+        $try = [$host];
         $split = explode('.', $host);
 
         if (count($split) > 1) {
             // remove first subdomain
             array_shift($split);
-            $try[] = '.'.implode('.', $split);
+            $try[] = '.' . implode('.', $split);
         }
 
         foreach ($try as $h) {
             if (isset($this->config['user_agents'][$h])) {
-                $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from config', array('user-agent' => $this->config['user_agents'][$h], 'url' => $url));
+                $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config['user_agents'][$h], 'url' => $url]);
 
                 return $this->config['user_agents'][$h];
             }
         }
 
-        $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', array('user-agent' => $ua, 'url' => $url));
+        $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', ['user-agent' => $ua, 'url' => $url]);
 
         return $ua;
     }
@@ -373,17 +373,17 @@ class HttpClient
      *
      * @return string
      */
-    private function getReferer($url, $httpHeader = array())
+    private function getReferer($url, $httpHeader = [])
     {
         $default_referer = $this->config['default_referer'];
 
         if (!empty($httpHeader['referer'])) {
-            $this->logger->log('debug', 'Found referer "{referer}" for url "{url}" from site config', array('referer' => $httpHeader['referer'], 'url' => $url));
+            $this->logger->log('debug', 'Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => $url]);
 
             return $httpHeader['referer'];
         }
 
-        $this->logger->log('debug', 'Use default referer "{referer}" for url "{url}"', array('referer' => $default_referer, 'url' => $url));
+        $this->logger->log('debug', 'Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => $url]);
 
         return $default_referer;
     }
@@ -407,8 +407,8 @@ class HttpClient
         $match[1] = strtolower(trim($match[1]));
         $match[2] = strtolower(trim($match[2]));
 
-        foreach (array($match[1], $match[2]) as $mime) {
-            if (in_array($mime, $this->config['header_only_types'])) {
+        foreach ([$match[1], $match[2]] as $mime) {
+            if (in_array($mime, $this->config['header_only_types'], true)) {
                 return true;
             }
         }
@@ -426,7 +426,7 @@ class HttpClient
      */
     private function getMetaRefreshURL($url, $html)
     {
-        if ($html == '') {
+        if ($html === '') {
             return false;
         }
 
@@ -438,7 +438,7 @@ class HttpClient
         $redirectUrl = str_replace('&amp;', '&', trim($match[1]));
         if (preg_match('!^https?://!i', $redirectUrl)) {
             // already absolute
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirectUrl);
+            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $redirectUrl);
 
             return $redirectUrl;
         }
@@ -451,7 +451,7 @@ class HttpClient
         }
 
         if ($absolute = \SimplePie_IRI::absolutize($base, $redirectUrl)) {
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$absolute);
+            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $absolute);
 
             return $absolute->get_iri();
         }
@@ -486,7 +486,7 @@ class HttpClient
 
         $this->logger->log('debug', 'Added escaped fragment to url');
 
-        $query = array('_escaped_fragment_' => '');
+        $query = ['_escaped_fragment_' => ''];
 
         // add fragment to url
         $url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';

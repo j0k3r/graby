@@ -6,3 +6,4 @@
 /README.md export-ignore
 /phpunit.xml export-ignore
 /tests export-ignore
+/.php_cs export-ignore

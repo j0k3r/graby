@@ -4,8 +4,8 @@ namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\ContentExtractor;
 use Graby\SiteConfig\SiteConfig;
-use Monolog\Logger;
 use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 
 class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,40 +13,40 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$contentExtractorConfig = array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/../fixtures/site_config'),
-        ));
+        self::$contentExtractorConfig = ['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+        ]];
     }
 
     public function testConstructDefault()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array('site_config' => array(dirname(__FILE__)))));
+        $contentExtractor = new ContentExtractor(['config_builder' => ['site_config' => [dirname(__FILE__)]]]);
         $contentExtractor->reset();
 
-        $this->assertEquals(null, $contentExtractor->getContent());
-        $this->assertEquals(null, $contentExtractor->getTitle());
-        $this->assertEquals(null, $contentExtractor->getLanguage());
-        $this->assertEquals(null, $contentExtractor->getDate());
-        $this->assertEquals(null, $contentExtractor->getSiteConfig());
-        $this->assertEquals(null, $contentExtractor->getNextPageUrl());
+        $this->assertNull($contentExtractor->getContent());
+        $this->assertNull($contentExtractor->getTitle());
+        $this->assertNull($contentExtractor->getLanguage());
+        $this->assertNull($contentExtractor->getDate());
+        $this->assertNull($contentExtractor->getSiteConfig());
+        $this->assertNull($contentExtractor->getNextPageUrl());
     }
 
     public function dataFingerPrints()
     {
-        return array(
-            'blogger double quote' => array(
+        return [
+            'blogger double quote' => [
                 '<html><head><meta name="generator" content="Blogger" /></head></html>',
                 'fingerprint.blogspot.com',
-            ),
-            'blogger simple quote' => array(
+            ],
+            'blogger simple quote' => [
                 "<html><head><meta content='blogger' name='generator'/></head></html>",
                 'fingerprint.blogspot.com',
-            ),
-            'wordpress with version number' => array(
+            ],
+            'wordpress with version number' => [
                 '<html><head><meta name="generator" content="WordPress 4.4.2" /></head></html>',
                 'fingerprint.wordpress.com',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -56,9 +56,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFingerPrints($html, $fingerprints)
     {
-        $contentExtractor = new ContentExtractor(array(
-            'config_builder' => array('site_config' => array(dirname(__FILE__))),
-        ));
+        $contentExtractor = new ContentExtractor([
+            'config_builder' => ['site_config' => [dirname(__FILE__)]],
+        ]);
 
         $res = $contentExtractor->findHostUsingFingerprints('');
 
@@ -66,7 +66,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $res = $contentExtractor->findHostUsingFingerprints($html);
 
-        $this->assertEquals($fingerprints, $res);
+        $this->assertSame($fingerprints, $res);
     }
 
     /**
@@ -77,9 +77,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
      */
     public function testBuildSiteConfigUnknownSite()
     {
-        $contentExtractor = new ContentExtractor(array('config_builder' => array(
-            'site_config' => array(dirname(__FILE__).'/../../wrong_site_config'),
-        )));
+        $contentExtractor = new ContentExtractor(['config_builder' => [
+            'site_config' => [dirname(__FILE__) . '/../../wrong_site_config'],
+        ]]);
         $contentExtractor->buildSiteConfig('http://0.0.0.0');
     }
 
@@ -93,16 +93,16 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
-        foreach (array('single_page_link', 'next_page_link', 'find_string', 'replace_string') as $value) {
-            $this->assertEmpty($res->$value, 'Check empty value for: '.$value);
+        foreach (['single_page_link', 'next_page_link', 'find_string', 'replace_string'] as $value) {
+            $this->assertEmpty($res->$value, 'Check empty value for: ' . $value);
         }
 
-        foreach (array('date', 'strip_image_src', 'http_header') as $value) {
-            $this->assertNotEmpty($res->$value, 'Check not empty value for: '.$value);
+        foreach (['date', 'strip_image_src', 'http_header'] as $value) {
+            $this->assertNotEmpty($res->$value, 'Check not empty value for: ' . $value);
         }
 
-        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'test_url', 'date') as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: '.$value);
+        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'test_url', 'date'] as $value) {
+            $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: ' . $value);
         }
     }
 
@@ -134,8 +134,8 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             '<html><meta name="generator" content="WordPress.com" /></html>'
         );
 
-        foreach (array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'date') as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: '.$value);
+        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'date'] as $value) {
+            $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: ' . $value);
         }
     }
 
@@ -147,9 +147,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->body = array('//iframe');
-        $config->find_string = array('<html>&lt;iframe', '&gt;&lt;/iframe&gt;</html>');
-        $config->replace_string = array('<iframe class="video"', '></iframe>');
+        $config->body = ['//iframe'];
+        $config->find_string = ['<html>&lt;iframe', '&gt;&lt;/iframe&gt;</html>'];
+        $config->replace_string = ['<iframe class="video"', '></iframe>'];
 
         $res = $contentExtractor->process(
             '<html>&lt;iframe src=""&gt;&lt;/iframe&gt;</html>',
@@ -173,9 +173,9 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->body = array('//iframe');
-        $config->find_string = array('one');
-        $config->replace_string = array('1', '2');
+        $config->body = ['//iframe'];
+        $config->find_string = ['one'];
+        $config->replace_string = ['1', '2'];
 
         $res = $contentExtractor->process(
             '<html><iframe src=""></iframe></html>',
@@ -192,14 +192,14 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function dataForNextPage()
     {
-        return array(
+        return [
             // return the link as string
-            array("string(//a[@class='next'])", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">https://lemonde.io/35941909?page=2</a></html>', 'https://lemonde.io/35941909?page=2'),
+            ["string(//a[@class='next'])", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">https://lemonde.io/35941909?page=2</a></html>', 'https://lemonde.io/35941909?page=2'],
             // will find the link using "href" attribute
-            array("//a[@class='next']", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'),
+            ["//a[@class='next']", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'],
             // will directly return the node attribute
-            array("//a[@class='next']/@href", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'),
-        );
+            ["//a[@class='next']/@href", '<html>here is a test zazaz<a class="next" href="https://lemonde.io/35941909?page=2">next page</a></html>', 'https://lemonde.io/35941909?page=2'],
+        ];
     }
 
     /**
@@ -210,7 +210,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->next_page_link = array($pattern);
+        $config->next_page_link = [$pattern];
 
         $contentExtractor->process(
             $html,
@@ -218,17 +218,17 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $config
         );
 
-        $this->assertEquals($urlExpected, $contentExtractor->getNextPageUrl());
+        $this->assertSame($urlExpected, $contentExtractor->getNextPageUrl());
     }
 
     public function dataForTitle()
     {
-        return array(
+        return [
             // return the link as string
-            array('string(//title)', '<html><title>mon titre</title></html>', 'mon titre'),
+            ['string(//title)', '<html><title>mon titre</title></html>', 'mon titre'],
             // return the DomElement link
-            array('//title', '<html><title>mon titre</title></html>', 'mon titre'),
-        );
+            ['//title', '<html><title>mon titre</title></html>', 'mon titre'],
+        ];
     }
 
     /**
@@ -239,7 +239,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->title = array($pattern);
+        $config->title = [$pattern];
 
         $contentExtractor->process(
             $html,
@@ -247,15 +247,15 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $config
         );
 
-        $this->assertEquals($titleExpected, $contentExtractor->getTitle());
+        $this->assertSame($titleExpected, $contentExtractor->getTitle());
     }
 
     public function dataForLanguage()
     {
-        return array(
-            array('<html><meta name="DC.language" content="en" />from CaTV</html>', 'en'),
-            array('<html lang="de">from CaTV</html>', 'de'),
-        );
+        return [
+            ['<html><meta name="DC.language" content="en" />from CaTV</html>', 'en'],
+            ['<html lang="de">from CaTV</html>', 'de'],
+        ];
     }
 
     /**
@@ -273,21 +273,21 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $config
         );
 
-        $this->assertEquals($languageExpected, $contentExtractor->getLanguage());
+        $this->assertSame($languageExpected, $contentExtractor->getLanguage());
     }
 
     public function dataForDate()
     {
-        return array(
+        return [
             // good time format
-            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
+            ['//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'],
             // bad time format, null result
-            array('//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">date</time></html>', null),
+            ['//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">date</time></html>', null],
             // bad pattern but good @pubdate
-            array('//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
+            ['//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'],
             // good time format
-            array('string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'),
-        );
+            ['string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'],
+        ];
     }
 
     /**
@@ -298,7 +298,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->date = array($pattern);
+        $config->date = [$pattern];
 
         $contentExtractor->process(
             $html,
@@ -306,17 +306,17 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $config
         );
 
-        $this->assertEquals($dateExpected, $contentExtractor->getDate());
+        $this->assertSame($dateExpected, $contentExtractor->getDate());
     }
 
     public function dataForStrip()
     {
-        return array(
+        return [
             // strip nav element and keep only the p
-            array('//nav', '<html><body><nav id="high">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'hello !'),
+            ['//nav', '<html><body><nav id="high">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
             // strip p element and keep the nav
-            array('//p', '<html><body><nav id="high">'.str_repeat('hello !', 20).'</nav><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'this is the best part of the show'),
-        );
+            ['//p', '<html><body><nav id="high">' . str_repeat('hello !', 20) . '</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'this is the best part of the show'],
+        ];
     }
 
     /**
@@ -327,7 +327,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->strip = array($pattern);
+        $config->strip = [$pattern];
 
         $res = $contentExtractor->process(
             $html,
@@ -343,10 +343,10 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function dataForStripIdOrClass()
     {
-        return array(
-            array('commentlist', '<html><body><nav id="commentlist">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'hello !'),
-            array('related_post', '<html><body><nav id="high">'.str_repeat('hello !', 20).'</nav><p class="related_post">'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'this is the best part of the show'),
-        );
+        return [
+            ['commentlist', '<html><body><nav id="commentlist">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
+            ['related_post', '<html><body><nav id="high">' . str_repeat('hello !', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'this is the best part of the show'],
+        ];
     }
 
     /**
@@ -357,7 +357,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->strip_id_or_class = array($pattern);
+        $config->strip_id_or_class = [$pattern];
 
         $res = $contentExtractor->process(
             $html,
@@ -373,10 +373,10 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function dataForStripImageSrc()
     {
-        return array(
-            array('doubleclick.net', '<html><body><img src="https://www.doubleclick.net/pub.jpg"/></nav><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'https://www.doubleclick.net/pub.jpg'),
+        return [
+            ['doubleclick.net', '<html><body><img src="https://www.doubleclick.net/pub.jpg"/></nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'https://www.doubleclick.net/pub.jpg'],
             // array('related_post', '<html><body><nav id="high">'.str_repeat('hello !', 20).'</nav><p class="related_post">'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'this is the best part of the show'),
-        );
+        ];
     }
 
     /**
@@ -387,7 +387,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->strip_image_src = array($pattern);
+        $config->strip_image_src = [$pattern];
 
         $res = $contentExtractor->process(
             $html,
@@ -403,12 +403,12 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function dataForStripDisplayNoneAndInstapaper()
     {
-        return array(
+        return [
             // remove element with class "instapaper_ignore"
-            array('<html><body><p class="instapaper_ignore">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'hello !'),
+            ['<html><body><p class="instapaper_ignore">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
             // remove element with class "entry-unrelated"
-            array('<html><body><p class="entry-unrelated">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>', 'hello !'),
-        );
+            ['<html><body><p class="entry-unrelated">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
+        ];
     }
 
     /**
@@ -436,20 +436,20 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function dataForExtractBody()
     {
-        return array(
+        return [
             // extract one element
-            array(
+            [
                 "//p[@class='content']",
-                '<html><body><p class="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>'.str_repeat('this is the best part of the show', 10).'</p></body></html>',
+                '<html><body><p class="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
                 '<p class="content">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p>',
-            ),
+            ],
             // extract multiple element
-            array(
+            [
                 "//p[@class='content_wrapper']",
-                '<html><body><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">'.str_repeat('this is the best part of the show', 5).'</p></body></html>',
-                '<div><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">'.str_repeat('this is the best part of the show', 5).'</p></div>',
-            ),
-        );
+                '<html><body><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">' . str_repeat('this is the best part of the show', 5) . '</p></body></html>',
+                '<div><p class="content_wrapper">hello !hello !hello !hello !hello !hello !hello !hello !hello !</p><p class="content_wrapper">' . str_repeat('this is the best part of the show', 5) . '</p></div>',
+            ],
+        ];
     }
 
     /**
@@ -460,7 +460,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->body = array($pattern);
+        $config->body = [$pattern];
 
         $res = $contentExtractor->process(
             $html,
@@ -473,36 +473,36 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertEquals($expectedContent, $content);
+        $this->assertSame($expectedContent, $content);
     }
 
     public function dataForExtractHNews()
     {
-        return array(
+        return [
             // the all hNews tested
-            array(
-                '<html><body><div class="hentry"><p class="entry-title">hello !</p><time pubdate="2015-01-01">2015-01-01</time>hello ! hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
-                '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
-                array(
+            [
+                '<html><body><div class="hentry"><p class="entry-title">hello !</p><time pubdate="2015-01-01">2015-01-01</time>hello ! hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+                '<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p>',
+                [
                     'title' => 'hello !',
                     'date' => '2015-01-01',
-                ),
-            ),
+                ],
+            ],
             // hNews with bad date
-            array(
-                '<html><body><div class="hentry"><time pubdate="2015-01-01">aweomse!</time>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
-                '<p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p>',
-                array(
+            [
+                '<html><body><div class="hentry"><time pubdate="2015-01-01">aweomse!</time>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+                '<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p>',
+                [
                     'date' => null,
-                ),
-            ),
+                ],
+            ],
             // hNews with many content
-            array(
-                '<html><body><div class="hentry"><p class="entry-content">hello !hello !hello !hello !hello !hello !hello !</p><p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
-                '<div><p class="entry-content">hello !hello !hello !hello !hello !hello !hello !</p><p class="entry-content">'.str_repeat('this is the best part of the show', 10).'</p></div>',
-                array(),
-            ),
-        );
+            [
+                '<html><body><div class="hentry"><p class="entry-content">hello !hello !hello !hello !hello !hello !hello !</p><p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+                '<div><p class="entry-content">hello !hello !hello !hello !hello !hello !hello !</p><p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p></div>',
+                [],
+            ],
+        ];
     }
 
     /**
@@ -525,10 +525,10 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertEquals($expectedContent, $content);
+        $this->assertSame($expectedContent, $content);
 
         foreach ($expectedElements as $key => $value) {
-            $this->assertEquals($contentExtractor->{'get'.ucfirst($key)}(), $value);
+            $this->assertSame($contentExtractor->{'get' . ucfirst($key)}(), $value);
         }
     }
 
@@ -542,7 +542,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config = new SiteConfig();
 
         $res = $contentExtractor->process(
-            '<html><body><div><p class="instapaper_title">hello !</p>hello !hello !hello !hello !hello !hello !hello !<p class="instapaper_body">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
+            '<html><body><div><p class="instapaper_title">hello !</p>hello !hello !hello !hello !hello !hello !hello !<p class="instapaper_body">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
             'https://lemonde.io/35941909',
             $config
         );
@@ -552,29 +552,29 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertEquals('<p class="instapaper_body">'.str_repeat('this is the best part of the show', 10).'</p>', $content);
-        $this->assertEquals($contentExtractor->getTitle(), 'hello !');
+        $this->assertSame('<p class="instapaper_body">' . str_repeat('this is the best part of the show', 10) . '</p>', $content);
+        $this->assertSame($contentExtractor->getTitle(), 'hello !');
     }
 
     public function dataForExtractSchemaOrg()
     {
-        return array(
+        return [
             // articleBody on one element
-            array(
-                '<html><body><div>hello !hello !hello !hello !hello !hello !hello !<p itemprop="articleBody">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
-                '<p itemprop="articleBody">'.str_repeat('this is the best part of the show', 10).'</p>',
-            ),
+            [
+                '<html><body><div>hello !hello !hello !hello !hello !hello !hello !<p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+                '<p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p>',
+            ],
             // articleBody on two elements
-            array(
-                '<html><body><div><p itemprop="articleBody">hello !hello !hello !hello !hello !hello !hello !</p><p itemprop="articleBody">'.str_repeat('this is the best part of the show', 10).'</p></div></body></html>',
-                '<div><p itemprop="articleBody">hello !hello !hello !hello !hello !hello !hello !</p><p itemprop="articleBody">'.str_repeat('this is the best part of the show', 10).'</p></div>',
-            ),
+            [
+                '<html><body><div><p itemprop="articleBody">hello !hello !hello !hello !hello !hello !hello !</p><p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+                '<div><p itemprop="articleBody">hello !hello !hello !hello !hello !hello !hello !</p><p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p></div>',
+            ],
             // articleBody on img element
-            array(
+            [
                 '<html><body><div><p itemprop="articleBody"><img src="http://0.0.0.0/image.jpg" /></p></div></body></html>',
                 '<p itemprop="articleBody"><img src="http://0.0.0.0/image.jpg"/></p>',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -597,7 +597,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertEquals($expectedContent, $content);
+        $this->assertSame($expectedContent, $content);
     }
 
     /**
@@ -608,11 +608,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->body = array('//div');
-        $config->title = array('//title');
+        $config->body = ['//div'];
+        $config->title = ['//title'];
 
         $res = $contentExtractor->process(
-            '<html><body><title>My Title</title><div><h3>My Title</h3>'.str_repeat('this is the best part of the show', 10).'</div></body></html>',
+            '<html><body><title>My Title</title><div><h3>My Title</h3>' . str_repeat('this is the best part of the show', 10) . '</div></body></html>',
             'https://lemonde.io/35941909',
             $config
         );
@@ -623,38 +623,38 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $content = $domElement->ownerDocument->saveXML($domElement);
 
         $this->assertNotContains('My Title', $content);
-        $this->assertEquals('My Title', $contentExtractor->getTitle());
+        $this->assertSame('My Title', $contentExtractor->getTitle());
     }
 
     public function dataForlazyLoad()
     {
-        return array(
+        return [
             // test with img attribute data-src
-            array(
-                '<div>'.str_repeat('this is the best part of the show', 10).'<img data-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>',
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img data-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>',
                 '<img src="http://0.0.0.0/big_image.jpg"',
-            ),
+            ],
             // test with img attribute data-lazy-src
-            array(
-                '<div>'.str_repeat('this is the best part of the show', 10).'<img data-lazy-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>',
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img data-lazy-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></div>',
                 '<img src="http://0.0.0.0/big_image.jpg"',
-            ),
+            ],
             // test with img attribute data-src and image in noscript
-            array(
-                '<div>'.str_repeat('this is the best part of the show', 10).'<img data-lazy-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><noscript><img src="http://0.0.0.0/big_image_noscript.jpg"></noscript></div>',
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img data-lazy-src="http://0.0.0.0/big_image.jpg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><noscript><img src="http://0.0.0.0/big_image_noscript.jpg"></noscript></div>',
                 '<img src="http://0.0.0.0/big_image_noscript.jpg"',
-            ),
+            ],
             // test with img attribute data-original
-            array(
-                '<div>'.str_repeat('this is the best part of the show', 10).'<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-original="http://0.0.0.0/big_image.jpg" class="lazy"/></div>',
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-original="http://0.0.0.0/big_image.jpg" class="lazy"/></div>',
                 '<img src="http://0.0.0.0/big_image.jpg"',
-            ),
+            ],
             // test with img attribute data-sources
-            array(
-                '<div>'.str_repeat('this is the best part of the show', 10).'<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-sources="http://0.0.0.0/big_image.jpg"/></div>',
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-sources="http://0.0.0.0/big_image.jpg"/></div>',
                 '<img src="http://0.0.0.0/big_image.jpg"',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -667,7 +667,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->body = array('//div');
+        $config->body = ['//div'];
 
         $res = $contentExtractor->process(
             $html,
@@ -689,12 +689,12 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $config = new SiteConfig();
         // '//header' is a bad pattern, and it will jump to the next one
-        $config->body = array('//header', '//div');
+        $config->body = ['//header', '//div'];
         // obviously a bad parser which will be converted to use the default one
         $config->parser = 'toto';
 
         $res = $contentExtractor->process(
-            '<div>'.str_repeat('this is the best part of the show', 10).'</div><div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>',
+            '<div>' . str_repeat('this is the best part of the show', 10) . '</div><div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>',
             'https://lemonde.io/35941909',
             $config
         );
@@ -727,14 +727,14 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $records = $handler->getRecords();
 
         $this->assertGreaterThanOrEqual(6, $records);
-        $this->assertEquals('Attempting to parse HTML with {parser}', $records[0]['message']);
-        $this->assertEquals('libxml', $records[0]['context']['parser']);
-        $this->assertEquals('Trying {pattern} for language', $records[1]['message']);
-        $this->assertEquals('Using Readability', $records[3]['message']);
-        $this->assertEquals('Detected title: {title}', $records[4]['message']);
+        $this->assertSame('Attempting to parse HTML with {parser}', $records[0]['message']);
+        $this->assertSame('libxml', $records[0]['context']['parser']);
+        $this->assertSame('Trying {pattern} for language', $records[1]['message']);
+        $this->assertSame('Using Readability', $records[3]['message']);
+        $this->assertSame('Detected title: {title}', $records[4]['message']);
 
         if (function_exists('tidy_parse_string')) {
-            $this->assertEquals('Trying again without tidy', $records[5]['message']);
+            $this->assertSame('Trying again without tidy', $records[5]['message']);
         }
     }
 
@@ -742,10 +742,10 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     {
         $contentExtractor = new ContentExtractor(
             self::$contentExtractorConfig
-            + array('readability' => array(
-                'post_filters' => array('!<head[^>]*>(.*?)</head>!is' => ''),
-                'pre_filters' => array('!</?noscript>!is' => ''),
-            ))
+            + ['readability' => [
+                'post_filters' => ['!<head[^>]*>(.*?)</head>!is' => ''],
+                'pre_filters' => ['!</?noscript>!is' => ''],
+            ]]
         );
 
         $config = new SiteConfig();
@@ -793,7 +793,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 <meta property="og:image" content="http://www.lhc-france.fr/IMG/arton907.jpg" />
 <meta property="fb:admins" content="thomas.diluccio,proyoledegieux"/>
 </head>
-<body class="rouge "><p>'.str_repeat('This is important. ', 20).'</p></body></html>',
+<body class="rouge "><p>' . str_repeat('This is important. ', 20) . '</p></body></html>',
             'https://lemonde.io/35941909',
             $config
         );
