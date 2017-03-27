@@ -680,6 +680,7 @@ class ContentExtractor
      * @param string   $xpathExpression XPath query to look for
      * @param \DOMNode $node            DOMNode to look into
      * @param string   $logMessage
+     * @param \Closure $returnCallback  Function to cleanup the current value found
      *
      * @return bool Telling if we have to detect entity again or not
      */
@@ -691,7 +692,7 @@ class ContentExtractor
 
         // we define the default callback here
         if (!is_callable($returnCallback)) {
-            $returnCallback = function ($element, $currentEntity) {
+            $returnCallback = function ($element) {
                 return trim($element);
             };
         }
@@ -703,7 +704,10 @@ class ContentExtractor
             return true;
         }
 
-        $this->{$entity} = $returnCallback($elems->item(0)->textContent, $this->{$entity});
+        $this->{$entity} = $returnCallback(
+            $elems->item(0)->textContent,
+            $this->{$entity}
+        );
         $this->logger->log('debug', $logMessage, [$entity => $this->{$entity}]);
 
         // remove entity from document
@@ -719,10 +723,10 @@ class ContentExtractor
     /**
      * Extract title for a given CSS class a node.
      *
-     * @param bool    $detectTitle Do we have to detect title ?
-     * @param string  $cssClass    CSS class to look for
-     * @param DOMNode $node        DOMNode to look into
-     * @param string  $logMessage
+     * @param bool     $detectTitle Do we have to detect title ?
+     * @param string   $cssClass    CSS class to look for
+     * @param \DOMNode $node        DOMNode to look into
+     * @param string   $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
@@ -740,10 +744,10 @@ class ContentExtractor
     /**
      * Extract date for a given CSS class a node.
      *
-     * @param bool    $detectDate Do we have to detect date ?
-     * @param string  $cssClass   CSS class to look for
-     * @param DOMNode $node       DOMNode to look into
-     * @param string  $logMessage
+     * @param bool     $detectDate Do we have to detect date ?
+     * @param string   $cssClass   CSS class to look for
+     * @param \DOMNode $node       DOMNode to look into
+     * @param string   $logMessage
      *
      * @return bool Telling if we have to detect date again or not
      */
@@ -761,8 +765,8 @@ class ContentExtractor
     /**
      * Extract author.
      *
-     * @param bool    $detectAuthor Do we have to detect author ?
-     * @param DOMNode $node         DOMNode to look into
+     * @param bool     $detectAuthor Do we have to detect author ?
+     * @param \DOMNode $node         DOMNode to look into
      *
      * @return bool Telling if we have to detect author again or not
      */

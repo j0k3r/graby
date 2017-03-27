@@ -534,6 +534,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
+        $this->assertSame('2011-12-20T21:58:48+00:00', $res['date']);
+        $this->assertSame(['David Baca'], $res['authors']);
         $this->assertSame('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
         $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
