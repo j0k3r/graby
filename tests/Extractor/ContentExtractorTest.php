@@ -27,6 +27,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($contentExtractor->getTitle());
         $this->assertNull($contentExtractor->getLanguage());
         $this->assertNull($contentExtractor->getDate());
+        $this->assertSame([], $contentExtractor->getAuthors());
         $this->assertNull($contentExtractor->getSiteConfig());
         $this->assertNull($contentExtractor->getNextPageUrl());
     }
@@ -93,7 +94,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
-        foreach (['single_page_link', 'next_page_link', 'find_string', 'replace_string'] as $value) {
+        foreach (['author', 'single_page_link', 'next_page_link', 'find_string', 'replace_string'] as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: ' . $value);
         }
 
@@ -102,7 +103,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         }
 
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'test_url', 'date'] as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: ' . $value);
+            $this->assertGreaterThan(0, count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
@@ -134,8 +135,8 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             '<html><meta name="generator" content="WordPress.com" /></html>'
         );
 
-        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'date'] as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPatch for: ' . $value);
+        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'author', 'date'] as $value) {
+            $this->assertGreaterThan(0, count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
@@ -152,7 +153,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config->replace_string = ['<iframe class="video"', '></iframe>'];
 
         $res = $contentExtractor->process(
-            '<html>&lt;iframe src=""&gt;&lt;/iframe&gt;</html>',
+            '<html>&lt;iframe src=""&gt;&lt;/iframe&gt;</html> <a rel="author" href="/user8412228">CaTV</a>',
             'https://vimeo.com/35941909',
             $config
         );
@@ -162,6 +163,8 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $content_block = $contentExtractor->getContent();
 
         $this->assertContains('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertCount(1, $contentExtractor->getAuthors());
+        $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
     }
 
     /**
@@ -250,11 +253,42 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($titleExpected, $contentExtractor->getTitle());
     }
 
+    public function dataForAuthor()
+    {
+        return [
+            // return author node
+            ['//*[(@rel = "author")]', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', ['CaTV']],
+            // return author as a string
+            ['string(//*[(@rel = "author")])', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', ['CaTV']],
+            // return nothing because the rel="author" does not exist
+            ['string(//*[(@rel = "author")])', '<html>from <a href="/user8412228">CaTV</a></html>', []],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAuthor
+     */
+    public function testExtractAuthor($pattern, $html, $authorExpected)
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        $config->author = [$pattern];
+
+        $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $this->assertSame($authorExpected, $contentExtractor->getAuthors());
+    }
+
     public function dataForLanguage()
     {
         return [
-            ['<html><meta name="DC.language" content="en" />from CaTV</html>', 'en'],
-            ['<html lang="de">from CaTV</html>', 'de'],
+            ['<html><meta name="DC.language" content="en" />from <a rel="author" href="/user8412228">CaTV</a></html>', 'en'],
+            ['<html lang="de">from <a rel="author" href="/user8412228">CaTV</a></html>', 'de'],
         ];
     }
 
@@ -481,11 +515,12 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         return [
             // the all hNews tested
             [
-                '<html><body><div class="hentry"><p class="entry-title">hello !</p><time pubdate="2015-01-01">2015-01-01</time>hello ! hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+                '<html><body><div class="hentry"><p class="entry-title">hello !</p><time pubdate="2015-01-01">2015-01-01</time><a class="vcard author">hello !</a>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
                 '<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p>',
                 [
                     'title' => 'hello !',
                     'date' => '2015-01-01',
+                    'authors' => ['hello !'],
                 ],
             ],
             // hNews with bad date
@@ -494,6 +529,14 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
                 '<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p>',
                 [
                     'date' => null,
+                ],
+            ],
+            // hNews with many authors
+            [
+                '<html><body><div class="hentry"><p class="vcard author"><a class="fn">first boy</a><a class="fn">first girl</a></p>hello !hello !hello !hello !hello !hello !hello !<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+                '<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p>',
+                [
+                    'authors' => ['first boy', 'first girl'],
                 ],
             ],
             // hNews with many content
