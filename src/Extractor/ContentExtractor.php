@@ -24,6 +24,7 @@ class ContentExtractor
     private $siteConfig = null;
     private $title = null;
     private $language = null;
+    private $author = [];
     private $body = null;
     private $nativeAd = false;
     private $date = null;
@@ -88,6 +89,7 @@ class ContentExtractor
         $this->nativeAd = false;
         $this->date = null;
         $this->language = null;
+        $this->author = [];
         $this->nextPageUrl = null;
         $this->success = false;
     }
@@ -237,6 +239,22 @@ class ContentExtractor
             }
         }
 
+        // try to get author (if it hasn't already been set)
+        if (empty($this->author)) {
+            foreach ($this->siteConfig->author as $pattern) {
+                $this->logger->log('debug', 'Trying {pattern} for author', ['pattern' => $pattern]);
+
+                // since there is no author, if we find some we need to store them in a new array
+                $returnCallback = function ($e) {
+                    return [trim($e)];
+                };
+
+                if ($this->extractEntityFromPattern('author', $pattern, $returnCallback)) {
+                    break;
+                }
+            }
+        }
+
         // try to get date
         foreach ($this->siteConfig->date as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for date', ['pattern' => $pattern]);
@@ -324,7 +342,7 @@ class ContentExtractor
         }
 
         // auto detect?
-        $detectTitle = $detectBody = $detectDate = false;
+        $detectTitle = $detectBody = $detectDate = $detectAuthor = false;
 
         // detect title?
         if (!isset($this->title) && (empty($this->siteConfig->title) || $this->siteConfig->autodetect_on_failure())) {
@@ -338,9 +356,13 @@ class ContentExtractor
         if (!isset($this->date) && (empty($this->siteConfig->date) || $this->siteConfig->autodetect_on_failure())) {
             $detectDate = true;
         }
+        // detect author?
+        if (empty($this->author) && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
+            $detectAuthor = true;
+        }
 
         // check for hNews
-        if ($detectTitle || $detectBody || $detectDate) {
+        if ($detectTitle || $detectBody) {
             // check for hentry
             $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
@@ -362,6 +384,11 @@ class ContentExtractor
                     'published',
                     $hentry,
                     'hNews: found publication date: {date}'
+                );
+
+                $detectAuthor = $this->extractAuthor(
+                    $detectAuthor,
+                    $hentry
                 );
 
                 // check for entry-content.
@@ -400,7 +427,25 @@ class ContentExtractor
             'Schema.org'
         );
 
+        // Find author in rel="author" marked element
+        // We only use this if there's exactly one.
+        // If there's more than one, it could indicate more than
+        // one author, but it could also indicate that we're processing
+        // a page listing different articles with different authors.
+        $detectAuthor = $this->extractEntityFromQuery(
+            'author',
+            $detectAuthor,
+            "//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]",
+            $this->readability->dom,
+            'Author found (rel="author"): {author}',
+            function ($element, $currentEntity) {
+                return $currentEntity + [trim($element)];
+            }
+        );
+
         // Find date in pubdate marked time element
+        // For the same reason given above, we only use this
+        // if there's exactly one element.
         $detectDate = $this->extractEntityFromQuery(
             'date',
             $detectDate,
@@ -565,6 +610,11 @@ class ContentExtractor
         return $this->date;
     }
 
+    public function getAuthors()
+    {
+        return $this->author;
+    }
+
     public function getLanguage()
     {
         return $this->language;
@@ -630,6 +680,7 @@ class ContentExtractor
      * @param string   $xpathExpression XPath query to look for
      * @param \DOMNode $node            DOMNode to look into
      * @param string   $logMessage
+     * @param \Closure $returnCallback  Function to cleanup the current value found
      *
      * @return bool Telling if we have to detect entity again or not
      */
@@ -641,8 +692,8 @@ class ContentExtractor
 
         // we define the default callback here
         if (!is_callable($returnCallback)) {
-            $returnCallback = function ($e) {
-                return trim($e);
+            $returnCallback = function ($element) {
+                return trim($element);
             };
         }
 
@@ -650,10 +701,13 @@ class ContentExtractor
         $elems = $this->xpath->query($xpathExpression, $node);
 
         if (false === $this->hasElements($elems)) {
-            return $detectEntity;
+            return true;
         }
 
-        $this->{$entity} = $returnCallback($elems->item(0)->textContent);
+        $this->{$entity} = $returnCallback(
+            $elems->item(0)->textContent,
+            $this->{$entity}
+        );
         $this->logger->log('debug', $logMessage, [$entity => $this->{$entity}]);
 
         // remove entity from document
@@ -669,10 +723,10 @@ class ContentExtractor
     /**
      * Extract title for a given CSS class a node.
      *
-     * @param bool    $detectTitle Do we have to detect title ?
-     * @param string  $cssClass    CSS class to look for
-     * @param DOMNode $node        DOMNode to look into
-     * @param string  $logMessage
+     * @param bool     $detectTitle Do we have to detect title ?
+     * @param string   $cssClass    CSS class to look for
+     * @param \DOMNode $node        DOMNode to look into
+     * @param string   $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
@@ -690,10 +744,10 @@ class ContentExtractor
     /**
      * Extract date for a given CSS class a node.
      *
-     * @param bool    $detectDate Do we have to detect date ?
-     * @param string  $cssClass   CSS class to look for
-     * @param DOMNode $node       DOMNode to look into
-     * @param string  $logMessage
+     * @param bool     $detectDate Do we have to detect date ?
+     * @param string   $cssClass   CSS class to look for
+     * @param \DOMNode $node       DOMNode to look into
+     * @param string   $logMessage
      *
      * @return bool Telling if we have to detect date again or not
      */
@@ -706,6 +760,47 @@ class ContentExtractor
             $node,
             $logMessage
         );
+    }
+
+    /**
+     * Extract author.
+     *
+     * @param bool     $detectAuthor Do we have to detect author ?
+     * @param \DOMNode $node         DOMNode to look into
+     *
+     * @return bool Telling if we have to detect author again or not
+     */
+    private function extractAuthor($detectAuthor, \DOMNode $node)
+    {
+        if (false === $detectAuthor) {
+            return false;
+        }
+
+        // check for time element with pubdate attribute
+        $elems = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' vcard ') and (contains(concat(' ',normalize-space(@class),' '),' author ') or contains(concat(' ',normalize-space(@class),' '),' byline '))]", $node);
+
+        if ($elems && $elems->length > 0) {
+            $author = $elems->item(0);
+            $fns = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' fn ')]", $author);
+
+            if ($fns && $fns->length > 0) {
+                foreach ($fns as $fn) {
+                    if (trim($fn->textContent) !== '') {
+                        $this->author[] = trim($fn->textContent);
+                        $this->logger->log('debug', 'hNews: found author: ' . trim($fn->textContent));
+                    }
+                }
+            } else {
+                if (trim($author->textContent) !== '') {
+                    $this->author[] = trim($author->textContent);
+                    $this->logger->log('debug', 'hNews: found author: ' . trim($author->textContent));
+                }
+            }
+
+            return empty($this->author);
+        }
+
+        return true;
     }
 
     /**
@@ -843,7 +938,7 @@ class ContentExtractor
         $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
         $entityValue = null;
 
-        if (is_string($elems)) {
+        if (is_string($elems) && trim($elems) !== '') {
             $entityValue = $returnCallback($elems);
             $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
             $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);

@@ -55,18 +55,19 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
             $test = file_get_contents($file->getRealpath());
 
-            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT_WITHOUT_TIDY-----\s*(.*)/sx', $test, $match);
+            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT_WITHOUT_TIDY-----\s*(.*)/sx', $test, $match);
 
             $tests[] = [
                 $match[1], // url
                 $match[2], // url effective
                 $match[3], // header
                 $match[4], // language
-                $match[5], // title
-                $match[6], // summary
-                $match[7], // raw content
-                $match[8], // parsed content
-                $match[9], // parsed content without tidy
+                $match[5], // author
+                $match[6], // title
+                $match[7], // summary
+                $match[8], // raw content
+                $match[9], // parsed content
+                $match[10], // parsed content without tidy
             ];
         }
 
@@ -76,7 +77,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $urlEffective, $header, $language, $title, $summary, $rawContent, $parsedContent, $parsedContentWithoutTidy)
+    public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent, $parsedContentWithoutTidy)
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -122,12 +123,20 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
+
         if ($language) {
             $this->assertSame($language, $res['language']);
         } else {
             $this->assertEmpty($res['language']);
         }
+
+        if ($author) {
+            $this->assertSame([$author], $res['authors']);
+        } else {
+            $this->assertEmpty($res['authors']);
+        }
+
         $this->assertSame($urlEffective, $res['url'], 'Same url');
         $this->assertSame($title, $res['title'], 'Same title');
         $this->assertSame($summary, $res['summary'], 'Same summary');
@@ -294,7 +303,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Image', $res['title']);
         $this->assertSame('<a href="http://lexpress.io/my%20awesome%20image.jpg"><img src="http://lexpress.io/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
@@ -389,7 +398,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame($title, $res['title']);
         $this->assertSame($html, $res['html']);
@@ -434,7 +443,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('http://lexpress.io/test.pdf');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Document1', $res['title']);
         $this->assertContains('Document title', $res['html']);
@@ -480,7 +489,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('ZIP', $res['title']);
         $this->assertContains('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
@@ -523,8 +532,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('http://lexpress.io/test.pdf');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
+        $this->assertSame('2011-12-20T21:58:48+00:00', $res['date']);
+        $this->assertSame(['David Baca'], $res['authors']);
         $this->assertSame('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
         $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
@@ -568,7 +579,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('http://lexpress.io/test.txt');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Plain text', $res['title']);
         $this->assertSame('<pre>plain text :)</pre>', $res['html']);
@@ -634,7 +645,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertSame('my content', $res['html']);
@@ -684,7 +695,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Image', $res['title']);
         $this->assertSame('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res['html']);
@@ -734,7 +745,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertSame('my content<div class="story">my content</div>', $res['html']);
@@ -787,7 +798,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -837,7 +848,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -887,7 +898,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -937,7 +948,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
@@ -1148,7 +1159,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertContains('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res['html']);
@@ -1189,7 +1200,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
@@ -1222,7 +1233,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby();
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
@@ -1262,7 +1273,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('lexpress.io');
 
-        $this->assertCount(10, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title detected', $res['title']);
         $this->assertSame('Nothing found, hu?', $res['html']);

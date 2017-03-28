@@ -53,6 +53,11 @@ array(8) {
   string() "Ben E King: R&B legend dies at 76"
   'language' =>
   string() "en"
+  'date' =>
+  NULL
+  'authors' =>
+  array(0) {
+  }
   'url' =>
   string() "http://www.bbc.com/news/entertainment-arts-32547474"
   'content_type' =>
@@ -86,9 +91,14 @@ array(8) {
   'html' =>
   string() "[unable to retrieve full-text content]"
   'title' =>
-  string() ""
+  string() "No title found"
   'language' =>
-  string() ""
+  NULL
+  'date' =>
+  NULL
+  'authors' =>
+  array(0) {
+  }
   'url' =>
   string() "http://www.bbc.com/404"
   'content_type' =>
@@ -96,11 +106,15 @@ array(8) {
   'open_graph' =>
     array (0)
       empty
+  'native_ad' =>
+  bool(false)
   'summary' =>
   string() "[unable to retrieve full-text content]"
 }
 */
 ```
+
+The `date` result is the same as displayed in the content. If `date` is not `null` in the result, we recommend you to parse it using [`date_parse`](http://php.net/date_parse) (this is what we are using to validate that the date is correct).
 
 ## Full configuration
 

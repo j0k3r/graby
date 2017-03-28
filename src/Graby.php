@@ -142,12 +142,10 @@ class Graby
 
         $infos = $this->doFetchContent($url);
 
-        $html = $infos['html'];
-
         // filter xss?
         if ($this->config['xss_filter']) {
             $this->logger->log('debug', 'Filtering HTML to remove XSS');
-            $infos['html'] = htmLawed($html, [
+            $infos['html'] = htmLawed($infos['html'], [
                 'safe' => 1,
                 'deny_attribute' => 'style',
                 'comment' => 1,
@@ -232,6 +230,7 @@ class Graby
         $extractedTitle = $this->extractor->getTitle();
         $extractedLanguage = $this->extractor->getLanguage();
         $extractedDate = $this->extractor->getDate();
+        $extractedAuthors = $this->extractor->getAuthors();
 
         // Deal with multi-page articles
         $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
@@ -310,6 +309,7 @@ class Graby
                 'title' => $extractedTitle ?: $this->config['error_message_title'],
                 'language' => $extractedLanguage,
                 'date' => $extractedDate,
+                'authors' => $extractedAuthors,
                 'url' => $effectiveUrl,
                 'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
                 'open_graph' => $ogData,
@@ -368,6 +368,7 @@ class Graby
             'title' => $extractedTitle,
             'language' => $extractedLanguage,
             'date' => $extractedDate,
+            'authors' => $extractedAuthors,
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
         ]]);
@@ -378,6 +379,7 @@ class Graby
             'title' => $extractedTitle ?: $this->config['error_message_title'],
             'language' => $extractedLanguage,
             'date' => $extractedDate,
+            'authors' => $extractedAuthors,
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
             'open_graph' => $ogData,
@@ -519,7 +521,8 @@ class Graby
             'status' => 200,
             'title' => $mimeInfo['name'],
             'language' => '',
-            'date' => '',
+            'date' => null,
+            'authors' => [],
             'html' => '',
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
@@ -559,6 +562,22 @@ class Graby
                             $infos['title'] = $details['Title'][0];
                         } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
                             $infos['title'] = $details['Title'];
+                        }
+                    }
+
+                    if (isset($details['Author'])) {
+                        if (is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
+                            $infos['authors'][] = $details['Author'][0];
+                        } elseif (is_string($details['Author']) && '' !== trim($details['Author'])) {
+                            $infos['authors'][] = $details['Author'];
+                        }
+                    }
+
+                    if (isset($details['CreationDate'])) {
+                        if (is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
+                            $infos['date'] = $details['CreationDate'][0];
+                        } elseif (is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
+                            $infos['date'] = $details['CreationDate'];
                         }
                     }
                 }
