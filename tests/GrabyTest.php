@@ -117,9 +117,16 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->with($url)
             ->willReturn($response);
 
-        $graby = new Graby(['xss_filter' => false, 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
-        ]]], $client);
+        $graby = new Graby([
+            'xss_filter' => false,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [
+                        __DIR__ . '/fixtures/site_config',
+                    ],
+                ],
+            ],
+        ], $client);
 
         $res = $graby->fetchContent($url);
 
@@ -429,7 +436,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn(file_get_contents(dirname(__FILE__) . '/fixtures/document1.pdf'));
+            ->willReturn(file_get_contents(__DIR__ . '/fixtures/document1.pdf'));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -518,7 +525,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn(file_get_contents(dirname(__FILE__) . '/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf'));
+            ->willReturn(file_get_contents(__DIR__ . '/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf'));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -640,7 +647,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -690,7 +697,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(['xss_filter' => false, 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -740,7 +747,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -793,7 +800,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -843,7 +850,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -893,7 +900,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');
@@ -943,7 +950,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn($response);
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $client);
 
         $res = $graby->fetchContent('lexpress.io');

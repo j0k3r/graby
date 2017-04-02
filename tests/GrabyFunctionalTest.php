@@ -208,7 +208,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
     public function testImageFile()
     {
-        $graby = new Graby(['debug' => true, 'xss_filter' => false]);
+        $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://i.imgur.com/w9n2ID2.jpg');
 
         $this->assertCount(11, $res);
@@ -230,7 +230,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($res['authors']);
         $this->assertSame('http://i.imgur.com/w9n2ID2.jpg', $res['url']);
         $this->assertSame('Image', $res['title']);
-        $this->assertSame('<a href="http://i.imgur.com/w9n2ID2.jpg"><img src="http://i.imgur.com/w9n2ID2.jpg" alt="Image" /></a>', $res['html']);
+        $this->assertSame('<a href="http://i.imgur.com/w9n2ID2.jpg"><img src="http://i.imgur.com/w9n2ID2.jpg" alt="image" /></a>', $res['html']);
         $this->assertEmpty($res['summary']);
         $this->assertSame('image/jpeg', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -249,7 +249,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
      */
     public function testDate($url, $expectedDate)
     {
-        $graby = new Graby(['debug' => true, 'xss_filter' => false]);
+        $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent($url);
 
         $this->assertCount(11, $res);
@@ -282,7 +282,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthors($url, $expectedAuthors)
     {
-        $graby = new Graby(['debug' => true, 'xss_filter' => false]);
+        $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent($url);
 
         $this->assertCount(11, $res);
@@ -317,7 +317,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
      */
     public function testAccentuedUrls($url)
     {
-        $graby = new Graby(['debug' => true, 'xss_filter' => false]);
+        $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent($url);
 
         $this->assertCount(11, $res);
@@ -339,7 +339,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
     public function testYoutubeOembed()
     {
-        $graby = new Graby(['debug' => true, 'xss_filter' => false]);
+        $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
 
         $this->assertCount(11, $res);
@@ -360,7 +360,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($res['language']);
         $this->assertSame('http://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml', $res['url']);
         $this->assertSame('[Review] The Matrix Falling (Rain) Source Code C++', $res['title']);
-        $this->assertSame('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="">[embedded content]</iframe>', $res['html']);
+        $this->assertSame('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen">[embedded content]</iframe>', $res['html']);
         $this->assertSame('[embedded content]', $res['summary']);
         $this->assertSame('text/xml', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -418,7 +418,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
     public function testKoreanPage()
     {
-        $graby = new Graby(['debug' => true, 'xss_filter' => false]);
+        $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
 
         $this->assertCount(11, $res);
@@ -447,7 +447,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
             'debug' => true,
             'extractor' => [
                 'config_builder' => [
-                    'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
                 ],
             ],
         ]);

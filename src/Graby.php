@@ -75,7 +75,7 @@ class Graby
 
         if ($this->debug) {
             $this->logger = new Logger('graby');
-            $this->logger->pushHandler(new StreamHandler(dirname(__FILE__) . '/../log/graby.log'));
+            $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/graby.log'));
         }
 
         $this->configBuilder = $configBuilder;
@@ -147,6 +147,8 @@ class Graby
             $this->logger->log('debug', 'Filtering HTML to remove XSS');
             $infos['html'] = htmLawed($infos['html'], [
                 'safe' => 1,
+                // which means: do not remove iframe elements
+                'elements' => '*+iframe',
                 'deny_attribute' => 'style',
                 'comment' => 1,
                 'cdata' => 1,
