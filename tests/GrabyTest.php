@@ -117,9 +117,16 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->with($url)
             ->willReturn($response);
 
-        $graby = new Graby(['xss_filter' => false, 'extractor' => ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
-        ]]], $client);
+        $graby = new Graby([
+            'xss_filter' => false,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [
+                        dirname(__FILE__) . '/fixtures/site_config'
+                    ],
+                ]
+            ]
+        ], $client);
 
         $res = $graby->fetchContent($url);
 

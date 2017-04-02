@@ -147,6 +147,8 @@ class Graby
             $this->logger->log('debug', 'Filtering HTML to remove XSS');
             $infos['html'] = htmLawed($infos['html'], [
                 'safe' => 1,
+                // which means: do not remove iframe elements
+                'elements' => '*+iframe',
                 'deny_attribute' => 'style',
                 'comment' => 1,
                 'cdata' => 1,
