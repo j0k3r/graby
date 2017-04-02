@@ -447,7 +447,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
             'debug' => true,
             'extractor' => [
                 'config_builder' => [
-                    'site_config' => [dirname(__FILE__) . '/fixtures/site_config'],
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
                 ],
             ],
         ]);

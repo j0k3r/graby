@@ -14,13 +14,13 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         self::$contentExtractorConfig = ['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+            'site_config' => [__DIR__ . '/../fixtures/site_config'],
         ]];
     }
 
     public function testConstructDefault()
     {
-        $contentExtractor = new ContentExtractor(['config_builder' => ['site_config' => [dirname(__FILE__)]]]);
+        $contentExtractor = new ContentExtractor(['config_builder' => ['site_config' => [__DIR__]]]);
         $contentExtractor->reset();
 
         $this->assertNull($contentExtractor->getContent());
@@ -58,7 +58,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function testFingerPrints($html, $fingerprints)
     {
         $contentExtractor = new ContentExtractor([
-            'config_builder' => ['site_config' => [dirname(__FILE__)]],
+            'config_builder' => ['site_config' => [__DIR__]],
         ]);
 
         $res = $contentExtractor->findHostUsingFingerprints('');
@@ -79,7 +79,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function testBuildSiteConfigUnknownSite()
     {
         $contentExtractor = new ContentExtractor(['config_builder' => [
-            'site_config' => [dirname(__FILE__) . '/../../wrong_site_config'],
+            'site_config' => [__DIR__ . '/../../wrong_site_config'],
         ]]);
         $contentExtractor->buildSiteConfig('http://0.0.0.0');
     }

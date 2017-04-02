@@ -11,12 +11,12 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructDefault()
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
     }
 
     public function testBuildFromArrayNoLines()
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $configActual = $configBuilder->parseLines([]);
 
         $this->assertEquals($configBuilder->create(), $configActual);
@@ -24,7 +24,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildFromArray()
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $configActual = $configBuilder->parseLines([
             '# this is a comment and it will be removed',
             'no colon on this line, it will be removed',
@@ -81,7 +81,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddToCache($key, $cachedKey, $expectedKey)
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
 
         $config = $configBuilder->create();
         $config->body = ['//test'];
@@ -109,7 +109,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
     public function testCachedVersion($key, $cached)
     {
         $config = false;
-        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
 
         if ($cached) {
             $config = $configBuilder->create();
@@ -123,7 +123,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildOnCachedVersion()
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [dirname(__FILE__)]]);
+        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $config1 = $configBuilder->buildForHost('www.host.io');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config1);
@@ -166,7 +166,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
     public function testBuildSiteConfig($host, $expectedRes, $matchedHost = null)
     {
         $configBuilder = new ConfigBuilder([
-            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+            'site_config' => [__DIR__ . '/../fixtures/site_config'],
         ]);
 
         $res = $configBuilder->loadSiteConfig($host);
@@ -182,7 +182,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
     public function testBuildWithCachedVersion()
     {
         $configBuilder = new ConfigBuilder([
-            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+            'site_config' => [__DIR__ . '/../fixtures/site_config'],
         ]);
 
         $res = $configBuilder->loadSiteConfig('fr.wikipedia.org');
@@ -204,7 +204,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $logger->pushHandler($handler);
 
         $configBuilder = new ConfigBuilder([
-            'site_config' => [dirname(__FILE__) . '/../fixtures/site_config'],
+            'site_config' => [__DIR__ . '/../fixtures/site_config'],
         ]);
         $configBuilder->setLogger($logger);
 
