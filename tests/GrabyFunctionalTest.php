@@ -273,7 +273,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ['http://www.lexpress.fr/actualite/medias/thierry-ardisson-et-bruno-masure-se-sont-affrontes-sur-c8_1892942.html', ['Audrey Kucinskas']],
-            ['https://www.reddit.com/r/LinuxActionShow/comments/1fccny/arch_linux_survival_guide/', ['blackout24']],
+            ['http://www.liberation.fr/planete/2017/04/05/donald-trump-et-xi-jinping-tentative-de-flirt-en-floride_1560768', ['Raphaël Balenieri, correspondant à Pékin', 'Frédéric Autran, correspondant à New York']],
         ];
     }
 
