@@ -287,8 +287,8 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
             'extractor' => [
                 'config_builder' => [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]
-            ]
+                ],
+            ],
         ]);
         $res = $graby->fetchContent($url);
 
