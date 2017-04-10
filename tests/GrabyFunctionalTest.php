@@ -282,7 +282,14 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
      */
     public function testAuthors($url, $expectedAuthors)
     {
-        $graby = new Graby(['debug' => true]);
+        $graby = new Graby([
+            'debug' => true,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]
+            ]
+        ]);
         $res = $graby->fetchContent($url);
 
         $this->assertCount(11, $res);
