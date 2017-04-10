@@ -24,7 +24,7 @@ class ContentExtractor
     private $siteConfig = null;
     private $title = null;
     private $language = null;
-    private $author = [];
+    private $authors = [];
     private $body = null;
     private $nativeAd = false;
     private $date = null;
@@ -89,7 +89,7 @@ class ContentExtractor
         $this->nativeAd = false;
         $this->date = null;
         $this->language = null;
-        $this->author = [];
+        $this->authors = [];
         $this->nextPageUrl = null;
         $this->success = false;
     }
@@ -240,16 +240,11 @@ class ContentExtractor
         }
 
         // try to get author (if it hasn't already been set)
-        if (empty($this->author)) {
+        if (empty($this->authors)) {
             foreach ($this->siteConfig->author as $pattern) {
                 $this->logger->log('debug', 'Trying {pattern} for author', ['pattern' => $pattern]);
 
-                // since there is no author, if we find some we need to store them in a new array
-                $returnCallback = function ($e) {
-                    return [trim($e)];
-                };
-
-                if ($this->extractEntityFromPattern('author', $pattern, $returnCallback)) {
+                if ($this->extractMultipleEntityFromPattern('authors', $pattern)) {
                     break;
                 }
             }
@@ -357,7 +352,7 @@ class ContentExtractor
             $detectDate = true;
         }
         // detect author?
-        if (empty($this->author) && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
+        if (empty($this->authors) && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
             $detectAuthor = true;
         }
 
@@ -433,7 +428,7 @@ class ContentExtractor
         // one author, but it could also indicate that we're processing
         // a page listing different articles with different authors.
         $detectAuthor = $this->extractEntityFromQuery(
-            'author',
+            'authors',
             $detectAuthor,
             "//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]",
             $this->readability->dom,
@@ -612,7 +607,7 @@ class ContentExtractor
 
     public function getAuthors()
     {
-        return $this->author;
+        return $this->authors;
     }
 
     public function getLanguage()
@@ -786,18 +781,18 @@ class ContentExtractor
             if ($fns && $fns->length > 0) {
                 foreach ($fns as $fn) {
                     if (trim($fn->textContent) !== '') {
-                        $this->author[] = trim($fn->textContent);
+                        $this->authors[] = trim($fn->textContent);
                         $this->logger->log('debug', 'hNews: found author: ' . trim($fn->textContent));
                     }
                 }
             } else {
                 if (trim($author->textContent) !== '') {
-                    $this->author[] = trim($author->textContent);
+                    $this->authors[] = trim($author->textContent);
                     $this->logger->log('debug', 'hNews: found author: ' . trim($author->textContent));
                 }
             }
 
-            return empty($this->author);
+            return empty($this->authors);
         }
 
         return true;
@@ -940,10 +935,12 @@ class ContentExtractor
 
         if (is_string($elems) && trim($elems) !== '') {
             $entityValue = $returnCallback($elems);
+
             $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
             $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
         } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
             $entityValue = $returnCallback($elems->item(0)->textContent);
+
             $this->logger->log('debug', "{$entity} matched: {{$entity}}", [$entity => $entityValue]);
             $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
 
@@ -953,6 +950,59 @@ class ContentExtractor
             } catch (\DOMException $e) {
                 // do nothing
             }
+        }
+
+        if ($entityValue !== null) {
+            $this->{$entity} = $entityValue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Same as extractEntityFromPattern except this one always return all matched elements.
+     *
+     * @see extractEntityFromPattern
+     *
+     * @param string   $entity         Entity to look for ('title', 'date')
+     * @param string   $pattern        Pattern to look for
+     * @param callable $returnCallback Function to apply on the value
+     *
+     * @return bool Telling if the entity has been found
+     */
+    private function extractMultipleEntityFromPattern($entity, $pattern, $returnCallback = null)
+    {
+        // we define the default callback here
+        if (!is_callable($returnCallback)) {
+            $returnCallback = function ($e) {
+                return trim($e);
+            };
+        }
+
+        $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
+        $entityValue = null;
+
+        if (is_string($elems) && trim($elems) !== '') {
+            $entityValue[] = $returnCallback($elems);
+
+            $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
+            $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
+        } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
+            foreach ($elems as $item) {
+                $entityValue[] = $returnCallback($item->textContent);
+
+                // remove entity from document
+                try {
+                    $item->parentNode->removeChild($item);
+                } catch (\DOMException $e) {
+                    // do nothing
+                }
+            }
+
+            $this->logger->log('debug', "{$entity} matched: {{$entity}}", [$entity => $entityValue]);
+            $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
         }
 
         if ($entityValue !== null) {
