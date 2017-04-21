@@ -101,7 +101,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(200, $res['status']);
         $this->assertSame(['bjori'], $res['authors']);
         $this->assertEmpty($res['language']);
-        $this->assertSame('http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html?_escaped_fragment_=', $res['url']);
+        $this->assertSame('https://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html', $res['url']);
         $this->assertSame('Next Generation MongoDB Driver for PHP!', $res['title']);
         $this->assertContains('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
         $this->assertSame('text/html', $res['content_type']);
@@ -136,7 +136,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(404, $res['status']);
         $this->assertEmpty($res['language']);
-        $this->assertSame('http://bjori.blogspot.fr/201', $res['url']);
+        $this->assertSame('https://bjori.blogspot.fr/201', $res['url']);
         $this->assertSame('No title found', $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
         $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
