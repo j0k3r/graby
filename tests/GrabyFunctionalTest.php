@@ -24,7 +24,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
         $res = $graby->fetchContent('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -37,12 +37,14 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertSame('fr', $res['language']);
         $this->assertSame('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
         $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res['title']);
         $this->assertSame('text/html', $res['content_type']);
+        $this->assertSame('max-age=300', $res['all_headers']['Cache-Control'][0]);
 
         $this->assertArrayHasKey('og_site_name', $res['open_graph']);
         $this->assertArrayHasKey('og_locale', $res['open_graph']);
@@ -84,7 +86,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -97,6 +99,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertSame(['bjori'], $res['authors']);
@@ -120,7 +123,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://bjori.blogspot.fr/201');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -133,6 +136,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(404, $res['status']);
         $this->assertEmpty($res['language']);
@@ -149,7 +153,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://img3.free.fr/im_tv/telesites/documentation.pdf');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -162,6 +166,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertEmpty($res['language']);
@@ -180,7 +185,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://a-eon.biz/PDF/News_Release_Developer.pdf');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -193,6 +198,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertEmpty($res['language']);
@@ -211,7 +217,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://i.imgur.com/w9n2ID2.jpg');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -224,6 +230,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertEmpty($res['language']);
@@ -252,7 +259,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -265,6 +272,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame($expectedDate, $res['date']);
     }
@@ -292,7 +300,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         ]);
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -305,6 +313,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame($expectedAuthors, $res['authors']);
     }
@@ -327,7 +336,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -340,6 +349,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
     }
@@ -349,7 +359,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -362,6 +372,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertEmpty($res['language']);
@@ -380,7 +391,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://blog.niqnutn.com/index.php?article49/commandes-de-base');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -393,6 +404,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
     }
@@ -402,7 +414,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://www.ufocasebook.com/gulfbreeze.html');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -415,6 +427,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertContains('The Gulf Breeze, Florida UFOs (Ed Walters), UFO Casebook files', $res['title']);
@@ -428,7 +441,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
 
-        $this->assertCount(11, $res);
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -441,6 +454,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertContains('뉴스타운', $res['title']);
@@ -460,7 +474,8 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         ]);
         $res = $graby->fetchContent('http://www.journaldugamer.com/tests/rencontre-ils-bossaient-sur-une-exclu-kinect-qui-ne-sortira-jamais/');
 
-        $this->assertCount(11, $res);
+
+        $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -473,6 +488,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('summary', $res);
         $this->assertArrayHasKey('open_graph', $res);
         $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertSame('2016-01-25T15:25:51+00:00', $res['date']);
