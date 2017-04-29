@@ -646,7 +646,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     /**
      * Test that if the first h* found in the body is the same as the extracted title, it'll be removed.
      */
-    public function testRemoveH1FromBody()
+    public function testRemoveHFromBody()
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -655,7 +655,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config->title = ['//title'];
 
         $res = $contentExtractor->process(
-            '<html><body><title>My Title</title><div><h3>My Title</h3>' . str_repeat('this is the best part of the show', 10) . '</div></body></html>',
+            '<html><head><title>My Title</title></head><body><div><h3>My Title</h3>' . str_repeat('this is the best part of the show', 10) . '</div></body></html>',
             'https://lemonde.io/35941909',
             $config
         );

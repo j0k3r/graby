@@ -184,13 +184,13 @@ class Graby
         }
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
-        $mimeInfo = $this->getMimeActionInfo($response['headers']);
+        $mimeInfo = $this->getMimeActionInfo($response['all_headers']);
         $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response['body']);
         if (is_array($infos)) {
             return $infos;
         }
 
-        $html = $this->convert2Utf8($response['body'], $response['headers']);
+        $html = $this->convert2Utf8($response['body'], $response['all_headers']);
 
         // some non utf8 enconding might be breaking after converting to utf8
         // when it happen the string (usually) starts with this character
@@ -212,13 +212,13 @@ class Graby
             $effectiveUrl = $singlePageResponse['effective_url'];
 
             // check if action defined for returned Content-Type
-            $mimeInfo = $this->getMimeActionInfo($singlePageResponse['headers']);
+            $mimeInfo = $this->getMimeActionInfo($singlePageResponse['all_headers']);
             $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse['body']);
             if (is_array($infos)) {
                 return $infos;
             }
 
-            $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['headers']);
+            $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['all_headers']);
             $this->logger->log('debug', 'Retrieved single-page view from "{url}"', ['url' => $effectiveUrl]);
 
             unset($singlePageResponse);
@@ -265,7 +265,7 @@ class Graby
                 $response = $this->httpClient->fetch($nextPageUrl, false, $siteConfig->http_header);
 
                 // make sure mime type is not something with a different action associated
-                $mimeInfo = $this->getMimeActionInfo($response['headers']);
+                $mimeInfo = $this->getMimeActionInfo($response['all_headers']);
 
                 if (isset($mimeInfo['action'])) {
                     $this->logger->log('debug', 'MIME type requires different action');
@@ -274,7 +274,7 @@ class Graby
                 }
 
                 $extracSuccess = $this->extractor->process(
-                    $this->convert2Utf8($response['body'], $response['headers']),
+                    $this->convert2Utf8($response['body'], $response['all_headers']),
                     $nextPageUrl
                 );
 
@@ -374,6 +374,7 @@ class Graby
             'authors' => $extractedAuthors,
             'url' => $effectiveUrl,
             'content_type' => $mimeInfo['mime'],
+            'all_headers' => $response['all_headers'],
         ]]);
 
         return [
@@ -470,19 +471,21 @@ class Graby
     /**
      * Based on content-type http header, decide what to do.
      *
-     * @param string $headers Content-Type header content
+     * @param array $headers All headers from the response
      *
      * @return array With keys: 'mime', 'type', 'subtype', 'action', 'name'
      *               e.g. array('mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image')
      */
-    private function getMimeActionInfo($headers)
+    private function getMimeActionInfo(array $headers)
     {
+        $contentType = isset($headers['content-type']) ? strtolower($headers['content-type']) : '';
+
         // check if action defined for returned Content-Type
         $info = [
             'mime' => '',
         ];
 
-        if (preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($headers), $match)) {
+        if (preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', $contentType, $match)) {
             // look for full mime type (e.g. image/jpeg) or just type (e.g. image)
             // match[1] = full mime type, e.g. image/jpeg
             // match[2] = first part, e.g. image
@@ -867,13 +870,15 @@ class Graby
      * Adapted from http://stackoverflow.com/questions/910793/php-detect-encoding-and-make-everything-utf-8
      *
      * @param string $html
-     * @param string $header Content-type header content
+     * @param array  $headers All headers from the response
      *
      * @return string
      */
-    private function convert2Utf8($html, $header = null)
+    private function convert2Utf8($html, array $headers = [])
     {
-        if (empty($html) || empty($header)) {
+        $contentType = isset($headers['content-type']) ? strtolower($headers['content-type']) : '';
+
+        if (empty($html) || empty($contentType)) {
             return $html;
         }
 
@@ -881,13 +886,13 @@ class Graby
         // remove strange things
         $html = str_replace('</[>', '', $html);
 
-        if (is_array($header)) {
-            $header = implode("\n", $header);
+        if (is_array($contentType)) {
+            $contentType = implode("\n", $contentType);
         }
 
-        if (empty($header) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $header, $match, PREG_SET_ORDER)) {
+        if (empty($contentType) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, PREG_SET_ORDER)) {
             // error parsing the response
-            $this->logger->log('debug', 'Could not find Content-Type header in HTTP response', ['header' => $header]);
+            $this->logger->log('debug', 'Could not find Content-Type header in HTTP response', ['headers' => $headers]);
         } else {
             // get last matched element (in case of redirects)
             $match = end($match);

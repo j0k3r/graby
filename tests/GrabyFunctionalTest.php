@@ -44,7 +44,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
         $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res['title']);
         $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame('max-age=300', $res['all_headers']['Cache-Control'][0]);
+        $this->assertSame('max-age=300', $res['all_headers']['cache-control']);
 
         $this->assertArrayHasKey('og_site_name', $res['open_graph']);
         $this->assertArrayHasKey('og_locale', $res['open_graph']);

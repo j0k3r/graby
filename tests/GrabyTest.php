@@ -100,13 +100,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->will($this->returnCallback(function ($parameter) use ($header) {
-                switch ($parameter) {
-                    case 'Content-Type':
-                        return $header;
-                }
-            }));
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => $header]);
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -191,6 +186,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $response->expects($this->any())
+            ->method('getHeaders')
+            ->willReturn([]);
+
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
             ->getMock();
@@ -265,6 +264,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->method('getEffectiveUrl')
             ->willReturn('t411.io');
 
+        $response->expects($this->any())
+            ->method('getHeaders')
+            ->willReturn([]);
+
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
             ->getMock();
@@ -295,8 +298,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('image/jpeg');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'image/jpeg']);
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -333,8 +336,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('application/x-msdownload');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'application/x-msdownload']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -390,8 +393,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn($header);
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => $header]);
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -427,8 +430,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://lexpress.io/test.pdf');
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('application/pdf');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'application/pdf']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -473,8 +476,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('application/zip');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'application/zip']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -516,8 +519,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://lexpress.io/test.pdf');
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('application/pdf');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'application/pdf']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -567,8 +570,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/plain');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/plain']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -627,8 +630,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://' . $url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -678,10 +681,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->exactly(2))
-            ->method('getHeader')
+            ->method('getHeaders')
             ->will($this->onConsecutiveCalls(
-                'text/html',
-                'image/jpeg'
+                ['Content-Type' => 'text/html'],
+                ['Content-Type' => 'image/jpeg']
             ));
 
         $response->expects($this->any())
@@ -728,8 +731,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -778,10 +781,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->exactly(2))
-            ->method('getHeader')
+            ->method('getHeaders')
             ->will($this->onConsecutiveCalls(
-                'text/html',
-                'application/pdf'
+                ['Content-Type' => 'text/html'],
+                ['Content-Type' => 'application/pdf']
             ));
 
         $response->expects($this->exactly(2))
@@ -831,8 +834,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -881,8 +884,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -931,8 +934,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -1147,8 +1150,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -1192,8 +1195,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ->willReturn(200);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('application/pdf');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'application/pdf']);
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -1264,6 +1267,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->any())
             ->method('getStatusCode')
             ->willReturn(400);
+
+        $response->expects($this->any())
+            ->method('getHeaders')
+            ->willReturn([]);
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()

@@ -4,6 +4,7 @@ namespace Graby\Extractor;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Message\Response;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -99,6 +100,7 @@ class HttpClient
                 'effective_url' => self::$initialUrl,
                 'body' => '',
                 'headers' => '',
+                'all_headers' => [],
                 // Too many Redirects
                 'status' => 310,
             ]);
@@ -129,11 +131,13 @@ class HttpClient
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
+                $headers = $this->formatHeaders($response);
 
                 $data = [
                     'effective_url' => $response->getEffectiveUrl(),
                     'body' => '',
-                    'headers' => (string) $response->getHeader('Content-Type'),
+                    'headers' => isset($headers['content-type']) ? $headers['content-type'] : '',
+                    'all_headers' => $headers,
                     'status' => $response->getStatusCode(),
                 ];
 
@@ -147,6 +151,7 @@ class HttpClient
                 'effective_url' => $url,
                 'body' => '',
                 'headers' => '',
+                'all_headers' => [],
                 'status' => 500,
             ];
 
@@ -157,10 +162,10 @@ class HttpClient
         }
 
         $effectiveUrl = $response->getEffectiveUrl();
+        $headers = $this->formatHeaders($response);
 
-        $contentType = (string) $response->getHeader('Content-Type');
         // some Content-Type are urlencoded like: image%2Fjpeg
-        $contentType = urldecode($contentType);
+        $contentType = urldecode(isset($headers['content-type']) ? $headers['content-type'] : '');
 
         // the response content-type did not match our 'header only' types,
         // but we'd issues a HEAD request because we assumed it would. So
@@ -207,6 +212,7 @@ class HttpClient
             'effective_url' => $effectiveUrl,
             'body' => '(only length for debug): ' . strlen($body),
             'headers' => $contentType,
+            'all_headers' => $headers,
             'status' => $response->getStatusCode(),
         ]]);
 
@@ -214,7 +220,7 @@ class HttpClient
             'effective_url' => $effectiveUrl,
             'body' => $body,
             'headers' => $contentType,
-            'all_headers' => $response->getHeaders(),
+            'all_headers' => $headers,
             'status' => $response->getStatusCode(),
         ]);
     }
@@ -495,5 +501,23 @@ class HttpClient
         $url .= str_replace('%2F', '/', http_build_query($query));
 
         return $url;
+    }
+
+    /**
+     * Format all headers to avoid unecessary array level.
+     * Also lower the header name.
+     *
+     * @param Response $response
+     *
+     * @return array
+     */
+    private function formatHeaders($response)
+    {
+        $headers = [];
+        foreach ($response->getHeaders() as $name => $value) {
+            $headers[strtolower($name)] = is_array($value) ? implode(', ', $value) : $value;
+        }
+
+        return $headers;
     }
 }
