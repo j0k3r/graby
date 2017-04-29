@@ -72,8 +72,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($urlEffective);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('');
+            ->method('getHeaders')
+            ->willReturn([]);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -124,8 +124,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('image/jpg');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'image/jpg']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -178,8 +178,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -242,8 +242,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('fucked');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'fucked']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -324,8 +324,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->will($this->onConsecutiveCalls($url, $metaUrl));
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -370,8 +370,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -474,8 +474,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://fr.wikipedia.org/wiki/Copyright');
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('');
+            ->method('getHeaders')
+            ->willReturn([]);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -529,6 +529,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             'effective_url' => 'http://fr.wikipedia.org/wiki/Copyright',
             'body' => '(only length for debug): 3',
             'headers' => '',
+            'all_headers' => [],
             'status' => 200,
         ], $records[3]['context']['data']);
     }
@@ -565,8 +566,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn('http://fr.wikipedia.org/wiki/Copyright');
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('');
+            ->method('getHeaders')
+            ->willReturn([]);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -676,8 +677,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('text/html');
+            ->method('getHeaders')
+            ->willReturn(['Content-Type' => 'text/html']);
 
         $response->expects($this->any())
             ->method('getBody')
@@ -744,8 +745,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('');
+            ->method('getHeaders')
+            ->willReturn([]);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -823,8 +824,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             ->willReturn($url);
 
         $response->expects($this->any())
-            ->method('getHeader')
-            ->willReturn('');
+            ->method('getHeaders')
+            ->willReturn([]);
 
         $response->expects($this->any())
             ->method('getStatusCode')

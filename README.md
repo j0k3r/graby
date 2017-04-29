@@ -44,40 +44,45 @@ $result = $graby->fetchContent($article);
 
 var_dump($result);
 /*
-array(8) {
-  'status' =>
-  int 200
-  'html' =>
-  string() "Fetched and readable content"
-  'title' =>
-  string() "Ben E King: R&B legend dies at 76"
-  'language' =>
-  string() "en"
-  'date' =>
-  NULL
-  'authors' =>
-  array(0) {
-  }
-  'url' =>
-  string() "http://www.bbc.com/news/entertainment-arts-32547474"
-  'content_type' =>
-  string() "text/html"
-  'open_graph' =>
-    array (9)
-      'og_title' => string 'Ben E King: R&B legend dies at 76 - BBC News'
-      'og_type' => string 'article'
-      'og_description' => string 'R&B and soul singer Ben E King, best known for the classic song Stand By Me, dies at the age of 76.'
-      'og_site_name' => string 'BBC News'
-      'og_locale' => string 'en_GB'
-      'og_article_author' => string 'BBC News'
-      'og_article_section' => string 'Entertainment & Arts'
-      'og_url' => string 'http://www.bbc.com/news/entertainment-arts-32547474'
-      'og_image' => string 'http://ichef-1.bbci.co.uk/news/1024/media/images/82695000/jpg/_82695869_kingap.jpg'
-  'summary' =>
-  string() "Ben E King received an award from the Songwriters Hall of Fame in &hellip;",
-  'native_ad' =>
-  string() "false"
-}
+array (
+  'status' => 200
+  'html' => "Fetched and readable content"
+  'title' => "Ben E King: R&B legend dies at 76"
+  'language' => "en"
+  'date' => NULL
+  'authors' => array ()
+  'url' => "http://www.bbc.com/news/entertainment-arts-32547474"
+  'content_type' => "text/html"
+  'open_graph' => array (
+    'og_title' => 'Ben E King: R&B legend dies at 76 - BBC News'
+    'og_type' => 'article'
+    'og_description' => 'R&B and soul singer Ben E King, best known for the classic song Stand By Me, dies at the age of 76.'
+    'og_site_name' => 'BBC News'
+    'og_locale' => 'en_GB'
+    'og_article_author' => 'BBC News'
+    'og_article_section' => 'Entertainment & Arts'
+    'og_url' => 'http://www.bbc.com/news/entertainment-arts-32547474'
+    'og_image' => 'http://ichef-1.bbci.co.uk/news/1024/media/images/82695000/jpg/_82695869_kingap.jpg'
+  )
+  'summary' => "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
+  'native_ad' => false
+  'all_headers' => array (
+    'server' => 'Apache'
+    'content-type' => 'text/html; charset=utf-8'
+    'x-news-data-centre' => 'cwwtf'
+    'content-language' => 'en'
+    'x-pal-host' => 'pal074.back.live.cwwtf.local:80'
+    'x-news-cache-id' => '13648'
+    'content-length' => '157341'
+    'date' => 'Sat, 29 Apr 2017 07:35:39 GMT'
+    'connection' => 'keep-alive'
+    'cache-control' => 'private, max-age=60, stale-while-revalidate'
+    'x-cache-action' => 'MISS'
+    'x-cache-age' => '0'
+    'x-lb-nocache' => 'true'
+    'vary' => 'X-CDN,X-BBC-Edge-Cache,Accept-Encoding'
+  )
+)
 */
 ```
 
@@ -85,32 +90,20 @@ In case of error when fetching the url, graby won't throw an exception but will 
 
 ```php
 /*
-array(8) {
-  'status' =>
-  int 404
-  'html' =>
-  string() "[unable to retrieve full-text content]"
-  'title' =>
-  string() "No title found"
-  'language' =>
-  NULL
-  'date' =>
-  NULL
-  'authors' =>
-  array(0) {
-  }
-  'url' =>
-  string() "http://www.bbc.com/404"
-  'content_type' =>
-  string() "text/html"
-  'open_graph' =>
-    array (0)
-      empty
-  'native_ad' =>
-  bool(false)
-  'summary' =>
-  string() "[unable to retrieve full-text content]"
-}
+array(
+  'status' => 404
+  'html' => "[unable to retrieve full-text content]"
+  'title' => "No title found"
+  'language' => NULL
+  'date' => NULL
+  'authors' => array()
+  'url' => "http://www.bbc.com/404"
+  'content_type' => "text/html"
+  'open_graph' => array()
+  'summary' => "[unable to retrieve full-text content]"
+  'native_ad' => false
+  'all_headers' => array()
+)
 */
 ```
 
