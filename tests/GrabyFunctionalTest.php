@@ -474,7 +474,6 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         ]);
         $res = $graby->fetchContent('http://www.journaldugamer.com/tests/rencontre-ils-bossaient-sur-une-exclu-kinect-qui-ne-sortira-jamais/');
 
-
         $this->assertCount(12, $res);
 
         $this->assertArrayHasKey('status', $res);

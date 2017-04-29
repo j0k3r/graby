@@ -133,7 +133,7 @@ class ConfigBuilder
         }
 
         // is merged version already cached?
-        $cachedSiteConfig = $this->getCachedVersion($host.'.merged');
+        $cachedSiteConfig = $this->getCachedVersion($host . '.merged');
         if (false !== $cachedSiteConfig) {
             $this->logger->log('debug', 'Returning cached and merged site config for {host}', ['host' => $host]);
 
@@ -165,7 +165,7 @@ class ConfigBuilder
         // store copy of merged config
         if ($addToCache) {
             $config->cache_key = null;
-            $this->addToCache($host.'.merged', $config);
+            $this->addToCache($host . '.merged', $config);
         }
 
         return $config;
@@ -219,7 +219,7 @@ class ConfigBuilder
             if (count($split) > 1) {
                 // remove first subdomain
                 array_shift($split);
-                $try[] = '.'.implode('.', $split);
+                $try[] = '.' . implode('.', $split);
             }
         }
 
@@ -235,10 +235,10 @@ class ConfigBuilder
             }
 
             // if we found site config, process it
-            if (isset($this->configFiles[$host.'.txt'])) {
-                $this->logger->log('debug', '... found site config {host}', ['host' => $host.'.txt']);
+            if (isset($this->configFiles[$host . '.txt'])) {
+                $this->logger->log('debug', '... found site config {host}', ['host' => $host . '.txt']);
 
-                $configLines = file($this->configFiles[$host.'.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $configLines = file($this->configFiles[$host . '.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 // no lines ? we don't found config then
                 if (empty($configLines) || !is_array($configLines)) {
                     return false;

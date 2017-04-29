@@ -730,7 +730,7 @@ class ContentExtractor
         return $this->extractEntityFromQuery(
             'title',
             $detectTitle,
-            ".//*[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]",
+            ".//*[contains(concat(' ',normalize-space(@class),' '),' " . $cssClass . " ')]",
             $node,
             $logMessage
         );
@@ -751,7 +751,7 @@ class ContentExtractor
         return $this->extractEntityFromQuery(
             'date',
             $detectDate,
-            ".//time[@pubdate or @pubDate] | .//abbr[contains(concat(' ',normalize-space(@class),' '),' ".$cssClass." ')]",
+            ".//time[@pubdate or @pubDate] | .//abbr[contains(concat(' ',normalize-space(@class),' '),' " . $cssClass . " ')]",
             $node,
             $logMessage
         );
@@ -820,7 +820,7 @@ class ContentExtractor
             return $detectBody;
         }
 
-        $this->logger->log('debug', $type.': found "'.$elems->length.'" with '.$xpathExpression);
+        $this->logger->log('debug', $type . ': found "' . $elems->length . '" with ' . $xpathExpression);
 
         if ($elems->length === 1) {
             $this->body = $elems->item(0);

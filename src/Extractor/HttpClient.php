@@ -184,7 +184,7 @@ class HttpClient
                 $htmlTag = end($matchesHtml[0]);
 
                 if (!empty($htmlTag)) {
-                    $body = str_replace($matchesConditional[0], $htmlTag.'<head>', $body);
+                    $body = str_replace($matchesConditional[0], $htmlTag . '<head>', $body);
                 }
             }
         }
@@ -205,7 +205,7 @@ class HttpClient
 
         $this->logger->log('debug', 'Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
-            'body' => '(only length for debug): '.strlen($body),
+            'body' => '(only length for debug): ' . strlen($body),
             'headers' => $contentType,
             'status' => $response->getStatusCode(),
         ]]);
@@ -274,7 +274,7 @@ class HttpClient
         }
 
         if (self::$nbRedirect > $this->config['max_redirect']) {
-            $this->logger->log('debug', 'Endless redirect: '.self::$nbRedirect.' on "{url}"', ['url' => $url]);
+            $this->logger->log('debug', 'Endless redirect: ' . self::$nbRedirect . ' on "{url}"', ['url' => $url]);
 
             return false;
         }
@@ -348,7 +348,7 @@ class HttpClient
         if (count($split) > 1) {
             // remove first subdomain
             array_shift($split);
-            $try[] = '.'.implode('.', $split);
+            $try[] = '.' . implode('.', $split);
         }
 
         foreach ($try as $h) {
@@ -439,7 +439,7 @@ class HttpClient
         $redirectUrl = str_replace('&amp;', '&', trim($match[1]));
         if (preg_match('!^https?://!i', $redirectUrl)) {
             // already absolute
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$redirectUrl);
+            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $redirectUrl);
 
             return $redirectUrl;
         }
@@ -452,7 +452,7 @@ class HttpClient
         }
 
         if ($absolute = \SimplePie_IRI::absolutize($base, $redirectUrl)) {
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: '.$absolute);
+            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $absolute);
 
             return $absolute->get_iri();
         }

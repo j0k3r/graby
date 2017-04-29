@@ -75,7 +75,7 @@ class Graby
 
         if ($this->debug) {
             $this->logger = new Logger('graby');
-            $this->logger->pushHandler(new StreamHandler(__DIR__.'/../log/graby.log'));
+            $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/graby.log'));
         }
 
         $this->configBuilder = $configBuilder;
@@ -403,11 +403,11 @@ class Graby
         // Check for feed URL
         $url = trim($url);
         if (strtolower(substr($url, 0, 7)) === 'feed://') {
-            $url = 'http://'.substr($url, 7);
+            $url = 'http://' . substr($url, 7);
         }
 
         if (!preg_match('!^https?://.+!i', $url)) {
-            $url = 'http://'.$url;
+            $url = 'http://' . $url;
         }
 
         // explode url to convert accents
@@ -539,10 +539,10 @@ class Graby
             case 'exclude':
                 throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
             case 'link':
-                $infos['html'] = '<a href="'.$effectiveUrl.'">Download '.$mimeInfo['name'].'</a>';
+                $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
 
                 if ($mimeInfo['type'] === 'image') {
-                    $infos['html'] = '<a href="'.$effectiveUrl.'"><img src="'.$effectiveUrl.'" alt="'.$mimeInfo['name'].'" /></a>';
+                    $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
                 }
 
                 if ($mimeInfo['mime'] === 'application/pdf') {
@@ -588,7 +588,7 @@ class Graby
                 }
 
                 if ($mimeInfo['mime'] === 'text/plain') {
-                    $infos['html'] = '<pre>'.$body.'</pre>';
+                    $infos['html'] = '<pre>' . $body . '</pre>';
                 }
 
                 return $infos;
@@ -783,7 +783,7 @@ class Graby
             }
             $length = $breakpoint;
 
-            return rtrim(mb_substr($text, 0, $length)).$separator;
+            return rtrim(mb_substr($text, 0, $length)) . $separator;
         }
 
         return $text;
@@ -847,15 +847,15 @@ class Graby
      */
     private function unparse_url($data)
     {
-        $scheme = isset($data['scheme']) ? $data['scheme'].'://' : '';
+        $scheme = isset($data['scheme']) ? $data['scheme'] . '://' : '';
         $host = isset($data['host']) ? $data['host'] : '';
-        $port = isset($data['port']) ? ':'.$data['port'] : '';
+        $port = isset($data['port']) ? ':' . $data['port'] : '';
         $user = isset($data['user']) ? $data['user'] : '';
-        $pass = isset($data['pass']) ? ':'.$data['pass'] : '';
+        $pass = isset($data['pass']) ? ':' . $data['pass'] : '';
         $pass = ($user || $pass) ? "$pass@" : '';
         $path = isset($data['path']) ? $data['path'] : '';
-        $query = isset($data['query']) ? '?'.$data['query'] : '';
-        $fragment = isset($data['fragment']) ? '#'.$data['fragment'] : '';
+        $query = isset($data['query']) ? '?' . $data['query'] : '';
+        $fragment = isset($data['fragment']) ? '#' . $data['fragment'] : '';
 
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
