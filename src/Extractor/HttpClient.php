@@ -309,7 +309,7 @@ class HttpClient
      *
      * @param string $url Absolute url
      *
-     * @return string|false
+     * @return bool
      */
     private function possibleUnsupportedType($url)
     {

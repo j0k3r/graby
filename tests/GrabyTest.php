@@ -631,7 +631,10 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $response->expects($this->any())
             ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
+            ->willReturn([
+                'Content-Type' => 'text/html',
+                'Content-Language' => 'en',
+            ]);
 
         $response->expects($this->any())
             ->method('getStatusCode')
@@ -656,7 +659,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $res = $graby->fetchContent('lexpress.io');
 
         $this->assertCount(12, $res);
-        $this->assertEmpty($res['language']);
+        $this->assertSame('en', $res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertSame('my content', $res['html']);
         $this->assertSame('http://' . $url, $res['url']);

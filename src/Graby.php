@@ -234,6 +234,11 @@ class Graby
         $extractedDate = $this->extractor->getDate();
         $extractedAuthors = $this->extractor->getAuthors();
 
+        // in case of no language were found, try using headers Content-Language
+        if (empty($extractedLanguage) && !empty($response['all_headers']['content-language'])) {
+            $extractedLanguage = $response['all_headers']['content-language'];
+        }
+
         // Deal with multi-page articles
         $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $isMultiPage) {
