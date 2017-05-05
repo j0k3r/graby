@@ -1,7 +1,7 @@
 {
     "name": "j0k3r/graby",
     "description": "Graby helps you extract article content from web pages",
-    "license": "AGPL-3.0",
+    "license": "MIT",
     "authors": [{
         "name": "Jeremy Benoist",
         "email": "jeremy.benoist@gmail.com",
