@@ -206,7 +206,7 @@ class HttpClient
         }
 
         // remove utm parameters & fragment
-        $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', urldecode($effectiveUrl));
+        $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', rawurldecode($effectiveUrl));
 
         $this->logger->log('debug', 'Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,

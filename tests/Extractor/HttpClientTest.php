@@ -436,6 +436,22 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(200, $res['status']);
     }
 
+    public function testWithUrlContainingPlusSymbol()
+    {
+        $client = new Client();
+
+        $mock = new Mock([
+            new Response(200),
+        ]);
+
+        $client->getEmitter()->attach($mock);
+
+        $http = new HttpClient($client);
+        $res = $http->fetch('https://example.com/foo/+bar/baz/+quuz/corge');
+
+        $this->assertSame('https://example.com/foo/+bar/baz/+quuz/corge', $res['effective_url']);
+    }
+
     public function testWith404ResponseWithoutResponse()
     {
         $request = $this->getMockBuilder('GuzzleHttp\Message\Request')
