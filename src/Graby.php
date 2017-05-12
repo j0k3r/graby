@@ -114,6 +114,17 @@ class Graby
     }
 
     /**
+     * Get the Content Extractor.
+     * Can be used to clean html content without fetching an url.
+     *
+     * @return ContentExtractor
+     */
+    public function getExtractor()
+    {
+        return $this->extractor;
+    }
+
+    /**
      * Return a config.
      *
      * @param string $key

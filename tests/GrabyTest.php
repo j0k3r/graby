@@ -11,6 +11,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
 
         $this->assertTrue($graby->getConfig('debug'));
+        $this->assertInstanceof('\Graby\Extractor\ContentExtractor', $graby->getExtractor());
     }
 
     /**
