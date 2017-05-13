@@ -142,19 +142,6 @@ class Graby
 
         $infos = $this->doFetchContent($url);
 
-        // filter xss?
-        if ($this->config['xss_filter']) {
-            $this->logger->log('debug', 'Filtering HTML to remove XSS');
-            $infos['html'] = htmLawed($infos['html'], [
-                'safe' => 1,
-                // which means: do not remove iframe elements
-                'elements' => '*+iframe',
-                'deny_attribute' => 'style',
-                'comment' => 1,
-                'cdata' => 1,
-            ]);
-        }
-
         // generate summary
         $infos['summary'] = $this->getExcerpt($infos['html']);
 
@@ -223,7 +210,7 @@ class Graby
             $html = preg_replace('!</?a[^>]*>!', '', $html);
         }
 
-        return trim($html);
+        return trim($this->cleanupXss($html));
     }
 
     /**
@@ -440,7 +427,7 @@ class Graby
         }
 
         // everything should be converted, rebuild the final url
-        $url = $this->unparse_url($parsedUrl);
+        $url = $this->unparseUrl($parsedUrl);
 
         if (false === filter_var($url, FILTER_VALIDATE_URL)) {
             throw new \Exception(sprintf('Url "%s" is not valid.', $url));
@@ -528,7 +515,7 @@ class Graby
      */
     private function handleMimeAction($mimeInfo, $effectiveUrl, $body = '')
     {
-        if (!isset($mimeInfo['action'])) {
+        if (!isset($mimeInfo['action']) || !in_array($mimeInfo['action'], ['link', 'exclude'], true)) {
             return;
         }
 
@@ -547,64 +534,65 @@ class Graby
             'all_headers' => [],
         ];
 
-        switch ($mimeInfo['action']) {
-            case 'exclude':
-                throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
-            case 'link':
-                $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
-
-                if ($mimeInfo['type'] === 'image') {
-                    $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
-                }
-
-                if ($mimeInfo['mime'] === 'application/pdf') {
-                    $parser = new PdfParser();
-                    $pdf = $parser->parseContent($body);
-
-                    // tiny hack to avoid character like �
-                    $html = mb_convert_encoding(nl2br($pdf->getText()), 'UTF-8', 'UTF-8');
-
-                    // strip away unwanted chars (that usualy came from PDF extracted content)
-                    // @see http://www.phpwact.org/php/i18n/charsets#common_problem_areas_with_utf-8
-                    $html = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $html);
-
-                    $infos['html'] = $html;
-
-                    // update title in case of details are present
-                    $details = $pdf->getDetails();
-
-                    // Title can be a string or an array with one key
-                    if (isset($details['Title'])) {
-                        if (is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
-                            $infos['title'] = $details['Title'][0];
-                        } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
-                            $infos['title'] = $details['Title'];
-                        }
-                    }
-
-                    if (isset($details['Author'])) {
-                        if (is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
-                            $infos['authors'][] = $details['Author'][0];
-                        } elseif (is_string($details['Author']) && '' !== trim($details['Author'])) {
-                            $infos['authors'][] = $details['Author'];
-                        }
-                    }
-
-                    if (isset($details['CreationDate'])) {
-                        if (is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
-                            $infos['date'] = $details['CreationDate'][0];
-                        } elseif (is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
-                            $infos['date'] = $details['CreationDate'];
-                        }
-                    }
-                }
-
-                if ($mimeInfo['mime'] === 'text/plain') {
-                    $infos['html'] = '<pre>' . $body . '</pre>';
-                }
-
-                return $infos;
+        if ('exclude' === $mimeInfo['action']) {
+            throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
         }
+
+        $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
+
+        if ($mimeInfo['type'] === 'image') {
+            $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
+        }
+
+        if ($mimeInfo['mime'] === 'application/pdf') {
+            $parser = new PdfParser();
+            $pdf = $parser->parseContent($body);
+
+            // tiny hack to avoid character like �
+            $html = mb_convert_encoding(nl2br($pdf->getText()), 'UTF-8', 'UTF-8');
+
+            // strip away unwanted chars (that usualy came from PDF extracted content)
+            // @see http://www.phpwact.org/php/i18n/charsets#common_problem_areas_with_utf-8
+            $html = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $html);
+
+            $infos['html'] = $html;
+
+            // update title in case of details are present
+            $details = $pdf->getDetails();
+
+            // Title can be a string or an array with one key
+            if (isset($details['Title'])) {
+                if (is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
+                    $infos['title'] = $details['Title'][0];
+                } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
+                    $infos['title'] = $details['Title'];
+                }
+            }
+
+            if (isset($details['Author'])) {
+                if (is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
+                    $infos['authors'][] = $details['Author'][0];
+                } elseif (is_string($details['Author']) && '' !== trim($details['Author'])) {
+                    $infos['authors'][] = $details['Author'];
+                }
+            }
+
+            if (isset($details['CreationDate'])) {
+                if (is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
+                    $infos['date'] = $details['CreationDate'][0];
+                } elseif (is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
+                    $infos['date'] = $details['CreationDate'];
+                }
+            }
+        }
+
+        if ($mimeInfo['mime'] === 'text/plain') {
+            $infos['html'] = '<pre>' . $this->cleanupXss($body) . '</pre>';
+        }
+
+        $infos['html'] = $this->cleanupXss($infos['html']);
+
+        return $infos;
     }
 
     /**
@@ -857,7 +845,7 @@ class Graby
      *
      * @return array
      */
-    private function unparse_url($data)
+    private function unparseUrl($data)
     {
         $scheme = isset($data['scheme']) ? $data['scheme'] . '://' : '';
         $host = isset($data['host']) ? $data['host'] : '';
@@ -980,5 +968,30 @@ class Graby
         $this->logger->log('debug', 'Treating as UTF-8', ['encoding' => $encoding]);
 
         return $html;
+    }
+
+    /**
+     * Try to cleanup XSS using htmLawed.
+     *
+     * @param string $html
+     *
+     * @return string
+     */
+    private function cleanupXss($html)
+    {
+        if (false === $this->config['xss_filter']) {
+            return $html;
+        }
+
+        $this->logger->log('debug', 'Filtering HTML to remove XSS');
+
+        return htmLawed($html, [
+            'safe' => 1,
+            // which means: do not remove iframe elements
+            'elements' => '*+iframe',
+            'deny_attribute' => 'style',
+            'comment' => 1,
+            'cdata' => 1,
+        ]);
     }
 }
