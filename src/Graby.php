@@ -114,17 +114,6 @@ class Graby
     }
 
     /**
-     * Get the Content Extractor.
-     * Can be used to clean html content without fetching an url.
-     *
-     * @return ContentExtractor
-     */
-    public function getExtractor()
-    {
-        return $this->extractor;
-    }
-
-    /**
      * Return a config.
      *
      * @param string $key
@@ -170,6 +159,71 @@ class Graby
         $infos['summary'] = $this->getExcerpt($infos['html']);
 
         return $infos;
+    }
+
+    /**
+     * Cleanup HTML from a DOMElement or a string.
+     *
+     * @param string|\DOMElement $contentBlock
+     * @param string             $url
+     *
+     * @return string
+     */
+    public function cleanupHtml($contentBlock, $url)
+    {
+        // if content is pure html, convert it
+        if (!$contentBlock instanceof \DOMElement) {
+            $this->extractor->process($contentBlock, $url);
+
+            $contentBlock = $this->extractor->getContent();
+        }
+
+        $this->extractor->readability->clean($contentBlock, 'select');
+
+        if ($this->config['rewrite_relative_urls']) {
+            $this->makeAbsolute($url, $contentBlock);
+        }
+
+        // footnotes
+        if ($this->config['content_links'] === 'footnotes' && strpos($url, 'wikipedia.org') === false) {
+            $this->extractor->readability->addFootnotes($contentBlock);
+        }
+
+        // normalise
+        $contentBlock->normalize();
+
+        // remove empty text nodes
+        foreach ($contentBlock->childNodes as $n) {
+            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) === '') {
+                $contentBlock->removeChild($n);
+            }
+        }
+
+        // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
+        while ($contentBlock->childNodes->length === 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
+            // only follow these tag names
+            if (!in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
+                break;
+            }
+
+            $contentBlock = $contentBlock->firstChild;
+        }
+
+        // convert content block to HTML string
+        // Need to preserve things like body: //img[@id='feature']
+        if (in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer', 'li', 'td'], true)) {
+            $html = $contentBlock->innerHTML;
+        } else {
+            $html = $contentBlock->ownerDocument->saveXML($contentBlock); // essentially outerHTML
+        }
+
+        // post-processing cleanup
+        $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', $html);
+        if ($this->config['content_links'] === 'remove') {
+            $html = preg_replace('!</?a[^>]*>!', '', $html);
+        }
+
+        return trim($html);
     }
 
     /**
@@ -236,9 +290,9 @@ class Graby
         }
 
         $this->logger->log('debug', 'Attempting to extract content');
+
         $extractResult = $this->extractor->process($html, $effectiveUrl);
         $readability = $this->extractor->readability;
-
         $contentBlock = $this->extractor->getContent();
         $extractedTitle = $this->extractor->getTitle();
         $extractedLanguage = $this->extractor->getLanguage();
@@ -319,93 +373,32 @@ class Graby
             unset($multiPageUrls, $multiPageContent, $nextPageUrl, $page);
         }
 
-        // if we failed to extract content...
-        if (!$extractResult || null === $contentBlock) {
-            return [
-                'status' => $response['status'],
-                'html' => $this->config['error_message'],
-                'title' => $extractedTitle ?: $this->config['error_message_title'],
-                'language' => $extractedLanguage,
-                'date' => $extractedDate,
-                'authors' => $extractedAuthors,
-                'url' => $effectiveUrl,
-                'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
-                'open_graph' => $ogData,
-                'native_ad' => $this->extractor->isNativeAd(),
-                'all_headers' => $response['all_headers'],
-            ];
-        }
-
-        $readability->clean($contentBlock, 'select');
-
-        if ($this->config['rewrite_relative_urls']) {
-            $this->makeAbsolute($effectiveUrl, $contentBlock);
-        }
-
-        // footnotes
-        if ($this->config['content_links'] === 'footnotes' && strpos($effectiveUrl, 'wikipedia.org') === false) {
-            $readability->addFootnotes($contentBlock);
-        }
-
-        // normalise
-        $contentBlock->normalize();
-
-        // remove empty text nodes
-        foreach ($contentBlock->childNodes as $n) {
-            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) === '') {
-                $contentBlock->removeChild($n);
-            }
-        }
-
-        // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while ($contentBlock->childNodes->length === 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
-            // only follow these tag names
-            if (!in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
-                break;
-            }
-
-            $contentBlock = $contentBlock->firstChild;
-        }
-
-        // convert content block to HTML string
-        // Need to preserve things like body: //img[@id='feature']
-        if (in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer', 'li', 'td'], true)) {
-            $html = $contentBlock->innerHTML;
-        } else {
-            $html = $contentBlock->ownerDocument->saveXML($contentBlock); // essentially outerHTML
-        }
-
-        unset($contentBlock);
-
-        // post-processing cleanup
-        $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', $html);
-        if ($this->config['content_links'] === 'remove') {
-            $html = preg_replace('!</?a[^>]*>!', '', $html);
-        }
-
-        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => [
-            'title' => $extractedTitle,
-            'language' => $extractedLanguage,
-            'date' => $extractedDate,
-            'authors' => $extractedAuthors,
-            'url' => $effectiveUrl,
-            'content_type' => $mimeInfo['mime'],
-            'all_headers' => $response['all_headers'],
-        ]]);
-
-        return [
+        $res = [
             'status' => $response['status'],
-            'html' => trim($html),
+            'html' => $this->config['error_message'],
             'title' => $extractedTitle ?: $this->config['error_message_title'],
             'language' => $extractedLanguage,
             'date' => $extractedDate,
             'authors' => $extractedAuthors,
             'url' => $effectiveUrl,
-            'content_type' => $mimeInfo['mime'],
+            'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
             'open_graph' => $ogData,
             'native_ad' => $this->extractor->isNativeAd(),
             'all_headers' => $response['all_headers'],
         ];
+
+        // if we failed to extract content...
+        if (!$extractResult || null === $contentBlock) {
+            $this->logger->log('debug', 'Extract failed');
+
+            return $res;
+        }
+
+        $res['html'] = $this->cleanupHtml($contentBlock, $effectiveUrl);
+
+        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => ($res + ['html' => strlen($res['html'])])]);
+
+        return $res;
     }
 
     /**
