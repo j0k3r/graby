@@ -16,6 +16,7 @@ class ConfigBuilder
 
     /**
      * Third party config builders, indexed by their prefix.
+     *
      * @var \Graby\SiteConfig\ExtraConfigBuilder[]
      */
     private $extraConfigBuilders = [];
@@ -351,7 +352,7 @@ class ConfigBuilder
             }
 
             foreach (array_keys($this->extraConfigBuilders) as $prefix) {
-                if (strpos($command, $prefix . "_") === false) {
+                if (strpos($command, $prefix.'_') === false) {
                     continue;
                 }
                 $command = substr($command, strlen($prefix) + 1);
@@ -360,7 +361,7 @@ class ConfigBuilder
                 } elseif (!is_array($extraConfigItems[$prefix][$command])) {
                     $extraConfigItems[$prefix][$command] = [
                         $extraConfigItems[$prefix][$command],
-                        $val
+                        $val,
                     ];
                 } else {
                     $extraConfigItems[$prefix][$command][] = $val;
