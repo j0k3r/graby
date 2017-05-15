@@ -132,6 +132,11 @@ class SiteConfig
     protected $default_parser = 'libxml'; // used if undeclared
 
     /**
+     * @var \Graby\SiteConfig\SiteExtraConfig[]
+     */
+    public $extraConfigs = [];
+
+    /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
      *
      * @param bool $use_default
