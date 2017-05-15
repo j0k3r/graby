@@ -351,20 +351,21 @@ class ConfigBuilder
             }
 
             foreach (array_keys($this->extraConfigBuilders) as $prefix) {
-                if (strpos($command, $prefix . "_") === 0) {
-                    $command = substr($command, strlen($prefix) + 1);
-                    if (!isset($extraConfigItems[$prefix][$command])) {
-                        $extraConfigItems[$prefix][$command] = $val;
-                    } elseif (!is_array($extraConfigItems[$prefix][$command])) {
-                        $extraConfigItems[$prefix][$command] = [
-                            $extraConfigItems[$prefix][$command],
-                            $val
-                        ];
-                    } else {
-                        $extraConfigItems[$prefix][$command][] = $val;
-                    }
-                    continue 2;
+                if (strpos($command, $prefix . "_") === false) {
+                    continue;
                 }
+                $command = substr($command, strlen($prefix) + 1);
+                if (!isset($extraConfigItems[$prefix][$command])) {
+                    $extraConfigItems[$prefix][$command] = $val;
+                } elseif (!is_array($extraConfigItems[$prefix][$command])) {
+                    $extraConfigItems[$prefix][$command] = [
+                        $extraConfigItems[$prefix][$command],
+                        $val
+                    ];
+                } else {
+                    $extraConfigItems[$prefix][$command][] = $val;
+                }
+                continue 2;
             }
 
             // check for commands where we accept multiple statements
