@@ -15,6 +15,12 @@ class ConfigBuilder
     private $cache = array();
 
     /**
+     * Third party config builders, indexed by their prefix.
+     * @var \Graby\SiteConfig\ExtraConfigBuilder[]
+     */
+    private $extraConfigBuilders = [];
+
+    /**
      * @param array                $config
      * @param LoggerInterface|null $logger
      */
@@ -38,6 +44,17 @@ class ConfigBuilder
         }
 
         $this->configFiles = Files::getFiles($this->config['site_config']);
+    }
+
+    /**
+     * Adds a ConfigBuilder for an extra, custom configuration.
+     *
+     * @param $prefix
+     * @param \Graby\SiteConfig\ExtraConfigBuilder $extraConfigBuilder
+     */
+    public function addExtraConfigBuilder($prefix, ExtraConfigBuilder $extraConfigBuilder)
+    {
+        $this->extraConfigBuilders[$prefix] = $extraConfigBuilder;
     }
 
     public function setLogger(LoggerInterface $logger)
@@ -309,6 +326,7 @@ class ConfigBuilder
      */
     public function parseLines(array $lines)
     {
+        $extraConfigItems = [];
         $config = new SiteConfig();
 
         foreach ($lines as $line) {
@@ -332,6 +350,23 @@ class ConfigBuilder
                 continue;
             }
 
+            foreach (array_keys($this->extraConfigBuilders) as $prefix) {
+                if (strpos($command, $prefix . "_") === 0) {
+                    $command = substr($command, strlen($prefix) + 1);
+                    if (!isset($extraConfigItems[$prefix][$command])) {
+                        $extraConfigItems[$prefix][$command] = $val;
+                    } elseif (!is_array($extraConfigItems[$prefix][$command])) {
+                        $extraConfigItems[$prefix][$command] = [
+                            $extraConfigItems[$prefix][$command],
+                            $val
+                        ];
+                    } else {
+                        $extraConfigItems[$prefix][$command][] = $val;
+                    }
+                    continue 2;
+                }
+            }
+
             // check for commands where we accept multiple statements
             if (in_array($command, array('title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields'))) {
                 array_push($config->$command, $val);
@@ -348,6 +383,14 @@ class ConfigBuilder
             } elseif ((substr($command, -1) == ')') && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && $match[1] == 'http_header' && in_array($match[2], array('user-agent', 'referer'))) {
                 $config->http_header[$match[2]] = $val;
             }
+        }
+
+        foreach ($extraConfigItems as $extraConfigBuilderKey => $commands) {
+            if (!isset($this->extraConfigBuilders[$extraConfigBuilderKey])) {
+                continue;
+            }
+            $config->extraConfigs[$extraConfigBuilderKey] =
+                $this->extraConfigBuilders[$extraConfigBuilderKey]->parseCommands($commands);
         }
 
         return $config;

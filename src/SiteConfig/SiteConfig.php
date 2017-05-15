@@ -129,6 +129,11 @@ class SiteConfig
     public $login_extra_fields = array();
 
     /**
+     * @var \Graby\SiteConfig\SiteExtraConfig[]
+     */
+    public $extraConfigs = [];
+
+    /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
      *
      * @param bool $use_default
