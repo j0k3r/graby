@@ -5,7 +5,10 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/j0k3r/graby/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/j0k3r/graby/?branch=master)
 
 Graby helps you extract article content from web pages.
-This is a fork of Full-Text RSS v3.3 from [@fivefilters](http://fivefilters.org/).
+
+- it's based on [php-readability](https://github.com/j0k3r/php-readability)
+- it uses [site_config](http://help.fivefilters.org/customer/portal/articles/223153-site-patterns) to extra content from websites
+- it's a fork of Full-Text RSS v3.3 from [@fivefilters](http://fivefilters.org/)
 
 ## Why this fork ?
 
@@ -114,7 +117,7 @@ The `date` result is the same as displayed in the content. If `date` is not `nul
 This is the full documented configuration and also the default one.
 
 ```php
-$graby = new Graby(
+$graby = new Graby(array(
     // Enable or disable debugging.
     // This will only generate log information in a file (log/graby.log)
     'debug' => false,
@@ -228,5 +231,5 @@ $graby = new Graby(
             'post_filters' => array(),
         ),
     ),
-);
+));
 ```
