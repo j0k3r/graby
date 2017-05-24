@@ -158,6 +158,8 @@ class Graby
      */
     public function cleanupHtml($contentBlock, $url)
     {
+        $originalContentBlock = $contentBlock;
+
         // if content is pure html, convert it
         if (!$contentBlock instanceof \DOMElement) {
             $this->extractor->process($contentBlock, $url);
@@ -167,6 +169,8 @@ class Graby
 
         // in case of extractor failed
         if (null === $contentBlock) {
+            $this->logger->log('debug', 'Cleanup html failed. Return given content (a bit cleaned)');
+
             return trim($this->cleanupXss($originalContentBlock));
         }
 
