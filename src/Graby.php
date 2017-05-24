@@ -165,6 +165,11 @@ class Graby
             $contentBlock = $this->extractor->getContent();
         }
 
+        // in case of extractor failed
+        if (null === $contentBlock) {
+            return trim($this->cleanupXss($originalContentBlock));
+        }
+
         $this->extractor->readability->clean($contentBlock, 'select');
 
         if ($this->config['rewrite_relative_urls']) {
