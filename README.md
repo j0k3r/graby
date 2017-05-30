@@ -31,6 +31,8 @@ That's why I made this fork:
 
 ## How to use it
 
+### Retrieve content from an url
+
 Add the lib using composer:
 
     composer require j0k3r/graby
@@ -111,6 +113,21 @@ array(
 ```
 
 The `date` result is the same as displayed in the content. If `date` is not `null` in the result, we recommend you to parse it using [`date_parse`](http://php.net/date_parse) (this is what we are using to validate that the date is correct).
+
+### Cleanup content
+
+Since the 1.9.0 version, you can also send html content to be cleanup in the same way graby clean content retrieved from an url. The url is still needed to convert links to absolute, etc.
+
+```php
+use Graby\Graby;
+
+$article = 'http://www.bbc.com/news/entertainment-arts-32547474';
+// use your own way to retrieve html or to provide html
+$html = ...
+
+$graby = new Graby();
+$result = $graby->cleanupHtml($html, $article);
+```
 
 ## Full configuration
 
