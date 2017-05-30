@@ -142,23 +142,84 @@ class Graby
 
         $infos = $this->doFetchContent($url);
 
-        // filter xss?
-        if ($this->config['xss_filter']) {
-            $this->logger->log('debug', 'Filtering HTML to remove XSS');
-            $infos['html'] = htmLawed($infos['html'], [
-                'safe' => 1,
-                // which means: do not remove iframe elements
-                'elements' => '*+iframe',
-                'deny_attribute' => 'style',
-                'comment' => 1,
-                'cdata' => 1,
-            ]);
-        }
-
         // generate summary
         $infos['summary'] = $this->getExcerpt($infos['html']);
 
         return $infos;
+    }
+
+    /**
+     * Cleanup HTML from a DOMElement or a string.
+     *
+     * @param string|\DOMElement $contentBlock
+     * @param string             $url
+     *
+     * @return string
+     */
+    public function cleanupHtml($contentBlock, $url)
+    {
+        $originalContentBlock = $contentBlock;
+
+        // if content is pure html, convert it
+        if (!$contentBlock instanceof \DOMElement) {
+            $this->extractor->process($contentBlock, $url);
+
+            $contentBlock = $this->extractor->getContent();
+        }
+
+        // in case of extractor failed
+        if (null === $contentBlock) {
+            $this->logger->log('debug', 'Cleanup html failed. Return given content (a bit cleaned)');
+
+            return trim($this->cleanupXss($originalContentBlock));
+        }
+
+        $this->extractor->readability->clean($contentBlock, 'select');
+
+        if ($this->config['rewrite_relative_urls']) {
+            $this->makeAbsolute($url, $contentBlock);
+        }
+
+        // footnotes
+        if ($this->config['content_links'] === 'footnotes' && strpos($url, 'wikipedia.org') === false) {
+            $this->extractor->readability->addFootnotes($contentBlock);
+        }
+
+        // normalise
+        $contentBlock->normalize();
+
+        // remove empty text nodes
+        foreach ($contentBlock->childNodes as $n) {
+            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) === '') {
+                $contentBlock->removeChild($n);
+            }
+        }
+
+        // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
+        while ($contentBlock->childNodes->length === 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
+            // only follow these tag names
+            if (!in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
+                break;
+            }
+
+            $contentBlock = $contentBlock->firstChild;
+        }
+
+        // convert content block to HTML string
+        // Need to preserve things like body: //img[@id='feature']
+        if (in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer', 'li', 'td'], true)) {
+            $html = $contentBlock->innerHTML;
+        } else {
+            $html = $contentBlock->ownerDocument->saveXML($contentBlock); // essentially outerHTML
+        }
+
+        // post-processing cleanup
+        $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', $html);
+        if ($this->config['content_links'] === 'remove') {
+            $html = preg_replace('!</?a[^>]*>!', '', $html);
+        }
+
+        return trim($this->cleanupXss($html));
     }
 
     /**
@@ -225,9 +286,9 @@ class Graby
         }
 
         $this->logger->log('debug', 'Attempting to extract content');
+
         $extractResult = $this->extractor->process($html, $effectiveUrl);
         $readability = $this->extractor->readability;
-
         $contentBlock = $this->extractor->getContent();
         $extractedTitle = $this->extractor->getTitle();
         $extractedLanguage = $this->extractor->getLanguage();
@@ -308,93 +369,32 @@ class Graby
             unset($multiPageUrls, $multiPageContent, $nextPageUrl, $page);
         }
 
-        // if we failed to extract content...
-        if (!$extractResult || null === $contentBlock) {
-            return [
-                'status' => $response['status'],
-                'html' => $this->config['error_message'],
-                'title' => $extractedTitle ?: $this->config['error_message_title'],
-                'language' => $extractedLanguage,
-                'date' => $extractedDate,
-                'authors' => $extractedAuthors,
-                'url' => $effectiveUrl,
-                'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
-                'open_graph' => $ogData,
-                'native_ad' => $this->extractor->isNativeAd(),
-                'all_headers' => $response['all_headers'],
-            ];
-        }
-
-        $readability->clean($contentBlock, 'select');
-
-        if ($this->config['rewrite_relative_urls']) {
-            $this->makeAbsolute($effectiveUrl, $contentBlock);
-        }
-
-        // footnotes
-        if ($this->config['content_links'] === 'footnotes' && strpos($effectiveUrl, 'wikipedia.org') === false) {
-            $readability->addFootnotes($contentBlock);
-        }
-
-        // normalise
-        $contentBlock->normalize();
-
-        // remove empty text nodes
-        foreach ($contentBlock->childNodes as $n) {
-            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) === '') {
-                $contentBlock->removeChild($n);
-            }
-        }
-
-        // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while ($contentBlock->childNodes->length === 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
-            // only follow these tag names
-            if (!in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
-                break;
-            }
-
-            $contentBlock = $contentBlock->firstChild;
-        }
-
-        // convert content block to HTML string
-        // Need to preserve things like body: //img[@id='feature']
-        if (in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer', 'li', 'td'], true)) {
-            $html = $contentBlock->innerHTML;
-        } else {
-            $html = $contentBlock->ownerDocument->saveXML($contentBlock); // essentially outerHTML
-        }
-
-        unset($contentBlock);
-
-        // post-processing cleanup
-        $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', $html);
-        if ($this->config['content_links'] === 'remove') {
-            $html = preg_replace('!</?a[^>]*>!', '', $html);
-        }
-
-        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => [
-            'title' => $extractedTitle,
-            'language' => $extractedLanguage,
-            'date' => $extractedDate,
-            'authors' => $extractedAuthors,
-            'url' => $effectiveUrl,
-            'content_type' => $mimeInfo['mime'],
-            'all_headers' => $response['all_headers'],
-        ]]);
-
-        return [
+        $res = [
             'status' => $response['status'],
-            'html' => trim($html),
+            'html' => $this->config['error_message'],
             'title' => $extractedTitle ?: $this->config['error_message_title'],
             'language' => $extractedLanguage,
             'date' => $extractedDate,
             'authors' => $extractedAuthors,
             'url' => $effectiveUrl,
-            'content_type' => $mimeInfo['mime'],
+            'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
             'open_graph' => $ogData,
             'native_ad' => $this->extractor->isNativeAd(),
             'all_headers' => $response['all_headers'],
         ];
+
+        // if we failed to extract content...
+        if (!$extractResult || null === $contentBlock) {
+            $this->logger->log('debug', 'Extract failed');
+
+            return $res;
+        }
+
+        $res['html'] = $this->cleanupHtml($contentBlock, $effectiveUrl);
+
+        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => ($res + ['html' => strlen($res['html'])])]);
+
+        return $res;
     }
 
     /**
@@ -436,7 +436,7 @@ class Graby
         }
 
         // everything should be converted, rebuild the final url
-        $url = $this->unparse_url($parsedUrl);
+        $url = $this->unparseUrl($parsedUrl);
 
         if (false === filter_var($url, FILTER_VALIDATE_URL)) {
             throw new \Exception(sprintf('Url "%s" is not valid.', $url));
@@ -524,7 +524,7 @@ class Graby
      */
     private function handleMimeAction($mimeInfo, $effectiveUrl, $body = '')
     {
-        if (!isset($mimeInfo['action'])) {
+        if (!isset($mimeInfo['action']) || !in_array($mimeInfo['action'], ['link', 'exclude'], true)) {
             return;
         }
 
@@ -543,64 +543,65 @@ class Graby
             'all_headers' => [],
         ];
 
-        switch ($mimeInfo['action']) {
-            case 'exclude':
-                throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
-            case 'link':
-                $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
-
-                if ($mimeInfo['type'] === 'image') {
-                    $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
-                }
-
-                if ($mimeInfo['mime'] === 'application/pdf') {
-                    $parser = new PdfParser();
-                    $pdf = $parser->parseContent($body);
-
-                    // tiny hack to avoid character like �
-                    $html = mb_convert_encoding(nl2br($pdf->getText()), 'UTF-8', 'UTF-8');
-
-                    // strip away unwanted chars (that usualy came from PDF extracted content)
-                    // @see http://www.phpwact.org/php/i18n/charsets#common_problem_areas_with_utf-8
-                    $html = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $html);
-
-                    $infos['html'] = $html;
-
-                    // update title in case of details are present
-                    $details = $pdf->getDetails();
-
-                    // Title can be a string or an array with one key
-                    if (isset($details['Title'])) {
-                        if (is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
-                            $infos['title'] = $details['Title'][0];
-                        } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
-                            $infos['title'] = $details['Title'];
-                        }
-                    }
-
-                    if (isset($details['Author'])) {
-                        if (is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
-                            $infos['authors'][] = $details['Author'][0];
-                        } elseif (is_string($details['Author']) && '' !== trim($details['Author'])) {
-                            $infos['authors'][] = $details['Author'];
-                        }
-                    }
-
-                    if (isset($details['CreationDate'])) {
-                        if (is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
-                            $infos['date'] = $details['CreationDate'][0];
-                        } elseif (is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
-                            $infos['date'] = $details['CreationDate'];
-                        }
-                    }
-                }
-
-                if ($mimeInfo['mime'] === 'text/plain') {
-                    $infos['html'] = '<pre>' . $body . '</pre>';
-                }
-
-                return $infos;
+        if ('exclude' === $mimeInfo['action']) {
+            throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
         }
+
+        $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
+
+        if ($mimeInfo['type'] === 'image') {
+            $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
+        }
+
+        if ($mimeInfo['mime'] === 'application/pdf') {
+            $parser = new PdfParser();
+            $pdf = $parser->parseContent($body);
+
+            // tiny hack to avoid character like �
+            $html = mb_convert_encoding(nl2br($pdf->getText()), 'UTF-8', 'UTF-8');
+
+            // strip away unwanted chars (that usualy came from PDF extracted content)
+            // @see http://www.phpwact.org/php/i18n/charsets#common_problem_areas_with_utf-8
+            $html = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $html);
+
+            $infos['html'] = $html;
+
+            // update title in case of details are present
+            $details = $pdf->getDetails();
+
+            // Title can be a string or an array with one key
+            if (isset($details['Title'])) {
+                if (is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
+                    $infos['title'] = $details['Title'][0];
+                } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
+                    $infos['title'] = $details['Title'];
+                }
+            }
+
+            if (isset($details['Author'])) {
+                if (is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
+                    $infos['authors'][] = $details['Author'][0];
+                } elseif (is_string($details['Author']) && '' !== trim($details['Author'])) {
+                    $infos['authors'][] = $details['Author'];
+                }
+            }
+
+            if (isset($details['CreationDate'])) {
+                if (is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
+                    $infos['date'] = $details['CreationDate'][0];
+                } elseif (is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
+                    $infos['date'] = $details['CreationDate'];
+                }
+            }
+        }
+
+        if ($mimeInfo['mime'] === 'text/plain') {
+            $infos['html'] = '<pre>' . $this->cleanupXss($body) . '</pre>';
+        }
+
+        $infos['html'] = $this->cleanupXss($infos['html']);
+
+        return $infos;
     }
 
     /**
@@ -853,7 +854,7 @@ class Graby
      *
      * @return array
      */
-    private function unparse_url($data)
+    private function unparseUrl($data)
     {
         $scheme = isset($data['scheme']) ? $data['scheme'] . '://' : '';
         $host = isset($data['host']) ? $data['host'] : '';
@@ -976,5 +977,30 @@ class Graby
         $this->logger->log('debug', 'Treating as UTF-8', ['encoding' => $encoding]);
 
         return $html;
+    }
+
+    /**
+     * Try to cleanup XSS using htmLawed.
+     *
+     * @param string $html
+     *
+     * @return string
+     */
+    private function cleanupXss($html)
+    {
+        if (false === $this->config['xss_filter']) {
+            return $html;
+        }
+
+        $this->logger->log('debug', 'Filtering HTML to remove XSS');
+
+        return htmLawed($html, [
+            'safe' => 1,
+            // which means: do not remove iframe elements
+            'elements' => '*+iframe',
+            'deny_attribute' => 'style',
+            'comment' => 1,
+            'cdata' => 1,
+        ]);
     }
 }
