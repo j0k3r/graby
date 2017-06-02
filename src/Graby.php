@@ -829,9 +829,10 @@ class Graby
         foreach ($metas as $meta) {
             $property = str_replace(':', '_', $meta->getAttribute('property'));
 
-            // avoid image data:uri to avoid sending too much data
             if ('og_image' === $property) {
-                if (0 === stripos($meta->getAttribute('content'), 'data:image')) {
+                // avoid image data:uri to avoid sending too much data
+                // also, take the first og:image which is usually the best one
+                if (0 === stripos($meta->getAttribute('content'), 'data:image') || !empty($rmetas[$property])) {
                     continue;
                 }
 
