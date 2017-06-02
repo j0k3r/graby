@@ -495,4 +495,32 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Le Journal du Gamer', $res['summary']);
         $this->assertSame('text/html', $res['content_type']);
     }
+
+    public function testMultipleOgImage()
+    {
+        $graby = new Graby([
+            'debug' => true,
+        ]);
+        $res = $graby->fetchContent('https://blog.tinned-software.net/restore-mysql-replication-after-error/');
+
+        $this->assertCount(12, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
+
+        $this->assertSame(200, $res['status']);
+        $this->assertSame('2015-06-08T19:08:47+00:00', $res['date']);
+        $this->assertContains('Restore MySQL replication after error - Experiencing Technology', $res['title']);
+        $this->assertSame('https://blog.tinned-software.net/wp-content/uploads/2014/03/Fix_MySQL_replication_error.png', $res['open_graph']['og_image']);
+    }
 }
