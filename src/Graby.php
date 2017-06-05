@@ -246,7 +246,7 @@ class Graby
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
         $mimeInfo = $this->getMimeActionInfo($response['all_headers']);
-        $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response['body']);
+        $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response);
         if (is_array($infos)) {
             return $infos;
         }
@@ -274,7 +274,7 @@ class Graby
 
             // check if action defined for returned Content-Type
             $mimeInfo = $this->getMimeActionInfo($singlePageResponse['all_headers']);
-            $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse['body']);
+            $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse);
             if (is_array($infos)) {
                 return $infos;
             }
@@ -518,15 +518,17 @@ class Graby
      *
      * @param array  $mimeInfo     From getMimeActionInfo() function
      * @param string $effectiveUrl Current content url
-     * @param string $body         Content from the response
+     * @param array $response      A response
      *
      * @return array|null
      */
-    private function handleMimeAction($mimeInfo, $effectiveUrl, $body = '')
+    private function handleMimeAction($mimeInfo, $effectiveUrl, $response = [])
     {
         if (!isset($mimeInfo['action']) || !in_array($mimeInfo['action'], ['link', 'exclude'], true)) {
             return;
         }
+
+        $body = isset($response['body']) ? $response['body'] : '';
 
         $infos = [
             // at this point status will always be considered as 200
@@ -596,7 +598,10 @@ class Graby
         }
 
         if ($mimeInfo['mime'] === 'text/plain') {
-            $infos['html'] = '<pre>' . $this->cleanupXss($body) . '</pre>';
+            $infos['html'] = '<pre>' .
+                $this->cleanupXss(
+                    $this->convert2Utf8($body, isset($response['all_headers']) ? $response['all_headers'] : [])
+                ) . '</pre>';
         }
 
         $infos['html'] = $this->cleanupXss($infos['html']);
@@ -970,6 +975,9 @@ class Graby
         }
 
         if ($encoding !== 'utf-8') {
+            // https://www.w3.org/International/articles/http-charset/index#charset
+            // HTTP 1.1 says that the default charset is ISO-8859-1
+            $encoding = $encoding ?: 'iso-8859-1';
             $this->logger->log('debug', 'Converting to UTF-8', ['encoding' => $encoding]);
 
             return \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8') ?: $html;

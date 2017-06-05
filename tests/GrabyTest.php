@@ -5,6 +5,10 @@ namespace Tests\Graby;
 use Graby\Graby;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use GuzzleHttp\Client;
+use GuzzleHttp\Message\Response;
+use GuzzleHttp\Stream\Stream;
+use GuzzleHttp\Subscriber\Mock;
 
 class GrabyTest extends \PHPUnit_Framework_TestCase
 {
@@ -1406,5 +1410,24 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
             $this->assertGreaterThan(1, $records);
         }
+    }
+
+    public function testEncodingUtf8ForTextPlainPage()
+    {
+        $reponse = new Response(
+            200,
+            [
+                'content-type'=> 'text/plain'
+            ],
+            Stream::factory(__DIR__ . '/fixtures/sites/malformed_UTF8_characters.txt')
+        );
+        $client = new Client();
+        $client->getEmitter()->attach(new Mock([$reponse]));
+
+        $graby = new Graby();
+        $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
+
+        $this->assertArrayHasKey('html', $res);
+        $this->assertNotFalse(json_encode($res['html']), json_last_error_msg());
     }
 }
