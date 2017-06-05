@@ -3,12 +3,12 @@
 namespace Tests\Graby;
 
 use Graby\Graby;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Stream\Stream;
 use GuzzleHttp\Subscriber\Mock;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 
 class GrabyTest extends \PHPUnit_Framework_TestCase
 {
@@ -1417,7 +1417,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $reponse = new Response(
             200,
             [
-                'content-type'=> 'text/plain'
+                'content-type' => 'text/plain',
             ],
             Stream::factory(__DIR__ . '/fixtures/sites/malformed_UTF8_characters.txt')
         );

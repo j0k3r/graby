@@ -518,7 +518,7 @@ class Graby
      *
      * @param array  $mimeInfo     From getMimeActionInfo() function
      * @param string $effectiveUrl Current content url
-     * @param array $response      A response
+     * @param array  $response     A response
      *
      * @return array|null
      */
