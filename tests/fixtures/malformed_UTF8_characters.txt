@@ -1,0 +1,3183 @@
+ -------------------------------------------------------------------------
+|                        TTTTT  H  H  EEEE                                |
+|                          T    H  H  E                                   |
+|                          T    HHHH  EEE                                 |
+|                          T    H  H  E                                   |
+|                          T    H  H  EEEE                                |
+|                                                                         |
+|        A       M      M       A    TTTTTTT  EEEEE   U   U  RRRR         |
+|       A A     M M    M M     A A      T     E       U   U  R   R        |
+|      A   A   M   M  M   M   A   A     T     EEE     U   U  RRRR         |
+|      AAAAA   M    MM    M   AAAAA     T     E       U   U  R   R        |
+|      A   A   M          M   A   A     T     EEEEE    UUU   R    R       |
+|                                                                         |
+|   CCCC   OO    MM MM   PPP   U  U  TTTTT  EEEE  RRRR   III  SSS  TTTTT  |
+|  C      O  O  M  M  M  P  P  U  U    T    E     R   R   I   S      T    |
+|  C      O  O  M  M  M  PPPP  U  U    T    EEE   RRRR    I    S     T    |
+|  C      O  O  M     M  P     U  U    T    E     R   R   I     S    T    |
+|   CCCC   OO   M     M  P      UU     T    EEEE  R   R  III  SSS    T    |
+|-------------------------------------------------------------------------|
+| Winter/Spring 1998  Usenet, The Unsung Hero of the Internet  Vol 8 No 1 |
+ -------------------------------------------------------------------------
+
+   "A large part of the success of Usenet is due to the fact
+   that its admins. do *not* generally quash argument and
+   unpopular opinion. This made it a crucible for testing
+   ideas and opinions in one of the closest approaches to the
+   `marketplace of ideas' that has been seen in history."
+                                                Gregory G. Woodbury
+
+                            Table of Contents
+
+   [1] Interview with Tom Truscott. . . . . . . . . . . . . (27,816 bytes)
+   [2] Editorial. . . . . . . . . . . . . . . . . . . . . . ( 6,423 bytes)
+   [3] Factsheet Five: ACN Vol 7 No 2 . . . . . . . . . . . ( 1,564 bytes)
+   [4] Cooperative Nature of Usenet . . . . . . . . . . . . ( 4,076 bytes)
+   [5] Creating Broadsides. . . . . . . . . . . . . . . . . (19,027 bytes)
+   [6] History of the Net is Important. . . . . . . . . . . (27,866 bytes)
+   [7] Netizens: Review of Reviews. . . . . . . . . . . . . ( 7,038 bytes)
+   [8] Book Reviews: Netizens . . . . . . . . . . . . . . . ( 6,946 bytes)
+   [9] Community in k12.chat.teacher. . . . . . . . . . . . (39,378 bytes)
+  [10] Wiener and Licklider . . . . . . . . . . . . . . . . (17,202 bytes)
+  [11] Amateur Computerist Index: 1988-1998 . . . . . . . . ( 6,257 bytes)
+
+--------------------------------------------------------------------------
+[1]           Interview with Tom Truscott:
+                   On the Environment
+              and Early Days of Usenet News
+                                 by Ronda Hauben
+                                    au329@cleveland.freenet.edu
+
+[Editor's Note: Following is an edited interview by Ronda Hauben
+with Tom Truscott, one of the pioneers who created Usenet. It is
+based on an e-mail exchange.]
+
+Ronda: First can you say a little about your background and
+interests in computer science before you became involved in
+Usenet?
+
+Tom: As an undergraduate I got interested in writing a computer
+chess program. I don't play chess well but my chemistry lab
+partner did and so we undertook a multi-year project to write a
+chess program that could beat Bobby Fisher (my goal) or at least
+be able to beat a rank amateur (partner Bruce Wright's goal).
+
+Ronda: How did you become interested in computer chess? You have
+said it wasn't that you were interested in chess itself.
+
+Tom: Well, I'm not sure. Here is rambling speculation. As a kid
+I did not read much, but some things caught my imagination. One
+was a short story, Danny Dunn and the Homework Machine. (I think
+Danny Dunn was a kid who invented all kinds of fun stuff.) I
+thought that this would be a neat machine to have. I realize it
+is a big leap from homework to chess playing, but somehow it
+makes sense to me .
+     My first chance to use a computer (an interactive BASIC
+system) was in a summer program between junior and senior years
+of high school. My first large program played checkers. It didn't
+play all that well, but it seemed to have potential. As a Duke
+freshman my chemistry lab partner was Bruce Wright, an excellent
+chess player.
+     I told him we could write a computer chess program that
+would beat Bobby Fisher.
+     He didn't think so, but we started writing the program
+anyway. I was interested because of the computing challenge and
+no doubt the fame that we would garner by defeating Fisher, and I
+guess Bruce was interested because he wanted to learn computing.
+We spent a LOT of time writing it, and we learned a lot about how
+not to write programs.
+     I guess one thing about computer game programs is that they
+are like robots a somewhat autonomous thing.
+     At tournaments the program tells me what moves to make for
+it, asks me how much time it has left on the clock, stuff like
+that. And writing a software robot is a lot easier than building
+a real one. Why I (and other people) find robots fascinating is
+beyond me, but there it is.
+
+Ronda: I have read some articles from the 1970s that describe how
+computer chess was understood as something important. Did you
+have that sense?
+
+Tom: Yes, and we had the incentive to believe that because
+computer chess was far too expensive to be a mere hobby. From a
+computational point of view, chess and checkers are remarkably
+similar problems. And the world's best checkers player is still a
+human. But just try asking Columbia (i.e. some university -Ed.)
+for plane tickets to a computer checkers tournament, or asking
+the Association of Computing Machinery (ACM) to spend thousands
+of dollars to host one!
+     But enough of this cynicism.
+     When computer chess, and more generally Artificial
+Intelligence (AI), were just starting out, no one knew what was
+going to happen. Computer games were (and are) like the
+drosophila fruit fly of AI because the problems are relatively
+simple, the rules are clear, there are plenty of human experts
+for comparison, and there are objective measures of "success."
+Many felt that break-throughs in general AI would happen first
+in this simpler arena.
+     People still don't know what is going to happen. I guess
+there haven't been big breakthroughs, but there are a number of
+"lessons" from computer chess that are argued and/or used in the
+general AI context. One (controversial) lesson is that computers
+should not "think" by mimicking humans. Should planes fly by
+flapping their wings?
+     If nothing else, computer chess will make a significant dent
+in the human psyche when a computer decisively defeats the human
+world chess champion.
+     It is going to happen sure as Silicon Valley makes chips.
+And it will be like a tiny version of the moon landing. It will
+be something of a stunt, and not really that important, but it
+will have a symbolic impact that will change how people think.
+
+Ronda: Can you say what you did once you and Bruce Wright decided
+to write a championship chess program?
+
+Tom: I discovered that Claude Shannon had written a very early
+paper on how to construct a chess playing machine.(1) It was
+remarkably farsighted given the state of computing then. The next
+oldest paper I found was from 1957 by someone who implemented a
+program similar to Shannon's proposal. It played terribly.
+     Our first computer chess tournament was the North American
+Computer Chess Championships, (CCC) held in November 1974 at the
+ACM Annual Conference in San Diego. (We competed in a local
+human tournament earlier that year.) Because ACM was sponsoring
+it I decided to become an ACM member (in April 1974, I was a
+junior by then) if only to see the announcements about the
+upcoming tournament. It was tough reading for an undergraduate
+but there were some interesting papers. A particularly
+interesting one appeared that year, about a timesharing system
+that ran on a PDP-11.(2) It sounded so much more sensible than the
+IBM MVT/TSO computer system that we were using. Simple things
+were simple, and yet one could do nifty things as well.
+
+Ronda: What was the Duke computer you wrote your first chess
+program for?
+
+Tom: It was an IBM System 370 Model 165, 80 nanosecond cycle time
+(12.5 MHZ in today's lingo), three megabytes of main memory
+(later upgraded to four megabytes for a mere $100,000). Pretty
+much the top of the line at the time. We did our development in
+batch mode (the source code was on punched cards and the compiled
+code was stored on disk) and used time sharing option (TSO) when
+competing in tournaments.
+
+Ronda: What happened at the tournament?
+
+Tom: Bruce Wright and I called our program "Duchess". It did
+quite well, and it was there that I met Ken Thompson who also had
+a good chess program. His machine was running a background task
+sopping up idle CPU time by solving simple chess end games! (For
+example King and Rook vs. King). There was no chance we could do
+something like that on our mainframe which cost 20 cents per
+second. But on the other hand our three MIP mainframe was about
+the fastest there was, and could compute rings around a little
+PDP.
+     There were twelve teams competing in the tournament. We
+were on a stage in a large room with seating for spectators. Each
+team had a computer terminal (something like a dot-matrix printer
+with a keyboard in front and an acoustic modem on the back). And
+a telephone. Boy were those phone calls expensive. But the ACM
+was picking up the tab, and Duke was giving us the computer time.
+     At the 1974 tournament, we knocked off MIT's "TECH-II" in
+the first round. They had come in second the previous year, and
+we were a newcomer, so that was something of an upset.
+     In the second round we got clobbered by the perennial champ,
+"CHESS 4.0" from Northwestern University.
+     In the third round we played Bell Labs' "Belle". (I think it
+was called "Tinker Belle" at one point.) I had met the author
+earlier, before the second round, when he showed me how good his
+program was at solving mating problems. I wasn't that interested
+in chess, but humored him while he pulled a chess position out of
+a library and had the program find a mate in 5 (or some such). I
+guess if I actually played chess I would have been impressed.
+     So when the third round began Bruce Wright and I were on one
+side of a table, and Ken Thompson and someone else from Bell Labs
+(who years later I realized was Brian Kernighan) were on the
+other side. I noticed that when Ken Thompson logged on, the Bell
+Labs computer printed:
+     "Chess tonight, please don't compute."
+     I mentioned that that was really neat to be able to get the
+computer center to put out a notice like that. He said something
+noncommital in response. So the game began. A few hours and a few
+thousand dollars later we really had "Belle" on the ropes. All it
+had left was a lone king and we were about to queen a pawn! But
+then our program ABENDed (core dumped) in a way that caused the
+phone line to drop. We dialed back in and set things up, same
+thing. Every so often it would actually make a move. But making
+the phone call was slow (we had to ask for an outside line from
+the hotel operator) and painful (rotary dial you know) and
+eventually our program lost on time.
+     Later, after the tournament, we concluded that the problem
+was not in our program. Rather it was a problem caused by TSO
+trying to load overlays from a partitioned MVT data set that had
+become excessively fragmented. Did I mention something earlier
+about simple things being simple? Thus was our mighty mainframe
+slain by a minicomputer. But I didn't realize it was UNIX.
+
+Ronda: What does 'losing on time' in chess mean?
+
+Tom: As is typical in human tournaments, each player has two
+hours to make their first 40 moves, and get an additional 30
+minutes for each 10 moves after that. The games utilize a pair of
+clocks, one for each player. Whenever it is a given player's
+turn, their clock is ticking. If they use up two hours before
+completing 40 moves, they "lose on time". "Duchess" was intending
+to complete 40 moves in 1:40 (i.e. with 20 minutes to spare), but
+the program crashed so many times while trying to complete the
+last few moves that it ran out of time.
+
+Ronda: Can you describe what happened after the chess tournament?
+How did you get to work at Bell Labs in the Summer of 1979?
+
+Tom: Duchess competed in every ACM CCC from 1974 to 1980, but the
+next time I met Ken Thompson was at the 1976 UNIX Users Group
+meeting at Harvard. That was great fun. There were about 60
+attendees. I was a grad student and we had just installed UNIX
+(Version 6) and somewhere along the way I made the connection
+between "Belle" and Thompson and UNIX. I was also at the 1978
+UNIX Users Group meeting at Columbia University, and I think both
+Ken Thompson and Dennis Ritchie were there. Thompson also
+competed in the 1978 ACM CCC. I think he had some special chess
+hardware but it was no match for the much-improved mainframe
+programs.
+     Because of our mutual interests Thompson would even call up
+our computer at Duke from time to time, and "write" me. That was
+pretty intense, my trying to pick perfect sentences to send along
+to the genius at the other end. I think it was during one of
+those "write" sessions in early 1979, that he asked if I would
+be interested in a summer job.
+
+Ronda: What did you work on at Bell Labs when you worked there
+under Ken Thompson that summer?
+
+Tom: I remember making changes to the "ed" text editor command,
+and working on a global optimizer for C.
+
+Ronda: Can you say what it was like working at Bell Labs in the
+Summer of 1979?
+
+Tom: Well, I fell into the following routine:
+     Woke up at 11 a.m. Got to Bell Labs at noon so I could play
+volleyball out on the front lawn with Mike Lesk and Steven Bourne
+and other folks. (After a few weeks the security folks told us
+they couldn't have a regulated monopoly running around loose like
+that.) Lunch at 1 p.m. in the Bell Labs restaurant. Ken Thompson
+and Dennis Ritchie and Greg Chesson were regulars. They had lunch
+at 1 p.m. because sometimes they didn't get to work until then.
+     Sometimes Dennis Ritchie would entertain us with a horror
+story about a non-UNIX system that he had to deal with recently.
+I think one day Ken Thompson explained the C-compiler Trojan-
+Horse hack he did. (It might have been in the lab, but lunch
+sounds right.) I thought it was cute but didn't recognize the
+larger implications. He later described it in his "Reflections on
+Trusting Trust" Turing Award paper (which was nicely written so I
+think Ritchie helped him with it). I tried to think of clever
+things to say, which was not an easy thing.
+     At 2 p.m. the day began, which involved doing pretty much
+whatever we wanted.
+     Ritchie was working on "Streams", I think. Ken Thompson was
+working on typesetting software but mostly working on a chess
+machine. (In 1980 he won the Third World Computer Chess
+Championship, defeating the "Duke" chess program that I co-authored.)
+     Often at 7 p.m. a group would go out for dinner (they liked
+pizza). Occasionally someone would host dinner at their home.
+Afterwards I would go back to the labs and work until midnight.
+And the next day I would get up "at the crack of noon", as
+Thompson put it.
+     There was a kind of lull that summer because UNIX (Version 7)
+had just been wrapped up. That was the summer that the Seventh
+Edition of UNIX was sent out with lots of new software such as
+"sed", "awk", "uucp", and the Bourne shell. Ritchie did various
+paperwork and tape-making to get it out the door.
+
+Ronda: Was there any special work being done with UUCP during
+that summer at Bell Labs?
+
+Tom: I didn't pay much attention to UUCP that summer, though I
+did receive e-mail from other Bell Labs locations. Of course no
+e-mail came from the outside. They didn't have UUCP yet. (I have a
+curious memory of Mark Horton sending me a letter, but that
+probably did not happen.) Anyway I was too smug to pay much
+attention to other Bell Labs sites. After all I was at the very
+root of UNIX itself, hacking on the machine named "research" and
+eating pizza with Ken Thompson and Dennis Ritchie!
+     Of course when the summer was over and I was back at Duke,
+one of the first things I did was arrange a UUCP connection to
+"research". They called us nightly, which was great.
+
+Ronda: What was the origin of Usenet? Was there a Unix News
+program before you folks at Duke and University of North Carolina
+developed Netnews?
+
+Tom: I think the DEC PDP 11/70 there (at Bell Labs named
+"research") had a primitive "news" program that printed unread
+files found in the directory /usr/news.
+     But Duke already had a program (from one of the early user
+group tapes) that supported multiple "categories" of news. (I
+don't think the program was called "news" though), so I wasn't
+impressed.
+     In the UNIX (Version 7) manual set there were two papers on
+UUCP. One was "A Dial-Up Network of UNIX Systems" by D.A. Nowitz
+and M.E. Lesk, August 1978. The other was "UUCP Implementation
+Description" by D.A. Nowitz, October 1978. (UNIX V7 didn't ship
+until the summer of 1979 though.). So I have always thought of
+Dan Nowitz as a principal author of UUCP. It is odd that in a
+recent USENIX ;Login: I think I saw Mike Lesk but NOT Nowitz
+being given some recognition for UUCP.
+
+Ronda: Did you continue to play computer chess after you and the
+other folks at the University of North Carolina and Duke created
+Usenet?
+
+Tom: In 1980 we competed in the Third World Computer Chess
+Championship held in Linz, Austria. Ken and Joe Condon (a
+researcher at Bell Labs) had completed their hardware chess
+machine and snagged first place. (From then on, hardware chess
+machines have dominated the championships. The flexibility of
+software programs has not been enough to overcome the raw speed
+of chess hardware.)
+     "Duchess" came in second (or maybe third, I forget).
+     Claude Shannon was in attendance, and even handed out the
+trophies at the awards ceremony.
+     Afterwards we all went over to a TV studio to watch a West
+German TV special on computer chess and the championship. Claude
+Shannon and his wife were very engaging people. Someone took a
+photo of all of us, I have a copy buried somewhere.(3)
+
+Ronda: What happened when you got back to Duke in Fall 1979? Did
+you keep in contact with folks from Bell Labs?
+
+Tom: When I got back to Duke I set up UUCP, and Thompson also
+called in from time to time.
+     We really didn't get much software updating from them.
+Technically they should not supply it anyway, due to the various
+rules and regulations involved.
+
+Ronda: I wondered if anything happened at Bell Labs over the
+summer that helped you to propose Usenet...
+
+Tom: Not really.
+
+Ronda: Can you say what it was that led you or you and Jim Ellis
+to conceive of Usenet?
+
+Tom: Well, here is some text I wrote about that a few months ago:
+     "I think there was a confluence of things in fall 1979 that
+brought it about.
+
+1. Jim had installed the latest UNIX (Version 7) which broke
+many old programs including a public domain "news" program that
+had been sent out on one of the early UNIX User Group tapes. (In
+summer 1979 the user group was renamed USENIX to avoid trademark
+problems.) [It was earlier than that, but the first new meeting
+was summer 1979] I don't think the program was called "news"
+(perhaps it was called "items"). I think it allowed items to be
+entered under one of several "categories". It had a number of
+problems (including a 512 byte limit per item), so we were
+thinking about writing a completely new program. Then we could
+contribute it to the next user group tape and hopefully achieve
+some minor level of fame.
+
+2. I had worked for Ken Thompson at Bell Labs in the summer of
+1979 and was in UNIX heaven the whole time. I also attended the
+summer 1979 USENIX conference in Toronto. Returning to Duke in
+the fall meant the end of that. Our only connection with the
+outside UNIX world was the user group newsletter ;Login:, but we
+had not seen one in a while. It was published on an erratic
+schedule by a professor [Mel Ferentz] who had a lot of other
+demands on his time. We were quite nervous that should anything
+happen to him this tenuous connection would be lost entirely.
+
+3. UNIX (Version 7) came with UUCP. This complex (for its day)
+program made it easy to send e-mail and files to other UNIX
+(Version 7) sites over phone lines provided that one end had an
+auto-dialing telephone and modem and the other an auto-answering
+telephone and modem. The Duke Computer Science PDP 11/70 had
+both."
+     (We built the auto-dialers ourselves. An interesting
+story...)
+     We were using UUCP to contact two other UNIX machines at
+Duke and also one at U.N.C.-Chapel Hill.
+     So one night Jim and I had a rambling conversation about
+these things and the idea behind Usenet just popped out.
+     We held a few meetings to figure out the details. Two other
+local UNIX enthusiasts also attended: Dennis Rockwell from Duke
+and Steven Bellovin from UNC. We decided on the transfer format
+(what an article would look like on the wire) and on the basic
+functionality of the software. Steven Bellovin implemented this
+stuff with shell scripts as proof of concept. It was impressively
+slow, but it worked!
+     We also decided on terminology such as "newsgroups". We
+probably chose that due to the newsletter analogy. This was long
+before the PC and "bulletin boards". We may have chosen
+incorrectly but it wasn't due to carelessness. One thing we
+didn't decide on was the name of the network. I think early on
+Jim coined "Usenet", but our first announcement did not use that
+(or any other) name.
+     An energetic new Duke graduate student,Stephen Daniel, also
+turned out to be a UNIX enthusiast. He created the dotted
+newsgroup structure that we know and love today, and wrote the
+first production version of news ("A-news").
+
+Ronda: Fred Brooks, who wrote "The Mythical Man Month" about the
+problems of creating large software projects was a Professor at
+the University of North Carolina. Did he do anything to help with
+Usenet?
+
+Tom: He was not involved in the early (or later) Usenet as far
+as I know. He did pay for a leased line between U.N.C. and Duke
+that made communication via UUCP a "free good". But we really
+didn't seek faculty help for Usenet except for clerical issues
+such as handling long distance bills until we were reimbursed.
+
+Ronda: How did you present Usenet to people at USENIX in Winter
+of 1980?
+
+Tom: Jim Ellis presented a talk, but people did not come
+specifically to hear his talk. There was no preannouncement of
+Usenet. We didn't even have a name for the thing. There were 400
+attendees, no parallel sessions, and pretty much everyone heard
+everything. Ah, the good old days.
+
+Ronda: I have been told that the reason "A-news" was written is
+that the early shell script version of Usenet was too slow and
+tied up the computer science departments computer. Is that why
+the "A-news" version of Usenet was done to replace the shell
+script version?
+
+Tom: We never seriously considered implementing news as a shell
+script.
+     It did not tie up the Department computer. We did, however,
+have that problem with regard to UUCP. A grad student, Jothy
+Rosenburg, had a PDP/11 at Duke Student Health that ran UNIX. He
+used UUCP to ship files back and forth. The files got larger and
+larger tying up our phone lines (we only had two) and when he
+shipped a 500 Kbyte file which at 300 baud took 5 hours to
+transfer, some people indeed hit the roof....Besides Jothy,
+people blamed the problem on people playing computer games. But I
+monitored phone use rather carefully and statistically game
+playing was a total non-problem. But people had their minds made
+up. This was in the fall of 1979 before news. News to U.N.C. (and
+to phs) used fast leased lines which were not a problem. News
+elsewhere happened in the dead of night which again was not a
+problem. Usenet was being shipped via e-mail (not gateways of
+mailing lists) long before 1982.
+
+Ronda: Across the ARPANET?
+
+Tom: I'm not sure, but it seems likely. Perhaps not across the
+country, but across the campus would be rather attractive. It
+("A-news") had general support for non-uucp transports [like
+ARPANET] in early 1980.
+
+Ronda: Do you have any idea how early in 1980?
+
+Tom: Quite early. Well before the Delaware USENIX Conference. The
+"uprop.n" paper (that was handed out at that conference) has a
+section on this I will include here:
+     "Remote systems can also subscribe to newsgroups on an
+individual basis. For each such system a subscription list and a
+transmission protocol are maintained. Whenever an article should
+be sent to a remote system, the transmission protocol of that
+system is executed with a formatted version of the article as
+input. This program performs the necessary magic to send an
+article to the news program on the remote system. This might, for
+example, be done by remote execution or the article could be
+encapsulated and mailed to the remote system, when another
+program would recover it and pass it on to the local news
+program."
+
+Ronda: I wondered if there were technical limitations to the
+number and names of newsgroups under the original "A-news"
+program and then under the early versions of "B-news". I have
+been reading the discussion in "A-news" about forming new groups
+and wondered if there were constraints that had to be taken into
+account due to the software.
+
+Tom: The early documentation said that newsgroup names were
+restricted to 14 or fewer characters, but that was arbitrarily
+chosen. ("A-news" did not store articles in a newsgroup tree, so
+the old UNIX limitation of 14 character filenames did not apply
+here.)
+     There was no limit on the number of newsgroups. However,
+rather than have individual .newsrc files, "A-news" stored each
+user's subscription list as a single line in the file
+/usr/spool/news/uindex. The maximum line was originally 200
+bytes, which limits the number of explicitly requested
+newsgroups. On the other hand, one could subscribe to "all" to
+read every thing so this was not that big a deal at first. The
+"200" was also arbitrarily chosen, and was increased over time.
+     The real problem was the huge number of news articles. The
+software was very inefficient at processing articles (which
+would have been okay for three articles per day) and was
+painfully slow as a result of the traffic. There was also a naive
+assumption that the news program could allocate an array to hold
+all the news articles the user wanted to read (or otherwise
+process). But the PDP 11/70 did not have enough memory for more
+than about 1000 articles! So we hacked the program to deal with
+about 1000 articles at a time.
+
+Ronda: Do you remember the earliest means of keeping track of
+what newsgroups there were that people could subscribe to or did
+people just subscribe to all? I have noticed that someone posted
+a list of newsgroups in the early 1980s (maybe by 1982) I do not
+have the earliest posts so I wonder if such lists had been made
+earlier or if there was only a need for them at a certain point.
+
+Tom: Originally people could create a newsgroup just by
+submitting something to it, and similarly could subscribe to
+non-existent newsgroups. This got to be a problem because people
+would misspell newsgroup names. So we added a
+/usr/spool/news/ngfile which had a list of all the known
+newsgroups, and if someone submitted or subscribed to an unknown
+group they were warned and asked if they wanted to add it to
+ngfile. Newsgroup creation became a bigger deal in "B-news" which
+created actual directories for the various newsgroups.
+
+Ronda: You have said that human-nets was an important newsgroup
+that was available in the early days of Usenet. Can you say what
+you felt was important about it and why it was called human-nets?
+
+Tom: "human-nets" was a discussion of the implications of
+world-wide ubiquitous networking. This network of the future was
+referred to as "Worldnet". It was a very interesting mailing
+list and possible only due to the ability of the network itself
+to permit those interested in this obscure subject to communicate.
+
+Ronda: What role do you feel Usenet has played in all of this?
+
+Tom: Usenet provided a good way to have online discussions, and
+so I think it (accidentally) played quite a large role in this. I
+think of personal e-mail, mailing lists, and news articles as
+differing in their purpose and audience, but not in their content
+or format. Stretching this further, we might view Web pages
+simply as "messages" over which unusual care has been lavished.
+And at the other end we might view "chat" style conversations as
+sequences of messages over which unusually little care has been
+lavished. Usenet just happened to find a sweet spot somewhere in
+the middle. Anyway, it seems reasonable that all these different
+kinds of messages could be formatted and handled in a more
+uniform manner.
+
+Ronda: Do you think we have succeeded in creating Worldnet?
+
+Tom: It is easy to say "no", because less than half the world's
+population have ever used a telephone, let alone a computer. We
+don't yet have ubiquitous networking. And yet almost all of the
+Worldnet vision has been implemented and is in widespread use.
+The Worldnet discussions were about creating online journals and
+creating an online storage of the world's knowledge. There were
+concerns about fairness (would minority viewpoints be
+suppressed?) and multi-culturalism (would we have a tyranny of
+the English language, or perhaps instead a Tower of Babel?).
+Well, the discussions have been overtaken by reality, and the
+concerns are no longer academic!
+
+------------
+Notes
+
+(1) The paper was Claude E. Shannon, "A Chess-- Playing Machine",
+Scientific American, p. 48, February 1950.
+
+(2) This was the July 1974 paper by Ritchie and Thompson on the
+Unix Time Sharing System that was published in the Communications
+of the ACM Number 17. (The earliest announcement perhaps of Unix
+to the world.)
+
+(3) Reproduced in "Netizens: On the History and Impact of Usenet
+and the Internet" by Michael Hauben and Ronda Hauben.
+
+-------------------------------------------------------------------------------
+[2]                       Editorial
+                      Championing Usenet
+
+     In Fall 1992, the Amateur Computerist published a collection
+of articles about Usenet. By 1992, Usenet, which was born in Fall
+1979, had grown and developed into a network and forum linking
+millions of computer users around the world. But few of those not
+on Usenet knew anything of its nature or existence. And many on
+Usenet had rarely taken the time to consider what they had become
+part of. The Fall 1992 Amateur Computerist collection of articles
+was one of the early acknowledgments that Usenet was something
+significant, and thus made it possible for those on Usenet or not
+yet on Usenet to pause and reflect on this important new
+development in human to human communication.
+     Since that time, the Internet has become a subject that has
+gripped the imagination of people around the world. E-mail,
+Usenet, IRC, Telnet, and FTP and now the World Wide Web (WWW)
+have become some of the uses of the Net that have enhanced
+communication among people, making our world smaller and more
+dynamic than ever before. However much of the press, at least in
+the U.S., is only charmed by the WWW, misrepresenting it as the
+Internet, and presenting electronic commerce (e-commerce) as the
+nature and future of the Net.
+     Meanwhile, hidden in general from public view, is the
+cooperative and dynamic form of communication that is the
+regenerative aspect of the Net. As networking visionaries Robert
+Taylor and J.C.R. Licklider pointed out, when people communicate
+in an active way, new ideas emerge. The development of a global
+network is but one of the products of this constructive
+interaction.
+     In 1961, in a speech given at an MIT conference about the
+future of the computer, British writer C. P. Snow noted that
+government officials would be making decisions that would affect
+the future of the computer. He cautioned against having those
+decisions made in secret by a small group of people who did not
+understand the nature of the computer. Instead, he urged that as
+broad a set of people as possible be involved in the discussion
+of the issues governments would need to resolve to plan for how
+the computer would be developed, so that the computer would
+benefit society.
+     In a similar way today, there is a need for such broad
+ranging discussion among many people. But today the issue is not
+merely the future of the computer, but the future of the Internet
+and of the computer as a new means of communication.
+     While small groups of government officials in the U.S., for
+example, are planning to replace the dynamic Net of the present
+with their model of a buying and selling bazaar from the past,
+other segments of the U.S. government and population recognize
+the importance of the Net as a new form of communication media.
+     Writing in the early 1960s, the German philosopher Jorgen
+Habermas explained why the ability to have discussion among
+people with diverse views which characterizes what we called "the
+public sphere", is so important.
+     Habermas explains the power of critical rational discussion
+and debate to determine the public interest on "the basis of
+which alone a rational agreement between publicly competing
+opinions could freely be reached." He describes different periods
+of history where such rational discussion by a sector of the
+population, was able to determine the important issues of the
+day.
+     In the U.S. federal district court decision in a case
+involving the Internet (ACLU versus Reno), one of the judges,
+Judge Stewart Dalzell, eloquently described the importance and
+power of Usenet and the Internet as a new media making possible a
+similar kind of democratic participation and discussion. He
+wrote: "The plaintiffs in these actions correctly describe the
+'democratizing' effects of Internet communication: individual
+citizens of limited means can speak to a worldwide audience on
+issues of concern to them. Federalists and Anti-Federalists may
+debate the structure of their government nightly, but these
+debates occur in newsgroups and chat rooms rather than in
+pamphlets.... The Internet is a far more speech-enhancing medium
+than print, the village green, or the mails."
+     Judge Dalzell documents that there is a vibrant new form of
+public sphere developing online similar to that which Habermas
+described in other historical periods. Habermas' concept of the
+public sphere provides a way to recognize the democratic
+structures and the people who develop them as a crucial aspect of
+evolving social and political structures.
+     A new form of public sphere is being created as the
+conditions and the actors develop with the ability and the need
+for the democratic processes and forms of the public sphere. And
+in a similar way, there are those interests trying to corrupt
+this newly forming public sphere.
+     This issue of the Amateur Computerist focuses on the
+capability of online technology, particularly Usenet, to
+encourage those who are online to contribute their news and
+views, to have diverse opinions aired and considered. This is a
+singular and special achievement that networking technology,
+particularly Usenet, makes possible. This is creating a new
+public sphere that promises to transform society in a way that
+can reflect the interests of a broader set of people than
+formerly and make possible a new form of democratic
+participation. Those who promote e-commerce as the future of the
+Internet, and the categorization of online users as "customers"
+of merchants of e-commerce, are trying to replace the dynamic
+democratic potential of the Internet with the old model of the
+citizen as passive actor of a commercially dominated society.
+     This is why we feel it is crucial to examine and explore the
+importance of discussion and debate and of uncensored posts that
+are carried on Usenet, both from its earliest days and in current
+newsgroups. We have taken this as our topic for this issue of the
+Amateur Computerist.
+     Many people over many long years have worked to make it
+possible for the communication that the Net makes possible to
+grow and flourish. Will the Net continue to grow and flourish as
+a significant new means of human to human communication? This is
+a crucial question for our times. We hope that this issue of the
+Amateur Computerist helps Netizens to answer this question in an
+ever more vital and active way.
+
+-------------------------------------------------------------------------------
+[3]             Factsheet Five: ACN Vol 7 No 2
+
+[Editors Note: Factsheet Five is a magazine which describes
+hundreds of zines. Here is what it had to say about the Amateur
+Computerist Vol 7 No 2 in its Winter 1998 issue.]
+
+          -- The Amateur Computerist Vol 7 No 2 --
+
+     The Amateur Computerist is like the complete antitheses of
+Wired magazine. Look at its design, simple two-column pages that
+are actually "readable", run off on an office xerox machine with
+a single corner staple. The other key difference is that The
+Amateur Computerist is a publication about computers, technology,
+and the Internet while Wired primarily focuses on business,
+marketing, and corporations. The best thing I can say about The
+Amateur Computerist is that it's for former or current Wired
+subscribers who are disgusted with its flag-waving corporate
+stance and are looking for something with an emphasis on real
+technology.
+     This thoughtful issue explores how the many facets of the
+Internet has transformed society. They cover everything from
+Usenet to e-mail to freenets to the Web. It starts off with a
+great piece that explores how online discussion forums like
+newsgroups are toppling the authoritative voice of newspapers.
+Another fabulous piece is Ronda's history of Usenet, covering how
+it grew out of a small group of researchers who wanted to
+exchange tips on implementing Unix. Other highlights include
+excerpts from the recent federal decision on the CDA, thoughts on
+online education, and the report from INET '96.
+
+-------------------------------------------------------------------
+[4]           The Cooperative Nature of Usenet
+                                   by Gregory G. Woodbury
+                                      ggw@cds.duke.edu
+
+[Editor's Note: In a thread in the newsgroup news.future, a
+poster in August 1993 wrote that he felt those on Usenet had a
+commitment to the anarchy that he felt characterized Usenet. In
+response Greg Woodbury, a Usenet pioneer who has been on Usenet
+since its earliest days, disagreed that one should characterize
+Usenet as an anarchy and wrote the following post describing his
+view of the organizational structure of Usenet.]
+
+     Postulating the concept of net.anarchy as being at the base
+of a belief system (or "faith") is an interesting twist on the
+topic. Part of the confusion arises, I think, from a misunder-
+standing of what is meant when folks call netnews an "anarchy."
+     The governance structure of the net (and there *is* one)
+does not (yet) have an "archy" word around to describe it. It is
+not an hierarchy, it is not an oligarchy, it isn't an "aristocracy",
+nor do any of the other "archy" or "ocracy" words quite describe
+it. Since it cannot be put into a neat little category, it is
+lumped into the "not otherwise specified" category, which happens
+to be "anarchy."
+	As it stands, there is no good way to even describe the
+structures that do exist. They are distributed (as opposed to
+centralized), they are "consensual" (as opposed to majority
+rule), they are both individual and collective, and they are
+highly mutable/dynamic.
+     A few years ago there was some major discussion about the
+use of the term "organized" in relation to netnews. (Actually, in
+the application of the word organizations to Usenet/Netnews.)
+Such discussions arise periodically on the net, and serve to
+clarify the governance in the minds of those involved.
+     For other reasons, the use of the term "operational anarchy"
+in relation to netnews serves to remind those involved that we
+are involved in a co-operative situation, where the ultimate
+responsibility of the contents rests squarely on the poster of an
+article. Much of the arguments about netnews governance are
+attempts to avoid this basic fact.  :-)
+     Another reason that "anarchy" continues to be applied is to
+remind folks that the site owners and their agents (the admin.)
+hold basic real property rights (in most places) to their
+machines that are used in providing this cooperative service, and
+that these rights are joined with concomitant real (i.e. legal)
+responsibilities.
+     Additional complications arise when the existing "laws" are
+applied to a situation that has far outpaced the ability of the
+"system" to keep up with it. One example is the application of
+"copyright" to the articles created by the posters.
+     Then comes the questions of how to "model" this dynamic
+system in such a way that a human can comprehend it and deal with
+it. Several different models may apply (simultaneously!) to it.
+The inability to choose a single, simple model further adds to
+the confusing (and thus anarchic) quality of netnews.
+     I can claim (with a bit of pride :-) ) to have watched
+netnews/Usenet grow from its two-machine origin into three, then
+four, and then up its growth curve. The very basic assumption
+that people using the netnews software wanted to have interactive
+communication is still essentially unchallenged as the purpose
+for this "creature" we call netnews/Usenet to exist.
+     There *is* a quasi-religious quality about netnews in some
+of the arguments that occur, and it is quite possible that some
+folks are using a variety of faith postulates in their
+conceptions of it.
+     I, however, do not think that being an "anarchy" is one of
+those for most people. The term remains in use simply because
+there isn't any other term that can be applied to netnews instead.
+     There are, IMnsHO(1), a few folks who have made faith
+postulates out of the "advantages of democracy" and other
+concepts.  :-)
+
+Wolfe
+--------------
+
+Note
+(1) IMnsHO := "In My (not so) Humble Opinion", a common net
+acronym.
+
+-----------------------------------------------------------------------
+[5]        Creating Broadsides for Our Day (Part 2)
+                               by Ronda Hauben
+                                  au329@cleveland.freenet.edu
+
+[Editor's Note: The following is the second part of this article.
+The first part appeared in the Amateur Computerist Vol 7 No 2. A
+footnoted version is available from the author]
+
+V - Creating the Form for Usenet
+
+     The earliest days of Usenet demonstrate both the principles
+and practices in embryo of new and more democratic forms that
+this new technology makes possible. The issues developed in
+certain key newsgroups during this early period clarify the
+problems that a new communications medium bring to the fore. The
+model for Usenet that pioneers had early on was of an electronic
+newsletter. "Not to belittle any new newsgroup, but it strikes me
+that we are developing a real electronic newspaper here," wrote
+George Otto in a post in January 1982. "We already have a science
+section, an automotive section, a comic section, movie review
+column, sports section, travel section, book reviews, even want
+ads." Michael Shiloh noted that he enjoyed the network both "for
+entertainment and for receiving the latest news on many subjects,"
+Another user pointed out that he didn't feel the news wires
+belonged on Usenet, "Although the news wire is something I want
+to see in Worldnet," he explained, "I don't want it on Usenet,
+unless it belongs in one of the other newsgroups." J. C. Winterton
+explained that he didn't feel that Usenet "should become an arm of
+AP, Reuthers, etc." However, in considering what Usenet should
+make possible, one user at allegra at Bell Labs wrote, "Wouldn't
+it be great to use this electronic medium to send notes to our
+government officials. I never seem to write postal letters or
+telegrams," he admitted, "but we all seem to find these electric
+notes convenient enough to use often. Can you imagine net.reagan
+with a few authentic replies?" Another user added "or what if we
+could lobby our favorite senator (net.lobby, net.senator?)" In
+articulating the importance of Usenet, Mel Haas wrote that the
+effort had to be to "Try to make the net a useful exchange of
+useful information and ideas that will pay for the service and
+help people." Another user explained his view that Usenet "was
+supposed to represent electronic mail and bulletins among a
+group of professionals with a common interest, thus representing
+fast communication about important technological topics." S.
+McGeady noted, a bit in dismay, "We are running a networked
+democracy here." Observing that, "computer networks, news and
+mail systems are much closer to the 'broadsides' of yesterday,
+Alan Watt asked, "are they therefore protected under the free
+speech amendment?"
+     To make such communication possible, it was important that
+rapid replies be possible after the item was posted. "The problem
+of disjointed communications is very real," wrote Jerry Schwartz
+at harpo, "Frequently we receive the reply to an item before we
+receive the item." To help alleviate the confusion that might
+result from this situation, he recommended, "that people put a
+line or two at the beginning of their submission (like the head
+of this one) to indicate what they are replying to."
+     Such long delays in being able to respond to posts were
+problematic, "If Netnews is to be used for an interactive medium
+for discussion," wrote Mark Horton, "a reply could take over a
+week to get back, with a two week turnaround. Clearly, this is
+the worst case, and a delay of a few days is more likely than a
+week. But there would be a significant lag, and conversations
+would be way out of sync with each other." Horton noted that he
+was replying to a message that had been posted two weeks before.
+      The newsgroup net.news was created to discuss Usenet
+itself. In this newsgroup, users discussed changes that they felt
+could be made in the software to improve Usenet. For example,
+Chris (at cincy) noted that it was then necessary to save the
+news item one wanted to respond to, exit netnews to write one's
+reply, and then send it and return to Usenet. Instead, he
+proposed that a means of automatically replying be built into the
+netnews software.
+     Often proposals for how to improve Usenet were submitted
+online with requests for comments and discussion. However, when
+ARPANET digests were read by those on Usenet, it was difficult to
+respond to the individual posts since the e-mail address of the
+gateway to Usenet was given as the source of the digests, rather
+than the poster's e-mail. Several on Usenet discussed how this
+made it difficult to respond to the writer, and raised possible
+ways to remedy the problem. In response, Horton explained that he
+was beginning to think that a change should be made and the real
+sender listed. He asked for "Comments" on his proposed change.
+     Steve Bellovin, one of Usenet's creators, noted that he was
+one of the people who had created the old form. He welcomed
+making a change, and proposed generating a "Reply-to" field for
+the e-mail address of the original author so that they would
+receive the response if one did "reply" with a lower case r but
+if one used an upper case R, the reply would be sent to Usenet as
+a follow up message.
+     In May 1981, Matt Glickman posting from the University of
+California Berkeley, announced that he and Mark Horton were
+working on a new version of the Netnews software used to
+transport Usenet. By July 1981, the software was going into the
+testing phase. Horton posted that "Comments on the conversion
+process are welcome."
+     In a similar way, in Nov. 1981, Horton proposed a policy for
+Usenet. He asked "If anyone objects to this policy, please let me
+know." Also Horton posted that he observed that people seemed to
+confuse Usenet with the UUCPnet that was used to transport
+Usenet. Therefore, Horton proposed, "I am toying with the idea of
+changing the names Usenet (the network itself) and Netnews (the
+collection of software that implement Netnews) both to "newsnet".
+     But he commented, "Since this is a sweeping change, and
+since I'm not God, I would like to see discussion on whether this
+is a good thing to do. Please reply to net.news." His request
+drew an immediate response. One such reply was from Bellovin.
+Bellovin wrote, "Mark, we picked 'Usenet' in deliberate imitation
+of 'USENIX', (one of) the UNIX User's Groups. At the time, we
+hoped that it might become 'the official network' of USENIX."
+     Others suggested a variety of names, including WEB with the
+comment "unfortunately, sounds too much like a TV station."
+     Names like "Arachnet", "Arachne", and "Compuco", "meaning a
+computer conferencing" and "info-ex", i.e. short for information
+exchange, were proposed.
+     Bill Jollitz supported a suggestion by Lauren Weinstein on
+the need to be careful of names with existing trademarks. Both
+agreed that it was important to raise the issue of "how this net
+will grow." Though certain problems like those of a technical or
+political nature were "well handled in the forum of the network
+itself," they felt other problems should be discussed at USENIX,
+as "it's the only large forum appropriate at the time."
+     Other names suggested included "Thinknet" or "Idnet" as
+names to represent the need for intelligent discussion that was
+represented on the net. "And speaking of Web," another poster
+responded, if there were discussion on the subject it could turn
+into a "Dragnet."
+     Weinstein proposed that any renaming proposal be brought up
+at the January 1982 USENIX meeting because it was important to
+have a "reasoned consideration of any new name."
+     Another post indicated the user had searched through the
+Webster's dictionary using the Unix tool grep and listed all the
+words he found ending in "net."
+     In a post dated Nov. 22, Horton listed a set of possible
+names and asked for a vote. He wrote, "Usenet is the current name
+of the logical net of sites running the netnews programs. They
+make up an electronic distributed bulletin board." Horton submitted
+several policy issues as a proposal to Usenet. There was online
+discussion about these proposals. Several, however, commented that
+they would be attending the USENIX meeting in Santa Monica,
+California in January 1982 and asked that any policy wait till
+that meeting.
+     "I have gotten lots of pressure," Horton writes, "to let the
+people at USENIX make the decision (and for the network name,
+too) and I want to state for the record that while I fully hope
+to postpone all such decisions until at least USENIX, the people
+who can't make it to Santa Monica this January have just as much
+right to be heard as those who can....I want to hear both groups,
+but the real public that counts here is the USERS OF THE NET
+(e.g. all you folks that are reading this.)"
+     Horton, however, proposed that votes wait till the USENIX
+meeting and be carried out in person, "since carrying out a
+discussion on this medium is very reasonable, but carrying out a
+vote is not, I suggest that we all air our opinions here and that
+after we talk ourselves out, those who can't make it to USENIX
+should find somebody who can and have them cast your vote by
+proxy. (Preferably someone you can talk with in person and hand a
+piece of paper to with your signature on it.)"
+     Agreeing that the policies should be discussed at USENIX,
+Brian Redman wrote "It's unfortunate indeed that more people
+can't be represented at our January meeting....My suggestion that
+we wait 'till the meeting is in response to Mark's suggestion
+that we set some policies. I can't imagine that an actual vote by
+the readers could be carried out fairly," he cautioned, adding,
+"I for one would vote on behalf of all the integers in a VAX."
+     Others objected to having decisions made at USENIX rather
+than online. Among the objections were those raised by Greg Ordy
+from Case Western University (cwruecmp) who wrote, "I submit that
+if it takes an across the country meeting to settle the issues at
+hand, we are in big trouble....It's the old loudest talker and
+prettiest face that sways opinions. I would think that this
+neutral medium would be an ideal place to judge only on content,
+not on packaging." He also noted that "the amount of non-
+technical news is starting to swamp the straight Unix stuff...."
+And he asked, "How much time does the average news reader/writer
+spend with news each day?"
+     Dave Curry also questioned relying on a USENIX meeting to
+make decisions on Usenet policy. He wrote, "I must say that
+putting the decisions on Usenet policy into the hands of those
+people attending the USENIX conference (certainly a minority of
+those who read news, etc.) is grossly unfair. I myself cannot
+afford to attend the conference (I don't know if I would, even if
+I could), and am certain numerous others aren't for numerous
+reasons. He proposed that, "the decisions should be made over the
+net." And he outlined a procedure to have those on the net
+involved in determining the decisions.
+     Horton's policy proposal had included a procedure to set up
+new newsgroups. Horton suggested a committee of those who knew
+how Usenet functioned to make decisions on the names of new
+newsgroups. Others on Usenet commented on the proposed procedure.
+Jerry Schwartz at harpo disagreed, "Rather than a committee to
+determine the names of groups," he wrote, "I propose a group
+'net.names'. The official procedure to create a new group would
+be to announce a proposed new group in 'net.general.' People
+interested in the group would reply via mail to the originator,
+and any objections to the name would be posted to 'net.names'.
+After a few days the originator can make a decision on the name
+and announce the creation of the group in 'net.general'. Any
+discussion of the changes to the names of existing groups could
+also go in 'net.news'."
+     Another response added, "I find it hard to believe that Mark
+is proposing a committee to approve of new newsgroups. Up to that
+point, his proposal sounds fine. How about just establishing
+rules for new groups." He detailed some proposed rules:
+
+"1 - Send a request for interested parties to net.general
+
+2 - Interested parties reply to the sender.
+
+3 - If there is enough interest, replies are collected and sent
+out as the first transmission of the new group."
+
+     "This system," he commented, "seems simple and self
+policing. If there is enough interest for a group to be started,
+then it is no committee's business to say it shouldn't exist."
+And he added, "I even get the feeling that if there was a
+committee, it would really end up being a rubber stamp since who
+has the time to do the work necessary to come to a rational
+decision about a group? Or if the committee does turn a group
+down, the metadiscussion generated would probably be worse than
+any group I can think of. If someone violates the rules, I'm sure
+that they could be jumped on and their (illegal) newsgroup
+disallowed by the local administrator."
+     Alan Watt outlined the principles he felt were governing the
+creation and development of Usenet:
+
+     "1) Usenet is a strictly volunteer organization: nobody HAS
+        to join, and guidelines cannot be enforced.
+     2) Any local news administrator has the de facto power to
+        impose any kind of censorship technically feasible.
+     3) Systems will only participate in Usenet if the perceived
+        benefits exceed the visible costs. Any guidelines
+        proposed ought to be guided by the principle of 'what is
+        obviously for the common good that everyone will accept
+        it once stated'."
+
+     He believed that "the character of Usenet will be the
+consensus of the individuals who maintain it at each local site,
+in spite of what any central committee requires or forbids."
+     From the discussion, he added, it appeared that in many
+cases "management isn't even aware that Usenet exists. The real
+danger," he continued, "is that if management doesn't know about
+Usenet, it follows that for most installations no one has an
+official responsibility to maintain it. This is certainly true
+for us." He continued, "Maintaining the news system on our single
+machine takes some measurable portion of my not-too-empty
+schedule each day. I squeeze out the necessary time because of
+perception (3)"
+     A post by Mel Haas added, "My personal hope is that the net
+will add to our capability to communicate, and do away with the
+horrible decisions that are made by committee meetings 'in
+secret' at some conference or other. I hope that all discussion
+of this (of censorship etc) or any other topic relating to the
+net is relayed to the net."
+     Jolitz said that he would report to those on the Net who
+couldn't attend the USENIX meeting about what went on. And Brian
+Redman responded that USENIX is "NOT a secret organization. BTW,
+Usenet was introduced at a USENIX meeting."
+     Another poster acknowledged that "most of the sites here at
+Bell Labs Indian Hill are running Netnews without benefit of
+super-user collaboration or even approval..."
+
+VI - The Online Public Forum and Creating a New Form of Town Hall
+Democracy
+
+     Those online found themselves creating a new communication
+medium and a new communication environment. The discussion on
+early Usenet over policy proposals demonstrated an open process
+where people were encouraged to contribute. Issues and proposals
+were debated to determine the principles to guide the decisions
+made and the procedures adopted. In addition, this discussion
+raised the question of what parts of the democratic process can
+be carried out online versus what areas need face to face
+meetings or other means of implementation. And how can these
+different forms interrelate? During the discussion of policy
+issues in the 1981-82 period, several people commented that they
+didn't trust votes carried out online, pointing out the ease with
+which votes could be tampered with in an online voting process.
+They also pointed to the discrepancy between the tentative vote
+carried out online about choosing a new name for Usenet and the
+vote held at the USENIX meeting where the vote for a new name for
+Usenet yielded very different results.
+     In a similar way, through online discussion and
+consideration, the new newsgroup naming and creation process was
+examined and a means found to create a working procedure, as
+opposed to depending on a proposed appointed committee to carry
+out the procedure.
+     In "The Rights of Man," Tom Paine describes the importance
+of the discussion among people to determine the underlying
+principles upon which new forms can be fashioned. "Forms grow out
+of principles and operate to continue the principles they grow
+from," Paine observed. "It is impossible to practice a bad form
+on anything but a bad principle," he continued. Paine also
+proposed that the beginning of a new form is the most important
+and most difficult step, "as the probability is always greater
+against a thing beginning than of proceeding after it has begun."
+     The discussion made possible in net.news during this early
+period on Usenet demonstrates how problems can be examined to
+determine the crucial principles so as to set the foundation for
+a community or social compact. Before there are agreed upon
+principles and policies, the interests and desires of those who
+are joining together need to be explored and debated. The
+principles of any social compact need to be determined before the
+forms, so the forms that will serve these needs can be created.
+     The insistence of various participants on Usenet during this
+early period for input into the decisions about Usenet, echoed
+and articulated in Mark Horton's statement that "I'm not God,"
+demonstrated the commitment that such decisions had to be
+determined by Net users. This was a statement of the fact that
+sovereignty resided in the users, not in any individual or
+organization.
+     This open process created a foundation upon which Usenet
+could expand and develop. Much that was only dreamt about or
+proposed as wishful thinking in 1981 on Usenet is now assumed
+procedure. Thomas Paine explains that if the principles
+determining a new form are good principles, the form will reflect
+and spread the good principles, and vice versa. The democratic
+process developed by those who formed Usenet, established the
+foundation for it to grow and flourish. In "The Rights of Man",
+Paine describes his observations when he left Great Britain and
+came to the U.S. He found a new form had been created in the new
+world of America to guide how governments could function. In a
+similar way, the discussion on Usenet during its early days shows
+how a new form was created to guide the development of the
+online community. Studying these early efforts of the Usenet
+pioneers shows how they gave the world a new communication media
+and a new form of online town hall democracy.
+
+------------------------------------------------------------------------
+[6] [Editor's Note: In the following written in 1994, ARPANET
+pioneer Keith Lynch recalls his early days online and comments
+on some of the challenges to the future of the Net.]
+
+              History of the Net is Important
+                                  by Keith F. Lynch
+                                     kfl@clark.net
+
+     Well, originally it was just "The ARPANET". In 1977 friends
+introduced me to it. We used a TI [Texas Instrument] Silent 700
+terminal. This was a printing terminal which used thermal paper
+and built-in 300 baud acoustic coupled modem. One would dial a
+local "TIP". For instance there was one at Mitre, a nearby
+company. One would then type "@L134" to connect to host 134, or
+whatever. There was no TIP (later TAC) login at that time. Host
+numbers were always a single number of up to three digits. No
+dots. Host names were always short and uppercase, and also had
+no dots.
+     A TIP was a machine which did nothing except allow dial-up
+users to connect to other machines. Later they were renamed TACs.
+There was no security on them. Not only was no password needed,
+but you could issue commands to other sessions on the TAC!
+Everyone was expecting that TAC login was imminent, but it wasn't
+installed for a long time. Not until 1986, I think.
+     I've heard of guest users being asked not to use a TAC
+because all its lines were busy who resolved the problem by
+paying for an extra phone line and modem to be installed at the
+TAC!
+     TACs had some little-known features, for instance a way to
+link to a user dialed into another TAC, so you can have a
+real-time conversation without connecting to a computer. This
+was handy during hours when guest users weren't allowed to log in
+on the ITS systems at MIT. If you were both good typists, you
+could disable echo, so that when either of you typed, only the
+person not typing saw it. Which meant you could both type at the
+same time without stepping on each other.
+     A couple times, I would dial into a TAC from a printing
+terminal at work, and just leave it dialed in. Then, from home, I
+would tell that TAC port to con nect to an ITS machine. Then, I
+would get on ITS from home and link to the newly appeared job,
+log it in, and have it list various files, so that they would
+print out at work for me.
+     One time I dialed into a TAC from a microcom puter running
+CP/M at work. (CP/M was a very simple OS for eight bit micros,
+before the 16 bit IBM PC and MS/DOS came out. It didn't even
+support hard disks, or tree structured directories.) Then I
+could connect to it via the net from home. I told my net-friends
+that we had a machine on the net at work. A machine running CP/M.
+I showed them how to connect to it, and they did so. This was
+considered a great lark. I can't easily convey how ridiculous
+the idea of a small machine on the net was in those days. I think
+this was in 1981 or 1982, when connection required a government
+contract and a refrigerator-sized quarter million dollar IMP.
+     The most popular machines on the net were the ITS machines
+at MIT. There was DM (77), AI (134), ML (198), and MC (236). DM
+had Zork on it. Zork was a text-only adventure game played in
+woods, caverns, dungeons, etc, which contained treasure to be
+brought back. (Infocom later marketed a modified version of Zork
+for various micros.) MC had Macsyma, a program for solving
+equations. (Macsyma was later marketed by Symbolics.) All
+machines had EMACS, the screen editor written by Richard M.
+Stallman et al, which gave rise to the later commercial EMACS
+written and marketed by Gosling, and the GNU EMACS again written
+by Richard M. Stallman, who later won a MacArthur foundation
+quarter million dollar genius grant for it and for related work.
+The ITS EMACS was the original EMACS, and was written in TECO, a
+character-based editing language.
+     ITS stood for the Incompatible Time-sharing System, an
+obvious take-off on CTSS, the Compati ble Time Sharing System.
+(Just as Unix is a take-off on the earlier TENEX, TWENEX, and
+MULTICS.)
+     All four ITS machines also had UNTALK, a split-screen
+conferencing program similar to the later "talk" on Unix and
+PHONE on VMS. I was told it was written by a user whose ITS
+username was UNCOLA and who had committed suicide. I don't know
+if it was the first program of that type, but it was the first I
+had seen.
+     ITS was a strange operating system. Commands took effect
+without one's needing to type <CR>. There was a
+semi-hierarchical file system, suppos edly hacked together in one
+weekend by David A. Moon. Files on other ITS systems were
+transparently available through the "Chaosnet" (a predecessor of
+Ethernet, and probably an inspiration for it) simply by prefacing
+the filename with the name of the machine it was on.
+     Similar ideas later appeared in VMS/DECNET and Unix/NFS.
+     Eventually (1979?), ITS instituted passwords. Fortunately
+for me, they allowed guest users. Even without an account, one
+could get in fairly easily. I'll explain how, as it helps give a
+flavor for the system:
+     Users who weren't logged in still got a prompt. They just
+couldn't do much with it. One thing they could do was see who's
+logged in. Another was use the SEND command to send a real-time
+message to anyone who was logged in at the time. Anyhow, when one
+wasn't logged in, one could use SEND to send to someone else who
+wasn't logged in. The SEND command would then automatically
+invoke the MAIL command. And from within the mailer one could do
+"<ESC>E" to invoke EMACS (just as today in the Unix mail command,
+one can do "~e" to do the same thing). And from within EMACS,
+one uses "^X^V" to load DDT (the exec) and "^X^W" to write it
+over SEND. Then one aborts out, and invokes SEND a second time.
+Only since SEND had been replaced with a copy of DDT, you'd be in
+the exec, fully logged in.
+     Unfortunately, the machines (PDP-10s) were usually so
+heavily loaded that guests were often restricted to using them
+after midnight. During slack periods, they were allowed on as
+early as 8 pm. And sometimes all day on weekends. File space was
+quite restricted. And guests didn't get personal directories.
+Also, there was no file protection. Anyone could read or alter
+any file on the system. And anyone could spy on anyone else's
+session, and even link to their exec and issue commands to it.
+This is something I really miss in Unix and VMS when a user needs
+assistance it would be very handy to be able to look over their
+shoulder and to type commands for them while they watch,
+remotely.
+     Guests were allowed to, and even encouraged to, modify the
+system. If people didn't like the modifica tions, they were taken
+out again.
+     The ITS convention was that it was O.K. to read other
+people's mail. Eventually, this collided with the net-wide
+convention that this wasn't O.K., with some unfortunate results,
+which included at least one di vorce, that of Marty and Nancy
+Conner, who had married after meeting on the Bandykin mailing
+list.
+     The Bandykin list was originally set up for the friends of
+Bandy (Andrew Scott Beals) to console him for the loss of his
+girlfriend. I think this was in 1984 or so. It was alluded to,
+not by name, in Quarterman and Hoskins' "Notable Computer
+Networks" (CACM, October 1986 please don't try to write a history
+of the net until you've read this paper). It was later renamed to
+Kin, when Bandy wished to be dissociated from it. Before dying,
+it spawned off a number of other lists, including Elbows,
+Lectroids, TANSTAAFL, and Info-Frobkin. That last list gave rise
+to FTP Software, a thriving Cambridge firm with which the company
+I work for has recently done business. (FTP Software was
+presumably named after the net's File Transfer Protocol, which of
+course greatly predated it.)
+     The Kin list died because Marty Conner reserved the right to
+add anyone and everyone to the list. The new lists were
+constituted without him, and with strict rules about who could
+join.
+     It wasn't until 1981 that I had fairly consistent access
+from home, using a borrowed 300 baud modem and H19 terminal.
+Prior to that, I had often gone months or sometimes years between
+access. After 1981, I have never been offline for more than a
+month. I missed a month in 1986 due to TAC logins finally being
+installed. And another month in 1993, when I was installing
+computers overseas. (Ironically, as of last month those overseas
+comput ers are now on the net!)
+     In 1982 I got my own Heathkit H19 terminal and assembled it.
+I used it until I got a 286 PC in 1986. I'm still using that PC.
+I'm currently using a 2400 baud modem I borrowed from work three
+years ago. Prior to that, I was using my own 1200 baud modem.
+Early this year I rescued a TI Silent 700 terminal from the trash
+can at a hamfest, mostly just for old times' sake. (The TI had
+been marked $15, but nobody bought it. They cost about $1000 new
+in the late 70s.)
+     In 1986, I started using a service called PC Pursuit. It
+allowed one to make off-hours long distance computer calls to
+about 30 cities in the US, including Boston. I used it not just
+to get onto ITS, but also onto various BBS systems around the
+country.
+     In 1986, 1987, 1989, 1989 again, and 1990, I visited MIT in
+person.
+     In May 1990, the last ITS machine was shut down. But I also
+had guest accounts on Unix systems at MIT by then. It was one of
+those on which I first used Usenet newsgroups, perhaps in 1987 or
+so. Previously, most of my activity had been reading and posting
+to mailing lists, having real-time chats, and downloading various
+text files. I recall one four-way real-time chat which included
+people in Virginia, Norway, the Philippines, and Missouri.
+     In 1991 I switched from using a Unix system at MIT to using
+Digex, a Unix system in Maryland, a local call from here. Not
+long after, I dropped PC Pursuit. PC Pursuit was nice at first,
+but they changed from allowing unlimited off-hours usage to one
+hour a day, while increasing their rates from $20 a month to $30
+a month. Also, their local number was busy most of the time, and
+connections were sluggish, and frequently punctuated with the
+notorious "** POSSIBLE DATA LOSS 00 55 **" which invariably meant
+several pages had been discarded. I probably would have dropped
+it anyhow, as there were only two long distance BBSs I called
+regularly, and one had shut down, while the other had moved out
+of a PC Pursuit area (and has since shut down).
+     Digex was founded, and is headed by, Doug Humphrey, whom I
+first met in person at a convention called WATS-80 which he
+hosted in Washington DC in 1980. Oddly, instead of using his real
+name there, he called himself "Aubrey Philipsz" after a character
+in James Hogan's 1978 novel The Genesis Machine. I may have met
+him online earlier. He was DIGEX on the ITS machines. In those
+days, he had a large DEC-10 in his small apartment. He had bought
+it for scrap prices. He used to wear the key to it around his
+neck as jewelry.
+     In 1989 he had an ITS system in his apartment, which was
+only one of two not at MIT (the other was in Scandinavia
+somewhere). I don't think he still has it. (I wonder if there's
+a law against killing an endangered operating system.)
+     I remember his mentioning ARPANET, and how easy it was to
+get onto it, during a talk he gave at WATS-80 in 1980. The
+implication was that we were all unauthorized users, but that
+nobody really minded yet.
+     I don't think Usenet was mentioned at that convention.
+     WATS-80 was mentioned in the Washington Post. I'm sure I
+still have the newspaper clipping some where. (I always save
+everything forever, but often have a hard time finding it later,
+since it's mixed in with everything else I've saved.)
+     As you can see from my header, I'm still on Digex. [That was
+in 1994 -ed] It's grown a lot since I first logged on here, from
+a SUN-3 with an "MX record" (not directly on the net) with about
+1000 newsgroups, to several large SUN-4s linked to the Internet
+backbone with a T1 line, carrying about 9000 newsgroups.
+     I still have an account on a Unix machine at MIT, too, which
+I can telnet into, but I seldom use it.
+
+> one of the questions I am most interested in sorting out is
+> "What was the degree of Usenet/Internet overlap at various
+> times"?
+
+     That's hard to answer. I can give you my impres sions. ITS
+was never part of Usenet. The idea of a newsgroup is a fairly
+obvious one, given mailing lists. I recall commenting in 1979 or
+1980, that it was silly to mail a copy of the same thing
+separately to lots of people on the same machine, rather than
+mailing a pointer to it, and having one copy in a common area. In
+fact, the SF-Lovers digest was set up that way for some users for
+a while in 1980 instead of being mailed the digest, they had the
+option of being mailed a notification that there's a new digest,
+so they can read it from the online archives. This was
+discontinued after a year or two, probably because it was only
+practical when most readers were on ITS, which is where the list
+origi nated. Almost all mailing lists originated from ITS, since
+it had the most advanced mailer software.
+     Rich Zellich maintained a "list of lists" which could be
+ftp'd from SRI-NIC.ARPA. For all I know, he still does. But it
+was hopelessly out of date by 1983 or so, as there was no formal
+procedures for information on new lists, or on changes in old
+lists, to be conveyed to him.
+     I gradually became aware of Usenet via references in
+SF-Lovers, Human-Nets and other mailing lists. It became clear
+that some people didn't see something called the "SF-Lovers
+Digest," but instead read something called "fa.sf-lovers". I
+became aware of what newsgroups were, and that they all began
+with "net." except the ones which were aliased to an ARPANET
+mailing list, which began with "fa.". Nothing began with alt. or
+misc. or rec. or sci. or soc. in those days.
+     Speaking of SF-Lovers, Brad Templeton put the first few
+years of archives (starting in 1979) on a CD-ROM last year, along
+with lots of recent SF novels and short stories. My brother has a
+copy. It's easy to scan these archives, unlike my personal
+archives which are on thousands of five inch dis kettes, mostly
+unlabeled, in no particular order. It was fun to see my own
+postings, older than some current net users, now immortalized in
+plastic and tinfoil.
+     (I just checked that disc, and found that the first mention
+of fa.sf-lovers in the SF-Lovers digest was in August 1982, in a
+message which also mentions net.sf-lovers. I don't know if those
+were two different newsgroups. I can forward that message to you
+if you like.)
+     Actually, SF-Lovers didn't begin in 1979. It had an earlier
+incarnation, whose archives apparently haven't been preserved
+anywhere. It was shut down after Senator William Proxmire gave
+the ARPANET his golden fleece award for wasting taxpayers' money,
+citing SF-Lovers and the wine lovers mailing lists as examples.
+(I don't know when this was, but it should be easy to look up.)
+The wine lovers mailing list never came back.
+     Usenet people also participated in mailing lists. They
+always had addresses in the form foo!bar!baz!zoo!yar!yaz where
+foo and yaz were the starting and ending points, or perhaps the
+other way around. ARPANET addresses were always in the form
+FOO@BAR, or if they were on some kind of subnet FOO%BAR@BAZ.
+Traffic which had traversed the nets would look like
+foo!bar!baz%ZOO@YAR. It wasn't always clear which way to parse
+this.
+     I definitely had the impression that ARPANET (later,
+Internet) and Usenet were two very different things, and that
+mail got from one to the other only because one or two machines
+happened to be on both networks. These gateway machines which
+were on both networks kept changing, presumably because once word
+got out that one was acting as a gateway, it quickly became
+overloaded, and soon refused to act as a gateway anymore.
+     My impression (which may have been wrong) was that the
+Usenet mailing lists were completely different from the ARPANET
+mailing lists, although some adventurous Usenetters were
+subscribed to the latter via a gateway.
+     There was a Usenet map file, consisting of several pages of
+ASCII line drawings meant to be connected together, which showed
+all the systems on the Usenet, and which ones talked (via uucp)
+to which other ones.
+     I may still have a hardcopy of this somewhere. I recall that
+only one or two machines on the map was also an ARPANET host. But
+it was hard to tell, since a host's Usenet name and ARPANET name
+could be (and usually were) completely different.
+     Today, I have the impression that Internet and Usenet are
+essentially the same thing. And that the overwhelming majority of
+newsgroup traffic flows via TCP/IP over the Internet, rather than
+via uucp over dial-up modems. Trying to separate them today seems
+about as productive as distinguishing the Angles from the Saxons
+today.
+     I recall that Usenet users were considered some how lower
+class. For instance there was a message on the Bandykin list
+suggesting that Usenet people be banned from the list. I wrote a
+reply, replacing "Usenet" with "black", and "Internet" with
+"white," showing that "netism" (as I then named it) is as bad as
+racism. (I'm sure I still have a copy of these messages.)
+     Today, on some newsgroups there's similar, but lesser,
+netism toward AOL, Delphi, and/or Fidonet users.
+
+> And I would love to know about the 1980 ARPANET crash - that's
+> just after Usenet started (when in 1980 was the crash?)
+
+     October? I don't recall the cause, except that it came as an
+enormous surprise, as the ARPANET was supposed to be crash-proof.
+Some kind of self- propagating host table update had a bug in it,
+I think. It was definitely an accident, not malicious, not an
+attempt to crash anything.
+
+> Have you seen any history work done on Usenet and ARPANET
+> history?
+
+     I don't think so. Not until the past year have I noticed
+lots of books being available, describing what the net is like
+now, and how to do things with it. It makes sense that such books
+would appear before books that describe how it came to be that
+way, and what it was like earlier, the latter being of lesser
+immediate practical use.
+     The net's history is very small, measured in person-years.
+Perhaps 50 million? Compared to about 20 billion person-years of
+US history, and a similar number of person-years for the Roman
+Empire, that isn't very much. Thus one might expect one net
+history book for every 400 US history books.
+
+> ... and when it is often written about, the details are
+> often wrong (when it is written about by the press, etc.)
+
+     I've noticed that the press tends to be quite accurate,
+except when they're writing on a subject I know something about.
+:-)
+     Concerning quoting styles, the ARPANET style was to indent
+the text being quoted, the Usenet style (which I've long since
+adopted) was to quote messages with a ">" character at the
+beginning of each quoted line, and the Fidonet style was to quote
+messages with the person's initials followed by a ">" character
+at the beginning of each quoted line. All three styles are now
+found on all three nets, as are various other styles, many of
+them nearly unreadable.
+     Often, the ">" is replaced by some other character such as
+"|", probably to get around software that puts limits on quoted
+text.
+     The earliest mailing list I'm aware of is MSGGROUP, a list
+for discussing e-mail and related issues. I've recently seen some
+online archives of it dating back to 1975, and I downloaded the
+earliest parts of it as a souvenir.
+     The first digestified mailing lists were SF-Lovers and
+Human-Nets, which became digestified in January 1980, because the
+daily volume became too great for the ITS mailer to handle
+overnight. With digestification came de facto moderation, since
+there was no automatic software for digestification. These may
+have been the first mailing lists to be moderated.
+     The first *automatic* digestification, at least among the
+lists I read at the time, was on the Space Digest. I remember
+being very surprised by it. This was probably around 1982.
+     I think I first saw smileys in 1981 or 1982. The original
+one was :-).
+     FTP, telnet, and mail date back to the beginning of the
+ARPANET, though they changed somewhat when NCP was replaced by
+TCP/IP (in 1982?). IRC, WWW, Archie, and Gopher are quite recent.
+I used something just like IRC on the BITNET in 1987 or so, and
+I'm pretty sure there was no IRC at that time, though there were
+MUDs. I used something just like a one-channel IRC on an HP-2000
+(not on any net) in 1977.
+     I'm not sure when FAQs started, though I'm pretty sure they
+came from Usenet, not Internet.
+     GIFs, I'm pretty sure originally came from CompuServe.
+
+> > (I do hope newsgroups have been, and are being, totally
+> > archived.)
+
+> They were by Henry Spencer at the university of Toronto - but
+> he gave his tapes last summer to someone who claimed they would
+> make a CD-ROM > of them ...
+
+     Make a CD-ROM of the complete archives of Usenet? I believe
+the current volume is about equal to one CD-ROM per *week*.
+
+> But also some of the research I have done in the
+> past is available from wuarchive.wustl.edu in
+> directory /doc/misc/acn/netbook
+
+     I'll get that file as soon as I finish writing this. (I
+don't want to bias my recollections, and feed back information
+already in the file to you.)
+     Until 1990 or so, my perception was that the net, or at
+least my access to it, was likely to go away soon. TAC login was
+coming soon. Guest users at MIT were always becoming more
+numerous and weren't as well behaved as in the "good old days,"
+thus were likely to soon all be flushed. The net often became
+unusably slow (i.e. five or ten minutes for what I type to echo
+sometimes I'd type ahead a whole session, including the logout,
+before getting the password prompt) and it was obvious that
+guests would be flushed since the capacity was now being
+exceeded.
+     Later came the infamous FCC "modem tax" threat. The
+outrageous idea was that the net, PC Pursuit, etc, were
+underselling the phone company and the post office, and that this
+was unacceptable. Thus, whenever information crosses a state
+line electronically, it would be charged as much as it would cost
+to send via a regular modem over a regular long distance phone
+line. (This was when regular modems didn't exceed 1200 BPS.) This
+threat later came back as a recurring "urban legend," but it was
+quite real the first time. Fortunately, the FCC received more
+letters opposing it than they had received in all history on all
+other issues combined, so they reluctantly backed down. Packet
+nets such as the Internet and PC Pursuit are inherently much
+cheaper than a dedicated phone line. It's like the difference
+between sharing a lane on the road, and having a whole lane
+dedicated to you for the duration of your trip. Naturally, the
+latter costs much more. A dial-up phone line is exactly
+equivalent to ftping a 64KB file every second, plus another one
+at the same time in the opposite direction, for the duration of
+one's session.
+     This "modem tax" would have been an extreme and senseless
+distortion of the marketplace, roughly equivalent to putting a
+one million percent tax on trucks driven forwards, but not on
+those driven in reverse gear.
+     There's long been a lot of commonality between people on the
+net and people at Science Fiction con ventions (cons). Not only
+are SF cons discussed a lot on the net, but SF cons have had "@
+parties," or "@! parties" since at least 1986. There are also
+often parties associated with a given mailing list or newsgroup.
+I'm not sure whether in general people discover the net at cons,
+or cons on the net, or whether, like me, they discover both
+independently.
+     Also, either a disproportionate number of libertari ans are
+on the net, or just as likely the news media are lying to us
+about how many libertarians are in the general population.
+     There's also a lot of overlap with ham radio types. The net
+is the exciting electronic frontier that I thought I had
+permanently missed when reading amateur radio magazines from the
+1910s. I used to have a ham radio licence, but let it lapse when
+I discovered the net. I couldn't combine the two hobbies, as
+ASCII wasn't allowed on the air until 1980. And packet ham radio
+came much later. (It's interesting to note that the American
+Radio Relay League was founded in 1916 by hams to organize
+networks of hams to relay messages (their own and messages from
+the general public) across the country, and, ten years later,
+across the world, using Morse code. It still exists, and I was a
+member for a while.)
+     An early mailing list was Human Nets. It was for the
+discussion of "Worldnet," a hypothetical future worldwide
+computer network. The list is long gone, but I hope the archives
+are available online somewhere. They'd make valuable reading for
+you, since by read ing them "backwards" you can get a good image
+of what the net was like at that time, just as the best way to
+see what was considered bad about a time and place is to read a
+utopian novel written then and there, since a utopia is always
+fairly similar to what the author is accustomed to, with the bad
+features removed or reversed.
+     One April Fool's Day sometime in the early '80s, there was a
+hoax posting from KREMVAX, which purported to be a VAX in the
+Kremlin in the USSR.
+     This was considered quite hilarious, since the ARPANET was
+for US defense, and the USSR was our enemy. At that time, there
+were hosts at US bases overseas, but nowhere else outside the US.
+Much later, after Russia was on the Internet, someone in Russia
+became aware of this prank, and named their Internet host KREMVAX
+as a lark.
+
+> Thanks for writing. Would you like to say something about
+> today?
+
+     Today there are more systems on the net in our computer room
+where I work, than were on the whole net in 1977. Some of these
+systems are a single circuit board that could fit in my shirt
+pocket.
+
+And tomorrow?
+-----------------
+
+[The above e-mail message was written over three years ago. The
+author's web site is at http://www.clark.net/pub/kfl/. In a
+recent e-mail message Keith Lynch updated this e-mail exchange:
+"Note that in 1994 I saw WWW as just another random service on
+the net, along with Archie, Gopher, and IRC, rather than the 800
+pound gorilla it has become. And spam was such a minor issue in
+those days that I didn't even mention it, while today it takes up
+the majority of my online time. I believe spam is the greatest
+threat the net has ever known.
+     I'm against Usenet 2, or any other retreat due to spam. I
+don't discard any e-mail unread, or munge my address, or cease
+posting helpful messages to Usenet, or move to Usenet 2, or
+register with remove lists, or do anything else to surrender any
+part of the net to spammers, or to imply their legitimacy.
+     Let THEM built a second Usenet or a second Internet. I
+won't let them drive me off this one. I wish everyone felt the
+same. I wish every spam to ten million victims was met with ten
+million strongly worded complaints. We made AGIS back down. We
+drove Spamford off the net, along with Nancynet, Walt Rines'
+Quantcom, and a dozen other rogue domains. Spammers are on the
+defensive now.
+     See http://www.clark.net/pub/kfl/ftc.html for my coverage of
+the FTC spam hearings six months ago, which I attended. See
+http://www.clark.net/pub/kfl/ toll.html for my list of toll-free
+numbers seen in recent e-mail spam.
+     Also see http://www.clark.net/pub/kfl/timeline .html, which
+should be of interest to every Internet historian."]
+
+---------------------------------------------------------------------
+[7]           Netizens: Review of Reviews
+
+     The Amateur Computerist is proud to announce the book,
+"Netizens: On the History and Impact of Usenet and the Internet"
+by Michael Hauben and Ronda Hauben, two founding editors of the
+Amateur Computerist, appeared in May 1997. It was published by
+the IEEE Computer Society Press. Many of the chapters of this 345
+page hardcover book had previously appeared in earlier versions
+as articles in the Amateur Computerist. It is now available in
+bookstores but remains online as it has been since January 1994
+at http://www.columbia.edu/~hauben/netbook/. In October 1997 a
+Japanese translation was published by Chuokoron-Sha. The book has
+been greeted by a number of interesting reviews in English and
+Japanese.
+     Michael Swaine writes in Dr. Dobbs Journal, a magazine for
+programmers, that he liked "the copious quotations from the
+actual participants" in the development of UNIX, Usenet and the
+Internet that "Netizens" documents. "The Haubens," he writes,
+"have produced a readable but well documented story of the
+development of the Internet. They spent years working on the
+book, and really seem to have done their research." He urges
+authors of other technical books to emulate them.
+     In a review in ComputerWorld, a computer industry weekly
+publication, Johanna Ambrosio recommends that "this book is a
+must-read for anyone even remotely connected with or to the
+Internet." She describes it as "part philosophical tome, part
+social science and part history. worth the price of admission
+solely for its look at some of the Internet/ARPANET pioneers."
+She points to the visions documented in the book such as viewing
+communication as an interactive creative process and the
+importance of people in the computer industry today learning from
+them. The review ends, "Read this book. As good books are
+supposed to do, it makes you think."
+     An article in the "Orange County Register" (Ca) by Leslie
+Gornstein reviews "Netizens" for the newspaper's 400,000 readers
+and includes a telephone interview with the authors. The headline
+reads "Should Net Access Be a Right?" Ms. Gornstein reports that
+the book "calls for Net access for all," even suggesting "a bill
+of rights for online dwellers." She writes that this book both a
+history of the Internet and a theory on its role in society
+advocates, "Equal Internet access time for all. Equal quality of
+connection for all. Banishment of official 'spokespersons'.
+Banishment of personal profit resulting from what others
+contribute online ." She quotes from the book that, "The Net is
+not a service, it is a right" and includes that Internet dwellers
+must contribute as much as they benefit. In the interview portion
+of her article, the reporter asks, "So you see the Internet as a
+utility?"  and gets the answer,"  that is how the early pioneers
+saw it." This review for a more general audience stresses the
+social aspect of the book and the importance of the book to those
+not online yet.
+     In the December 1997 issue of ";Login:", Daniel Lazenby
+reminds the Unix cummunity and others who read ";Login:" that
+"ordinary people have made and can make a difference." That he
+says is what "Netizens" documents by capturing the story of those
+who quietly nurtured and fostered the current revolution caused
+by network technology. He writes that "Netizens" is easy to read
+and he is struck by the potential it shows for Usenet and the
+Internet to create a much grander communications and information
+revolution than even the printing press achieved. The reviewer
+points out the importance of staying true to a vision with the
+example of "Licklider's refusal to set his sights lower than the
+vision of a global computer" network. He ends his review saying,
+"look closely while reading the book and you may find yourself
+viewing the world a little bit differently when you finish."
+     Karin Geiselhart, a PhD student in Australia, reviewed
+"Netizens" for the journal "Internet Research". She welcomes
+"Netizens" as "a book which champions grassroots democracy." By
+speaking through the online citizens that helped shape the net in
+its early days, she writes, "Netizens demonstrates the potential
+for users being active participants in an ongoing process" of
+development. She reminds us that "technology should serve
+people." Geiselhart remembers Vint Cerf commenting in Montreal at
+the INET'96 conference that "Democracy doesn't scale" but she
+ends her review by commenting that, "Netizens is an affirmation
+by the authors on behalf of all their fellow Usenet contributors,
+and all of us who have benefitted in some way from the altruism
+and free information which flows across the Internet. Theirs is
+an optimistic mantra: democracy can scale."
+     The Japanese translation has on its cover in English, "Net +
+Citizens = Netizens". It is 381 pages but does not contain all
+the chapters of the English version. It is reviewed in the Sunday
+10/26/97 edition of Nihon Keizai Shimbun more commonly known as
+"Nikkei"  (the Wall Street Journal of Japan). The review by
+senior staff writer Waichi Sekiguchi discusses who Netizens are,
+stressing that the authors of "Netizens" are referring to "the
+people who work cooperatively with all the people on the Net and
+coordinate the work they do all over the world through the Net."
+Mr. Sekiguchi writes that Netizens are a new species of Homo
+sapiens who participate in ways that are more democratic than in
+the rest of society. He points out that the authors of the book
+find cooperative and democratic behavior on Usenet and that they
+say that individuals being able to send and receive information
+is more democratic and powerful than the mass media where only a
+small number of people send the information. The reviewer writes
+that this book is particularly important in Japan because readers
+there will learn from it how to hear the voice of Netizens needed
+for the current administrative reform movement.
+     Besides offline reviews of "Netizens" there has been some
+mention of the book online (See the review by Mark Horton below).
+"The Chronicle of Higher Education" on its Academe Today mailing
+list pointed to "Netizens" as a new book on the societal impact
+of the Internet and the history of Usenet now in bookstores which
+can also be accessed online. In another online review, Cye
+Waldman writes that even though to him the Internet means the
+World Wide Web it is important to read this book so all Netizens
+are "aware of the forces that are shaping our lives." "Netizens"
+is not a casual history of the Internet as is found in many books
+he concludes but "rather, it is a thoroughly researched piece of
+work that chronicles one of the most important phenomena of the
+decade."
+     This is a positive start for "Netizens". If any readers of
+the Amateur Computerist write a review or see one, we would be
+interested in knowing about it. We again congratulate Ronda and
+Michael on seeing the product of their hard work gaining some of
+the respect and review it deserves.
+
+----------------------------------------------------------------------
+[8]            Two Book Reviews: Netizens
+
+                  REVIEW from CMC
+                          by Mark Horton
+
+Netizens by Michael Hauben and Ronda Hauben
+Published by the IEEE Computer Society
+
+     Netizens describes the history of the Internet, focusing
+especially on the formation of the Usenet bulletin board system.
+For me it was a trip down memory lane. The social and political
+implications of opening up communication among a group of
+academic philosophers was groundbreaking, and Netizens is there
+to give us the play-by-play.
+     The book includes interviews with the found ers of Usenet
+and with the pioneers who contrib uted to its character and
+growth. The story of how Tom Truscott's summer job at Bell Labs,
+volley ball, chess, and "rising at the crack of noon" turned into
+the seed of Usenet is inspiring, especially in this age of
+cost-cutting and disposable computer software. The authors make
+good use of an archive of the first few years of Usenet postings.
+Those of us who were there remember much, but the archive is like
+putting history on videotape. Quotes from the formative days
+remind us of the issues of the time, such as the unwillingness of
+the ARPANET to talk to Usenet; censorship; and how the high cost
+of getting Usenet to Europe was overcome.
+     Chapters of the book tell the history of many of the
+building blocks of the Internet. The early days of the ARPANET
+are chronicled, from the selection of the first four sites in
+1968 to the people involved and how they solved the early
+problems of the net. Netizens also tells the story of the UNIX
+operating system, how it came about, the key contributors, even
+how the "grep" command got its name.
+     Photos from the 1950s showing computer center machine rooms
+with IBM 704 components taking up the entire room, key
+researchers at places like MIT, computer chess tournaments, and
+the founders of Usenet add to the sense of history.
+     This is an excellent book. The academic style means you'll
+have to think to read it. This book is a vital element in any
+Internet historian's library.
+
+------------------------
+                      REVIEW from ;LOGIN:
+   		           	 by Daniel Lazenby
+                                    dlazenby@ix.netcom.com
+
+Netizens: On the History and Impact of Usenet and the Internet
+Michael Hauben and Ronda Hauben. IEEE Computer Society, 1997,
+ISBN 0-8186-7706-6. Pp. 345, $28.95
+
+     The title says it all. This book tells the story of how
+ordinary people have made and can make a difference. Often the
+revolution caused by a technology and the people who quietly
+nurtured and fostered it into being is not recorded until well
+after the fact. Netizens strives to capture the history while
+some founders are still able to provide firsthand accounts. This
+easily read book chronicles the evolution of Usenet and the
+Internet. Not only does Netizens chronicle the past; it strives
+to illustrate the life-changing influence Usenet and the Internet
+have had on people and society. The book also takes a few moments
+to ponder the changes yet to come. This book is based on academic
+research papers that Michael and Ronda orginally published on the
+Internet.
+     Netizens is broken into four major parts, "The Present,"
+"The Past," "And the Future," and "Contributions Toward
+Developing a Theoretical Frame work." The first part recaps what
+has been created and how it was created. "The Past" reviews where
+Usenet and the Internet came from. This part of the book explores
+the grassroots beginnings of Usenet and the gestation of what is
+now known as the Internet. The third part explores the effects of
+the net on individuals, organizations, and societal structures.
+"Contributions Toward Developing a Theoretical Framework"
+contains two chapters. The first compares the printing press,
+Usenet, and the Internet. At the time of its invention, the
+printing press created both communication and information
+revolutions. This part of the book presents Usenet's and the
+Internet's potential for creating another, much grander,
+communication and information revolution.
+     In this day of ubiquitous modems, the Intenet, Internet
+Providers, and personal computers, one sometimes forget there was
+a time when these things were not widely available. Many people
+and organizations were responsible for the creation of the
+Internet and Usenet. Much thanks should go to the Department of
+Defense for funding the early research. Among the many people
+involved, several stood out. J.C.R. Licklider and Robert Taylor
+are two names associated with the founding of the Internet. They
+saw the computer as a communications tool with global
+connectivity and as a way to share both computer and human
+resources. This perspective was a very radical idea in 1968, when
+computers from different manufacturers could not exchange data or
+communicate with each other. With Department of Defense research
+dollars and the Advance Research Projects Agency (ARPA),
+Licklider solved the immediate problem of getting incompatible
+computers to talk. But he never lost his global vision. His
+efforts resulted in the computer communications networks
+(ARPANET). The global Internet can trace its roots back to this
+simple ARPANET.
+     What if you were a poor, underendowed university without
+Defense Department research dollars? How could you get your
+computers talking to each other? Enter the "poor man's ARPANET."
+Tom Truscott, Jim Ellis, and Steve Bellovin all had a desire to
+automatically share files and articles among several computer
+platforms. Fortunately, they were university students and cash
+poor. So they did the only thing they could do: they acquired
+some university computer time and an auto dialer and applied a
+little creative UNIX hacking (the positive kind). Using these
+limited resources, these fellows developed what is now known as
+Usenet. Their first incarnation of Usenet simply dialed another
+computer, checked for new files, and then copied all the new
+files to itself. They set up their first Usenet network on three
+university computers. Within a few years, these three nodes grew
+into several hundred nodes and eventually became part of the
+Internet.
+     This book illustrates that ordinary people with limited
+resources and a vision can made a difference. The grass-root's
+creation of Usenet by Tom Truscott, Jim Ellis, Steve Bellovin,
+and others is such an example. People with significant resources
+and a vision can solve a specific, localized problem and
+simultaneously lay the foundation for solving global needs.
+Licklider's refusal to set his sights lower than the vision of a
+global computer [network] is an example of exceeding short-term
+expectations. Look closely while reading the book, and you may
+find yourself viewing the world a little bit differently when you
+finish.
+
+-----------------------
+Review from ;login:, Vol. 22, No. 6 December, 1997, pages 56-57,
+Newsletter of USENIX
+
+---------------------------------------------------------------------
+[9] Community in the Usenet Newsgroup k12.chat.teacher
+                               by Michael Hauben
+                                  hauben@columbia.edu
+
+     Usenet newsgroups cover a diverse spread of interests. I
+chose to explore what human community can develop facilitated by
+the Usenet form of computer mediated communication (CMC) by
+looking at the newsgroup k12.chat.teacher.
+     An interesting framework to use to analyze this forum is M.
+K. Halliday's definitions of field, semiotic tenor and mode (see
+Halliday's Language and Social Man). As participants in
+newsgroups usually do not share the same physical environment,
+all information needs to be shared in the typed out text of
+messages, whether it is the content or context of the questions.
+In CMC there is no field to be looked for outside of the actual
+interaction saved to the newsgroup in messages (and also in
+private e-mail). However, the topic of the newsgroup defines the
+tenor in that this particular section is for the discussion of
+teachers with other teachers in a k12 situation. For the most
+part the newsgroup is a community of peers, with other visitors,
+some welcomed and some not.
+     The mode and the field of each message are the most variable
+elements in this framework. For mode, the messages can be 1)
+providing information, 2)posing a statement, or 3) posing a
+question. Responses can be 1) making a constructive agreement, 2)
+making a constructive disagreement, 3) providing details or
+experiences as evidence, 4) asking more questions, 5) making
+acknowledgment or emphatic support. In addition to these, there
+are out of place responses and messages or responses attempting
+to be disruptive. As the subject matter comprises part of the
+field of each message, that is what will be further explored in
+the rest of this article.
+     The data source explored is the Usenet newsgroup
+k12.chat.teacher where kindergarten through 12th grade teachers
+and others discuss education. Teachers use it as a support and
+resource group to talk about the problems, responsibilities and
+duties as a teacher. Concerns about education, and working
+conditions are also brought up by current teachers and people
+preparing to be teachers. The data consists of messages collected
+over two time periods - from February 7, 1997 to February 25,
+1997 and from March 26, 1997 to March 31, 1997. The sample from
+the newsgroup includes single messages and message threads from
+this newsgroup. Message threads are created by news reading
+software linking original messages, with responses made to the
+original message and subsequent responses. In addition to the
+public responses, private e-mail messages were most likely sent
+to the original posters of messages. However, because e-mail is
+private I have not gotten to see such responses since I only
+looked in the public message board. If I were to continue this
+research or extend this project I might contact the original
+posters of messages to find out if they would be willing to share
+any private responses that they received.
+     I have found the discourse and community in this newsgroup
+to be constructive and worthy of study, as there appear to be a
+large cross-section of active people who create the critical mass
+needed for useful discussion and conversations. I have not
+encoded the individual's names because Usenet newsgroups are
+public bulletin board areas available to anyone who has access to
+either Usenet or the Internet. People who participate in
+newsgroups usually understand this, and post messages hoping
+others will read them and provide commentary. This desire to
+share and communicate is what makes Usenet valuable. It is
+essentially a public space.
+     The main areas of discourse, as part of the field of the
+messages, are teachers' relations to their students, school
+administration, the students' parents, other teachers in their
+work, other classes in other schools, and what turned out to be
+the mainstay of conversation, the teaching profession.
+     Other topics covered included asking technical questions
+about using computers and other new technologies in the classroom
+setting, either in the presentation of material to students or
+for the interactive use by students. Other useful postings
+included the announcements of web pages and e-mail lists that
+teachers might find interesting in developing curriculum or
+students might find interesting exploring as part of time on the
+world wide web.
+     Sadly k12.chat.teacher is not obscure enough to hide from
+the noise on the Net, widely posted inappropriate spam messages
+which usually never interest the readers. These messages are
+accompanied by other commercial advertisements which teachers are
+used to seeing in normal education journals and magazines. These
+seem to be carry-overs from the old media, and are not the same
+as the grassroots voices of teachers airing their real problems
+leading towards discussion that is valuable to all who read and
+share the common situation. However, the forum has more airing of
+the new voice than the old, making it worthwhile to join the
+community.
+     The people primarily vocal in the community of
+k12.chat.teacher are current teachers teaching in public and
+private k12 classrooms, students studying to be teachers and
+looking for jobs, and parents. Seeing parents involved was
+surprising at first, but their discussions of home schooling and
+talking about the education of children and adolescents was quite
+appropriate. Both teachers and parents spoke of the parent's role
+in their children's education, and how caring parents should be
+equally interested in aiding their children's education as
+teachers are required to be, if not more so. It would be
+interesting to study other newsgroups such as misc.education to
+see who reads and is active utilizing other newsgroups concerning
+education.
+     Following are examples of messages posted to this Usenet
+newsgroup, with some descriptive analysis. The five major
+categories were teachers and their relations A) to their job and
+the teaching profession, B) to their students, C) to parents, D)
+to other teach ers, and E) to administrators. The remaining two
+categories are F) examples of miscellaneous questions and G) JUNK
+postings/SPAMS.
+
+CATEGORIES (and common topics)
+
+A) Discussing the Teaching Profession.
+
+     A large number of the messages here were from teachers or
+student teachers looking for jobs or think ing of looking for
+jobs. A number of the teachers were currently substitute teachers
+either remarking on their uncertainty of moving towards obtaining
+a full time job, or describing their strategies towards gaining
+one. Others were first or second year teach ers looking to gain
+certifications to get better teach ing jobs or better paying
+positions. Other people were looking for help with particular
+curricula or sharing their lesson plans and web pages. Various
+messages asked for help with building curriculum units. Teacher
+concern was another subject especially the role of what was
+wondered to be an either overly zealous principal or possibly
+just a deeply concerned one.
+     Each of the remaining broad topics received less amount of
+focus, but were still represented.
+
+Example 1:
+    From: "Jennifer M. Blaske" <redhead1@mindspring.com>
+    Subject: Re: I am interested in teachers experience in
+             getting hired.
+    Date: Sat Feb 15 09:34:49 1997
+
+    Brett Lettiere wrote:
+    >
+    > I am an undergraduate at I.S.U. I am interested in hearing
+    > other teachers discuss their experience of getting hired
+    >and about their first years as a teacher. I am interested in
+    > how they handled their class in the beginning. I am also
+    > interested in knowing how hard it was getting hired.
+          Well, as I've mentioned here before, I've been subbing for
+     a year while certified and have still not been offered any
+     thing. I know an experienced art teacher from another
+     state who has been subbing for five years and still does not
+     have a position. I know the teacher's think she's a great
+     sub, so I don't know what's going on there. I also know
+     two teacher's assistants also experienced teachers who
+     became assistants in the hopes that it would lead to their
+     own classroom. After three years, they are both still wait
+     ing.
+
+          -Jen
+
+Example 2:
+    From: poet@netcom.com
+    Subject: Re: Certification upon certification?
+    Date: Thu Feb 13 09:13:26 1997
+
+    In article <01bc19b1$3bf2b980$9078adce@CSR.concentric.net>
+    "Michael"<michaelb@concentric.net> writes:
+    >
+    >I am pursuing a degree in education (Secondary English);
+    > I am beginning to hear about different certifications
+    > which are in addition to the overall teacher certification.
+    > For example someone yesterday mentioned to me that
+    >she was thinking about trying to get her computer
+    >technology endorsement. What are these additional
+    > certifications for?  Do I need them even if I am already
+    > adept at the subject which the endorsement covers?
+    >
+    >Confused.
+    >Michael
+    >
+    I suppose this varies by state, so it would probably be best to
+    contact your state teachers' credentialing agency, most likely
+    located in the state capital.
+
+         As far as endorsements, or authorizations as my credential
+    lists them: these do not, strangely enough mean knowledge
+    of the subject, but rather permission to teach the subject.
+    You may be fluent in Spanish or Greek, but you can't
+    *teach* it without the authorization on your credential.
+
+         It's good to pick up as many authorizations as you can
+    (you can pick up more after you have your credential, by the
+    way), because school districts like people who are versatile,
+    so as enrollment rises or falls, or more Spanish speakers
+    move in (or out) of the district or the school acquires more
+    computers, or four years of math or basket making becomes
+    a requirement to get into junior college, you'll be able to step
+    into those positions as necessary. If you are certain that you
+    only want to teach XXX and never anything else, then don't
+    get the authorizations, but expect to have a harder time
+    finding a job, though if it's chemistry or calculus, it'll  be
+    easier than if it's English.
+         Good luck!
+
+B) Teachers Relations with Students.
+
+     Messages discussing the relationships between teacher and
+student included the role of uniforms for both students and
+teachers. (For teachers, less about an actual "uniform" and more
+about trying to dress professionally whether that meant a shirt
+and tie, or just nice well-kept clothes.) One thread discussed
+the responsibility for interest in the classroom and education -
+how much rested with the teacher and how much was shared between
+teachers and students. Again we see requests for help defining
+curriculum, for example in the teaching of language arts and
+idioms or suggestions on how to develop a lesson around the then
+recent Hale Bopp comet.
+
+Example 1:
+     From: redrose@ix.netcom.com
+     Subject: Re: are teachers responsible for making class 'fun'?
+     Date: Sun, 30 Mar 1997 19:16:04 +0000
+
+     One person wrote:
+     >>I feel classes should be more fun and that responsibility
+     >> is the teachers.
+
+     Another person wrote:
+     >Wrong! Learning is *your* responsibility.
+
+         Personally, I think they're both right. It is BOTH the
+     teacher's and the student's responsibility. It takes two to
+     teach.
+
+         For myself, as a teacher, the question is, "What is the
+     definition of fun?"  Or, rather than fun, interesting. I have
+     many intelligent, thoughtful students who can find interest
+     in difficult, challenging material, but unfortunately, they
+     are in the minority. I sometimes feel frustrated that my
+     students do not want to take the time to penetrate readings
+     that are not immediately easy to understand but are none
+     theless interesting. Or to go through the process of solving
+     difficult problems. For many students "difficult" means
+     "boring," (or "not fun.")  My objective is not to make
+     school "fun," but only meaningful, relevant and interest-
+     ing, but some things are just difficult and require a good
+     deal of cognition, which is demanding.
+
+         The idea of "dumbing down" school is often to make it
+     more "fun," and thereby watering down material to make
+     it flashy and shiny and like a game, but there can be tre
+     mendous satisfaction in reading difficult literature (both
+     fiction and non-fiction) or ploughing through a  high level
+     math activity. For me, the most "fun" I ever have is hav
+     ing a stimulating conversation with someone who is
+     knowledgeable and articulate about many topics. The
+     only way to arrive at that level of broad knowledge is to
+     confront intellectual challenges. Be willing to do that and
+     you will find your classes a good deal more interesting and
+     therefore "fun."
+
+         Deborah
+
+Example 2:
+     From: Elizabeth Keith <bethk@flash.net>
+     Subject: Re: Teaching Idioms
+     Date: Sat Feb 15 23:17:07 1997
+
+     Linda E Lombardo wrote:
+     >
+     > > teach0629@aol.com (Teach0629) writes:
+     > >
+     > > >Hi! I'm doing a research project on American Idioms.
+     > > >If you have any ideas or any info. on  ways that one
+     > > >can teach them, explain them or where they came
+     > > >from--would be REALLY helpful.
+     > >
+     > > Really. Regardless of your opinion of Americans, it is
+     > > not nice to call names in a public forum. Not to
+     > > mention, your lack of specificity. Are you talking about
+     > > North Americans, South Americans, Central
+     > > Americans? And why do you think Americans are
+     > > idiots?..... Oh, wait.... Never mind....
+     > >
+     > > Perhaps if you can give an example of what you mean
+     > > by American idioms, and what you are trying to get
+     > > across....
+     >
+     > Kurt Duncan (kduncan@southwind.net ) writes:
+     > Idiot = one who does not know what an idiom is. :>
+     >  just kidding
+     >
+     > Don't you mean
+     > shake a leg
+     > get the lead out
+       <...OTHER IDIOMS DELETED...>
+     > pinch a penny
+     > got the ax
+     >
+     > etc. etc.  there are a million the only way I've seen
+     > these taught (and this was just for fun to play with
+     > language) students would draw a picture of the idiom
+     > and write it and perhaps it's explanation at the bottom.
+     > It was interesting to find out that they have idioms in
+     > other languages also. You might explore that as an
+     > additional activity.
+     > ---
+     >
+     > *************************************************
+     >
+     >   "Whatever the cost of our libraries, the price is cheap
+     > compared to that of an ignorant nation."-Walter Cronkite.
+     >
+     > *************************************************
+     >         LINDA LOMBARDO  AMHERST, VIRGINIA
+
+         One of the ways I've introduced idioms is by reading the
+     children a book called The King Who Rained by Fred Guynn
+     alias Herman Munster. He wrote several books like this and
+     they are fantastic. His illustrations are terrific too. The
+     kids love it.
+          beth
+
+C) Teachers Relations with Parents.
+
+     A big issue entering into many of the messages was the
+responsibility of parents for their children's education and
+well-being. Some teachers complained about the apparent lack of
+caring and sometimes attitude from parents that it is all the
+teachers responsibility. Others were parents who posted about the
+importance of integrating learning into more aspects of life than
+just school. One large thread included one teacher's request for
+ideas in a way to incorporate parents more into the everyday
+activity at school. Some suggestions included making parents
+welcome at school as co-educators, perhaps teaching one-time
+skill sessions or similar presentations. This sugges tion was so
+that parents would not feel unwanted as non-professionals. So the
+tensions and communica tion are happening outside of once a
+semester par ent-teacher conferences which helps teachers (and
+parents) to change. The questions of the relation ship between
+parents and teachers get raised, and this leads to the
+consciousness needed before changes can happen in the larger
+society.
+
+Example 1:
+     From: "M. A." <manorman@roanoke.infi.net>
+     Subject: Re: Teacher Accountability and Parent Responsibility
+     Date: Sun Feb 16 14:39:17 1997
+
+     Dear Fred,
+               I am a teacher who would like to see parents take an
+     active role in their child's education.  This would include
+     not only a nightly session with checking and assisting with
+     homework, but also a daily session of reading and practic
+     ing math facts - whether it is when dinner is being cooked,
+     and the child practices measuring out a cup of water to
+     looking at the receipt from the grocery store and figuring
+     out if one can of fruit cost $.79, how much would three
+     cans cost??  I think if parents would let students see their
+     interest in what they are learning and _apply_ it to their
+     homes, then children would be more apt to think of learn
+     ing as something they do EVERYWHERE and not just at
+     school. It is most important for us to create a sense of
+     learning for life, rather than learning for school. We are
+     trying, but it will take all of us to make education worth
+     while for the 20th century!
+              Thanks for the opportunity to speak!
+
+Example 2:
+     From: philcain@orelle.com (Philip Cain)
+     Subject: Re: Parent/School Involvement
+     Date: Sat Feb 15 16:08:35 1997
+
+     bbechst@bgnet.bgsu.edu wrote:
+     >  A team of teachers at our Junior High is trying to
+     > develop a method of involving parents in our school
+     > community.  We would like to have parents in the
+     > building as consistently as possible.  We are a school of
+     > 600 students, consisting of 7th and 8th grades and 45
+     > teachers.  We would like to improve our overall student
+     > morale, motivation and mannerisms. We would also like
+     > to let the community know how our school operates and
+     > what the students are learning.
+
+          If you mean to break down traditional barriers that sepa
+     rate teachers and parents, your goal is commendable.
+
+          I think the basis for any association between the two
+     groups has to be the acknowledgment that both are teachers.
+     Both groups must say this out loud and mean it.
+
+          Then, to begin a practical relationship (I'm a parent, so I
+     speak from that viewpoint) it is necessary to "let" the
+     parents in. I say it this way because many (most?) parents
+     feel "left out", not because teachers necessarily keep them
+     out, but because teaching is a profession and, as with other
+     professions, non professionals don't "belong" there.
+
+          To let the parents in, it might be useful to invite them to
+     teach something. In a controlled environment specifically for
+     the purpose, a parent might be given a point on a lesson plan
+     and asked to give a try at getting the point across.
+
+          The purpose of such an exercise would not be to train parents
+     to teach but to give parents a taste of it and so some
+     vocabulary to facilitate talking with teachers.
+           Phil Cain
+
+D) Teachers Relations with Other Teachers in the
+School and in Other Schools.
+
+     One issue that was probably easier to share slightly
+anonymously was problems and questions of relationships with the
+other teachers within the schools people worked at. By raising
+issues possibly sensitive to raise with others at their location,
+it was possible to explore the possibilities and think things out
+before going to teachers at their location to dis cuss particular
+problems and relationships. Also the medium allowed teachers to
+hook up with teachers in other schools and potentially link up
+classrooms.
+
+Example 1:
+     From: "Margaret" <twv000@mail.connect.more.net>
+     Subject: problem teacher
+     Date: 27 Mar 97 17:20:48 GMT
+
+     Hello all,
+          I teach in a very small public school (285 students K-12) in a
+     rural area. The teachers and students get to know each other
+     very well here. The problem is we have one teacher who
+     constantly puts students down *in front of other students.*
+     He/she tends to "join in" when the "popular" kids start mak
+     ing fun of the "unpopular" kids; and he/she makes remarks
+     in class like "oh you don't want to sit next to Nelson, he
+     smells bad."  All this in front of the entire class, and in front
+     of Nelson. The principal and superintendent are aware of
+     the complaints against this teacher, but they say they have to
+     hear it first-hand from the students, not second-hand from
+     teachers. The students involved are afraid to come forward
+     for fear of retribution by the teacher. (Actually, the students
+     who are the butt of the criticism are too humiliated to ever
+     say anything to anyone, but several of the "popular" students
+     are very upset by what they know is just not right.)  I have
+     had several students tell me about this, and have relayed the
+     information to the administration, but as yet nothing has
+     been done. So I guess my question is, WHAT WOULD
+     YOU DO?  Because I have lost enough sleep over this, and I
+     am tired of seeing kids get hurt, and I am starting to question
+     my entire profession, and wondering why I bother caring
+     when no one else does.
+          --
+           Margaret
+          Please copy replies via e-mail, as I am experiencing some
+     technical difficulty with this news server.
+
+Example 2:
+     Removed at poster's request
+
+E) Teachers Relations with School Administration.
+
+     Yet another tough problem is how to be a good teacher, and
+at the same time handle the demands from above, whether
+principals, or even further from school boards and
+administrations. The news- group provides a good forum to compare
+notes and discuss what teachers are being asked to do around the
+world from the top-down, and discussing how to deal with such
+demands.
+
+Example 1:
+     From: howie@smtp.dorsai.org (howie)
+     Subject: Re: Alternatives to Grading with Averages
+     Date: Mon Feb 17 22:17:52 1997
+
+     Rick MacLemale (maclemr@intnet.net) wrote:
+     > Hello all...
+     >      My county is currently in this phase where elementary
+     > teachers are being discouraged from using averaging as a
+     > means to determine grades. Elementary teachers are told
+     > not to average, but to instead "look at the progress of the
+     > whole child". The only catch is that that's all they've told
+     > us. Anyone (who does not use averaging) want to share
+     > their grading systems?
+
+     > Richard MacLemale
+     > Teacher + Programmer
+     > http://members.aol.com/RMacLemale/CoolClassroom.html
+     > (Educational freeware + shareware)
+
+          Sounds like one of those great school board concepts that
+     are simply not thought through. Sort of like when my principal
+     told us not to teach for the test (in New York State we have
+     Regents exams). One teacher asked if pass fail statistics
+     were no longer going to be calculated for each teacher. The
+     principal went on to the next topic.
+
+          One way of fairly grading the class while still looking at
+     progress is to weight each exam higher as the year goes on.
+     For example, the first test might be weighted as 1 test, the
+     second as 1.1 tests, the  third as 1.2 tests, etc. It sounds
+     pretty cumbersome but shouldn't be too bad if you use a spread
+     sheet.
+          Good luck,
+          Howie
+
+Example 2:
+     From: c4 <c4@groupz.net>
+     Subject: Would like teacher comments/suggestions on situation
+     Date: Sun, 23 Feb 1997 13:44:23 -0500
+
+     I am not a teacher, and am posting this message to the news-
+     group, requesting helpful comments/suggestions for my
+     sister whose Internet access is limited. I would be glad to get
+     them via e-mail or in this newsgroup.
+
+     My sister, a first grade teacher, is under a great deal of stress
+     with a new principal at her school who will be evaluating her
+     teaching. Her message indicates that other teachers in her
+     school are being evaluated by others, and the evaluation
+     requirements are inconsistent between the evaluators.
+
+     Like most teachers she spends a lot of her personal time and
+     money preparing for her classes and providing educational
+     materials for her students that the school does not provide.
+     She is very a very conscientious teacher and loves teaching.
+     She is 58 years old and plans to continue teaching for several
+     years since she didn't start teaching in public schools until
+     about 6 years ago.
+
+     This is what she wrote me in e-mail:
+
+     > I told you that I would be having an evaluation by the
+     > new principal soon. I have been thinking about what to
+     > do. He gives you a message for the "week of"  and can
+     > drop by at any time his heart desires. He had a
+     > pre-meeting and told everyone what he expected to see!
+     > When we told the other teachers who are being evaluated
+     > by other individuals they thought he was on an
+     > intimidation trip. He wants stuff no one else has ever
+     > requested before. He wants a desk...a chair (he's in there
+     > 45 minutes), he wants to see lesson plan books (no one
+     > has done that since I have been teaching at <school
+     > omitted>.), He wants to see portfolios of all the children
+     > with evidence of their work, he wants a map of where
+     > named children are sitting, he wants to see all the
+     > elements listed on the TTAS plan, he wants to see
+     > individual situations, group situations where children
+     > are working in teams, he wants to see all participating
+     > and being successful, he wants to hear lots of higher
+     > level thinking skills tossed  around, he wants  NO  DOG
+     > AND  PONY  SHOWS....oh please....what else  is all
+     > that!!!
+
+     > Some teachers, especially older ones, are concerned that
+     > he may knock them off the career ladder, which would
+     > mean a loss in pay. If he did do that, I feel there would
+     > be such an outcry that he would be looking for a new
+     > school post haste. We all do a good job! Our school is
+     > exemplary, but he thinks it should be national
+     > exemplary....and is really putting the pressure on!
+
+F) Miscellaneous Useful Questions
+
+     There were numerous other questions andposts that were hard
+to categorize but were useful. Probably the largest number
+concerned the use of technology in the classroom and school
+setting, whether it was for teacher presentations, students use
+in computer labs or just the wiring and setting up of computers
+in schools. One large thread was of teachers sharing in the lack
+of respect from their administrations and in the need for
+technology coordinators to establish the technologies in the
+schools and to train other teachers. This seems to be a larger
+problem than just receiving funding for computers. There has to
+be monies for support and training, and this is an ongoing
+concern.
+
+Example 1:
+          From: George Cassutto <nhhs@fred.net>
+          Subject: Using PowerPoint In the Secondary Classroom
+          Date: Fri Feb 14 21:30:01 1997
+
+          Hello Readers,
+          I tried an interesting experiment in my 9th grade US
+     Government classes last week, and I am interested in your
+     feedback, tips, and ideas. Using PowerPoint, I was actually
+     able to deliver a full-blown lecture on the Civil Rights
+     Movement to 9th graders. They took notes dutifully, engaged
+     in meaningful discussion when prompted by my questions, and
+     generally stayed on-task to a greater degree than if the
+     material had been displayed on a traditional overhead
+     apparatus. In conjunction with the delivery of information
+     by way of the PowerPoint program, which included sound
+     effects and paragraph "building," I toggled between
+     PowerPoint and the World Wide Web, using pre-cached
+     sites to illustrate various historical events such as
+     the Montgomery Bus Boycott, the March on Washington and
+     the King assassination. Some of these graphics were embedded
+     in the PowerPoint slides, others left on the web. Additionally,
+     I had Microsoft Encarta at the ready for sound clips
+     of the "I Have A Dream Speech" and L .B .J. commenting
+     on the signing of the Civil Rights Act of 1964.
+
+          I hope to use PowerPoint more often, but not to the extent
+     that the students will burn out on it. What successes and
+     cautions might your experience be able to provide in order to
+     maintain the edge I think this medium has for secondary
+     Social Studies students?
+
+          Thanks for reading this far, and if you plan to hit the reply
+     button, thanks in advance for your input.
+          George Cassutto
+          Teacher of Social Studies
+          North Hagerstown High School (MD)
+          http://www.fred.net/nhhs (Main Page)
+          http://www.fred.net/nhhs/html/cassutto.html (Personal page)
+          nhhs@fred.net
+          georgec@umd5.umd.edu
+
+Example 2:
+          From: Ted Johnson <ted.johnson@worldnet.att.net>
+          Subject: Re: Technology Coordinators - Please help
+          Date: Sun, 23 Feb 1997 21:58:10 -0800
+
+     Chris Zimmerman wrote:
+     >
+     > I am researching how different schools handle this
+     > position.  I am currently a first year teacher, and have
+     > been offered this position for our high school for next
+     > year.  Currently our school pays only $800 per year for
+     > this position.  We have about 160 computers which will
+     >be networked. Our school has about 650 students as well.
+     >
+     >I was wondering what arrangements other school districts
+     > have on this position.  I was thinking that more money
+     > would be necessary to take the position.  But even more
+     > important was a prep time to work on computers only. (We have 8
+     > periods and I have 2 prep periods for 3-4 classes.)
+     >
+     > Thanks in advance.
+     > Mr. Z
+
+          Chris: I was asked to apply for our school's new tech
+     position last year. Originally, I would work full-time on the
+     system and staff training, at my current salary level (I would
+     have stayed on the teachers' salary schedule).  It then be
+     came « teaching, « tech.  It then became full-time teaching,
+     with my being paid for an extra 1 « hours (at my regular
+     salary) with another teacher being paid the same to work as
+     my assistant.  At this point, I told the principal (nicely) to go
+     away. -:)
+
+         As it stands, we still have no tech person.
+         --
+         tj
+         Host, Education Forum on Delphi
+         tj3@delphi.com
+         http://www.dusable.cps.k12.il.us/homepages/tedj/gphs.html
+
+Example 3:
+          From: holtzp@stillwater.k12.mn.us
+          Subject: MacSchool + NetWare
+          Date: Tue Feb 11 22:21:05 1997
+
+          Is anyone running MacSchool on a NetWare server in
+     stead of an AppleShare server?  Are there any side effects
+     from doing this?
+          --
+          Paul Holtz
+          ISD 834 - Stillwater, MN
+          Technical Support Specialist
+          --------==== Posted via Deja News ====--------
+           http://www.dejanews.com/     Search, Read, Post to
+     Usenet
+
+G) JUNK Postings
+
+     It would be incomplete to show you the newsgroup without
+examples of the junk that has to be sorted through. Some of these
+are SPAMs which are indiscriminately sent to numerous newsgroups
+without any regard for the fact people use newsgroup shopping to
+read message about particular subjects, of which these SPAMs have
+no relevance. Other messages include commercial advertisements.
+Finally, when someone posted just to make trouble, there were two
+responses:
+
+Example 1:
+          From: rhcramer@pen.k12.va.us (Roxanne H. Cramer)
+          Subject: Re: School Play
+          Date: Fri, 28 Mar 1997 00:32:20 GMT
+
+          I find it hard to believe that a request for information on a
+     school play was answered so cruelly. In general, I've
+     found this group to be very helpful and supportive. I hope
+     the teacher from Mexico does not think we're all such
+     boors!
+          Roxanne Cramer
+          ---
+          rhcramer@pen.k12.VA.US
+
+Example 2:
+          Removed at poster's request
+
+CONCLUSION
+
+     The newsgroup k12.chat.teacher is a place where k12 teachers
+gather to discuss their profession and work lives. As such the
+audience which gathers has a strong degree of common interests
+and shared knowledge, and the participants work towards the
+purpose of communication as requesting and imparting information
+along with discussing specific issues. The newsgroup also
+demonstrates Licklider and Taylor's vision of the development of
+a physical network which promotes the social network of
+connection of people with like interests.
+     With the lack of additional context in the field or tenor
+whether body language or context of place, people are learning
+the importance in the written text and are careful to include
+situational details. Similarly the lack of observable details of
+social clues means users have to project their social roles and
+position to help define the tenor of the communication. The
+discussion between parents and teachers highlights some of this.
+What roles do each play, and how can they come to communicate on
+an comfort able and equal level?
+     The many conversations simultaneously ongoing allow the
+reader to chose from the variety and range of concerns of the
+teaching profession. If you think of a teacher just beginning or
+looking for a job, the newsgroup offers a rare glimpse into the
+actual situation of teaching. For the experienced teacher it
+offers a place to share in the problems and frustrations of the
+situation. And for teachers who feel successful, a place to share
+those successes with others who might find they are interesting
+or useful in their own classrooms. Essentially, the
+k12.chat.teacher newsgroup allows for the collective gathering of
+educators so that they do not feel alone in their situation. But
+the newsgroup is currently only an embryo of the possibility. It
+is doubtful that its importance is recognized by school
+administrations and access is not made readily available to
+teachers. However, hopefully by spreading knowledge of the group,
+teachers will grasp the importance and push for access and time
+to be made available.
+
+                               BIBLIOGRAPHY
+
+Collot, Milena and Nancy Belmore. (1996). "Electronic Language: A
+New Variety of English."  In Susan C. Herring (Ed.) Computer
+Mediated Communication: Linguistic, Social and Cross-Cultural
+Perspectives (pp. 13-28). Amsterdam/Philadelphia:  John Benjamins
+Publishing Company.
+
+Murray, Denise E. (1990). "CmC: A Report on the Nature and
+Evolution of On-line e-messages."  English Today, 23, 42 - 46.
+
+Licklider, J.C.R. and Robert Taylor. (1968, April). "The
+Computer as a Communication Device."  Science and Technology: For
+the Technical Men in Management, 76, 21-31. Also reprinted in In
+Memoriam: J.C.R. Licklider: 1915-1990. Report 61. Systems
+Research Center. Digital Equipment Corporation. Palo Alto,
+California. August 7, 1990. Pp. 21-41. Available Online at
+http://www.memex.org/licklider.html in Adobe PDF format.
+
+Halliday, M. A. K. (1967). Language and Social Man. London:
+Longman.
+
+Hauben, Michael. "Behind the Net: The Untold Story of the ARPANET
+and Computer Science." In Hauben, Michael and Ronda Hauben.
+(1997). Netizens: On the History and Impact of Usenet and the
+Internet (pp. 96-114) Los Alamitos, California:  IEEE Computer
+Society Press. Available Online (1994)
+http://www.columbia.edu/~hauben/netbook/
+
+Feenberg, Andrew. (1989). "A User's Guide to the Pragmatics of
+Computer Mediated Communication."  Semiotica, 75, 257-278.
+
+Eldred, Janet Carey and Gail E. Hawisher. (1995). "Researching
+Electronic Networks." Written Communication, 12, 330 - 369.
+
+Gulia, Milena and Barry Wellman. ( 1997). "Virtual Communities:
+When Social Networks are Computer Networks." In Smith, Marc and
+Peter Kollock. Communities in Cyberspace: Perspectives on New
+Forms of Social Organization California: University of California
+Press. Available Online:
+http://www.sscnet.ucla.edu/soc/csoc/cinc/wellman.htm
+
+----------------------------------------------------------------------
+[10]             Norbert Wiener, J.C.R. Licklider
+              and the Global Communications Network
+                                     by Jay Hauben
+                                        jrh29@columbia.edu
+
+     In the last quarter of the twentieth century a new global
+communications network emerged with a growing effect on most
+aspects of human society. In the events that launched and
+nourished this network a prominent role was played by J.C.R.
+Licklider. He not only envisioned a great leap for human society
+based on a tight coupling and networking of people and computers,
+he did much to infect others with his early enthusiasm. He also
+set in motion a public sponsorship and funding mechanism that
+brought the communications network he envisioned into reality. In
+the 1960s, Licklider published two seminal articles: "Man
+Computer Symbiosis"(1) in 1960 and "The Computer as a
+Communications Device"(2) written with Robert Taylor in 1968.
+Looking for the intellectual roots of these papers and
+Licklider's vision, at least one researcher(3) was drawn to the
+work of Norbert Wiener. This article will look at some of the
+related work of Norbert Wiener and J.C.R. Licklider.
+     Norbert Wiener began his teaching and research career at MIT
+in 1919 at the age of 24. He distinguished himself with original
+contributions in mathematics and in the connection of mathematics
+with physical systems as in his study of Brownian motion. Perhaps
+he is best known for what he called "the science of cybernetics
+or the theory of communication and control in the machine and in
+the living organism."(4) Wiener traces the cybernetic synthesis
+connecting engineering and neurophysiology and his insights about
+communication to his work in the 1940s related to anti-aircraft
+predictors.
+     In connection with World War II, Wiener undertook to analyze
+the problem of improving the success of anti-aircraft fire. An
+anti-aircraft gunner must shoot ahead of where his target is at
+the time of firing. The amount and direction ahead must be
+estimated quickly and accurately. Where to aim is based on
+knowledge of how the plane has been traveling and where it is
+likely to travel in the time the shell takes to reach it even if
+the pilot takes evasive action. Wiener was able to contribute to
+the solution of this prediction problem partly because he had
+previously developed the equations to be solved when knowledge in
+one region is used to predict behavior in another (Hopf-Wiener).
+Wiener was also familiar with the work at MIT of Vannevar Bush
+with analog computers. Putting the pieces together, Wiener
+envisioned the direct coupling of anti-aircraft guns with radar
+detection and automatic aiming based on his mathematical solution
+of the prediction equation. Motors attached to the gun turrets
+could position and aim the gun under the control of data
+generated by the mathematical processing of input from radar. In
+fact, as radar became perfected the process was mechanized to the
+point where the human element could be eliminated from anti-
+aircraft gun aiming and firing. Wiener reports that his work on
+this problem had a profound impact on him.
+     Up until this work, the servomechanisms for the control of
+gun turrets were always assumed to belong to power technology
+rather than communications technology. What dawned on Wiener was
+that the action of the motors could be conceived valuably as
+communicating the aiming parameters to the turret and hence that
+the motors and the computers controlling them could be treated as
+communications devices. Wiener wrote that this point of view made
+him "regard the computer as another form of communications
+apparatus, concerned more with messages than with power."(5) In
+addition Wiener saw a striking analogy between the workings of an
+automatic anti-aircraft system and that of a living organism.
+There was input, processing of that input, and resulting
+response. He began to regard the brain and the nervous system in
+much the same light as a computing machine. Out of such
+considerations a new synthesis emerged which Wiener eventually
+termed cybernetics (from the Greek word for "steersman"). As the
+communications and engineering consequences of Wiener's new ideas
+were worked out, he began to predict that the series of analogies
+between the human nervous system and the computer and control
+systems would lead to the possibility of a very high level of
+automation.(6)
+     In 1944 at Princeton University, Wiener gathered a group of
+neurophysiologist, communications engineers, and computing
+machine people for an informal session to layout some of his
+thinking. He found a willingness on the part of the members of
+different disciplines to learn what others were doing and to see
+the striking similarities. Encouraged by this gathering, there
+was support for Wiener to launch two series of similar
+interdisciplinary sessions, one in New York City and the other in
+Cambridge, MA. He also worked out his new synthesis in
+"Cybernetics or Control and Communication in the Animal and the
+Machine" (The Technology Press, 1948; MIT Press, 1961) and later
+popularized it in "The Human Use of Human Beings" (Houghton
+Mifflin, 1950).
+     Wiener's work raised an important question. What should be
+the relations between people and machines in the age of
+automation? He called for an "independent study of systems
+involving human and mechanical elements to decide which functions
+should properly be assigned to the two agencies, human and
+machine."(7) Wiener also worried that automation would lead
+society to unbearable unemployment unless it was carefully
+implemented withfull concern for the working people.
+     Communication was the unifying thread in Wiener's synthesis.
+He concluded that "communication is the cement of society.
+Society does not consist merely in a multiplicity of individuals
+meeting only in personal strife and for the sake of procreation,
+but in an intimate interplay of these individuals in a larger
+organism."(8) It was in the strengthening of this larger organism
+via the improvements in communications that his hope lie that the
+problems also generated could be solved. He therefore sought to
+"bring to the attention of all the possibilities and the dangers
+of the new developments."(9)
+     After WWII, Wiener's ideas began to be known and discussed
+in scientific and technical circles. When asked in an interview
+in 1988 where his interest in digital computers came from, J.C.R.
+Licklider answered, "There was tremendous intellectual ferment in
+Cambridge after WWII. Norbert Wiener ran a weekly circle of 40
+or 50 people . I was a faithful adherent to that."10 He added
+that, even though he was a researcher and faculty member at
+Harvard at the time, he audited a seminar given by Wiener and
+participated in an MIT faculty group that discussed cybernetics.
+The weekly circle launched by Wiener in 1948 that Licklider
+attended with his colleagues Walter Rosenblith and M. Fred
+Webster was know as the seminar on scientific method.
+     On the way home from each dinner meeting, Licklider and his
+friends critiqued what had been presented and discussed and
+shared with each other what from their different disciplinary
+perspectives each had understood.
+     In 1950 Licklider left Harvard to join the MIT faculty and
+research community of which Wiener was a part. Licklider
+described himself as "an experimental psychologist interested
+especially in how the brain works in conjunction with hearing,
+but also in speech and communication and human engineering."12 At
+MIT he participated in two summer studies sponsored by military
+branches which gave him "an opportunity to hear of computers and
+radar sets and communications."(13) His own work, very much in the
+Wiener tradition, was split into psychology, acoustics and
+electronics. His efforts to try to model how the brain works in
+hearing with an analog computer convinced him he really had to
+learn digital computing. Licklider left MIT in 1957 to work at
+the acoustic consulting firm of Bolt, Beranek and Newman (BBN)
+where he was promised access to digital computing. However he
+maintained his ties with MIT and its scientific and technical
+community and participated with Norbert Wiener and others in many
+important events there like the 1961 MIT Centennial Celebration.
+     At BBN, Licklider undertook a small research project that
+was to lead to his answer to Wiener's question of the future
+relation between people and computers. Licklider did a mini
+time-motion study of the activities during the hours regarded as
+devoted to work of a technical person. Although he was aware of
+the inadequacy of the sampling, he wrote, "I served as my own
+subject." He found that 85% or more of his "thinking" time was
+devoted to clerical or mechanical chores: searching, calculating,
+plotting, transforming, determining the dynamic or logical
+consequences of a set of assumptions or hypothesis, preparing the
+way for a decision or insight. Having had the opportunity at BBN
+to sit at an interactive computer for four or five hours on a
+regular basis, Licklider drew the conclusion that it should be
+possible to create a flexible relationship via programming and
+interface devices between a person and a computer so that both
+could contribute what it does best to the accomplishment of
+mental work. In "Man-Computer Symbiosis", he presented his
+conclusion that "in not too many years, human brains and
+computing machines will be coupled together very tightly and that
+the resulting partnership will think as no human brain has ever
+thought and process data in a way not approached by information
+handling machines we know today." Licklider's vision was
+different from that of the computer be coming a servant for
+people or an extension of a person's abilities and different from
+the long range goal of artificial intelligence researchers that
+the computer would one day replace or supercede human thinking.
+Wiener had also foreseen a people-computer partnership. For
+example, Wiener envisioned a computer programmed to translate
+from one language to an other whose output would be filtered
+through a human translation expert. The human would make sure
+that the translation made sense in the final language. This
+expert might then reprogram the computer to do better or devise
+exercises for the computer from which it could learn to make
+improved translations. Licklider was carrying this prediction
+further by suggesting that computers could be involved in the
+formulation of questions and in the process of thinking and
+working through to their solution. The human would handle very
+low probability situations, propose hypotheses, and make unusual
+connections; the computer would convert hypotheses into testable
+models, retrieve information, create simulations, etc. Most of
+Licklider's article laid out research tasks that needed to be
+accomplished in order for this vision to be realized. These
+included the need to achieve better computer memory capacities,
+to network and internetwork computers, to develop graphical and
+audio interfaces and for languages that facilitated learning by
+both humans and computers. These research tasks were to make up
+much of the research agenda of the newly emerging discipline of
+computer science. Licklider put forward that agenda and then as
+director of the Information Processing Technologies Office of the
+Advance Research Projects Agency (ARPA) fostered it by arranging
+for its public support and funding.
+     Besides taking up the question of the human-computer
+relationship raised by Wiener's work, Licklider together with
+Robert Taylor investigated the implications of Wiener's insight
+that computers were communications devices. For Wiener,
+communication was closely linked with control: to manufacture a
+car, for example, people could communicate with a computer via
+programming. The computer could then communicate the motions
+necessary to assemble the car to the tools via servomechanisms.
+The tools in turn would respond with motion and feedback. This
+was the automation revolution which Wiener's experience with the
+anti-aircraft problem helped him to foresee. In "The Computer as
+a Communications Device", Licklider and Taylor look for how the
+computer will help people do more than send and receive data.
+Their emphasis was deliberately on people. They saw the
+possibility that communication would be dynamic. "When minds
+interact new ideas emerge" they wrote. They saw that the
+programmed digital computer helped create a medium that is
+plastic, can be modeled, where premises could flow into
+consequences, and "above all a common medium that can be
+contributed to and experimented with by all. Its presence can
+change the nature and value of communication even more profoundly
+than the printing press and the picture tube, for a
+well-programmed computer can provide direct access both to
+informational resources and to the process for making use of
+resources."(14) Licklider and Taylor argued that when
+information transmission and information processing are combined
+and available on networks of computers cooperation, collaboration
+and coherence are much more likely to occur than among isolated
+researchers. By making possible quality transmission and
+processing of information among geographically separated people,
+there would follow the creation of communities not of common
+location but based on commonality of interest that would be large
+enough to support comprehensive accumulations of people, data and
+programs. Like Wiener, they saw great benefit to society as a
+result of the communication revolution made possible by the
+digital computer and the global computer network. But also just
+as Wiener warned of the danger of unplanned automation, Licklider
+and Taylor included in their article a warning: "For the society,
+the impact will be good or bad depending mainly on the question:
+Will 'to be on line' be a privilege or a right? If only a favored
+segment of the population gets a chance to enjoy the advantage of
+"intelligence amplification," the network may exaggerate the
+discontinuity in the spectrum of intellectual opportunity."(15)
+     Licklider and Taylor's article in 1968 ushered in the great
+experiment that began in 1969 as the ARPANET and that we know
+today as the Internet.
+     In summary, in the 1940s Norbert Wiener developed a
+synthesis that stressed the importance of communications. The
+ideas and questions raised by him fueled an intellectual ferment
+in and around MIT. J.C.R. Licklider and other time sharing and
+networking pioneers took part in that ferment and in the
+intellectual and technical community at MIT and the greater
+Boston area which contributed so much to the technological
+developments of the second half of the twentieth century. It is
+not a surprise that there would be a connection between the
+cybernetics synthesis that Wiener introduced and the
+contributions of pioneers like Licklider. That a new global
+communications network exists today is a tribute to Wiener and to
+Licklider and the other pioneers who developed the original
+insights into a promising advance for human society.
+---------------
+
+Notes:
+
+1) J.C.R. Licklider, "Man-Computer Symbiosis," In IRE
+Transactions on Human Factors in Electronics, Vol HFE-1, March,
+1960, Pp. 4-11. Also reprinted in "In Memoriam: J.C.R. Licklider:
+1915-1990, Report 61", Systems Research Center, Digital Equipment
+Corporation, Palo Alto, California, August 7, 1990, pp. 1-19.
+
+2) J.C.R. Licklider and Robert Taylor, "The Computer as a
+Communication Device," In Science and Technology: For the
+Technical Men in Management, No 76, April, 1968, pp. 21-31. Also
+reprinted in "In Memoriam: J.C.R. Licklider: 1915-1990, Report
+61," Systems Research Center, Digital Equipment Corporation, Palo
+Alto, California, August 7, 1990, pp. 21-41.
+
+3) See Ronda Hauben, "Cybernetics, Time-sharing, Human-Computer
+Symbiosis and Online Communities: Creating a Supercommunity of
+Online Communities," chapter 6 in "The Netizens and the Wonderful
+World of the Net: On the History and the Impact of the Internet
+and Usenet News," Michael Hauben and Ronda Hauben, online
+manuscript, January 10, 1994, URL
+http://www.columbia.edu/~hauben/netbook/
+
+4) Norbert Wiener, I Am A Mathematician: The Later Life of a
+Prodigy, The MIT Press, Cambridge, Massachusetts, 1956, p. 269.
+
+5) ibid., p. 265.
+
+6) ibid., p. 275.
+
+7) Norbert Wiener, God & Golem, Inc.: A Comment on Certain
+Points Where Cybernetics Impinges on Religion, The MIT Press,
+Cambridge, Massachusetts, 1964, p. 71.
+
+8) I Am A Mathematician, p.326.
+
+9) ibid., p. 308.
+
+10) Interview of J.C.R. Licklider by William Aspray and Arthur L.
+Norberg, tape recording, Cambridge, Massachusetts, 28 October
+1988, OH 150, Charles Babbage Institute, University of Minnesota,
+Minneapolis, Minnesota.
+
+11) "The Legacy of Norbert Wiener: A Centennial Symbosium,"
+Cambridge, Massachusetts, 1994, p. 19.
+
+12) "The Project MAC Interviews" by John A. N. Lee and Robert
+Rosin, in IEEE Annals of the History of Computing, vol 14 no 2,
+1992, pp. 15-16.
+
+13) ibid., p.16.
+
+14) "The Computer as a Communication Device," p. 22.
+
+15) ibid., p. 40.
+
+-------------------------------------------------------------------
+[11] [Editor's Note: February 11, 1998 marked the tenth
+anniversary of the Amateur Computerist. Following are the
+Tables of Contents of all the issues from our first 10 years.]
+
+              Amateur Computerist Index
+
+Volume 1 Number 1    (Feb 1988)
+
+Introduction; Dawn of a New Era; Dedication; World of
+Telecommunications; Future Belongs to Programmers;  Try This
+(IBM); Commodore Tips and Tricks; Why Learn Programming
+
+Volume 1 Number 2    (June 1988)
+
+The Big Machine; Pass the Profits, Please; Technol ogy Editorial;
+Sample BASIC Program; Try This (IBM); Telecommunications; German
+Vocabulary Helper Program; Configuring Your System; Programming
+in C or BASIC?; Letter to the Editor
+
+Volume 1 Number 3    (Oct 1988)
+
+Radio-Electronics Letter; Responding Letters; Election &
+Computers; Savior in Waiting; Merit Network; Virtual Drives-Batch
+Files; Try This (IBM & Apple); As I Was Saying; Computers & Free
+Speech;  Letter to Editor
+
+Volume 2 Number 1    (Jan 1989)
+
+Return to Sanity; Letters from Readers; Problem Corner; TRY THIS;
+Commodore County; Computer Hacking; Assigning Keys; History of
+Computers
+
+Volume 2 Number 2    (Apr 1989)
+
+Why Learn to Program?; LETTERS from Readers;  TRY THIS "Message";
+TRY THIS "SE Q"; JOBS:  Hours and Sense; MAYDAY Poem; Sample
+Batch File; History of Computers (Part 2)
+
+Volume 2 Number 3    (Summer 1989)
+
+Impact of Computers Debate; Letters to Editor; Coco Corner
+(Try-This); Commodore County USA; Out of the Abacus; History of
+Computer (Part 3)
+
+Volume 2 Number 4    (Fall 1989)
+
+Prosecutor's Letter; Response: Labor Relation Hoax; Letters; Coco
+Corner; IBM version; Hero;  Trig. Lesson (IBM); History of
+Computer (Part 4)
+
+Volume 3 Number 1    (Winter 1990)
+
+Public Funds; Don't Replicate UAW-Ford School;  Their Walls Come
+Tumbling Down; LETTERS TO EDITOR; Commodore County USA; The
+Spirit of Babbage; Coco Corner; CAD/CAM/CIM;  HISTORY OF
+COMPUTERS (Part 5)
+
+Volume 3 Number 2    (Spring 1990)
+
+THE LABORER, YES; FLOYD HOKE-MILLER (1898-1990); The Picket; THE
+SOWER OF THE SEEDS; COMPUTER EDUCATION; Letter from
+Superintendent; Open Letter to SUPERINTENDENT;  Letter to
+Governor; COMMODORE COUNTY U.S.A.; C-64 Music Digitizer; IBM
+Label Program; COCO CORNER; Bulletin Board Numbers
+
+Volume 3 Number 3    (Fall 1990)
+
+WHAT CRITICISMS HAVE YOU; TIPS AND TRICKS; LETTER TO EDITOR;
+EDITORIAL;  Common Man of Greatness; COCO CORNER;  EXCERPTS FROM
+BBS; C-64 RESET SWITCH
+
+Volume 3 Number 4    (Winter 1991)
+
+Hats off To Patriot; Amateurs Are Needed More Than Ever; Coco
+Corner; Bringing Automation Home; BBS Discussion On The War;
+Computers for the People
+
+Volume 4 Number 1    (Fall 1991)
+
+Computers for the People; Letters to the Editor;  Ten
+Commandments - Networking; Try This Program;  USSR and the
+Computer; Command Line Calculator; Question of Censorship
+
+Volume 4 Number 2-3    (Winter/Spring 1992)
+
+Computers vs Plant Closures; Amateur Computerist Index; Problem
+Corner; Union For ever; Letter To The Editor; Letters to Amateur
+Computerist; Letter to Editor of Utne Reader;  Review from the MU
+PERIPHERAL; Tribute-Modern Computer Pioneer; Interview with Staff
+Member;  On Line Program; Computers For The People;  Pascal
+Program
+
+Volume 4 Number 4    (Summer 1992)
+
+Impact of the Computer on Society; Letters to the Editor;
+Electronic Mail; Computers for the People;  Try This (programs);
+From the Shop Floor; OPEN ACCESS; Problem Corner; Interview with
+Staff Member (part 2)
+
+Supplement (FALL 1992)
+
+INTRODUCTION; THE NET WORKS; 'Arte';  Computers and Usenet News;
+Computer as a Democratizer; CityNet in New Zealand; Learning
+About Usenet; FreeNet BBS's; Two Books to Help Users; Liberation
+Technology
+
+Volume 5 Number 1-2    (Winter/Spring 1993)
+
+Interview with Henry Spencer; Tradition of May 1, 1848; Social
+Forces Behind Usenet; The Net and the Labor Movement; Letters to
+Editor; The New Dawn;  Pittsburgh Press Strike; John G. Kemeny;
+Computers for the People; Pascal Program; Try This Program in C;
+Charter for Newsgroup
+
+Volume 5 Number 3-4    (Summer/Fall 1993)
+
+From ARPANET to Usenet News; Battle For Programming; COMMON
+SENSE; Imminent Death of the Net; Letters To The Editor; News
+From Europe;  From The Shop Floor; Report: Summer 1993 USENIX;
+Proposals on NSF Backbone; C Program;  Computers for the People;
+Soul of the Internet
+
+Volume 6 Number 1    (Winter/Spring 1994)
+
+UNIX and Computer Science; An Interview with John Lions; An
+Interview with Berkley Tague; On the 25th Anniversary of UNIX;
+Usenet News: The Poor Man's ARPANET; What the Net Means to Me;
+Plumbing The Depths of UNIX; Using UNIX Tools;  C Program; New
+Net Book; The Linux Movement;  The Ten Commandments for C; May
+Day in the Morning; Free Software Foundation
+
+Volume 6 Number 2-3 (Fall/Winter 1994/95)
+
+What is a Netizen?;  Licklider's Vision and the Future; Net
+Cultural Assumptions;  Etiquette and the Internet; Ethics and the
+Internet; The Internet Society; The Internet: Maintaining
+Diversity; Do You Want to Lose Your Voice?; The Net: A Scientific
+Perspective; Book Proposal;  Netizens: The Impact of the Net;
+Rights of Netizens
+
+Volume 7 Number 1 (Winter/Spring 1996)
+
+Net Access: A Privilege or a Right?; Canadian Community
+Networking; Netizens and Community Networks; Letter to the
+Editor; Access For All FAQ; The Future of Democracy; Old Freedoms
+and New Technologies; Forming the Usenet Online Community;
+History of Cleveland Free-Net; Universal Access to E-Mail;
+Prototype for Policy Decisions; In Honor of 'Doc' Wilson
+
+Volume 7 Number 2    (Winter 1997)
+
+Power Tools of Our Times; Effect of Net on Professional News
+Media; Report from INET'96 Part I; CDA Decision (Excerpts);
+E-mail Evangel ad dict; Culture and Communication; Online
+Education;  Report from INET'96 Part II; Internet Impact of Daily
+Lives?; FCC Submission on Universal Service; Letter to the
+Editor; Free-Nets and Politics of Community; Broadsides for Our
+Day; Genora (Johnson) Dollinger (1913-1995)
+
+Volume 8 Number 1 (Winter 1998)
+
+Interview with Tom Truscott; Editorial; Factsheet Five: ACN;
+Cooperative Nature of Usenet;  Creating Broadsides; History of
+the Net is Important; Netizens: Review of Reviews; Book Reviews:
+Netizens; Community in k12.chat.teacher; Wiener and Licklider;
+Amateur Computerist Index: 1988 - 1998
+____________________________________________________________________________
+----------------------------------------------------------------------------
+The opinions expressed in articles are those of their authors and not
+necessarily the opinions of The Amateur Computerist newsletter. The Editors
+welcome submissions from a spectrum of viewpoints.
+----------------------------------------------------------------------------
+                        EDITORIAL STAFF
+
+                         Ronda Hauben
+                        William Rohler
+                      Norman O. Thompson
+                        Michael Hauben
+                          Jay Hauben
+
+The Amateur Computerist invites contributions of articles, letters, etc.
+Send submissions to: J. Hauben, P.O. Box 250101, NY, NY 10025-1531.
+Articles can be accepted on paper or IBM disk in ASCII format, or via
+e-mail. One year subscription costs $10.00 (US). Add $2.50 for foreign
+postage. Make checks payable to  J. Hauben. Permission is given to reprint
+articles from this issue in a non profit publication provided credit is
+given, with name of author and source cited, and a copy of the publication
+is sent to the Amateur Computerist newsletter.
+-----------------------------------------------------------------------
+                   ELECTRONIC EDITION AVAILABLE
+-----------------------------------------------------------------------
+Starting with vol 4, no 2-3, The Amateur Computerist has been available
+via electronic mail. To obtain a free copy or a free subscription, send
+e-mail to:
+
+    au329@cleveland.freenet.edu   or   jrh@ais.org
+
+
+The Amateur Computerist is also available via anonymous FTP and on the
+World Wide Web:
+
+            ftp://wuarchive.wustl.edu/doc/misc/acn
+             http://www.columbia.edu/~hauben/acn/
+                http://www.ais.org/~jrh/acn/
+__________________________________________________________________________
+
