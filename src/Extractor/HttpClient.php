@@ -2,9 +2,17 @@
 
 namespace Graby\Extractor;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Message\Response;
+use Graby\HttpClient\Plugin\History;
+use Http\Client\Common\HttpMethodsClient;
+use Http\Client\Common\Plugin\ErrorPlugin;
+use Http\Client\Common\Plugin\RedirectPlugin;
+use Http\Client\Common\PluginClient;
+use Http\Client\Exception\RequestException;
+use Http\Client\HttpClient as Client;
+use Http\Client\Common\Plugin;
+use Http\Discovery\MessageFactoryDiscovery;
+use Http\Client\Exception\HttpException;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -17,17 +25,35 @@ class HttpClient
     private static $nbRedirect = 0;
     private static $initialUrl = '';
     private $config = [];
+    /**
+     * @var HttpMethodsClient|null
+     */
     private $client = null;
     private $logger = null;
+    /**
+     * @var History
+     */
+    private $responseHistory;
 
     /**
-     * @param Client               $client Guzzle client
+     * @param Client               $client Http client
      * @param array                $config
      * @param LoggerInterface|null $logger
      */
     public function __construct(Client $client, $config = [], LoggerInterface $logger = null)
     {
-        $this->client = $client;
+        $this->responseHistory = new History();
+        $this->client = new HttpMethodsClient(
+            new PluginClient(
+                $client,
+                [
+                    new Plugin\HistoryPlugin($this->responseHistory),
+                    new RedirectPlugin(),
+                    new ErrorPlugin(),
+                ]
+            ),
+            MessageFactoryDiscovery::find()
+        );
 
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -61,8 +87,6 @@ class HttpClient
                 "<meta content='!' name='fragment'",
                 '<meta content="!" name="fragment"',
             ],
-            // timeout of the request in seconds
-            'timeout' => 10,
             // number of redirection allowed until we assume request won't be complete
             'max_redirect' => 10,
         ]);
@@ -115,42 +139,37 @@ class HttpClient
         $this->logger->log('debug', 'Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
 
         try {
+            /** @var ResponseInterface $response */
             $response = $this->client->$method(
                 $url,
                 [
-                    'headers' => [
-                        'User-Agent' => $this->getUserAgent($url, $httpHeader),
-                        // add referer for picky sites
-                        'Referer' => $this->getReferer($url, $httpHeader),
-                    ],
-                    'timeout' => $this->config['timeout'],
-                    'connect_timeout' => $this->config['timeout'],
+                    'User-Agent' => $this->getUserAgent($url, $httpHeader),
+                    // add referer for picky sites
+                    'Referer' => $this->getReferer($url, $httpHeader),
                 ]
             );
-        } catch (RequestException $e) {
-            // no response attached to the exception, we won't be able to retrieve content from it
-            if (!$e->hasResponse()) {
-                $data = [
-                    'effective_url' => $url,
-                    'body' => '',
-                    'headers' => '',
-                    'all_headers' => [],
-                    'status' => 500,
-                ];
-
-                $this->logger->log('warning', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
-                $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
-
-                return $this->sendResults($data);
-            }
-
+        } catch (HttpException $e) {
             // exception has a response which means we might be able to retrieve content from it, log it and continue
             $response = $e->getResponse();
 
             $this->logger->log('warning', 'Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
+        } catch (RequestException $e) {
+            // no response attached to the exception, we won't be able to retrieve content from it
+            $data = [
+                'effective_url' => (string) $e->getRequest()->getUri(),
+                'body' => '',
+                'headers' => '',
+                'all_headers' => [],
+                'status' => 500,
+            ];
+
+	    $this->logger->log('warning', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
+	    $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
+
+	    return $this->sendResults($data);
         }
 
-        $effectiveUrl = $response->getEffectiveUrl();
+        $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
         $headers = $this->formatHeaders($response);
 
         // some Content-Type are urlencoded like: image%2Fjpeg
@@ -496,11 +515,11 @@ class HttpClient
      * Format all headers to avoid unecessary array level.
      * Also lower the header name.
      *
-     * @param Response $response
+     * @param ResponseInterface $response
      *
      * @return array
      */
-    private function formatHeaders($response)
+    private function formatHeaders(ResponseInterface $response)
     {
         $headers = [];
         foreach ($response->getHeaders() as $name => $value) {
