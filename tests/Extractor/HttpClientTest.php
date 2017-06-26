@@ -4,6 +4,7 @@ namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Response;
 use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
@@ -57,7 +58,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchGet($url, $urlRewritten, $urlEffective)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, [], 'yay'));
+        $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
@@ -72,7 +73,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
 
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'image/jpg'], 'yay'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpg'], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
@@ -94,8 +95,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
 
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/html'], 'yay'));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/html'], 'yay'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'yay'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
@@ -115,8 +116,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
 
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'fucked'], 'yay'));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'fucked'], 'yay'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'fucked'], 'yay'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'fucked'], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
@@ -158,8 +159,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchGetWithMetaRefresh($url, $body, $metaUrl)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/html'], $body));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/html'], ''));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $body));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], ''));
 
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch($url);
@@ -186,7 +187,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $body = '<html><meta HTTP-EQUIV="REFRESH" content="0; url=/bernama/v6/newsindex.php?id=943513"></html>';
 
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/html'], $body));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $body));
 
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch($url);
@@ -202,7 +203,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testWith404ResponseWithResponse()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(404, ['Content-Type' => 'text/html'], 'test'));
+        $httpMockClient->addResponse(new Response(404, ['Content-Type' => 'text/html'], 'test'));
 
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch('http://www.lexpress.io/my-map.html');
@@ -216,7 +217,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testWithUrlencodedContentType()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'image%2Fjpeg'], 'test'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image%2Fjpeg'], 'test'));
 
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch('http://www.lexpress.io/image.jpg');
@@ -230,7 +231,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testWithUrlContainingPlusSymbol()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200));
+        $httpMockClient->addResponse(new Response(200));
 
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch('https://example.com/foo/+bar/baz/+quuz/corge');
@@ -257,7 +258,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 //            ->willThrowException(new RequestException('oops', $request));
 
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(404));
+        $httpMockClient->addResponse(new Response(404));
 
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch('http://0.0.0.0');
@@ -271,7 +272,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testLogMessage()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, [], 'yay'));
+        $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
         $logger = new Logger('foo');
         $handler = new TestHandler();
@@ -327,12 +328,15 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testNbRedirectsReached()
     {
+        $maxRedirect = 3;
         $httpMockClient = new HttpMockClient();
 
-        for ($i = 0; $i < 10; $i++) {
-            $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
-                200,
-                [],
+        for ($i = 0; $i <= $maxRedirect; $i++) {
+            $httpMockClient->addResponse(new Response(
+                308,
+                [
+                    'Location' => 'http://fr.wikipedia.org/wiki/Copyright?' . rand(),
+                ],
                 '<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?' . rand() . '">'
             ));
         }
@@ -341,7 +345,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($httpMockClient);
+        $http = new HttpClient($httpMockClient, ['max_redirect' => 3]);
         $http->setLogger($logger);
 
         $res = $http->fetch('http://fr.wikipedia.org/wiki/Copyright');
@@ -352,7 +356,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $records = $handler->getRecords();
         $record = end($records);
 
-        $this->assertSame('Endless redirect: 11 on "{url}"', $record['message']);
+        $this->assertSame('Endless redirect: 4 on "{url}"', $record['message']);
     }
 
     public function dataForConditionalComments()
@@ -421,7 +425,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testWithMetaRefreshInConditionalComments($url, $html, $expectedBody)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/html'], $html));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $html));
 
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch($url);
@@ -464,7 +468,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testUserAgent($url, $httpHeader, $expectedUa)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, [], ''));
+        $httpMockClient->addResponse(new Response(200, [], ''));
 
         $logger = new Logger('foo');
         $handler = new TestHandler();
@@ -518,7 +522,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testReferer($url, $httpHeader, $expectedReferer)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, [], ''));
+        $httpMockClient->addResponse(new Response(200, [], ''));
 
         $logger = new Logger('foo');
         $handler = new TestHandler();

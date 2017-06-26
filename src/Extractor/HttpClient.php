@@ -3,6 +3,7 @@
 namespace Graby\Extractor;
 
 use Graby\HttpClient\Plugin\History;
+use Http\Client\Common\Exception\LoopException;
 use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
@@ -42,19 +43,6 @@ class HttpClient
      */
     public function __construct(Client $client, $config = [], LoggerInterface $logger = null)
     {
-        $this->responseHistory = new History();
-        $this->client = new HttpMethodsClient(
-            new PluginClient(
-                $client,
-                [
-                    new Plugin\HistoryPlugin($this->responseHistory),
-                    new RedirectPlugin(),
-                    new ErrorPlugin(),
-                ]
-            ),
-            MessageFactoryDiscovery::find()
-        );
-
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
@@ -97,6 +85,22 @@ class HttpClient
         if (null === $logger) {
             $this->logger = new NullLogger();
         }
+
+        $this->responseHistory = new History();
+        $this->client = new HttpMethodsClient(
+            new PluginClient(
+                $client,
+                [
+                    new Plugin\HistoryPlugin($this->responseHistory),
+                    new RedirectPlugin(),
+                    new ErrorPlugin(),
+                ],
+                [
+                    'max_restarts' => $this->config['max_redirect'],
+                ]
+            ),
+            MessageFactoryDiscovery::find()
+        );
     }
 
     public function setLogger(LoggerInterface $logger)
@@ -118,17 +122,6 @@ class HttpClient
      */
     public function fetch($url, $skipTypeVerification = false, $httpHeader = [])
     {
-        if (false === $this->checkNumberRedirects($url)) {
-            return $this->sendResults([
-                'effective_url' => self::$initialUrl,
-                'body' => '',
-                'headers' => '',
-                'all_headers' => [],
-                // Too many Redirects
-                'status' => 310,
-            ]);
-        }
-
         $url = $this->cleanupUrl($url);
 
         $method = 'get';
@@ -148,6 +141,17 @@ class HttpClient
                     'Referer' => $this->getReferer($url, $httpHeader),
                 ]
             );
+        } catch (LoopException $e) {
+            $this->logger->log('debug', 'Endless redirect: ' . ($this->config['max_redirect'] + 1) . ' on "{url}"', ['url' => $url]);
+
+            return [
+                'effective_url' => $url,
+                'body' => '',
+                'headers' => '',
+                'all_headers' => [],
+                // Too many Redirects
+                'status' => 310,
+            ];
         } catch (HttpException $e) {
             // exception has a response which means we might be able to retrieve content from it, log it and continue
             $response = $e->getResponse();
@@ -166,7 +170,7 @@ class HttpClient
 	    $this->logger->log('warning', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
 	    $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
 
-	    return $this->sendResults($data);
+	    return $data;
         }
 
         $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
@@ -224,13 +228,13 @@ class HttpClient
             'status' => $response->getStatusCode(),
         ]]);
 
-        return $this->sendResults([
+        return [
             'effective_url' => $effectiveUrl,
             'body' => $body,
             'headers' => $contentType,
             'all_headers' => $headers,
             'status' => $response->getStatusCode(),
-        ]);
+        ];
     }
 
     /**
@@ -269,46 +273,6 @@ class HttpClient
         }
 
         return $url;
-    }
-
-    /**
-     * Check if number of redirect count isn't reach.
-     *
-     * @param string $url
-     *
-     * @return bool true: it's ok, false: we need to stop
-     */
-    private function checkNumberRedirects($url)
-    {
-        ++self::$nbRedirect;
-
-        // keep initial url in case of endless redirect
-        if ('' === self::$initialUrl) {
-            self::$initialUrl = $url;
-        }
-
-        if (self::$nbRedirect > $this->config['max_redirect']) {
-            $this->logger->log('debug', 'Endless redirect: ' . self::$nbRedirect . ' on "{url}"', ['url' => $url]);
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Return results from fetch() and also re-init static variable for the next request.
-     *
-     * @param array $data
-     *
-     * @return array
-     */
-    private function sendResults(array $data)
-    {
-        self::$nbRedirect = 0;
-        self::$initialUrl = '';
-
-        return $data;
     }
 
     /**
