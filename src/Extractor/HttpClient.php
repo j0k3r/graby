@@ -23,14 +23,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class HttpClient
 {
-    private static $nbRedirect = 0;
-    private static $initialUrl = '';
-    private $config = [];
     /**
-     * @var HttpMethodsClient|null
+     * @var array
      */
-    private $client = null;
-    private $logger = null;
+    private $config;
+    /**
+     * @var HttpMethodsClient
+     */
+    private $client;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
     /**
      * @var History
      */
@@ -304,7 +308,7 @@ class HttpClient
      *
      * @return string
      */
-    private function getUserAgent($url, $httpHeader = [])
+    private function getUserAgent($url, array $httpHeader = [])
     {
         $ua = $this->config['ua_browser'];
 
