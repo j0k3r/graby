@@ -95,8 +95,8 @@ class HttpClient
             new PluginClient(
                 $client,
                 [
-                    new Plugin\HistoryPlugin($this->responseHistory),
                     new RedirectPlugin(),
+                    new Plugin\HistoryPlugin($this->responseHistory),
                     new ErrorPlugin(),
                 ],
                 [
