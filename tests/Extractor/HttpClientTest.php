@@ -145,7 +145,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             [
                 'http://fr.wikipedia.org/wiki/Copyright',
                 '<html><meta name="fragment" content="!"></html>',
-                'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
+                'http://fr.wikipedia.org/wiki/Copyright?_escaped_fragment_=',
             ],
         ];
     }
