@@ -19,7 +19,6 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             [
                 'http://fr.m.wikipedia.org/wiki/Copyright#bottom',
                 'http://fr.wikipedia.org/wiki/Copyright',
-                'http://fr.wikipedia.org/wiki/Copyright',
                 [
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.2',
@@ -30,7 +29,6 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             [
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/#!test',
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/?_escaped_fragment_=test',
-                'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html',
                 [
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
@@ -39,7 +37,6 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
             [
-                'http://www.lexpress.io/my-map.html',
                 'http://www.lexpress.io/my-map.html',
                 'http://www.lexpress.io/my-map.html',
                 [
@@ -55,7 +52,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForFetchGet
      */
-    public function testFetchGet($url, $urlRewritten, $urlEffective)
+    public function testFetchGet($url, $urlEffective)
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], 'yay'));
