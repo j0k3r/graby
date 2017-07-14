@@ -407,7 +407,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $res = $http->fetch('http://www.lexpress.io/my-map.html');
 
         $this->assertSame('http://www.lexpress.io/my-map.html', $res['effective_url']);
-        $this->assertSame('', $res['body']);
+        $this->assertSame('test', $res['body']);
         $this->assertSame('text/html', $res['headers']);
         $this->assertSame(404, $res['status']);
     }
