@@ -141,11 +141,11 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(404, $res['status']);
         $this->assertEmpty($res['language']);
         $this->assertSame('https://bjori.blogspot.fr/201', $res['url']);
-        $this->assertSame('No title found', $res['title']);
+        $this->assertSame("bjori doesn't blog", $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
         $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
         $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertNotEmpty($res['open_graph']);
     }
 
     public function testPdfFile()
