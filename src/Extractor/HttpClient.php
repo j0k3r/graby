@@ -138,7 +138,7 @@ class HttpClient
                     'status' => 500,
                 ];
 
-                $this->logger->log('debug', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
+                $this->logger->log('error', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
                 $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
 
                 return $this->sendResults($data);
@@ -147,7 +147,7 @@ class HttpClient
             // exception has a response which means we might be able to retrieve content from it, log it and continue
             $response = $e->getResponse();
 
-            $this->logger->log('debug', 'Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
+            $this->logger->log('error', 'Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
         }
 
         $effectiveUrl = $response->getEffectiveUrl();
