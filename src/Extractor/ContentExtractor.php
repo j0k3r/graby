@@ -321,7 +321,7 @@ class ContentExtractor
 
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} for body', ['pattern' => $pattern]);
+            $this->logger->log('debug', 'Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => strlen($this->readability->dom->savexml())]);
 
             $res = $this->extractBody(
                 true,
