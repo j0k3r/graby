@@ -129,6 +129,38 @@ $graby = new Graby();
 $result = $graby->cleanupHtml($html, $article);
 ```
 
+### Use custom handler & formatter to see output log
+
+You can use them to display graby output log to the end user.
+It's aim to be used in a Symfony project using Monolog.
+
+Define the graby handler service (somewhere in a `service.yml`):
+
+```yaml
+services:
+    # ...
+    graby.log_handler:
+        class: Graby\Monolog\Handler\GrabyHandler
+```
+
+Then define the Monolog handler in your `app/config/config.yml`:
+
+```yaml
+monolog:
+    handlers:
+        graby:
+            type: service
+            id: graby.log_handler
+            level: debug
+            channels: ['graby']
+```
+
+You can then retrieve logs from graby in your controller using:
+
+```php
+$logs = $this->get('monolog.handler.graby')->getRecords();
+```
+
 ## Full configuration
 
 This is the full documented configuration and also the default one.
