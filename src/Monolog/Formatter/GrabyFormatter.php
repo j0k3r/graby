@@ -47,39 +47,13 @@ class GrabyFormatter extends HtmlFormatter
         return $output . '</table>';
     }
 
-    /**
-     * Formats a set of log records.
-     *
-     * @param array $records A set of records to format
-     *
-     * @return mixed The formatted set of records
-     */
-    public function formatBatch(array $records)
-    {
-        $message = '';
-        foreach ($records as $record) {
-            $message .= $this->format($record);
-        }
-
-        return $message;
-    }
-
     protected function convertToString($data)
     {
         if (is_bool($data)) {
             return $data ? '(bool) true' : '(bool) false';
         }
 
-        if (null === $data || is_scalar($data)) {
-            return (string) $data;
-        }
-
-        $data = $this->normalize($data);
-        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-            return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        }
-
-        return str_replace('\\/', '/', json_encode($data));
+        return parent::convertToString($data);
     }
 
     /**
