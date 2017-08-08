@@ -14,6 +14,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 class GrabyHandler extends AbstractProcessingHandler
 {
     protected $records = [];
+    protected $recordsByLevel = [];
 
     public function __construct($level = Logger::DEBUG, $bubble = true)
     {
@@ -28,8 +29,20 @@ class GrabyHandler extends AbstractProcessingHandler
         return $this->records;
     }
 
+    public function clear()
+    {
+        $this->records = [];
+        $this->recordsByLevel = [];
+    }
+
+    public function hasRecords($level)
+    {
+        return isset($this->recordsByLevel[$level]);
+    }
+
     protected function write(array $record)
     {
+        $this->recordsByLevel[$record['level']][] = $record;
         $this->records[] = $record;
     }
 }
