@@ -9,7 +9,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 
 /**
  * Custom handler to keep all related log
- * and be able to display the test page.
+ * and be able to display them in the test page.
  */
 class GrabyHandler extends AbstractProcessingHandler
 {

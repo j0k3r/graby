@@ -8,7 +8,7 @@ use Monolog\Formatter\HtmlFormatter;
  * Formats incoming records into an HTML table.
  *
  * Few things differents from the original HtmlFormatter:
- *   - removed the title (we don't care about the log leve)
+ *   - removed the title (we don't care about the log level)
  *   - changing title cell color
  */
 class GrabyFormatter extends HtmlFormatter
