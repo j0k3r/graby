@@ -21,7 +21,7 @@
         "j0k3r/php-readability": "^1.0",
         "j0k3r/graby-site-config": "^1.0",
         "simplepie/simplepie": "^1.3.1",
-        "htmlawed/htmlawed": "^1.1.19",
+        "htmlawed/htmlawed": "dev-master",
         "symfony/options-resolver": "~2.6|~3.0",
         "monolog/monolog": "^1.13.1",
         "smalot/pdfparser": "~0.9.24",
