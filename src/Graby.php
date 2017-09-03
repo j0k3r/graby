@@ -1003,13 +1003,16 @@ class Graby
 
         $this->logger->log('debug', 'Filtering HTML to remove XSS');
 
-        return htmLawed($html, [
-            'safe' => 1,
-            // which means: do not remove iframe elements
-            'elements' => '*+iframe',
-            'deny_attribute' => 'style',
-            'comment' => 1,
-            'cdata' => 1,
-        ]);
+        return htmLawed(
+            $html,
+            [
+                'safe' => 1,
+                // *+iframe: do not remove iframe elements
+                'elements' => '*+iframe-meta',
+                'deny_attribute' => 'style',
+                'comment' => 1,
+                'cdata' => 1,
+            ]
+        );
     }
 }
