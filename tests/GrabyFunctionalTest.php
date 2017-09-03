@@ -523,4 +523,32 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Restore MySQL replication after error - Experiencing Technology', $res['title']);
         $this->assertSame('https://blog.tinned-software.net/wp-content/uploads/2014/03/Fix_MySQL_replication_error.png', $res['open_graph']['og_image']);
     }
+
+    public function testKeepOlStartAttribute()
+    {
+        $graby = new Graby([
+            'debug' => true,
+        ]);
+        $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
+
+        $this->assertCount(12, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
+
+        $this->assertSame(200, $res['status']);
+        $this->assertContains('<ol start="2">', $res['html']);
+        $this->assertContains('<ol start="3">', $res['html']);
+        $this->assertContains('<ol start="4">', $res['html']);
+    }
 }
