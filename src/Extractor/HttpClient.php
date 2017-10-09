@@ -186,7 +186,7 @@ class HttpClient
         // check for <meta name='fragment' content='!'/>
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
         // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
-        if (strpos($effectiveUrl, '_escaped_fragment_') === false) {
+        if (false === strpos($effectiveUrl, '_escaped_fragment_')) {
             $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?: $this->getUglyURL($effectiveUrl, $body);
 
             if (false !== $redirectURL) {
@@ -225,7 +225,7 @@ class HttpClient
     {
         // rewrite part of urls to something more readable
         foreach ($this->config['rewrite_url'] as $find => $action) {
-            if (strpos($url, $find) !== false && is_array($action)) {
+            if (false !== strpos($url, $find) && is_array($action)) {
                 $url = strtr($url, $action);
             }
         }
@@ -333,7 +333,7 @@ class HttpClient
 
         $host = parse_url($url, PHP_URL_HOST);
 
-        if (strtolower(substr($host, 0, 4)) === 'www.') {
+        if ('www.' === strtolower(substr($host, 0, 4))) {
             $host = substr($host, 4);
         }
 
@@ -422,7 +422,7 @@ class HttpClient
      */
     private function getMetaRefreshURL($url, $html)
     {
-        if ($html === '') {
+        if ('' === $html) {
             return false;
         }
 

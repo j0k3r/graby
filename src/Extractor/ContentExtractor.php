@@ -469,7 +469,7 @@ class ContentExtractor
 
         // If no year has been found during date_parse, we nuke the whole value
         // because the date is invalid
-        if ($parseDate['year'] === false) {
+        if (false === $parseDate['year']) {
             $this->date = null;
         }
 
@@ -481,7 +481,7 @@ class ContentExtractor
             $this->logger->log('debug', 'Detecting body');
             $this->body = $this->readability->getContent();
 
-            if ($this->body->childNodes->length === 1 && $this->body->firstChild->nodeType === XML_ELEMENT_NODE) {
+            if (1 === $this->body->childNodes->length && XML_ELEMENT_NODE === $this->body->firstChild->nodeType) {
                 $this->body = $this->body->firstChild;
             }
 
@@ -495,14 +495,14 @@ class ContentExtractor
         if (isset($this->body)) {
             // remove any h1-h6 elements that appear as first thing in the body
             // and which match our title
-            if (isset($this->title) && $this->title !== '' && null !== $this->body->firstChild) {
+            if (isset($this->title) && '' !== $this->title && null !== $this->body->firstChild) {
                 $firstChild = $this->body->firstChild;
 
-                while ($firstChild->nextSibling !== null && $firstChild->nodeType && ($firstChild->nodeType !== XML_ELEMENT_NODE)) {
+                while (null !== $firstChild->nextSibling && $firstChild->nodeType && (XML_ELEMENT_NODE !== $firstChild->nodeType)) {
                     $firstChild = $firstChild->nextSibling;
                 }
 
-                if ($firstChild->nodeType === XML_ELEMENT_NODE
+                if (XML_ELEMENT_NODE === $firstChild->nodeType
                     && in_array(strtolower($firstChild->tagName), ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)
                     && (strtolower(trim($firstChild->textContent)) === strtolower(trim($this->title)))) {
                     $this->body->removeChild($firstChild);
@@ -532,7 +532,7 @@ class ContentExtractor
                 // inside the data-lazy-src attribute. It also places the original image inside a noscript element
                 // next to the amended one.
                 // @see https://plugins.trac.wordpress.org/browser/lazy-load/trunk/lazy-load.php
-                if ($e->nextSibling !== null && $e->nextSibling->nodeName === 'noscript') {
+                if (null !== $e->nextSibling && 'noscript' === $e->nextSibling->nodeName) {
                     $newElem = $e->ownerDocument->createDocumentFragment();
                     $newElem->appendXML($e->nextSibling->innerHTML);
                     $e->nextSibling->parentNode->replaceChild($newElem, $e->nextSibling);
@@ -780,13 +780,13 @@ class ContentExtractor
 
             if ($fns && $fns->length > 0) {
                 foreach ($fns as $fn) {
-                    if (trim($fn->textContent) !== '') {
+                    if ('' !== trim($fn->textContent)) {
                         $this->authors[] = trim($fn->textContent);
                         $this->logger->log('debug', 'hNews: found author: ' . trim($fn->textContent));
                     }
                 }
             } else {
-                if (trim($author->textContent) !== '') {
+                if ('' !== trim($author->textContent)) {
                     $this->authors[] = trim($author->textContent);
                     $this->logger->log('debug', 'hNews: found author: ' . trim($author->textContent));
                 }
@@ -822,7 +822,7 @@ class ContentExtractor
 
         $this->logger->log('debug', $type . ': found "' . $elems->length . '" with ' . $xpathExpression);
 
-        if ($elems->length === 1) {
+        if (1 === $elems->length) {
             $this->body = $elems->item(0);
 
             // prune (clean up elements that may not be content)
@@ -846,7 +846,7 @@ class ContentExtractor
             $isDescendant = false;
             foreach ($this->body->childNodes as $parent) {
                 $node = $elem->parentNode;
-                while ($node !== null) {
+                while (null !== $node) {
                     if ($node->isSameNode($parent)) {
                         $isDescendant = true;
                         break 2;
@@ -933,7 +933,7 @@ class ContentExtractor
         $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
         $entityValue = null;
 
-        if (is_string($elems) && trim($elems) !== '') {
+        if (is_string($elems) && '' !== trim($elems)) {
             $entityValue = $returnCallback($elems);
 
             $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
@@ -952,7 +952,7 @@ class ContentExtractor
             }
         }
 
-        if ($entityValue !== null) {
+        if (null !== $entityValue) {
             $this->{$entity} = $entityValue;
 
             return true;
@@ -984,7 +984,7 @@ class ContentExtractor
         $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
         $entityValue = null;
 
-        if (is_string($elems) && trim($elems) !== '') {
+        if (is_string($elems) && '' !== trim($elems)) {
             $entityValue[] = $returnCallback($elems);
 
             $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
@@ -1005,7 +1005,7 @@ class ContentExtractor
             $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
         }
 
-        if ($entityValue !== null) {
+        if (null !== $entityValue) {
             $this->{$entity} = $entityValue;
 
             return true;

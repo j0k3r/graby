@@ -54,7 +54,7 @@ class ConfigBuilder
     public function addToCache($key, SiteConfig $config)
     {
         $key = strtolower($key);
-        if (substr($key, 0, 4) === 'www.') {
+        if ('www.' === substr($key, 0, 4)) {
             $key = substr($key, 4);
         }
 
@@ -78,7 +78,7 @@ class ConfigBuilder
     public function getCachedVersion($key)
     {
         $key = strtolower($key);
-        if (substr($key, 0, 4) === 'www.') {
+        if ('www.' === substr($key, 0, 4)) {
             $key = substr($key, 4);
         }
 
@@ -128,7 +128,7 @@ class ConfigBuilder
     public function buildForHost($host, $addToCache = true)
     {
         $host = strtolower($host);
-        if (substr($host, 0, 4) === 'www.') {
+        if ('www.' === substr($host, 0, 4)) {
             $host = substr($host, 4);
         }
 
@@ -201,7 +201,7 @@ class ConfigBuilder
     public function loadSiteConfig($host, $exactHostMatch = false)
     {
         $host = strtolower($host);
-        if (substr($host, 0, 4) === 'www.') {
+        if ('www.' === substr($host, 0, 4)) {
             $host = substr($host, 4);
         }
 
@@ -315,20 +315,20 @@ class ConfigBuilder
             $line = trim($line);
 
             // skip comments, empty lines
-            if ($line === '' || $line[0] === '#') {
+            if ('' === $line || '#' === $line[0]) {
                 continue;
             }
 
             // get command
             $command = explode(':', $line, 2);
             // if there's no colon ':', skip this line
-            if (count($command) !== 2) {
+            if (2 !== count($command)) {
                 continue;
             }
 
             $val = trim($command[1]);
             $command = trim($command[0]);
-            if ($command === '' || $val === '') {
+            if ('' === $command || '' === $val) {
                 continue;
             }
 
@@ -337,15 +337,15 @@ class ConfigBuilder
                 array_push($config->$command, $val);
                 // check for single statement commands that evaluate to true or false
             } elseif (in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
-                $config->$command = ($val === 'yes' || $val === 'true');
+                $config->$command = ('yes' === $val || 'true' === $val);
                 // check for single statement commands stored as strings
             } elseif (in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri'], true)) {
                 $config->$command = $val;
                 // check for replace_string(find): replace
-            } elseif ((substr($command, -1) === ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && $match[1] === 'replace_string') {
+            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
                 array_push($config->find_string, $match[2]);
                 array_push($config->replace_string, $val);
-            } elseif ((substr($command, -1) === ')') && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && $match[1] === 'http_header' && in_array($match[2], ['user-agent', 'referer'], true)) {
+            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && in_array($match[2], ['user-agent', 'referer'], true)) {
                 $config->http_header[$match[2]] = $val;
             }
         }
