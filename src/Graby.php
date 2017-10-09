@@ -181,7 +181,7 @@ class Graby
         }
 
         // footnotes
-        if ($this->config['content_links'] === 'footnotes' && strpos($url, 'wikipedia.org') === false) {
+        if ('footnotes' === $this->config['content_links'] && false === strpos($url, 'wikipedia.org')) {
             $this->extractor->readability->addFootnotes($contentBlock);
         }
 
@@ -190,13 +190,13 @@ class Graby
 
         // remove empty text nodes
         foreach ($contentBlock->childNodes as $n) {
-            if ($n->nodeType === XML_TEXT_NODE && trim($n->textContent) === '') {
+            if (XML_TEXT_NODE === $n->nodeType && '' === trim($n->textContent)) {
                 $contentBlock->removeChild($n);
             }
         }
 
         // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while ($contentBlock->childNodes->length === 1 && $contentBlock->firstChild->nodeType === XML_ELEMENT_NODE) {
+        while (1 === $contentBlock->childNodes->length && XML_ELEMENT_NODE === $contentBlock->firstChild->nodeType) {
             // only follow these tag names
             if (!in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
                 break;
@@ -215,7 +215,7 @@ class Graby
 
         // post-processing cleanup
         $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', $html);
-        if ($this->config['content_links'] === 'remove') {
+        if ('remove' === $this->config['content_links']) {
             $html = preg_replace('!</?a[^>]*>!', '', $html);
         }
 
@@ -408,7 +408,7 @@ class Graby
     {
         // Check for feed URL
         $url = trim($url);
-        if (strtolower(substr($url, 0, 7)) === 'feed://') {
+        if ('feed://' === strtolower(substr($url, 0, 7))) {
             $url = 'http://' . substr($url, 7);
         }
 
@@ -458,13 +458,13 @@ class Graby
 
         if (!empty($allowedUrls)) {
             foreach ($allowedUrls as $allowurl) {
-                if (stristr($url, $allowurl) !== false) {
+                if (false !== stristr($url, $allowurl)) {
                     return true;
                 }
             }
         } else {
             foreach ($blockedUrls as $blockurl) {
-                if (stristr($url, $blockurl) !== false) {
+                if (false !== stristr($url, $blockurl)) {
                     return false;
                 }
             }
@@ -551,11 +551,11 @@ class Graby
 
         $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
 
-        if ($mimeInfo['type'] === 'image') {
+        if ('image' === $mimeInfo['type']) {
             $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
         }
 
-        if ($mimeInfo['mime'] === 'application/pdf') {
+        if ('application/pdf' === $mimeInfo['mime']) {
             $parser = new PdfParser();
             $pdf = $parser->parseContent($body);
 
@@ -597,7 +597,7 @@ class Graby
             }
         }
 
-        if ($mimeInfo['mime'] === 'text/plain') {
+        if ('text/plain' === $mimeInfo['mime']) {
             $infos['html'] = '<pre>' .
                 $this->cleanupXss(
                     $this->convert2Utf8($body, isset($response['all_headers']) ? $response['all_headers'] : [])
@@ -918,7 +918,7 @@ class Graby
         // If it's not, result will be empty string.
         // For now we'll check for invalid encoding types returned by some sites, e.g. 'none'
         // Problem URL: http://facta.co.jp/blog/archives/20111026001026.html
-        if (empty($encoding) || $encoding === 'none') {
+        if (empty($encoding) || 'none' === $encoding) {
             // search for encoding in HTML - only look at the first 50000 characters
             // Why 50000? See, for example, http://www.lemonde.fr/festival-de-cannes/article/2012/05/23/deux-cretes-en-goguette-sur-la-croisette_1705732_766360.html
             // TODO: improve this so it looks at smaller chunks first
@@ -940,11 +940,11 @@ class Graby
         $encoding = strtolower(trim($encoding));
 
         // fix bad encoding values
-        if ($encoding === 'iso-8850-1') {
+        if ('iso-8850-1' === $encoding) {
             $encoding = 'iso-8859-1';
         }
 
-        if (empty($encoding) || $encoding === 'iso-8859-1') {
+        if (empty($encoding) || 'iso-8859-1' === $encoding) {
             // replace MS Word smart qutoes
             $trans = [];
             $trans[chr(130)] = '&sbquo;'; // Single Low-9 Quotation Mark
@@ -974,7 +974,7 @@ class Graby
             $html = strtr($html, $trans);
         }
 
-        if ($encoding !== 'utf-8') {
+        if ('utf-8' !== $encoding) {
             // https://www.w3.org/International/articles/http-charset/index#charset
             // HTTP 1.1 says that the default charset is ISO-8859-1
             $encoding = $encoding ?: 'iso-8859-1';
