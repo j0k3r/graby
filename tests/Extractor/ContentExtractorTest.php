@@ -94,11 +94,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
-        foreach (['author', 'single_page_link', 'next_page_link', 'find_string', 'replace_string'] as $value) {
+        foreach (['author', 'single_page_link', 'next_page_link'] as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: ' . $value);
         }
 
-        foreach (['date', 'strip_image_src', 'http_header'] as $value) {
+        foreach (['date', 'strip_image_src', 'http_header', 'find_string', 'replace_string'] as $value) {
             $this->assertNotEmpty($res->$value, 'Check not empty value for: ' . $value);
         }
 
