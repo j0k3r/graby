@@ -159,8 +159,19 @@ class HttpClient
         } catch (HttpException $e) {
             // exception has a response which means we might be able to retrieve content from it, log it and continue
             $response = $e->getResponse();
+            $headers = $this->formatHeaders($response);
+
+            $data = [
+                'effective_url' => (string) $e->getRequest()->getUri(),
+                'body' => '',
+                'headers' => isset($headers['content-type']) ? $headers['content-type'] : '',
+                'all_headers' => $headers,
+                'status' => $response->getStatusCode(),
+            ];
 
             $this->logger->log('warning', 'Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
+
+            return $data;
         } catch (RequestException $e) {
             // no response attached to the exception, we won't be able to retrieve content from it
             $data = [
@@ -171,10 +182,10 @@ class HttpClient
                 'status' => 500,
             ];
 
-	    $this->logger->log('warning', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
-	    $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
+            $this->logger->log('warning', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
+            $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
 
-	    return $data;
+            return $data;
         }
 
         $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
