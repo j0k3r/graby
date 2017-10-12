@@ -163,7 +163,7 @@ class HttpClient
 
             $data = [
                 'effective_url' => (string) $e->getRequest()->getUri(),
-                'body' => '',
+                'body' => (string) $response->getBody(),
                 'headers' => isset($headers['content-type']) ? $headers['content-type'] : '',
                 'all_headers' => $headers,
                 'status' => $response->getStatusCode(),
