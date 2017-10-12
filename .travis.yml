@@ -33,7 +33,7 @@ before_install:
     - composer self-update
 
 install:
-    - composer install --no-interaction --prefer-source -o
+    - composer install --no-interaction --prefer-dist -o
 
 script:
     - mkdir -p build/logs
