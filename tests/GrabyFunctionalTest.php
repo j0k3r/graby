@@ -214,7 +214,6 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
 
     public function testImageFile()
     {
-        $this->markTestSkipped('HTTP PLUG');
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://i.imgur.com/w9n2ID2.jpg');
 
