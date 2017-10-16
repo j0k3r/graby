@@ -3,6 +3,7 @@
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
+use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
@@ -10,6 +11,7 @@ use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Psr\Http\Message\RequestInterface;
+use Symfony\Bridge\PhpUnit\DnsMock;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,8 +39,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
             [
-                'http://www.lexpress.io/my-map.html',
-                'http://www.lexpress.io/my-map.html',
+                'http://www.example.com/my-map.html',
+                'http://www.example.com/my-map.html',
                 [
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
@@ -138,9 +140,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
             ],
             [
-                'http://www.bernama.com/wiki/Copyright',
+                'http://www.example.com/wiki/Copyright',
                 '<html><meta HTTP-EQUIV="REFRESH" content="0; url=/bernama/v6/newsindex.php?id=943513"></html>',
-                'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
+                'http://www.example.com/bernama/v6/newsindex.php?id=943513',
             ],
             [
                 'http://fr.wikipedia.org/wiki/Copyright',
@@ -175,13 +177,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This will force `SimplePie_IRI::absolutize` to return false because the "base" is wrong.
-     * It means there is no real host name.
+     * This will force `SimplePie_IRI::absolutize` to return false because the relative url is wrong.
      */
     public function testFetchGetWithMetaRefreshBadBase()
     {
-        $url = 'wikipedia.org/wiki/Copyright';
-        $body = '<html><meta HTTP-EQUIV="REFRESH" content="0; url=/bernama/v6/newsindex.php?id=943513"></html>';
+        $url = 'http://wikipedia.org/wiki/Copyright';
+        $body = '<html><meta HTTP-EQUIV="REFRESH" content="0; url=::/bernama/v6/newsindex.php?id=943513"></html>';
 
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $body));
@@ -203,9 +204,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $httpMockClient->addResponse(new Response(404, ['Content-Type' => 'text/html'], 'test'));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('http://www.lexpress.io/my-map.html');
+        $res = $http->fetch('http://example.com/my-map.html');
 
-        $this->assertSame('http://www.lexpress.io/my-map.html', $res['effective_url']);
+        $this->assertSame('http://example.com/my-map.html', $res['effective_url']);
         $this->assertSame('test', $res['body']);
         $this->assertSame('text/html', $res['headers']);
         $this->assertSame(404, $res['status']);
@@ -217,9 +218,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image%2Fjpeg'], 'test'));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('http://www.lexpress.io/image.jpg');
+        $res = $http->fetch('http://example.com/image.jpg');
 
-        $this->assertSame('http://www.lexpress.io/image.jpg', $res['effective_url']);
+        $this->assertSame('http://example.com/image.jpg', $res['effective_url']);
         $this->assertSame('test', $res['body']);
         $this->assertSame('image/jpeg', $res['headers']);
         $this->assertSame(200, $res['status']);
@@ -238,29 +239,13 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testWith404ResponseWithoutResponse()
     {
-//        $request = $this->getMockBuilder('GuzzleHttp\Message\Request')
-//            ->disableOriginalConstructor()
-//            ->getMock();
-//
-//        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-//            ->disableOriginalConstructor()
-//            ->getMock();
-//
-//        $client = $this->getMockBuilder('GuzzleHttp\Client')
-//            ->disableOriginalConstructor()
-//            ->getMock();
-//
-//        $client->expects($this->once())
-//            ->method('get')
-//            ->willThrowException(new RequestException('oops', $request));
-
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(404));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('http://0.0.0.0');
+        $res = $http->fetch('http://example.com');
 
-        $this->assertSame('http://0.0.0.0', $res['effective_url']);
+        $this->assertSame('http://example.com', $res['effective_url']);
         $this->assertSame('', $res['body']);
         $this->assertSame('', $res['headers']);
         $this->assertSame(404, $res['status']);
@@ -447,12 +432,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 'expectedUa' => 'UA/Default',
             ],
             [
-                'url' => 'http://customua.com/foo',
+                'url' => 'http://example.com/foo',
                 'httpHeader' => ['user-agent' => ''],
                 'expectedUa' => 'UA/Config',
             ],
             [
-                'url' => 'http://customua.com/foo',
+                'url' => 'http://example.com/foo',
                 'httpHeader' => ['user-agent' => 'UA/SiteConfig'],
                 'expectedUa' => 'UA/SiteConfig',
             ],
@@ -474,7 +459,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $http = new HttpClient($httpMockClient, [
             'ua_browser' => 'UA/Default',
             'user_agents' => [
-                'customua.com' => 'UA/Config',
+                'example.com' => 'UA/Config',
             ],
         ]);
         $http->setLogger($logger);

@@ -3,6 +3,7 @@
 namespace Graby\Extractor;
 
 use Graby\HttpClient\Plugin\History;
+use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
 use Http\Client\Common\Exception\LoopException;
 use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin\ErrorPlugin;
@@ -95,6 +96,7 @@ class HttpClient
             new PluginClient(
                 $client,
                 [
+                    new ServerSideRequestForgeryProtectionPlugin(),
                     new RedirectPlugin(),
                     new Plugin\HistoryPlugin($this->responseHistory),
                     new ErrorPlugin(),

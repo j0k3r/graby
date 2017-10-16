@@ -10,6 +10,7 @@ use GuzzleHttp\Subscriber\Mock;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use Symfony\Bridge\PhpUnit\DnsMock;
 
 class GrabyTest extends \PHPUnit_Framework_TestCase
 {
@@ -238,13 +239,13 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $graby = new Graby(['xss_filter' => false], $httpMockClient);
 
-        $res = $graby->fetchContent('http://lexpress.io/my%20awesome%20image.jpg');
+        $res = $graby->fetchContent('http://example.com/my%20awesome%20image.jpg');
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Image', $res['title']);
-        $this->assertSame('<a href="http://lexpress.io/my%20awesome%20image.jpg"><img src="http://lexpress.io/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
-        $this->assertSame('http://lexpress.io/my%20awesome%20image.jpg', $res['url']);
+        $this->assertSame('<a href="http://example.com/my%20awesome%20image.jpg"><img src="http://example.com/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
+        $this->assertSame('http://example.com/my%20awesome%20image.jpg', $res['url']);
         $this->assertEmpty($res['summary']);
         $this->assertSame('image/jpeg', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -274,7 +275,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ],
         ], $httpMockClient);
 
-        $graby->fetchContent('http://lexpress.io/virus.exe');
+        $graby->fetchContent('http://example.com/virus.exe');
 
         $this->assertCount(2, $httpMockClient->getRequests());
         $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
@@ -284,7 +285,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function dataForExtension()
     {
         return [
-            ['http://lexpress.io/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://lexpress.io/test.jpg"><img src="http://lexpress.io/test.jpg" alt="Image" /></a>'],
+            ['http://example.com/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://example.com/test.jpg"><img src="http://example.com/test.jpg" alt="Image" /></a>'],
         ];
     }
 
@@ -327,14 +328,14 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $graby = new Graby([], $httpMockClient);
 
-        $res = $graby->fetchContent('http://lexpress.io/test.pdf');
+        $res = $graby->fetchContent('http://example.com/test.pdf');
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Document1', $res['title']);
         $this->assertContains('Document title', $res['html']);
         $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
-        $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
+        $this->assertContains('http://example.com/test.pdf', $res['url']);
         $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
         $this->assertSame('application/pdf', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -380,7 +381,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         ));
         $graby = new Graby([], $httpMockClient);
 
-        $res = $graby->fetchContent('http://lexpress.io/test.pdf');
+        $res = $graby->fetchContent('http://example.com/test.pdf');
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
@@ -388,7 +389,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(['David Baca'], $res['authors']);
         $this->assertSame('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
-        $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
+        $this->assertContains('http://example.com/test.pdf', $res['url']);
         $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['summary']);
         $this->assertSame('application/pdf', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -402,13 +403,13 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $graby = new Graby([], $httpMockClient);
 
-        $res = $graby->fetchContent('http://lexpress.io/test.txt');
+        $res = $graby->fetchContent('http://example.com/test.txt');
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Plain text', $res['title']);
         $this->assertSame('<pre>plain text :)</pre>', $res['html']);
-        $this->assertSame('http://lexpress.io/test.txt', $res['url']);
+        $this->assertSame('http://example.com/test.txt', $res['url']);
         $this->assertSame('plain text :)', $res['summary']);
         $this->assertSame('text/plain', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -418,24 +419,33 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function dataForSinglePage()
     {
         return [
-            // single_page_link will return a string (ie the text content of <a> node)
-            ['singlepage1.com', 'http://singlepage1.com/printed view', 'http://moreintelligentlife.com/print/content'],
-            // single_page_link will return the a node
-            ['singlepage2.com', 'http://singlepage2.com/print/content', 'http://singlepage2.com/print/content'],
-            // single_page_link will return the href from a node
-            ['singlepage3.com', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
-            // single_page_link will return nothing useful
-            ['singlepage4.com', 'http://singlepage4.com', 'http://singlepage4.com/print/content'],
-            // single_page_link will return the href from a node BUT the single page url will be the same
-            ['singlepage3.com/print/content', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
+            'single_page_link will return a string (ie the text content of <a> node)' =>
+                ['singlepage1.com', 'http://singlepage1.com/printed view', 'http://moreintelligentlife.com/print/content'],
+            'single_page_link will return the a node' =>
+                ['singlepage2.com', 'http://singlepage2.com/print/content', 'http://singlepage2.com/print/content'],
+            'single_page_link will return the href from a node' =>
+                ['singlepage3.com', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
+            'single_page_link will return nothing useful' =>
+                ['singlepage4.com', 'http://singlepage4.com', 'http://singlepage4.com/print/content'],
+            'single_page_link will return the href from a node BUT the single page url will be the same' =>
+                ['singlepage3.com/print/content', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
         ];
     }
 
     /**
+     * @group dns-sensitive
      * @dataProvider dataForSinglePage
      */
     public function testSinglePage($url, $expectedUrl, $singlePageUrl)
     {
+        DnsMock::withMockedHosts([
+            'singlepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+            'singlepage2.com' => [['type' => 'A', 'ip' => '93.184.216.35']],
+            'singlepage3.com' => [['type' => 'A', 'ip' => '93.184.216.36']],
+            'singlepage4.com' => [['type' => 'A', 'ip' => '93.184.216.37']],
+            'moreintelligentlife.com' => [['type' => 'A', 'ip' => '93.184.216.38']],
+        ]);
+
         $httpMockClient = new HttpMockClient();
         $response = new \GuzzleHttp\Psr7\Response(
             200,
@@ -470,8 +480,15 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testSinglePageMimeAction()
     {
+        DnsMock::withMockedHosts([
+            'singlepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+        ]);
+
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
             200,
@@ -501,8 +518,14 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageOk()
     {
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+        ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
             200,
@@ -532,8 +555,14 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageMimeAction()
     {
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+        ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
             200,
@@ -563,8 +592,14 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageExtractFailed()
     {
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+        ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
             200,
@@ -594,8 +629,14 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageBadAbsoluteUrl()
     {
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+        ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
             200,
@@ -625,8 +666,14 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageSameUrl()
     {
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+        ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
             200,
@@ -834,13 +881,13 @@ HTML
 
         $graby = new Graby(['content_links' => 'remove'], $httpMockClient);
 
-        $res = $graby->fetchContent('http://removelinks.io');
+        $res = $graby->fetchContent('http://example.com');
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertContains('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res['html']);
-        $this->assertSame('http://removelinks.io', $res['url']);
+        $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
         $this->assertSame('text/html', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -854,13 +901,13 @@ HTML
 
         $graby = new Graby(['content_type_exc' => ['application/pdf' => ['action' => 'delete', 'name' => 'PDF']]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('example.com');
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
-        $this->assertSame('http://lexpress.io', $res['url']);
+        $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
         $this->assertSame('application/pdf', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -910,13 +957,13 @@ HTML
             'error_message_title' => 'No title detected',
         ], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('example.com');
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title detected', $res['title']);
         $this->assertSame('Nothing found, hu?', $res['html']);
-        $this->assertSame('http://lexpress.io', $res['url']);
+        $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('Nothing found, hu?', $res['summary']);
         $this->assertSame('', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
