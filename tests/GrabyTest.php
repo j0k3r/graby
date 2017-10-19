@@ -419,16 +419,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function dataForSinglePage()
     {
         return [
-            'single_page_link will return a string (ie the text content of <a> node)' =>
-                ['singlepage1.com', 'http://singlepage1.com/printed view', 'http://moreintelligentlife.com/print/content'],
-            'single_page_link will return the a node' =>
-                ['singlepage2.com', 'http://singlepage2.com/print/content', 'http://singlepage2.com/print/content'],
-            'single_page_link will return the href from a node' =>
-                ['singlepage3.com', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
-            'single_page_link will return nothing useful' =>
-                ['singlepage4.com', 'http://singlepage4.com', 'http://singlepage4.com/print/content'],
-            'single_page_link will return the href from a node BUT the single page url will be the same' =>
-                ['singlepage3.com/print/content', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
+            'single_page_link will return a string (ie the text content of <a> node)' => ['singlepage1.com', 'http://singlepage1.com/printed view', 'http://moreintelligentlife.com/print/content'],
+            'single_page_link will return the a node' => ['singlepage2.com', 'http://singlepage2.com/print/content', 'http://singlepage2.com/print/content'],
+            'single_page_link will return the href from a node' => ['singlepage3.com', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
+            'single_page_link will return nothing useful' => ['singlepage4.com', 'http://singlepage4.com', 'http://singlepage4.com/print/content'],
+            'single_page_link will return the href from a node BUT the single page url will be the same' => ['singlepage3.com/print/content', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
         ];
     }
 

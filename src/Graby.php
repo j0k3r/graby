@@ -5,11 +5,11 @@ namespace Graby;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
 use Graby\SiteConfig\ConfigBuilder;
+use Http\Client\Common\Plugin\CookiePlugin;
+use Http\Client\Common\PluginClient;
 use Http\Client\HttpClient as Client;
 use Http\Discovery\HttpClientDiscovery;
 use Http\Message\CookieJar;
-use Http\Client\Common\PluginClient;
-use Http\Client\Common\Plugin\CookiePlugin;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -94,7 +94,6 @@ class Graby
             $this->logger,
             $this->configBuilder
         );
-
 
         $this->httpClient = new HttpClient(
             $client ?: new PluginClient(HttpClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
