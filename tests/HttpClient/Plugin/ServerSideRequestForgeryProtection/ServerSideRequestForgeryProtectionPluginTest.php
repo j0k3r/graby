@@ -11,6 +11,7 @@ use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequest
 use GuzzleHttp\Psr7\Request;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
+use Http\Client\Exception\RequestException;
 use Http\Mock\Client;
 use GuzzleHttp\Psr7\Response;
 
@@ -31,24 +32,24 @@ class ServerSideRequestForgeryProtectionPluginTest extends \PHPUnit_Framework_Te
     public function dataForBlockedUrl()
     {
         return array(
-            array('http://0.0.0.0:123', InvalidPortException::class, 'Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080'),
-            array('http://127.0.0.1/server-status', InvalidIPException::class, 'Provided host "127.0.0.1" resolves to "127.0.0.1", which matches a blacklisted value: 127.0.0.0/8'),
-            array('file:///etc/passwd', InvalidURLException::class, 'Provided URL "file:///etc/passwd" doesn\'t contain a hostname'),
-            array('ssh://localhost', InvalidSchemeException::class, 'Provided scheme "ssh" doesn\'t match whitelisted values: http, https'),
-            array('gopher://localhost', InvalidSchemeException::class, 'Provided scheme "gopher" doesn\'t match whitelisted values: http, https'),
-            array('telnet://localhost:25', InvalidSchemeException::class, 'Provided scheme "telnet" doesn\'t match whitelisted values: http, https'),
-            array('http://169.254.169.254/latest/meta-data/', InvalidIPException::class, 'Provided host "169.254.169.254" resolves to "169.254.169.254", which matches a blacklisted value: 169.254.0.0/16'),
-            array('ftp://myhost.com', InvalidSchemeException::class, 'Provided scheme "ftp" doesn\'t match whitelisted values: http, https'),
-            array('http://user:pass@safecurl.fin1te.net?@google.com/', InvalidURLException::class, 'Credentials passed in but "sendCredentials" is set to false'),
+            array('http://0.0.0.0:123', 'Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080'),
+            array('http://127.0.0.1/server-status', 'Provided host "127.0.0.1" resolves to "127.0.0.1", which matches a blacklisted value: 127.0.0.0/8'),
+            array('file:///etc/passwd', 'Provided URL "file:///etc/passwd" doesn\'t contain a hostname'),
+            array('ssh://localhost', 'Provided scheme "ssh" doesn\'t match whitelisted values: http, https'),
+            array('gopher://localhost', 'Provided scheme "gopher" doesn\'t match whitelisted values: http, https'),
+            array('telnet://localhost:25', 'Provided scheme "telnet" doesn\'t match whitelisted values: http, https'),
+            array('http://169.254.169.254/latest/meta-data/', 'Provided host "169.254.169.254" resolves to "169.254.169.254", which matches a blacklisted value: 169.254.0.0/16'),
+            array('ftp://myhost.com', 'Provided scheme "ftp" doesn\'t match whitelisted values: http, https'),
+            array('http://user:pass@safecurl.fin1te.net?@google.com/', 'Credentials passed in but "sendCredentials" is set to false'),
         );
     }
 
     /**
      * @dataProvider dataForBlockedUrl
      */
-    public function testBlockedUrl($url, $exception, $message)
+    public function testBlockedUrl($url, $message)
     {
-        $this->expectException($exception);
+        $this->expectException(RequestException::class);
         $this->expectExceptionMessage($message);
 
         $mockClient = new Client();
@@ -61,17 +62,17 @@ class ServerSideRequestForgeryProtectionPluginTest extends \PHPUnit_Framework_Te
     public function dataForBlockedUrlByOptions()
     {
         return array(
-            array('http://login:password@google.fr', InvalidURLException::class, 'Credentials passed in but "sendCredentials" is set to false'),
-            array('http://safecurl.fin1te.net', InvalidURLException::class, 'Provided host "safecurl.fin1te.net" matches a blacklisted value'),
+            array('http://login:password@google.fr', 'Credentials passed in but "sendCredentials" is set to false'),
+            array('http://safecurl.fin1te.net', 'Provided host "safecurl.fin1te.net" matches a blacklisted value'),
         );
     }
 
     /**
      * @dataProvider dataForBlockedUrlByOptions
      */
-    public function testBlockedUrlByOptions($url, $exception, $message)
+    public function testBlockedUrlByOptions($url, $message)
     {
-        $this->expectException($exception);
+        $this->expectException(RequestException::class);
         $this->expectExceptionMessage($message);
 
         $options = new Options();
@@ -102,7 +103,7 @@ class ServerSideRequestForgeryProtectionPluginTest extends \PHPUnit_Framework_Te
 
     public function testWithFollowLocationLeadingToABlockedUrl()
     {
-        $this->expectException(InvalidPortException::class);
+        $this->expectException(RequestException::class);
         $this->expectExceptionMessage('Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080');
 
         $options = new Options();
