@@ -3,7 +3,6 @@
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
-use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
@@ -11,7 +10,6 @@ use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Psr\Http\Message\RequestInterface;
-use Symfony\Bridge\PhpUnit\DnsMock;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -313,7 +311,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $maxRedirect = 3;
         $httpMockClient = new HttpMockClient();
 
-        for ($i = 0; $i <= $maxRedirect; $i++) {
+        for ($i = 0; $i <= $maxRedirect; ++$i) {
             $httpMockClient->addResponse(new Response(
                 308,
                 [

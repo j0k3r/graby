@@ -18,7 +18,6 @@ class History implements Journal
      */
     private $lastResponse;
 
-
     /**
      * @return RequestInterface|null
      */
@@ -45,4 +44,3 @@ class History implements Journal
     {
     }
 }
-

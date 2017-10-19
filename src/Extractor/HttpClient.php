@@ -10,7 +10,6 @@ use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
-use Http\Client\Exception as HttpClientException;
 use Http\Client\Exception\HttpException;
 use Http\Client\Exception\RequestException;
 use Http\Client\HttpClient as Client;

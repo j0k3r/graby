@@ -29,13 +29,14 @@ class ServerSideRequestForgeryProtectionPlugin implements Plugin
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\Exception
      */
     public function handleRequest(RequestInterface $request, callable $next, callable $first)
     {
         try {
-            $urlData = Url::validateUrl((string)$request->getUri(), $this->options);
+            $urlData = Url::validateUrl((string) $request->getUri(), $this->options);
         } catch (InvalidURLException $e) {
             throw new RequestException($e->getMessage(), $request, $e);
         }

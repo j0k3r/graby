@@ -14,16 +14,16 @@ class UrlTest extends \PHPUnit_Framework_TestCase
 {
     public function dataForValidate()
     {
-        return array(
-            array(null, InvalidURLException::class, 'Provided URL "" cannot be empty'),
-            array('http://user@:80', InvalidURLException::class, 'Error parsing URL "http://user@:80"'),
-            array('http:///example.com/', InvalidURLException::class, 'Error parsing URL "http:///example.com/"'),
-            array('http://:80', InvalidURLException::class, 'Error parsing URL "http://:80"'),
-            array('/nohost', InvalidURLException::class, 'Provided URL "/nohost" doesn\'t contain a hostname'),
-            array('ftp://domain.io', InvalidURLException\InvalidSchemeException::class, 'Provided scheme "ftp" doesn\'t match whitelisted values: http, https'),
-            array('http://domain.io:22', InvalidPortException::class, 'Provided port "22" doesn\'t match whitelisted values: 80, 443, 8080'),
-            array('http://login:password@google.fr:80', InvalidURLException::class, 'Credentials passed in but "sendCredentials" is set to false'),
-        );
+        return [
+            [null, InvalidURLException::class, 'Provided URL "" cannot be empty'],
+            ['http://user@:80', InvalidURLException::class, 'Error parsing URL "http://user@:80"'],
+            ['http:///example.com/', InvalidURLException::class, 'Error parsing URL "http:///example.com/"'],
+            ['http://:80', InvalidURLException::class, 'Error parsing URL "http://:80"'],
+            ['/nohost', InvalidURLException::class, 'Provided URL "/nohost" doesn\'t contain a hostname'],
+            ['ftp://domain.io', InvalidURLException\InvalidSchemeException::class, 'Provided scheme "ftp" doesn\'t match whitelisted values: http, https'],
+            ['http://domain.io:22', InvalidPortException::class, 'Provided port "22" doesn\'t match whitelisted values: 80, 443, 8080'],
+            ['http://login:password@google.fr:80', InvalidURLException::class, 'Credentials passed in but "sendCredentials" is set to false'],
+        ];
     }
 
     /**

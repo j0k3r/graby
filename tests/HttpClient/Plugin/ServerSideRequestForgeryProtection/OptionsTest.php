@@ -174,13 +174,13 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
 
     public function testSetList()
     {
-        $this->options->setList('whitelist', array('ip' => array('0.0.0.0')));
+        $this->options->setList('whitelist', ['ip' => ['0.0.0.0']]);
 
-        $this->assertEquals(array('0.0.0.0'), $this->options->getList('whitelist', 'ip'));
+        $this->assertEquals(['0.0.0.0'], $this->options->getList('whitelist', 'ip'));
 
-        $this->options->setList('blacklist', array(22), 'port');
+        $this->options->setList('blacklist', [22], 'port');
 
-        $this->assertEquals(array(22), $this->options->getList('blacklist', 'port'));
+        $this->assertEquals([22], $this->options->getList('blacklist', 'port'));
     }
 
     /**
@@ -189,7 +189,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetListBadList()
     {
-        $this->options->setList('noo', array());
+        $this->options->setList('noo', []);
     }
 
     /**
@@ -207,7 +207,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetListBadType()
     {
-        $this->options->setList('whitelist', array(), 'noo');
+        $this->options->setList('whitelist', [], 'noo');
     }
 
     /**
@@ -216,7 +216,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetListBadTypeValue()
     {
-        $this->options->setList('whitelist', array('noo' => 'oops'));
+        $this->options->setList('whitelist', ['noo' => 'oops']);
     }
 
     /**
@@ -294,7 +294,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $list);
         $this->assertEquals('ftp', $list[0]);
 
-        $this->options->removeFromList('blacklist', 'scheme', array('ftp'));
+        $this->options->removeFromList('blacklist', 'scheme', ['ftp']);
         $list = $this->options->getList('blacklist', 'scheme');
 
         $this->assertCount(0, $list);
