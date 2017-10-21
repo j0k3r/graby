@@ -182,7 +182,7 @@ class Options
     }
 
     /**
-     * Sets a list to the passed in array.
+     * Sets a list, the values must be passed as an array.
      *
      * @param $listName   'whitelist'|'blacklist'
      * @param $values array
