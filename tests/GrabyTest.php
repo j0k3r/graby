@@ -14,6 +14,11 @@ use Symfony\Bridge\PhpUnit\DnsMock;
 
 class GrabyTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * A human IPv4 corresponding to example.com
+     */
+    const AN_IPV4 = '93.184.216.34';
+
     public function testConstructDefault()
     {
         $graby = new Graby(['debug' => true]);
@@ -434,11 +439,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testSinglePage($url, $expectedUrl, $singlePageUrl)
     {
         DnsMock::withMockedHosts([
-            'singlepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
-            'singlepage2.com' => [['type' => 'A', 'ip' => '93.184.216.35']],
-            'singlepage3.com' => [['type' => 'A', 'ip' => '93.184.216.36']],
-            'singlepage4.com' => [['type' => 'A', 'ip' => '93.184.216.37']],
-            'moreintelligentlife.com' => [['type' => 'A', 'ip' => '93.184.216.38']],
+            'singlepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'singlepage2.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'singlepage3.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'singlepage4.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'moreintelligentlife.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
 
         $httpMockClient = new HttpMockClient();
@@ -481,7 +486,7 @@ HTML
     public function testSinglePageMimeAction()
     {
         DnsMock::withMockedHosts([
-            'singlepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+            'singlepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
 
         $httpMockClient = new HttpMockClient();
@@ -519,7 +524,7 @@ HTML
     public function testMultiplePageOk()
     {
         DnsMock::withMockedHosts([
-            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
@@ -556,7 +561,7 @@ HTML
     public function testMultiplePageMimeAction()
     {
         DnsMock::withMockedHosts([
-            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
@@ -593,7 +598,7 @@ HTML
     public function testMultiplePageExtractFailed()
     {
         DnsMock::withMockedHosts([
-            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
@@ -630,7 +635,7 @@ HTML
     public function testMultiplePageBadAbsoluteUrl()
     {
         DnsMock::withMockedHosts([
-            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
@@ -667,7 +672,7 @@ HTML
     public function testMultiplePageSameUrl()
     {
         DnsMock::withMockedHosts([
-            'multiplepage1.com' => [['type' => 'A', 'ip' => '93.184.216.34']],
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
