@@ -15,7 +15,7 @@ use Symfony\Bridge\PhpUnit\DnsMock;
 class GrabyTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * A human IPv4 corresponding to example.com
+     * A human IPv4 corresponding to example.com.
      */
     const AN_IPV4 = '93.184.216.34';
 
