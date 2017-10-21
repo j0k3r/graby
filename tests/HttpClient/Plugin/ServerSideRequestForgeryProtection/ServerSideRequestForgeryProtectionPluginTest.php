@@ -45,8 +45,7 @@ class ServerSideRequestForgeryProtectionPluginTest extends \PHPUnit_Framework_Te
      */
     public function testBlockedUrl($url, $message)
     {
-        $this->expectException(RequestException::class);
-        $this->expectExceptionMessage($message);
+        $this->setExpectedException(RequestException::class, $message);
 
         $mockClient = new Client();
         $mockClient->addResponse(new Response(200));
@@ -68,8 +67,7 @@ class ServerSideRequestForgeryProtectionPluginTest extends \PHPUnit_Framework_Te
      */
     public function testBlockedUrlByOptions($url, $message)
     {
-        $this->expectException(RequestException::class);
-        $this->expectExceptionMessage($message);
+        $this->setExpectedException(RequestException::class, $message);
 
         $options = new Options();
         $options->addToList('blacklist', 'domain', '(.*)\.fin1te\.net');
@@ -99,8 +97,10 @@ class ServerSideRequestForgeryProtectionPluginTest extends \PHPUnit_Framework_Te
 
     public function testWithFollowLocationLeadingToABlockedUrl()
     {
-        $this->expectException(RequestException::class);
-        $this->expectExceptionMessage('Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080');
+        $this->setExpectedException(
+            RequestException::class,
+            'Provided port "123" doesn\'t match whitelisted values: 80, 443, 8080'
+        );
 
         $options = new Options();
         $mockClient = new Client();
