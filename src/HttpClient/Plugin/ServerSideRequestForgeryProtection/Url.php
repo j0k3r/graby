@@ -115,6 +115,7 @@ class Url
      */
     public static function validatePort($port, Options $options)
     {
+        $port = (string)$port;
         if (!$options->isInList('whitelist', 'port', $port)) {
             throw new InvalidPortException('Provided port "' . $port . '" doesn\'t match whitelisted values: ' . implode(', ', $options->getList('whitelist', 'port')));
         }
