@@ -246,7 +246,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
     public function dataDate()
     {
         return [
-            ['http://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html', '2011-07-05T22:09:59+02:00'],
+            ['http://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html', '2011-07-05T22:09:18+0200'],
             ['https://www.reddit.com/r/LinuxActionShow/comments/1fccny/arch_linux_survival_guide/', '2013-05-30T16:01:58+00:00'],
         ];
     }
