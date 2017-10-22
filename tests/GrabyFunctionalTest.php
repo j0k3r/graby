@@ -551,4 +551,32 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('<ol start="3">', $res['html']);
         $this->assertContains('<ol start="4">', $res['html']);
     }
+
+    public function testJsonLd()
+    {
+        $graby = new Graby([
+            'debug' => true,
+        ]);
+        $res = $graby->fetchContent('http://www.20minutes.fr/sport/football/2155935-20171022-stade-rennais-portugais-paulo-fonseca-remplacer-christian-gourcuff');
+
+        $this->assertCount(12, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
+
+        $this->assertSame(200, $res['status']);
+        $this->assertSame('Stade Rennais: Le Portugais Paulo Fonseca pour remplacer Christian Gourcuff?', $res['title']);
+        $this->assertCount(1, $res['authors']);
+        $this->assertSame('Jeremy Goujon', $res['authors'][0]);
+    }
 }
