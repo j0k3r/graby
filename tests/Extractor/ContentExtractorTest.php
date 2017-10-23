@@ -27,6 +27,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($contentExtractor->getTitle());
         $this->assertNull($contentExtractor->getLanguage());
         $this->assertNull($contentExtractor->getDate());
+        $this->assertNull($contentExtractor->getImage());
         $this->assertSame([], $contentExtractor->getAuthors());
         $this->assertNull($contentExtractor->getSiteConfig());
         $this->assertNull($contentExtractor->getNextPageUrl());
@@ -772,12 +773,15 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThanOrEqual(6, $records);
         $this->assertSame('Attempting to parse HTML with {parser}', $records[0]['message']);
         $this->assertSame('libxml', $records[0]['context']['parser']);
-        $this->assertSame('Trying {pattern} for language', $records[1]['message']);
-        $this->assertSame('Using Readability', $records[3]['message']);
-        $this->assertSame('Detected title: {title}', $records[4]['message']);
+        $this->assertSame('Opengraph "og:" data: {ogData}', $records[1]['message']);
+        $this->assertSame('Opengraph "article:" data: {ogData}', $records[2]['message']);
+        $this->assertSame('Trying {pattern} for language', $records[3]['message']);
+        $this->assertSame('Trying {pattern} for language', $records[4]['message']);
+        $this->assertSame('Using Readability', $records[5]['message']);
+        $this->assertSame('Detected title: {title}', $records[6]['message']);
 
         if (function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[5]['message']);
+            $this->assertSame('Trying again without tidy', $records[7]['message']);
         }
     }
 
@@ -855,7 +859,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $res = $contentExtractor->process(
-            ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p><hihi/p>',
+            ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p>hihi</p>',
             'https://nativead.io/woops!'
         );
 
@@ -864,7 +868,85 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $content_block = $contentExtractor->getContent();
 
         $this->assertTrue($contentExtractor->isNativeAd());
-        $this->assertContains('<p><hihi/></p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    public function testJsonLd()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
+            'https://nativead.io/jsonld'
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertSame('title !!', $contentExtractor->getTitle());
+        $this->assertSame('2017-10-23T16:05:38+02:00', $contentExtractor->getDate());
+        $this->assertContains('bob', $contentExtractor->getAuthors());
+        $this->assertSame('https://static.jsonld.io/medias.jpg', $contentExtractor->getImage());
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    public function testNoDefinedHtml()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process('', 'https://nativead.io/jsonld');
+
+        $this->assertFalse($res);
+
+        $this->assertEmpty($contentExtractor->getImage());
+    }
+
+    public function testOpenGraph()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <meta property="og:title" content="title !!"/>
+            <meta property="og:site_name" content="opengraph.io" />
+            <meta property="og:type" content="article"/>
+            <meta property="og:locale" content="fr_FR"/>
+            <meta property="og:url" content="//opengraph.io/1954872.html"/>
+            <meta property="article:published_time" content="2017-10-23T17:04:21Z-09:00"/>
+            <meta property="article:modified_time" content="2017-10-23T17:04:17Z-09:00"/>
+            <meta property="og:image" content="http://static.opengraph.io/medias_11570.jpg"/>
+            <meta property="og:image:url" content="http://static.opengraph.io/medias_11570.jpg"/>
+            <meta property="og:image:secure_url" content="https://static.opengraph.io/medias_11570.jpg"/>
+            <p>hihi</p>',
+            'https://nativead.io/opengraph'
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertSame('title !!', $contentExtractor->getTitle());
+        $this->assertSame('2017-10-23T17:04:21Z-09:00', $contentExtractor->getDate());
+        $this->assertSame('fr_FR', $contentExtractor->getLanguage());
+        $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $contentExtractor->getImage());
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    public function testAvoidDataUriImageInOpenGraph()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/><p>hihi</p></html>',
+            'https://nativead.io/opengraph'
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertEmpty($contentExtractor->getImage());
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
     public function testJsonLd()

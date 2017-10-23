@@ -58,24 +58,15 @@ array (
   'html' => "Fetched and readable content"
   'title' => "Ben E King: R&B legend dies at 76"
   'language' => "en"
-  'date' => NULL
-  'authors' => array ()
-  'url' => "http://www.bbc.com/news/entertainment-arts-32547474"
-  'content_type' => "text/html"
-  'open_graph' => array (
-    'og_title' => 'Ben E King: R&B legend dies at 76 - BBC News'
-    'og_type' => 'article'
-    'og_description' => 'R&B and soul singer Ben E King, best known for the classic song Stand By Me, dies at the age of 76.'
-    'og_site_name' => 'BBC News'
-    'og_locale' => 'en_GB'
-    'og_article_author' => 'BBC News'
-    'og_article_section' => 'Entertainment & Arts'
-    'og_url' => 'http://www.bbc.com/news/entertainment-arts-32547474'
-    'og_image' => 'http://ichef-1.bbci.co.uk/news/1024/media/images/82695000/jpg/_82695869_kingap.jpg'
+  'date' => "2015-05-01T16:24:37+01:00"
+  'authors' => array(
+    "BBC News"
   )
+  'url' => "http://www.bbc.com/news/entertainment-arts-32547474"
+  'image' => "https://ichef-1.bbci.co.uk/news/720/media/images/82709000/jpg/_82709878_146366806.jpg"
   'summary' => "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
   'native_ad' => false
-  'all_headers' => array (
+  'headers' => array (
     'server' => 'Apache'
     'content-type' => 'text/html; charset=utf-8'
     'x-news-data-centre' => 'cwwtf'
@@ -103,15 +94,14 @@ array(
   'status' => 404
   'html' => "[unable to retrieve full-text content]"
   'title' => "No title found"
-  'language' => NULL
-  'date' => NULL
+  'language' => "en-GB"
+  'date' => "2009-06-16T10:30:00Z"
   'authors' => array()
-  'url' => "http://www.bbc.com/404"
-  'content_type' => "text/html"
-  'open_graph' => array()
+  'url' => "http://www.bbc.co.uk/404"
+  'image' => NULL
   'summary' => "[unable to retrieve full-text content]"
   'native_ad' => false
-  'all_headers' => array()
+  'headers' => array()
 )
 */
 ```

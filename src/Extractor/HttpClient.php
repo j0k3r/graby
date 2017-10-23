@@ -193,13 +193,10 @@ class HttpClient
         $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
         $headers = $this->formatHeaders($response);
 
-        // some Content-Type are urlencoded like: image%2Fjpeg
-        $contentType = urldecode(isset($headers['content-type']) ? $headers['content-type'] : '');
-
         // the response content-type did not match our 'header only' types,
         // but we'd issues a HEAD request because we assumed it would. So
         // let's queue a proper GET request for this item...
-        if ('head' === $method && !$this->headerOnlyType($contentType)) {
+        if ('head' === $method && !$this->headerOnlyType($headers)) {
             return $this->fetch($effectiveUrl, true, $httpHeader);
         }
 
@@ -240,16 +237,14 @@ class HttpClient
         $this->logger->log('debug', 'Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
             'body' => '(only length for debug): ' . strlen($body),
-            'headers' => $contentType,
-            'all_headers' => $headers,
+            'headers' => $headers,
             'status' => $response->getStatusCode(),
         ]]);
 
         return [
             'effective_url' => $effectiveUrl,
             'body' => $body,
-            'headers' => $contentType,
-            'all_headers' => $headers,
+            'headers' => $headers,
             'status' => $response->getStatusCode(),
         ];
     }
@@ -390,12 +385,14 @@ class HttpClient
      *
      * Since the request is now done we directly check the Content-Type header
      *
-     * @param string $contentType Content-Type from the request
+     * @param array $headers All headers from the request
      *
      * @return bool
      */
-    private function headerOnlyType($contentType)
+    private function headerOnlyType(array $headers)
     {
+        $contentType = isset($headers['content-type']) ? $headers['content-type'] : '';
+
         if (!preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($contentType), $match)) {
             return false;
         }
@@ -504,7 +501,8 @@ class HttpClient
     {
         $headers = [];
         foreach ($response->getHeaders() as $name => $value) {
-            $headers[strtolower($name)] = is_array($value) ? implode(', ', $value) : $value;
+            // some Content-Type are urlencoded like: image%2Fjpeg
+            $headers[strtolower($name)] = urldecode(is_array($value) ? implode(', ', $value) : $value);
         }
 
         return $headers;

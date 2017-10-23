@@ -26,6 +26,7 @@ class ContentExtractor
     private $language = null;
     private $authors = [];
     private $body = null;
+    private $image = null;
     private $nativeAd = false;
     private $date = null;
     private $success = false;
@@ -219,6 +220,9 @@ class ContentExtractor
                 }
             }
         }
+
+        // retrieve info from pre-defined source (OpenGraph / JSON-LD / etc.)
+        $this->extractDefinedInformation($html);
 
         // check if this is a native ad
         foreach ($this->siteConfig->native_ad_clue as $pattern) {
@@ -616,6 +620,11 @@ class ContentExtractor
     public function getLanguage()
     {
         return $this->language;
+    }
+
+    public function getImage()
+    {
+        return $this->image;
     }
 
     public function getSiteConfig()
@@ -1018,44 +1027,145 @@ class ContentExtractor
     }
 
     /**
-     * Extract data from JSON-LD information.
+     * Extract information from defined source:
+     *     - OpenGraph
+     *     - JSON-LD.
      *
-     * @param string $html Full page HTML
-     *
-     * @see https://json-ld.org/spec/latest/json-ld/
+     * @param string $html Html from the page
      */
-    private function extractJsonLdInformation($html)
+    private function extractDefinedInformation($html)
     {
-        preg_match_all('/<script type\=\"application\/ld\+json\"\>([\s\S]*?)<\/script>/i', $html, $matches);
-
-        if (!isset($matches[1])) {
+        if ('' === trim($html)) {
             return;
         }
 
-        foreach ($matches[1] as $matche) {
-            $data = json_decode(trim($matche), true);
+        libxml_use_internal_errors(true);
+
+        $doc = new \DomDocument();
+        $doc->loadHTML($html);
+
+        libxml_use_internal_errors(false);
+
+        $xpath = new \DOMXPath($doc);
+
+        $this->extractOpenGraph($xpath);
+        $this->extractJsonLdInformation($xpath);
+    }
+
+    /**
+     * Extract OpenGraph data from the response.
+     *
+     * @param DOMXPath $xpath DOMXpath from the DomDocument of the page
+     *
+     * @see http://stackoverflow.com/a/7454737/569101
+     */
+    private function extractOpenGraph(\DOMXPath $xpath)
+    {
+        // retrieve "og:" properties
+        $metas = $xpath->query('//*/meta[starts-with(@property, \'og:\')]');
+
+        $ogMetas = [];
+        foreach ($metas as $meta) {
+            $property = str_replace(':', '_', $meta->getAttribute('property'));
+
+            if (in_array($property, ['og_image', 'og_image_url', 'og_image_secure_url'], true)) {
+                // avoid image data:uri to avoid sending too much data
+                // also, take the first og:image which is usually the best one
+                if (0 === stripos($meta->getAttribute('content'), 'data:image') || !empty($ogMetas[$property])) {
+                    continue;
+                }
+
+                $ogMetas[$property] = $meta->getAttribute('content');
+
+                continue;
+            }
+
+            $ogMetas[$property] = $meta->getAttribute('content');
+        }
+
+        $this->logger->log('debug', 'Opengraph "og:" data: {ogData}', ['ogData' => $ogMetas]);
+
+        if (!empty($ogMetas['og_title'])) {
+            $this->title = $ogMetas['og_title'];
+        }
+
+        // og:image by default, then og:image:url and finally og:image:secure_url
+        if (!empty($ogMetas['og_image'])) {
+            $this->image = $ogMetas['og_image'];
+        }
+
+        if (!empty($ogMetas['og_image_url'])) {
+            $this->image = $ogMetas['og_image_url'];
+        }
+
+        if (!empty($ogMetas['og_image_secure_url'])) {
+            $this->image = $ogMetas['og_image_secure_url'];
+        }
+
+        if (!empty($ogMetas['og_locale'])) {
+            $this->language = $ogMetas['og_locale'];
+        }
+
+        // retrieve "article:" properties
+        $metas = $xpath->query('//*/meta[starts-with(@property, \'article:\')]');
+
+        $articleMetas = [];
+        foreach ($metas as $meta) {
+            $articleMetas[str_replace(':', '_', $meta->getAttribute('property'))] = $meta->getAttribute('content');
+        }
+
+        $this->logger->log('debug', 'Opengraph "article:" data: {ogData}', ['ogData' => $articleMetas]);
+
+        if (!empty($articleMetas['article_modified_time'])) {
+            $this->date = $articleMetas['article_modified_time'];
+        }
+
+        if (!empty($articleMetas['article_published_time'])) {
+            $this->date = $articleMetas['article_published_time'];
+        }
+    }
+
+    /**
+     * Extract data from JSON-LD information.
+     *
+     * @param DOMXPath $xpath DOMXpath from the DomDocument of the page
+     *
+     * @see https://json-ld.org/spec/latest/json-ld/
+     */
+    private function extractJsonLdInformation(\DOMXPath $xpath)
+    {
+        $scripts = $xpath->query('//*/script[@type="application/ld+json"]');
+
+        foreach ($scripts as $script) {
+            $data = json_decode(trim($script->nodeValue), true);
+
+            $this->logger->log('debug', 'JSON-LD data: {data}', ['data' => $data]);
 
             // just in case datePublished isn't defined, we use the modified one at first
-            if (isset($data['dateModified'])) {
+            if (!empty($data['dateModified'])) {
                 $this->date = $data['dateModified'];
             }
 
-            if (isset($data['datePublished'])) {
+            if (!empty($data['datePublished'])) {
                 $this->date = $data['datePublished'];
             }
 
             // body should be a DOMNode
-            if (isset($data['articlebody'])) {
+            if (!empty($data['articlebody'])) {
                 $dom = new \DOMDocument('1.0', 'utf-8');
                 $this->body = $dom->createElement('p', htmlspecialchars(trim($data['articlebody'])));
             }
 
-            if (isset($data['headline'])) {
+            if (!empty($data['headline'])) {
                 $this->title = $data['headline'];
             }
 
-            if (isset($data['author']['name'])) {
+            if (!empty($data['author']['name'])) {
                 $this->authors[] = $data['author']['name'];
+            }
+
+            if (!empty($data['image']['url'])) {
+                $this->image = $data['image']['url'];
             }
         }
     }

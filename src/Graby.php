@@ -230,7 +230,7 @@ class Graby
      *
      * @param string $url
      *
-     * @return array With key status, html, title, language, url, content_type & open_graph
+     * @return array With key status, html, title, language, date, authors, url, image, headers & native_ad
      */
     private function doFetchContent($url)
     {
@@ -248,13 +248,13 @@ class Graby
         }
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
-        $mimeInfo = $this->getMimeActionInfo($response['all_headers']);
+        $mimeInfo = $this->getMimeActionInfo($response['headers']);
         $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response);
         if (is_array($infos)) {
             return $infos;
         }
 
-        $html = $this->convert2Utf8($response['body'], $response['all_headers']);
+        $html = $this->convert2Utf8($response['body'], $response['headers']);
 
         // some non utf8 enconding might be breaking after converting to utf8
         // when it happen the string (usually) starts with this character
@@ -263,12 +263,6 @@ class Graby
             $html = $response['body'];
         }
 
-        $ogData = $this->extractOpenGraph($html, $effectiveUrl);
-
-        $this->logger->log('debug', 'Opengraph data: {ogData}', ['ogData' => $ogData]);
-
-        // @TODO: log raw html + headers
-
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;
         if ($this->config['singlepage'] && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
@@ -276,13 +270,13 @@ class Graby
             $effectiveUrl = $singlePageResponse['effective_url'];
 
             // check if action defined for returned Content-Type
-            $mimeInfo = $this->getMimeActionInfo($singlePageResponse['all_headers']);
+            $mimeInfo = $this->getMimeActionInfo($singlePageResponse['headers']);
             $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse);
             if (is_array($infos)) {
                 return $infos;
             }
 
-            $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['all_headers']);
+            $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['headers']);
             $this->logger->log('debug', 'Retrieved single-page view from "{url}"', ['url' => $effectiveUrl]);
 
             unset($singlePageResponse);
@@ -297,10 +291,16 @@ class Graby
         $extractedLanguage = $this->extractor->getLanguage();
         $extractedDate = $this->extractor->getDate();
         $extractedAuthors = $this->extractor->getAuthors();
+        $extractedImage = $this->extractor->getImage();
+
+        // ensure image is absolute
+        if (!empty($extractedImage)) {
+            $extractedImage = $this->makeAbsoluteStr($effectiveUrl, $extractedImage);
+        }
 
         // in case of no language were found, try using headers Content-Language
-        if (empty($extractedLanguage) && !empty($response['all_headers']['content-language'])) {
-            $extractedLanguage = $response['all_headers']['content-language'];
+        if (empty($extractedLanguage) && !empty($response['headers']['content-language'])) {
+            $extractedLanguage = $response['headers']['content-language'];
         }
 
         // Deal with multi-page articles
@@ -334,7 +334,7 @@ class Graby
                 $response = $this->httpClient->fetch($nextPageUrl, false, $siteConfig->http_header);
 
                 // make sure mime type is not something with a different action associated
-                $mimeInfo = $this->getMimeActionInfo($response['all_headers']);
+                $mimeInfo = $this->getMimeActionInfo($response['headers']);
 
                 if (isset($mimeInfo['action'])) {
                     $this->logger->log('debug', 'MIME type requires different action');
@@ -343,7 +343,7 @@ class Graby
                 }
 
                 $extracSuccess = $this->extractor->process(
-                    $this->convert2Utf8($response['body'], $response['all_headers']),
+                    $this->convert2Utf8($response['body'], $response['headers']),
                     $nextPageUrl
                 );
 
@@ -380,10 +380,9 @@ class Graby
             'date' => $extractedDate,
             'authors' => $extractedAuthors,
             'url' => $effectiveUrl,
-            'content_type' => isset($mimeInfo['mime']) ? $mimeInfo['mime'] : '',
-            'open_graph' => $ogData,
+            'image' => $extractedImage,
             'native_ad' => $this->extractor->isNativeAd(),
-            'all_headers' => $response['all_headers'],
+            'headers' => $response['headers'],
         ];
 
         // if we failed to extract content...
@@ -542,10 +541,9 @@ class Graby
             'authors' => [],
             'html' => '',
             'url' => $effectiveUrl,
-            'content_type' => $mimeInfo['mime'],
-            'open_graph' => [],
+            'image' => '',
             'native_ad' => false,
-            'all_headers' => [],
+            'headers' => $response['headers'],
         ];
 
         if ('exclude' === $mimeInfo['action']) {
@@ -603,7 +601,7 @@ class Graby
         if ('text/plain' === $mimeInfo['mime']) {
             $infos['html'] = '<pre>' .
                 $this->cleanupXss(
-                    $this->convert2Utf8($body, isset($response['all_headers']) ? $response['all_headers'] : [])
+                    $this->convert2Utf8($body, isset($response['headers']) ? $response['headers'] : [])
                 ) . '</pre>';
         }
 
@@ -804,55 +802,6 @@ class Graby
         }
 
         return $text;
-    }
-
-    /**
-     * Extract OpenGraph data from the response.
-     *
-     * @param string $html
-     * @param string $baseUrl Used to make the og:image absolute
-     *
-     * @return array
-     *
-     * @see http://stackoverflow.com/a/7454737/569101
-     */
-    private function extractOpenGraph($html, $baseUrl)
-    {
-        if ('' === trim($html)) {
-            return [];
-        }
-
-        libxml_use_internal_errors(true);
-
-        $doc = new \DomDocument();
-        $doc->loadHTML($html);
-
-        libxml_use_internal_errors(false);
-
-        $xpath = new \DOMXPath($doc);
-        $query = '//*/meta[starts-with(@property, \'og:\')]';
-        $metas = $xpath->query($query);
-
-        $rmetas = [];
-        foreach ($metas as $meta) {
-            $property = str_replace(':', '_', $meta->getAttribute('property'));
-
-            if ('og_image' === $property) {
-                // avoid image data:uri to avoid sending too much data
-                // also, take the first og:image which is usually the best one
-                if (0 === stripos($meta->getAttribute('content'), 'data:image') || !empty($rmetas[$property])) {
-                    continue;
-                }
-
-                $rmetas[$property] = $this->makeAbsoluteStr($baseUrl, $meta->getAttribute('content'));
-
-                continue;
-            }
-
-            $rmetas[$property] = $meta->getAttribute('content');
-        }
-
-        return $rmetas;
     }
 
     /**
