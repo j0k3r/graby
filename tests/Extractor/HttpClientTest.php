@@ -83,7 +83,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://www.google.co.uk/url?sa=t&source=web&cd=1', $request->getHeaderLine('Referer'));
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
-        $this->assertSame('image/jpg', $res['headers']);
+        $this->assertSame('image/jpg', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
@@ -104,7 +104,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
-        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
@@ -125,7 +125,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
-        $this->assertSame('fucked', $res['headers']);
+        $this->assertSame('fucked', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
@@ -170,7 +170,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($metaUrl, $res['effective_url']);
         $this->assertEmpty($res['body']);
-        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
@@ -192,7 +192,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('GET', $httpMockClient->getRequests()[0]->getMethod());
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame($body, $res['body']);
-        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
@@ -206,7 +206,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('http://example.com/my-map.html', $res['effective_url']);
         $this->assertSame('test', $res['body']);
-        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
         $this->assertSame(404, $res['status']);
     }
 
@@ -220,7 +220,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('http://example.com/image.jpg', $res['effective_url']);
         $this->assertSame('test', $res['body']);
-        $this->assertSame('image/jpeg', $res['headers']);
+        $this->assertSame('image/jpeg', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
@@ -278,8 +278,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertSame([
             'effective_url' => 'http://fr.wikipedia.org/wiki/Copyright',
             'body' => '(only length for debug): 3',
-            'headers' => '',
-            'all_headers' => [],
+            'headers' => [],
             'status' => 200,
         ], $records[3]['context']['data']);
     }
@@ -412,7 +411,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertContains($expectedBody, $res['body']);
-        $this->assertSame('text/html', $res['headers']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
