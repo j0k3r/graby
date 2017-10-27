@@ -866,4 +866,23 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertTrue($contentExtractor->isNativeAd());
         $this->assertContains('<p><hihi/></p>', $content_block->ownerDocument->saveXML($content_block));
     }
+
+    public function testJsonLd()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
+            'https://nativead.io/jsonld'
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertSame('title !!', $contentExtractor->getTitle());
+        $this->assertSame('2017-10-23T16:05:38+02:00', $contentExtractor->getDate());
+        $this->assertContains('bob', $contentExtractor->getAuthors());
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+    }
 }
