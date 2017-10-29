@@ -13,6 +13,12 @@
     }],
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/aaa2000/httplug-ssrf-plugin"
+        }
+    ],
     "require": {
         "php": ">=5.5",
         "ext-curl": "*",
@@ -31,7 +37,8 @@
         "php-http/message-factory": "^1.0",
         "php-http/discovery": "^1.0",
         "php-http/client-common": "^1.6@dev",
-        "php-http/message": "^1.6@dev"
+        "php-http/message": "^1.6@dev",
+        "j0k3r/httplug-ssrf-plugin": "dev-init"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "~2.0",
