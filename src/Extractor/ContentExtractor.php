@@ -277,6 +277,9 @@ class ContentExtractor
             }
         }
 
+        // use JSON-LD to retrieve information
+        $this->extractJsonLdInformation($html);
+
         // strip elements (using xpath expressions)
         foreach ($this->siteConfig->strip as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} to strip element', ['pattern' => $pattern]);
@@ -1012,5 +1015,48 @@ class ContentExtractor
         }
 
         return false;
+    }
+
+    /**
+     * Extract data from JSON-LD information.
+     *
+     * @param string $html Full page HTML
+     *
+     * @see https://json-ld.org/spec/latest/json-ld/
+     */
+    private function extractJsonLdInformation($html)
+    {
+        preg_match_all('/<script type\=\"application\/ld\+json\"\>([\s\S]*?)<\/script>/i', $html, $matches);
+
+        if (!isset($matches[1])) {
+            return;
+        }
+
+        foreach ($matches[1] as $matche) {
+            $data = json_decode(trim($matche), true);
+
+            // just in case datePublished isn't defined, we use the modified one at first
+            if (isset($data['dateModified'])) {
+                $this->date = $data['dateModified'];
+            }
+
+            if (isset($data['datePublished'])) {
+                $this->date = $data['datePublished'];
+            }
+
+            // body should be a DOMNode
+            if (isset($data['articlebody'])) {
+                $dom = new \DOMDocument('1.0', 'utf-8');
+                $this->body = $dom->createElement('p', htmlspecialchars(trim($data['articlebody'])));
+            }
+
+            if (isset($data['headline'])) {
+                $this->title = $data['headline'];
+            }
+
+            if (isset($data['author']['name'])) {
+                $this->authors[] = $data['author']['name'];
+            }
+        }
     }
 }
