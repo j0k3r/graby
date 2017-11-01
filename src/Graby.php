@@ -728,7 +728,7 @@ class Graby
         $url = trim(str_replace('%20', ' ', $e->getAttribute($attr)));
         $url = str_replace(' ', '%20', $url);
 
-        if (!preg_match('!https?://!i', $url)) {
+        if (!preg_match('!^(https?://|#)!i', $url)) {
             if ($absolute = \SimplePie_IRI::absolutize($base, $url)) {
                 $e->setAttribute($attr, $absolute);
             }
