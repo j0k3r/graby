@@ -32,7 +32,7 @@
         "php-http/discovery": "^1.0",
         "php-http/client-common": "^1.6",
         "php-http/message": "^1.6",
-        "j0k3r/httplug-ssrf-plugin": "^1.0@dev"
+        "j0k3r/httplug-ssrf-plugin": "^1.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "~2.0",
