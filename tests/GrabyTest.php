@@ -1044,6 +1044,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
             ['http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'src', 'http://example.org/path/to/image.jpg'],
             ['http://example.org', '<a href="/lol">test</a>', 'src', 'src', ''],
             ['http://example.org', '<iframe src="/lol" />', 'src', 'src', 'http://example.org/lol'],
+            ['http://example.org', '<a href="#fn-ref-23">1</a>', 'href', 'href', '#fn-ref-23'],
         ];
     }
 
