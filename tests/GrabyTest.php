@@ -3,6 +3,7 @@
 namespace Tests\Graby;
 
 use Graby\Graby;
+use GuzzleHttp\Psr7\Response;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -92,8 +93,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent, $parsedContentWithoutTidy)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => $header], $rawContent));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => $header], $rawContent));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
 
         $graby = new Graby([
             'xss_filter' => false,
@@ -166,8 +167,8 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testAllowedUrls($url, $urlChanged)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(301, ['Location' => $urlChanged]));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200));
+        $httpMockClient->addResponse(new Response(301, ['Location' => $urlChanged]));
+        $httpMockClient->addResponse(new Response(200));
 
         $graby = new Graby([
             'allowed_urls' => ['wikipedia.org', 'wikimedia.com'],
@@ -227,7 +228,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testBlockedUrlsAfterFetch()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200));
+        $httpMockClient->addResponse(new Response(200));
 
         $graby = new Graby([
             'blocked_urls' => ['t411.io'],
@@ -239,7 +240,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testMimeTypeActionLink()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'image/jpeg']));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpeg']));
 
         $graby = new Graby(['xss_filter' => false], $httpMockClient);
 
@@ -264,11 +265,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testMimeTypeActionExclude()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/x-msdownload']
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/x-msdownload']
         ));
@@ -299,7 +300,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testAssetExtension($url, $header, $title, $summary, $html)
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => $header]
         ));
@@ -324,7 +325,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testAssetExtensionPDF()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/pdf'],
             file_get_contents(__DIR__ . '/fixtures/document1.pdf')
@@ -349,11 +350,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testAssetExtensionZIP()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/zip']
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/zip']
         ));
@@ -378,7 +379,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testAssetExtensionPDFWithArrayDetails()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/pdf'],
             file_get_contents(__DIR__ . '/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf')
@@ -403,7 +404,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     public function testAssetExtensionTXT()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'text/plain'], 'plain text :)'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/plain'], 'plain text :)'));
 
         $graby = new Graby([], $httpMockClient);
 
@@ -446,7 +447,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $httpMockClient = new HttpMockClient();
-        $response = new \GuzzleHttp\Psr7\Response(
+        $response = new Response(
             200,
             [
                 'Content-Type' => 'text/html',
@@ -489,12 +490,12 @@ HTML
         ]);
 
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="http://moreintelligentlife.com/print/content" class="service-links-print">printed view</a></li></ul></html>'
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'image/jpeg'],
             '<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="http://moreintelligentlife.com/print/content" class="service-links-print">printed view</a></li></ul></html>'
@@ -526,12 +527,12 @@ HTML
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>'
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
@@ -563,12 +564,12 @@ HTML
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com/data.pdf">next page</a></li></ul></html>'
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/pdf'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
@@ -600,12 +601,12 @@ HTML
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>'
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             ''
@@ -637,12 +638,12 @@ HTML
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="/:/">next page</a></li></ul></html>'
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
@@ -674,12 +675,12 @@ HTML
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
         ]);
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
         ));
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
@@ -871,7 +872,7 @@ HTML
     public function testContentLinksRemove()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(
+        $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' <a href="#links">links :)</a></p></article>'
@@ -895,7 +896,7 @@ HTML
     public function testMimeActionNotDefined()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['Content-Type' => 'application/pdf']));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'application/pdf']));
 
         $graby = new Graby(['content_type_exc' => ['application/pdf' => ['action' => 'delete', 'name' => 'PDF']]], $httpMockClient);
 
@@ -948,7 +949,7 @@ HTML
     public function testErrorMessages()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, [], 'yay'));
+        $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
         $graby = new Graby([
             'error_message' => 'Nothing found, hu?',
@@ -1076,7 +1077,7 @@ HTML
     public function testEncodingUtf8ForTextPlainPage()
     {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['content-type' => 'text/plain'], file_get_contents(__DIR__ . '/fixtures/malformed_UTF8_characters.txt')));
+        $httpMockClient->addResponse(new Response(200, ['content-type' => 'text/plain'], file_get_contents(__DIR__ . '/fixtures/malformed_UTF8_characters.txt')));
 
         $graby = new Graby([], $httpMockClient);
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
