@@ -1019,17 +1019,10 @@ HTML
 
     public function testEncodingUtf8ForTextPlainPage()
     {
-        $reponse = new Response(
-            200,
-            [
-                'content-type' => 'text/plain',
-            ],
-            Stream::factory(__DIR__ . '/fixtures/sites/malformed_UTF8_characters.txt')
-        );
-        $client = new Client();
-        $client->getEmitter()->attach(new Mock([$reponse]));
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new \GuzzleHttp\Psr7\Response(200, ['content-type' => 'text/plain'], file_get_contents(__DIR__ . '/fixtures/malformed_UTF8_characters.txt')));
 
-        $graby = new Graby();
+        $graby = new Graby([], $httpMockClient);
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
 
         $this->assertArrayHasKey('html', $res);
