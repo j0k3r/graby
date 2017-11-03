@@ -36,7 +36,10 @@ That's why I made this fork:
 
 Add the lib using composer:
 
-    composer require j0k3r/graby
+    composer require j0k3r/graby php-http/guzzle5-adapter
+
+Why `php-http/guzzle5-adapter`? Because Graby is decoupled form any HTTP messaging client with help by [HTTPlug](http://httplug.io/).
+See [HTTPlug for library users]()http://docs.php-http.org/en/latest/httplug/users.html)
 
 Use the class to retrieve content:
 
@@ -253,8 +256,6 @@ $graby = new Graby(array(
             "<meta content='!' name='fragment'",
             '<meta content="!" name="fragment"',
         ),
-        // timeout of the request in seconds
-        'timeout' => 10,
         // number of redirection allowed until we assume request won't be complete
         'max_redirect' => 10,
     ),
@@ -281,5 +282,26 @@ $graby = new Graby(array(
             'post_filters' => array(),
         ),
     ),
+));
+```
+
+### Timeout configuration
+
+If you need to define a timeout, you must create the `Http\Client\HttpClient` manually, 
+configure it and inject it to `Graby\Graby`.
+
+Exemple with `php-http/guzzle5-adapter`
+
+```
+use Graby\Graby;
+use GuzzleHttp\Client as GuzzleClient;
+use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
+
+$guzzle = new GuzzleClient([
+    'defaults' => [
+        'timeout' => 2,
+    ]
+]);
+$graby = new Graby([], new GuzzleAdapter($guzzle));
 ));
 ```

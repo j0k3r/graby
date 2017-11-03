@@ -4,9 +4,12 @@ namespace Graby;
 
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
-use Graby\Ring\Client\SafeCurlHandler;
 use Graby\SiteConfig\ConfigBuilder;
-use GuzzleHttp\Client;
+use Http\Client\Common\Plugin\CookiePlugin;
+use Http\Client\Common\PluginClient;
+use Http\Client\HttpClient as Client;
+use Http\Discovery\HttpClientDiscovery;
+use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -36,7 +39,7 @@ class Graby
 
     /**
      * @param array         $config
-     * @param Client|null   $client        Guzzle client
+     * @param Client|null   $client        Http client
      * @param ConfigBuilder $configBuilder
      */
     public function __construct($config = [], Client $client = null, ConfigBuilder $configBuilder = null)
@@ -93,7 +96,7 @@ class Graby
         );
 
         $this->httpClient = new HttpClient(
-            $client ?: new Client(['handler' => new SafeCurlHandler(), 'defaults' => ['cookies' => true]]),
+            $client ?: new PluginClient(HttpClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
             $this->config['http_client'],
             $this->logger
         );

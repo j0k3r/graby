@@ -3,13 +3,13 @@
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Message\Response;
-use GuzzleHttp\Stream\Stream;
-use GuzzleHttp\Subscriber\Mock;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Response;
+use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
+use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use Psr\Http\Message\RequestInterface;
 
 class HttpClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -19,40 +19,31 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
             [
                 'http://fr.m.wikipedia.org/wiki/Copyright#bottom',
                 'http://fr.wikipedia.org/wiki/Copyright',
-                'http://fr.wikipedia.org/wiki/Copyright',
                 [
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.2',
                         'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
                     ],
-                    'timeout' => 10,
-                    'connect_timeout' => 10,
                 ],
             ],
             [
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/#!test',
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/?_escaped_fragment_=test',
-                'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html',
                 [
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
                         'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
                     ],
-                    'timeout' => 10,
-                    'connect_timeout' => 10,
                 ],
             ],
             [
-                'http://www.lexpress.io/my-map.html',
-                'http://www.lexpress.io/my-map.html',
-                'http://www.lexpress.io/my-map.html',
+                'http://www.example.com/my-map.html',
+                'http://www.example.com/my-map.html',
                 [
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
                         'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
                     ],
-                    'timeout' => 10,
-                    'connect_timeout' => 10,
                 ],
             ],
         ];
@@ -61,41 +52,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForFetchGet
      */
-    public function testFetchGet($url, $urlRewritten, $urlEffective, $options)
+    public function testFetchGet($url, $urlEffective)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn($urlEffective);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('yay');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->with(
-                $this->equalTo($urlRewritten),
-                $this->equalTo($options)
-            )
-            ->willReturn($response);
-
-        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
 
         $this->assertSame($urlEffective, $res['effective_url']);
@@ -106,50 +68,19 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchHeadGoodContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $options = [
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.2',
-                'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            ],
-            'timeout' => 10,
-            'connect_timeout' => 10,
-        ];
 
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpg'], 'yay'));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'image/jpg']);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('yay');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('head')
-            ->with(
-                $this->equalTo($url),
-                $this->equalTo($options)
-            )
-            ->willReturn($response);
-
-        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
 
+        $this->assertCount(1, $httpMockClient->getRequests());
+        /** @var RequestInterface $request */
+        $request = $httpMockClient->getRequests()[0];
+
+        $this->assertEquals('Mozilla/5.2', $request->getHeaderLine('User-Agent'));
+        $this->assertEquals('http://www.google.co.uk/url?sa=t&source=web&cd=1', $request->getHeaderLine('Referer'));
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
         $this->assertSame('image/jpg', $res['headers']);
@@ -159,60 +90,17 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchHeadBadContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $options = [
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.2',
-                'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            ],
-            'timeout' => 10,
-            'connect_timeout' => 10,
-        ];
 
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'yay'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'yay'));
 
-        // called twice because of the second try
-        $response->expects($this->exactly(2))
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('yay');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // first request is head because of the extension
-        $client->expects($this->once())
-            ->method('head')
-            ->with(
-                $this->equalTo($url),
-                $this->equalTo($options)
-            )
-            ->willReturn($response);
-
-        // second request is get because the Content-Type wasn't a binary
-        $client->expects($this->once())
-            ->method('get')
-            ->with(
-                $this->equalTo($url),
-                $this->equalTo($options)
-            )
-            ->willReturn($response);
-
-        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
+
+        $this->assertCount(2, $httpMockClient->getRequests());
+        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request is head because of the extension');
+        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is get because the Content-Type wasn\'t a binary');
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
@@ -223,60 +111,17 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     public function testFetchHeadReallyBadContentType()
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
-        $options = [
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.2',
-                'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            ],
-            'timeout' => 10,
-            'connect_timeout' => 10,
-        ];
 
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'fucked'], 'yay'));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'fucked'], 'yay'));
 
-        // called twice because of the second try
-        $response->expects($this->exactly(2))
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'fucked']);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('yay');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // first request is head because of the extension
-        $client->expects($this->once())
-            ->method('head')
-            ->with(
-                $this->equalTo($url),
-                $this->equalTo($options)
-            )
-            ->willReturn($response);
-
-        // second request is get because the Content-Type wasn't a binary
-        $client->expects($this->once())
-            ->method('get')
-            ->with(
-                $this->equalTo($url),
-                $this->equalTo($options)
-            )
-            ->willReturn($response);
-
-        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch($url);
+
+        $this->assertCount(2, $httpMockClient->getRequests());
+        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request should be HEAD because of the extension');
+        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is GET because the Content-Type wasn\'t a binary');
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
@@ -293,14 +138,14 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
             ],
             [
-                'http://fr.wikipedia.org/wiki/Copyright',
+                'http://www.example.com/wiki/Copyright',
                 '<html><meta HTTP-EQUIV="REFRESH" content="0; url=/bernama/v6/newsindex.php?id=943513"></html>',
-                'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
+                'http://www.example.com/bernama/v6/newsindex.php?id=943513',
             ],
             [
                 'http://fr.wikipedia.org/wiki/Copyright',
                 '<html><meta name="fragment" content="!"></html>',
-                'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
+                'http://fr.wikipedia.org/wiki/Copyright?_escaped_fragment_=',
             ],
         ];
     }
@@ -310,36 +155,18 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testFetchGetWithMetaRefresh($url, $body, $metaUrl)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $body));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], ''));
 
-        $response->expects($this->exactly(2))
-            ->method('getEffectiveUrl')
-            ->will($this->onConsecutiveCalls($url, $metaUrl));
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->will($this->onConsecutiveCalls($body, ''));
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->exactly(2))
-            ->method('get')
-            ->willReturn($response);
-
-        $http = new HttpClient($client);
+        $http = new HttpClient($httpMockClient);
         $res = $http->fetch($url);
+
+        $this->assertCount(2, $httpMockClient->getRequests());
+        $this->assertEquals('GET', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertEquals($url, (string) $httpMockClient->getRequests()[0]->getUri());
+        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
+        $this->assertEquals($metaUrl, (string) $httpMockClient->getRequests()[1]->getUri());
 
         $this->assertSame($metaUrl, $res['effective_url']);
         $this->assertEmpty($res['body']);
@@ -348,45 +175,21 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This will force `SimplePie_IRI::absolutize` to return false because the "base" is wrong.
-     * It means there is no real host name.
+     * This will force `SimplePie_IRI::absolutize` to return false because the relative url is wrong.
      */
     public function testFetchGetWithMetaRefreshBadBase()
     {
-        $url = 'wikipedia.org/wiki/Copyright';
-        $body = '<html><meta HTTP-EQUIV="REFRESH" content="0; url=/bernama/v6/newsindex.php?id=943513"></html>';
+        $url = 'http://wikipedia.org/wiki/Copyright';
+        $body = '<html><meta HTTP-EQUIV="REFRESH" content="0; url=::/bernama/v6/newsindex.php?id=943513"></html>';
 
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $body));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn($body);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $http = new HttpClient($client);
+        $http = new HttpClient($httpMockClient);
         $res = $http->fetch($url);
 
+        $this->assertCount(1, $httpMockClient->getRequests());
+        $this->assertEquals('GET', $httpMockClient->getRequests()[0]->getMethod());
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame($body, $res['body']);
         $this->assertSame('text/html', $res['headers']);
@@ -395,18 +198,13 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testWith404ResponseWithResponse()
     {
-        $client = new Client();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(404, ['Content-Type' => 'text/html'], 'test'));
 
-        $mock = new Mock([
-            new Response(404, ['Content-Type' => 'text/html'], Stream::factory('test')),
-        ]);
+        $http = new HttpClient($httpMockClient);
+        $res = $http->fetch('http://example.com/my-map.html');
 
-        $client->getEmitter()->attach($mock);
-
-        $http = new HttpClient($client);
-        $res = $http->fetch('http://www.lexpress.io/my-map.html');
-
-        $this->assertSame('http://www.lexpress.io/my-map.html', $res['effective_url']);
+        $this->assertSame('http://example.com/my-map.html', $res['effective_url']);
         $this->assertSame('test', $res['body']);
         $this->assertSame('text/html', $res['headers']);
         $this->assertSame(404, $res['status']);
@@ -414,18 +212,13 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testWithUrlencodedContentType()
     {
-        $client = new Client();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image%2Fjpeg'], 'test'));
 
-        $mock = new Mock([
-            new Response(200, ['Content-Type' => 'image%2Fjpeg'], Stream::factory('test')),
-        ]);
+        $http = new HttpClient($httpMockClient);
+        $res = $http->fetch('http://example.com/image.jpg');
 
-        $client->getEmitter()->attach($mock);
-
-        $http = new HttpClient($client);
-        $res = $http->fetch('http://www.lexpress.io/image.jpg');
-
-        $this->assertSame('http://www.lexpress.io/image.jpg', $res['effective_url']);
+        $this->assertSame('http://example.com/image.jpg', $res['effective_url']);
         $this->assertSame('test', $res['body']);
         $this->assertSame('image/jpeg', $res['headers']);
         $this->assertSame(200, $res['status']);
@@ -433,15 +226,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testWithUrlContainingPlusSymbol()
     {
-        $client = new Client();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200));
 
-        $mock = new Mock([
-            new Response(200),
-        ]);
-
-        $client->getEmitter()->attach($mock);
-
-        $http = new HttpClient($client);
+        $http = new HttpClient($httpMockClient);
         $res = $http->fetch('https://example.com/foo/+bar/baz/+quuz/corge');
 
         $this->assertSame('https://example.com/foo/+bar/baz/+quuz/corge', $res['effective_url']);
@@ -449,77 +237,28 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testWith404ResponseWithoutResponse()
     {
-        $request = $this->getMockBuilder('GuzzleHttp\Message\Request')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(404));
 
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $http = new HttpClient($httpMockClient);
+        $res = $http->fetch('http://example.com');
 
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willThrowException(new RequestException('oops', $request));
-
-        $http = new HttpClient($client);
-        $res = $http->fetch('http://0.0.0.0');
-
-        $this->assertSame('http://0.0.0.0', $res['effective_url']);
+        $this->assertSame('http://example.com', $res['effective_url']);
         $this->assertSame('', $res['body']);
         $this->assertSame('', $res['headers']);
-        $this->assertSame(500, $res['status']);
+        $this->assertSame(404, $res['status']);
     }
 
     public function testLogMessage()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://fr.wikipedia.org/wiki/Copyright');
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('yay');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->with(
-                $this->equalTo('http://fr.wikipedia.org/wiki/Copyright'),
-                $this->equalTo([
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.2',
-                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ],
-                    'timeout' => 10,
-                    'connect_timeout' => 10,
-                ])
-            )
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
         $logger = new Logger('foo');
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $http->setLogger($logger);
 
         $res = $http->fetch('http://fr.m.wikipedia.org/wiki/Copyright#bottom');
@@ -551,8 +290,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $client = new Client();
-        $http = new HttpClient($client, ['timeout' => 2], $logger);
+        $guzzle = new GuzzleClient(['defaults' => ['timeout' => 2]]);
+        $adapter = new GuzzleAdapter($guzzle);
+        $http = new HttpClient($adapter, [], $logger);
 
         $res = $http->fetch('http://blackhole.webpagetest.org/');
 
@@ -568,39 +308,24 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testNbRedirectsReached()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $maxRedirect = 3;
+        $httpMockClient = new HttpMockClient();
 
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://fr.wikipedia.org/wiki/Copyright');
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?' . rand() . '">');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        for ($i = 0; $i <= $maxRedirect; ++$i) {
+            $httpMockClient->addResponse(new Response(
+                308,
+                [
+                    'Location' => 'http://fr.wikipedia.org/wiki/Copyright?' . rand(),
+                ],
+                '<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?' . rand() . '">'
+            ));
+        }
 
         $logger = new Logger('foo');
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client);
+        $http = new HttpClient($httpMockClient, ['max_redirect' => 3]);
         $http->setLogger($logger);
 
         $res = $http->fetch('http://fr.wikipedia.org/wiki/Copyright');
@@ -611,7 +336,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $records = $handler->getRecords();
         $record = end($records);
 
-        $this->assertSame('Endless redirect: 11 on "{url}"', $record['message']);
+        $this->assertSame('Endless redirect: 4 on "{url}"', $record['message']);
     }
 
     public function dataForConditionalComments()
@@ -679,35 +404,10 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithMetaRefreshInConditionalComments($url, $html, $expectedBody)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $html));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn($html);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $http = new HttpClient($client);
+        $http = new HttpClient($httpMockClient);
         $res = $http->fetch($url);
 
         $this->assertSame($url, $res['effective_url']);
@@ -730,12 +430,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
                 'expectedUa' => 'UA/Default',
             ],
             [
-                'url' => 'http://customua.com/foo',
+                'url' => 'http://example.com/foo',
                 'httpHeader' => ['user-agent' => ''],
                 'expectedUa' => 'UA/Config',
             ],
             [
-                'url' => 'http://customua.com/foo',
+                'url' => 'http://example.com/foo',
                 'httpHeader' => ['user-agent' => 'UA/SiteConfig'],
                 'expectedUa' => 'UA/SiteConfig',
             ],
@@ -747,42 +447,17 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testUserAgent($url, $httpHeader, $expectedUa)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], ''));
 
         $logger = new Logger('foo');
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client, [
+        $http = new HttpClient($httpMockClient, [
             'ua_browser' => 'UA/Default',
             'user_agents' => [
-                'customua.com' => 'UA/Config',
+                'example.com' => 'UA/Config',
             ],
         ]);
         $http->setLogger($logger);
@@ -826,39 +501,14 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testReferer($url, $httpHeader, $expectedReferer)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], ''));
 
         $logger = new Logger('foo');
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($client, [
+        $http = new HttpClient($httpMockClient, [
             'default_referer' => 'http://defaultreferer.local',
         ]);
         $http->setLogger($logger);
