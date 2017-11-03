@@ -36,10 +36,14 @@ That's why I made this fork:
 
 Add the lib using composer:
 
-    composer require j0k3r/graby php-http/guzzle5-adapter
+    composer require j0k3r/graby php-http/guzzle6-adapter
 
-Why `php-http/guzzle5-adapter`? Because Graby is decoupled form any HTTP messaging client with help by [HTTPlug](http://httplug.io/).
-See [HTTPlug for library users]()http://docs.php-http.org/en/latest/httplug/users.html)
+Why `php-http/guzzle6-adapter`? Because Graby is decoupled form any HTTP messaging client with help by [HTTPlug](http://httplug.io/) (see [HTTPlug for library users](http://docs.php-http.org/en/latest/httplug/users.html)).
+
+Graby is tested & should work great with:
+- `php-http/guzzle6-adapter`
+- `php-http/guzzle5-adapter`
+- `php-http/curl-client`
 
 Use the class to retrieve content:
 
