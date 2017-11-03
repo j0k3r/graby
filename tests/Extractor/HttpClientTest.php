@@ -3,7 +3,6 @@
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
-use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
@@ -289,12 +288,21 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
+        // find with adapter is installed
         if (class_exists('Http\Adapter\Guzzle6\Client')) {
-            $guzzle = new GuzzleClient(['timeout' => 2]);
+            $guzzle = new \GuzzleHttp\Client(['timeout' => 2]);
             $adapter = new \Http\Adapter\Guzzle6\Client($guzzle);
         } elseif (class_exists('Http\Adapter\Guzzle5\Client')) {
-            $guzzle = new GuzzleClient(['defaults' => ['timeout' => 2]]);
+            $guzzle = new \GuzzleHttp\Client(['defaults' => ['timeout' => 2]]);
             $adapter = new \Http\Adapter\Guzzle5\Client($guzzle);
+        } elseif (class_exists('Http\Client\Curl\Client')) {
+            $adapter = new \Http\Client\Curl\Client(
+                \Http\Discovery\MessageFactoryDiscovery::find(),
+                \Http\Discovery\StreamFactoryDiscovery::find(),
+                [
+                    CURLOPT_TIMEOUT => 2,
+                ]
+            );
         } else {
             $this->markTestSkipped('No Guzzle adapter defined ?');
         }
@@ -310,7 +318,8 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('Request throw exception (with no response): {error_message}', $records[3]['message']);
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
-        $this->assertContains('cURL error 28', $records[3]['formatted']);
+        // "cURL error 28: Connection timed out after"
+        $this->assertContains('Connection timed out after', $records[3]['formatted']);
     }
 
     public function testNbRedirectsReached()

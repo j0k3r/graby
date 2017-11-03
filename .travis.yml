@@ -20,6 +20,8 @@ matrix:
           env: PHPUNIT_FLAGS="--coverage-clover coverage.clover" CS_FIXER=run
         - php: 7.0
           env: GUZZLE6=run
+        - php: 7.0
+          env: CURL=run
 
 # faster builds on new travis setup not using sudo
 sudo: false
@@ -35,6 +37,8 @@ before_install:
     - composer self-update
     - if [ "$GUZZLE6" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
     - if [ "$GUZZLE6" = "run" ]; then composer require php-http/guzzle6-adapter --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client --dev -n ; fi;
 
 install:
     - composer install --no-interaction --prefer-dist -o
