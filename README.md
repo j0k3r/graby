@@ -155,6 +155,40 @@ You can then retrieve logs from graby in your controller using:
 $logs = $this->get('monolog.handler.graby')->getRecords();
 ```
 
+### Timeout configuration
+
+If you need to define a timeout, you must create the `Http\Client\HttpClient` manually,
+configure it and inject it to `Graby\Graby`.
+
+- For Guzzle 5:
+
+    ```php
+    use Graby\Graby;
+    use GuzzleHttp\Client as GuzzleClient;
+    use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
+
+    $guzzle = new GuzzleClient([
+        'defaults' => [
+            'timeout' => 2,
+        ]
+    ]);
+    $graby = new Graby([], new GuzzleAdapter($guzzle));
+    ```
+
+- For Guzzle 6:
+
+    ```php
+    use Graby\Graby;
+    use GuzzleHttp\Client as GuzzleClient;
+    use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
+
+    $guzzle = new GuzzleClient([
+        'timeout' => 2,
+    ]);
+    $graby = new Graby([], new GuzzleAdapter($guzzle));
+    ```
+
+
 ## Full configuration
 
 This is the full documented configuration and also the default one.
@@ -272,26 +306,5 @@ $graby = new Graby(array(
             'post_filters' => array(),
         ),
     ),
-));
-```
-
-### Timeout configuration
-
-If you need to define a timeout, you must create the `Http\Client\HttpClient` manually, 
-configure it and inject it to `Graby\Graby`.
-
-Exemple with `php-http/guzzle5-adapter`
-
-```
-use Graby\Graby;
-use GuzzleHttp\Client as GuzzleClient;
-use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
-
-$guzzle = new GuzzleClient([
-    'defaults' => [
-        'timeout' => 2,
-    ]
-]);
-$graby = new Graby([], new GuzzleAdapter($guzzle));
 ));
 ```
