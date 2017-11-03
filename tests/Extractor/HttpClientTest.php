@@ -5,7 +5,6 @@ namespace Tests\Graby\Extractor;
 use Graby\Extractor\HttpClient;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
-use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -290,8 +289,16 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $guzzle = new GuzzleClient(['defaults' => ['timeout' => 2]]);
-        $adapter = new GuzzleAdapter($guzzle);
+        if (class_exists('Http\Adapter\Guzzle6\Client')) {
+            $guzzle = new GuzzleClient(['timeout' => 2]);
+            $adapter = new \Http\Adapter\Guzzle6\Client($guzzle);
+        } elseif (class_exists('Http\Adapter\Guzzle5\Client')) {
+            $guzzle = new GuzzleClient(['defaults' => ['timeout' => 2]]);
+            $adapter = new \Http\Adapter\Guzzle5\Client($guzzle);
+        } else {
+            $this->markTestSkipped('No Guzzle adapter defined ?');
+        }
+
         $http = new HttpClient($adapter, [], $logger);
 
         $res = $http->fetch('http://blackhole.webpagetest.org/');
