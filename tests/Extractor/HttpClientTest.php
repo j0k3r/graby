@@ -245,7 +245,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('http://example.com', $res['effective_url']);
         $this->assertSame('', $res['body']);
-        $this->assertSame('', $res['headers']);
+        $this->assertEmpty($res['headers']);
         $this->assertSame(404, $res['status']);
     }
 

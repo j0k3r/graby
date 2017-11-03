@@ -297,7 +297,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(1, $httpMockClient->getRequests());
         $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame($title, $res['title']);
         $this->assertSame($html, $res['html']);
@@ -353,7 +353,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
         $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('ZIP', $res['title']);
         $this->assertContains('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
