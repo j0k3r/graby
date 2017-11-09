@@ -38,7 +38,7 @@ class SiteConfig
     // Mark article as a native ad if any of these expressions match (0 or more xpath expressions)
     public $native_ad_clue = [];
 
-    // Additional HTTP headers to send
+    // Additional HTTP headers to send (associative array)
     public $http_header = [];
 
     // Process HTML with tidy before creating DOM (bool or null if undeclared)
