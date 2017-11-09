@@ -281,9 +281,6 @@ class ContentExtractor
             }
         }
 
-        // use JSON-LD to retrieve information
-        $this->extractJsonLdInformation($html);
-
         // strip elements (using xpath expressions)
         foreach ($this->siteConfig->strip as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} to strip element', ['pattern' => $pattern]);
