@@ -21,7 +21,7 @@ $request = 'http://example.org/full-text-rss/makefulltextfeed.php?format=json&ur
 $result  = @file_get_contents($request);
 ```
 
-Also, if you want to understand how things work internally, it's really hard to read and understand. And finally, there are **not tests** at all.
+Also, if you want to understand how things work internally, it's really hard to read and understand. And finally, there are **no tests** at all.
 
 That's why I made this fork:
 
