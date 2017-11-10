@@ -32,6 +32,12 @@ That's why I made this fork:
 
 ## How to use it
 
+### Requirements
+
+By default, this lib will use the [Tidy extension](https://github.com/htacg/tidy-html5) if it's available. Tidy is only used to cleanup the given HTML and avoid problems with bad HTML structure, etc .. It'll be suggested by Composer.
+
+Also, if you got problem from parsing a content without Tidy installed, please install it and try again.
+
 ### Retrieve content from an url
 
 Add the lib using composer:
