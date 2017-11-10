@@ -322,6 +322,11 @@ class ContentExtractor
 
         $this->removeElements($elems, 'Stripping {length} elements with inline display:none or visibility:hidden style');
 
+        // strip empty a elements
+        $elems = $this->xpath->query("//a[not(./*) and normalize-space(.)='']", $this->readability->dom);
+
+        $this->removeElements($elems, 'Stripping {length} empty a elements');
+
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => strlen($this->readability->dom->savexml())]);
