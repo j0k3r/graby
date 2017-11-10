@@ -252,6 +252,7 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @requires extension tidy
      * @dataProvider dataDate
      */
     public function testDate($url, $expectedDate)
@@ -409,6 +410,9 @@ class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(200, $res['status']);
     }
 
+    /**
+     * @requires extension tidy
+     */
     public function testUTF16Content()
     {
         $graby = new Graby(['debug' => true]);
