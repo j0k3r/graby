@@ -11,7 +11,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructDefault()
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        new ConfigBuilder(['site_config' => [__DIR__]]);
     }
 
     public function testBuildFromArrayNoLines()
@@ -210,6 +210,8 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
 
         $res = $configBuilder->buildFromUrl('https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal');
 
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
+
         $records = $handler->getRecords();
 
         $this->assertGreaterThan(5, $records);
@@ -218,5 +220,16 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('... found site config {host}', $records[1]['message']);
         $this->assertSame('.wikipedia.org.txt', $records[1]['context']['host']);
         $this->assertSame('Appending site config settings from global.txt', $records[2]['message']);
+    }
+
+    public function testWithBadHost()
+    {
+        $configBuilder = new ConfigBuilder([
+            'site_config' => [__DIR__ . '/../fixtures/site_config'],
+        ]);
+
+        $res = $configBuilder->buildFromUrl('http://user@:80/test');
+
+        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
     }
 }

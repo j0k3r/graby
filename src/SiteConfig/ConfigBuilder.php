@@ -73,7 +73,7 @@ class ConfigBuilder
      *
      * @param string $key Key for the cache
      *
-     * @return bool|SiteConfig
+     * @return false|SiteConfig
      */
     public function getCachedVersion($key)
     {
@@ -113,7 +113,7 @@ class ConfigBuilder
         // extract host name
         $host = parse_url($url, PHP_URL_HOST);
 
-        return $this->buildForHost($host, $addToCache);
+        return $this->buildForHost((string) $host, $addToCache);
     }
 
     /**
