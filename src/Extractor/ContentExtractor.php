@@ -456,6 +456,13 @@ class ContentExtractor
             $this->readability->dom,
             'Date found (datetime marked time element): {date}'
         );
+        
+        foreach ($this->siteConfig->strip_attr as $pattern) {
+            $this->logger->log('debug', 'Trying {pattern} to strip attribute', ['pattern' => $pattern]);
+            $elems = $this->xpath->query($pattern, $this->readability->dom);
+
+            $this->removeAttributes($elems, 'Stripping {length} attributes (strip_attr)');
+        }
 
         // still missing title or body, so we detect using Readability
         $success = false;
@@ -665,6 +672,24 @@ class ContentExtractor
             if ($elems->item($i)->parentNode) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
+        }
+    }
+
+    /**
+     * Remove attribute from owners
+     * 
+     * @param \DOMNodeList $elems
+     * @param string       $logMessage
+     */
+    private function removeAttributes(\DOMNodeList $elems, $logMessage = null)
+    {
+        if (null !== $logMessage) {
+            $this->logger->log('debug', $logMessage, ['length' => $elems->length]);
+        }
+
+        foreach ($elems as $el) {
+            $owner = $el->ownerElement;
+            $owner->removeAttributeNode($el);
         }
     }
 
