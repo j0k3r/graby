@@ -51,7 +51,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'referer' => 'http://idontl.ie',
         ];
         $configExpected->date = ['foo'];
-        $configExpected->strip_attr = ['@class','@style'];
+        $configExpected->strip_attr = ['@class', '@style'];
 
         $this->assertEquals($configExpected, $configActual);
 

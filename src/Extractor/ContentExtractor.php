@@ -676,8 +676,8 @@ class ContentExtractor
     }
 
     /**
-     * Remove attribute from owners
-     * 
+     * Remove attribute from owners.
+     *
      * @param \DOMNodeList $elems
      * @param string       $logMessage
      */

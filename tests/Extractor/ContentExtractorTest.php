@@ -473,13 +473,13 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         return [
             [['//*/@class'], '<html><body><div class="hello world"><i class="class">bar</i>class="foo"' . str_repeat('this is the best part of the show', 10) . ' <a class="hc" href="void">link</a></div></body></html>', [
                     'removedContent' => ['class="class"', 'class="hello world"', 'class="hc"'],
-                    'keptContent' => ['class="foo"','<a href="void"','<em>bar'],
-                ]
+                    'keptContent' => ['class="foo"', '<a href="void"', '<em>bar'],
+                ],
             ],
-            [['//img/@class','//p/@class'], '<html><body><img class="bar-class" src="void" /><a class="hello" href="void">link</a> <p class="yes">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', [
+            [['//img/@class', '//p/@class'], '<html><body><img class="bar-class" src="void" /><a class="hello" href="void">link</a> <p class="yes">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', [
                     'removedContent' => ['class="bar-class"', 'class="yes"'],
                     'keptContent' => ['class="hello"'],
-                ]
+                ],
             ],
         ];
     }
