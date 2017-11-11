@@ -36,6 +36,8 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'replace_string(toto): titi',
             'http_header(user-agent): my-user-agent',
             'http_header(referer): http://idontl.ie',
+            'strip_attr: @class',
+            'strip_attr: @style',
         ]);
 
         $configExpected = new SiteConfig();
@@ -49,6 +51,7 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'referer' => 'http://idontl.ie',
         ];
         $configExpected->date = ['foo'];
+        $configExpected->strip_attr = ['@class','@style'];
 
         $this->assertEquals($configExpected, $configActual);
 
