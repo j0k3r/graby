@@ -21,7 +21,7 @@ $request = 'http://example.org/full-text-rss/makefulltextfeed.php?format=json&ur
 $result  = @file_get_contents($request);
 ```
 
-Also, if you want to understand how things work internally, it's really hard to read and understand. And finally, there are **not tests** at all.
+Also, if you want to understand how things work internally, it's really hard to read and understand. And finally, there are **no tests** at all.
 
 That's why I made this fork:
 
@@ -31,6 +31,12 @@ That's why I made this fork:
 4. A bit more decoupled
 
 ## How to use it
+
+### Requirements
+
+By default, this lib will use the [Tidy extension](https://github.com/htacg/tidy-html5) if it's available. Tidy is only used to cleanup the given HTML and avoid problems with bad HTML structure, etc .. It'll be suggested by Composer.
+
+Also, if you got problem from parsing a content without Tidy installed, please install it and try again.
 
 ### Retrieve content from an url
 

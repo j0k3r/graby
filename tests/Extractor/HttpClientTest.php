@@ -477,7 +477,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         ]);
         $http->setLogger($logger);
 
-        $res = $http->fetch($url, false, $httpHeader);
+        $http->fetch($url, false, $httpHeader);
 
         $records = $handler->getRecords();
 
@@ -528,7 +528,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         ]);
         $http->setLogger($logger);
 
-        $res = $http->fetch($url, false, $httpHeader);
+        $http->fetch($url, false, $httpHeader);
 
         $records = $handler->getRecords();
 

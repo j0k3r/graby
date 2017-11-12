@@ -323,6 +323,11 @@ class ContentExtractor
 
         $this->removeElements($elems, 'Stripping {length} elements with inline display:none or visibility:hidden style');
 
+        // strip empty a elements
+        $elems = $this->xpath->query("//a[not(./*) and normalize-space(.)='']", $this->readability->dom);
+
+        $this->removeElements($elems, 'Stripping {length} empty a elements');
+
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => strlen($this->readability->dom->savexml())]);
@@ -431,7 +436,7 @@ class ContentExtractor
         // If there's more than one, it could indicate more than
         // one author, but it could also indicate that we're processing
         // a page listing different articles with different authors.
-        $detectAuthor = $this->extractEntityFromQuery(
+        $this->extractEntityFromQuery(
             'authors',
             $detectAuthor,
             "//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]",
@@ -445,7 +450,7 @@ class ContentExtractor
         // Find date in pubdate marked time element
         // For the same reason given above, we only use this
         // if there's exactly one element.
-        $detectDate = $this->extractEntityFromQuery(
+        $this->extractEntityFromQuery(
             'date',
             $detectDate,
             '//time[@pubdate or @pubDate]',

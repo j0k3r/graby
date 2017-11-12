@@ -1,11 +1,11 @@
+tools:
+    external_code_coverage: false
+
 filter:
     paths:
-        - src/*
+        - 'src/*'
     excluded_paths:
+        - 'build/*'
         - 'log/*'
-        - 'vendor/*'
         - 'tests/*'
-
-tools:
-    external_code_coverage:
-        timeout: 600
+        - 'vendor/*'

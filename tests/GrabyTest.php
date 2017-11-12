@@ -58,10 +58,11 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
     {
         $tests = [];
 
-        $directoryIterator = new \RecursiveDirectoryIterator(__DIR__ . '/fixtures/sites/');
-        $iteratorIterator = new \RecursiveIteratorIterator($directoryIterator, \RecursiveIteratorIterator::LEAVES_ONLY);
-
-        foreach ($iteratorIterator as $file) {
+        $fileFixtureIterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(__DIR__ . '/fixtures/sites/'),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+        foreach ($fileFixtureIterator as $file) {
             if (!preg_match('/\.test$/', $file)) {
                 continue;
             }
