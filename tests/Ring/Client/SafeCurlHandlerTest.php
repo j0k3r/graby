@@ -49,9 +49,4 @@ class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
         $a($request);
         $a($request);
     }
-
-    protected function getHandler($factory = null, $options = [])
-    {
-        return new SafeCurlHandler($options);
-    }
 }

@@ -435,7 +435,7 @@ class ContentExtractor
         // If there's more than one, it could indicate more than
         // one author, but it could also indicate that we're processing
         // a page listing different articles with different authors.
-        $detectAuthor = $this->extractEntityFromQuery(
+        $this->extractEntityFromQuery(
             'authors',
             $detectAuthor,
             "//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]",
@@ -449,7 +449,7 @@ class ContentExtractor
         // Find date in pubdate marked time element
         // For the same reason given above, we only use this
         // if there's exactly one element.
-        $detectDate = $this->extractEntityFromQuery(
+        $this->extractEntityFromQuery(
             'date',
             $detectDate,
             '//time[@pubdate or @pubDate]',

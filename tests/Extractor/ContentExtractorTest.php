@@ -158,7 +158,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $config
         );
 
-        $this->assertTrue($res);
+        $this->assertTrue($res, 'Extraction went well');
 
         $content_block = $contentExtractor->getContent();
 
@@ -186,7 +186,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             $config
         );
 
-        $this->assertTrue($res);
+        $this->assertTrue($res, 'Extraction went well');
 
         $content_block = $contentExtractor->getContent();
 
@@ -363,7 +363,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config = new SiteConfig();
         $config->strip = [$pattern];
 
-        $res = $contentExtractor->process(
+        $contentExtractor->process(
             $html,
             'https://lemonde.io/35941909',
             $config
@@ -393,7 +393,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $config = new SiteConfig();
         $config->strip_id_or_class = [$pattern];
 
-        $res = $contentExtractor->process(
+        $contentExtractor->process(
             $html,
             'https://lemonde.io/35941909',
             $config
@@ -428,6 +428,8 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
             'https://lemonde.io/35941909',
             $config
         );
+
+        $this->assertTrue($res, 'Extraction went well');
 
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
@@ -761,7 +763,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $config = new SiteConfig();
 
-        $res = $contentExtractor->process(
+        $contentExtractor->process(
             '<html>&lt;iframe &gt;&lt;/iframe&gt;</html>',
             'https://vimeo.com/35941909',
             $config
@@ -859,7 +861,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             'https://nativead.io/woops!'
         );
 
-        $this->assertTrue($res);
+        $this->assertTrue($res, 'Extraction went well');
 
         $content_block = $contentExtractor->getContent();
 
@@ -876,7 +878,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             'https://nativead.io/jsonld'
         );
 
-        $this->assertTrue($res);
+        $this->assertTrue($res, 'Extraction went well');
 
         $content_block = $contentExtractor->getContent();
 

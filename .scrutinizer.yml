@@ -1,2 +1,10 @@
 tools:
     external_code_coverage: false
+filter:
+    paths:
+        - 'src/*'
+    excluded_paths:
+        - 'build/*'
+        - 'log/*'
+        - 'tests/*'
+        - 'vendor/*'
