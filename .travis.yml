@@ -51,6 +51,5 @@ script:
 after_success:
     - |
         if [[ "$PHPUNIT_FLAGS" != "" ]]; then
-            wget https://scrutinizer-ci.com/ocular.phar
-            php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+            travis_retry php vendor/bin/coveralls -v -x coverage.clover
         fi

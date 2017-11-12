@@ -38,8 +38,9 @@
         "friendsofphp/php-cs-fixer": "~2.0",
         "symfony/phpunit-bridge": "~2.6|~3.0",
         "php-http/mock-client": "^1.0",
-        "php-http/guzzle5-adapter": "^1.0.1",
-        "guzzlehttp/psr7": "^1.0"
+        "php-http/guzzle6-adapter": "^1.0.1",
+        "guzzlehttp/psr7": "^1.0",
+        "php-coveralls/php-coveralls": "2.0.x-dev"
     },
     "autoload": {
         "psr-4": { "Graby\\": "src/" }
