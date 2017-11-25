@@ -57,6 +57,13 @@ class ContentExtractor
                 'pre_filters' => [],
                 'post_filters' => [],
             ],
+            'src_lazy_load_attributes' => [
+                'data-src',
+                'data-lazy-src',
+                'data-original',
+                'data-sources',
+                'data-hi-res-src',
+            ],
         ]);
 
         $this->config = $resolver->resolve($config);
@@ -531,7 +538,14 @@ class ContentExtractor
 
             // remove image lazy loading
             foreach ($this->body->getElementsByTagName('img') as $e) {
-                if (!$e->hasAttribute('data-lazy-src') && !$e->hasAttribute('data-src') && !$e->hasAttribute('data-original') && !$e->hasAttribute('data-sources')) {
+                $hasAttribute = false;
+                foreach ($this->config['src_lazy_load_attributes'] as $attribute) {
+                    if ($e->hasAttribute($attribute)) {
+                        $hasAttribute = true;
+                    }
+                }
+
+                if (false === $hasAttribute) {
                     continue;
                 }
 
@@ -549,25 +563,17 @@ class ContentExtractor
                     continue;
                 }
 
-                $src = $e->getAttribute('data-src');
-                $e->removeAttribute('data-src');
-
-                if ($e->hasAttribute('data-lazy-src')) {
-                    $src = $e->getAttribute('data-lazy-src');
-                    $e->removeAttribute('data-lazy-src');
+                $src = null;
+                foreach ($this->config['src_lazy_load_attributes'] as $attribute) {
+                    if ($e->hasAttribute($attribute)) {
+                        $src = $e->getAttribute($attribute);
+                        $e->removeAttribute($attribute);
+                    }
                 }
 
-                if ($e->hasAttribute('data-original')) {
-                    $src = $e->getAttribute('data-original');
-                    $e->removeAttribute('data-original');
+                if (null !== $src) {
+                    $e->setAttribute('src', $src);
                 }
-
-                if ($e->hasAttribute('data-sources')) {
-                    $src = $e->getAttribute('data-sources');
-                    $e->removeAttribute('data-sources');
-                }
-
-                $e->setAttribute('src', $src);
             }
 
             $this->success = true;
