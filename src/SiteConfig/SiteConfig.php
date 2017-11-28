@@ -29,6 +29,9 @@ class SiteConfig
     // Strip elements matching these xpath expressions (0 or more)
     public $strip = [];
 
+    // Strip attributes matching these xpath expressions (0 or more)
+    public $strip_attr = [];
+
     // Strip elements which contain these strings (0 or more) in the id or class attribute
     public $strip_id_or_class = [];
 

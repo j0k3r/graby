@@ -274,7 +274,7 @@ class ConfigBuilder
     public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
     {
         // check for commands where we accept multiple statements (no test_url)
-        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'date', 'author'] as $var) {
+        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'date', 'author', 'strip_attr'] as $var) {
             // append array elements for this config variable from $newConfig to this config
             $currentConfig->$var = array_unique(array_merge($currentConfig->$var, $newConfig->$var));
         }
@@ -333,7 +333,7 @@ class ConfigBuilder
             }
 
             // check for commands where we accept multiple statements
-            if (in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author'], true)) {
+            if (in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author', 'strip_attr'], true)) {
                 array_push($config->$command, $val);
                 // check for single statement commands that evaluate to true or false
             } elseif (in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
