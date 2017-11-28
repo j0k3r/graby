@@ -315,6 +315,13 @@ $graby = new Graby(array(
             'pre_filters' => array(),
             'post_filters' => array(),
         ),
+        'src_lazy_load_attributes' => array(
+            'data-src',
+            'data-lazy-src',
+            'data-original',
+            'data-sources',
+            'data-hi-res-src',
+        ),
     ),
 ));
 ```

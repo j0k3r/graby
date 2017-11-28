@@ -471,6 +471,50 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertNotContains($removedContent, $content);
     }
 
+    public function dataForStripAttr()
+    {
+        return [
+            [['//*/@class'], '<html><body><div class="hello world"><i class="class">bar</i>class="foo"' . str_repeat('this is the best part of the show', 10) . ' <a class="hc" href="void">link</a></div></body></html>', [
+                    'removedContent' => ['class="class"', 'class="hello world"', 'class="hc"'],
+                    'keptContent' => ['class="foo"', '<a href="void"', '<em>bar'],
+                ],
+            ],
+            [['//img/@class', '//p/@class'], '<html><body><img class="bar-class" src="void" /><a class="hello" href="void">link</a> <p class="yes">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', [
+                    'removedContent' => ['class="bar-class"', 'class="yes"'],
+                    'keptContent' => ['class="hello"'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForStripAttr
+     */
+    public function testApplyStripAttr($patterns, $html, $assertions)
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        $config->strip_attr = $patterns;
+
+        $res = $contentExtractor->process(
+            $html,
+            'https://lemonde.io/35941909',
+            $config
+        );
+
+        $domElement = $contentExtractor->readability->getContent();
+        $content = $domElement->ownerDocument->saveXML($domElement);
+
+        foreach ($assertions['removedContent'] as $removedContent) {
+            $this->assertNotContains($removedContent, $content);
+        }
+
+        foreach ($assertions['keptContent'] as $keptContent) {
+            $this->assertContains($keptContent, $content);
+        }
+    }
+
     public function dataForExtractBody()
     {
         return [
