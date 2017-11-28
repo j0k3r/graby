@@ -456,7 +456,7 @@ class ContentExtractor
             $this->readability->dom,
             'Date found (datetime marked time element): {date}'
         );
-        
+
         foreach ($this->siteConfig->strip_attr as $pattern) {
             $this->logger->log('debug', 'Trying {pattern} to strip attribute', ['pattern' => $pattern]);
             $elems = $this->xpath->query($pattern, $this->readability->dom);

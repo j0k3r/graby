@@ -805,7 +805,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $config = new SiteConfig();
 
-        $res = $contentExtractor->process(
+        $contentExtractor->process(
             '<html>&lt;iframe &gt;&lt;/iframe&gt;</html>',
             'https://vimeo.com/35941909',
             $config
