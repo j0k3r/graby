@@ -6,8 +6,9 @@ use Graby\SiteConfig\ConfigBuilder;
 use Graby\SiteConfig\SiteConfig;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
+class ConfigBuilderTest extends TestCase
 {
     public function testConstructDefault()
     {

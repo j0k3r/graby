@@ -9,8 +9,9 @@ use GuzzleHttp\Stream\Stream;
 use GuzzleHttp\Subscriber\Mock;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class GrabyTest extends \PHPUnit_Framework_TestCase
+class GrabyTest extends TestCase
 {
     public function testConstructDefault()
     {
