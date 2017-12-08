@@ -16,7 +16,6 @@ matrix:
     allow_failures:
         - php: nightly
         - php: hhvm
-        - php: 7.2
     # only one build will send the coverage, this'll speed up other one
     include:
         - php: 7.0
