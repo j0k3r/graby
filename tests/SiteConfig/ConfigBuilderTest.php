@@ -12,7 +12,9 @@ class ConfigBuilderTest extends TestCase
 {
     public function testConstructDefault()
     {
-        new ConfigBuilder(['site_config' => [__DIR__]]);
+        $builder = new ConfigBuilder(['site_config' => [__DIR__]]);
+
+        $this->assertInstanceOf('Graby\SiteConfig\ConfigBuilder', $builder);
     }
 
     public function testBuildFromArrayNoLines()
