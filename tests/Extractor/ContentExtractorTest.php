@@ -6,8 +6,9 @@ use Graby\Extractor\ContentExtractor;
 use Graby\SiteConfig\SiteConfig;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class ContentExtractorTest extends \PHPUnit_Framework_TestCase
+class ContentExtractorTest extends TestCase
 {
     protected static $contentExtractorConfig;
 

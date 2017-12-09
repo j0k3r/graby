@@ -3,8 +3,9 @@
 namespace Tests\Graby\Monolog\Formatter;
 
 use Graby\Monolog\Formatter\GrabyFormatter;
+use PHPUnit\Framework\TestCase;
 
-class GrabyFormatterTest extends \PHPUnit_Framework_TestCase
+class GrabyFormatterTest extends TestCase
 {
     public function testFormat()
     {

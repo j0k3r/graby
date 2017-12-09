@@ -5,13 +5,14 @@ namespace Tests\Graby;
 use Graby\Graby;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Theses tests doesn't provide any mock to test graby *in real life*.
  * This means tests will fail if you don't have an internet connexion OR if the targetted url change...
  * which will require to update the test.
  */
-class GrabyFunctionalTest extends \PHPUnit_Framework_TestCase
+class GrabyFunctionalTest extends TestCase
 {
     public function testRealFetchContent()
     {

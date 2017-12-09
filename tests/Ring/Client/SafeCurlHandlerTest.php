@@ -6,8 +6,9 @@ require __DIR__ . '/../../../vendor/guzzlehttp/ringphp/tests/Client/Server.php';
 
 use Graby\Ring\Client\SafeCurlHandler;
 use GuzzleHttp\Tests\Ring\Client\Server;
+use PHPUnit\Framework\TestCase;
 
-class SafeCurlHandlerTest extends \PHPUnit_Framework_TestCase
+class SafeCurlHandlerTest extends TestCase
 {
     protected function setUp()
     {
