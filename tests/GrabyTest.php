@@ -1436,4 +1436,23 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('html', $res);
         $this->assertNotFalse(json_encode($res['html']), json_last_error_msg());
     }
+
+    public function testEmptyNodesRemoved()
+    {
+        $response = new Response(
+            200,
+            [
+                'content-type' => 'text/html',
+            ],
+            Stream::factory(file_get_contents(__DIR__ . '/fixtures/sites/framablog.test'))
+        );
+        $client = new Client();
+        $client->getEmitter()->attach(new Mock([$response]));
+
+        $graby = new Graby();
+        $res = $graby->fetchContent('https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/');
+        // The initial treatment was encapsulating the content into the empty node
+        // So we don't want to see that again
+        $this->assertNotContains('<figure><p>Après un <em>icebreaker</em>', $res['html']);
+    }
 }

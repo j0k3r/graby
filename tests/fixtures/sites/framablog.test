@@ -1,0 +1,1706 @@
+-----URL-----
+https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/
+-----URL_EFFECTIVE-----
+https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/
+-----HEADER-----
+text/html; charset=UTF-8
+-----LANGUAGE-----
+fr-FR
+-----AUTHOR-----
+framasoft
+-----TITLE-----
+Avancer ensemble vers la contribution… – Framablog
+-----SUMMARY-----
+Temps de lecture 14 min Contribuer, oui, mais comment ? Comment susciter des contributions, les accueillir, les dynamiser, lever les obstacles et les blocages de tous  ordres ? Tel a été le questionnement à l’origine du Fabulous Contribution Camp qui &hellip;
+-----RAW_CONTENT-----
+<!DOCTYPE html>
+<html class="no-js" lang="fr-FR" itemscope="itemscope" itemtype="http://schema.org/WebPage">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Avancer ensemble vers la contribution… &#8211; Framablog</title>
+<link rel="alternate" type="application/rss+xml" title="Framablog &raquo; Flux" href="https://framablog.org/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Framablog &raquo; Flux des commentaires" href="https://framablog.org/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Framablog &raquo; Avancer ensemble vers la contribution… Flux des commentaires" href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/feed/" />
+<link rel='stylesheet' id='dolo-shortcode-css'  href='https://framablog.org/wp-content/plugins/dolomon/css/shortcode.css?ver=4.9.6' type='text/css' media='all' />
+<link rel='stylesheet' id='dolo-shortcode-page-css'  href='https://framablog.org/wp-content/plugins/dolomon/css/page.css?ver=4.9.6' type='text/css' media='all' />
+<link rel='stylesheet' id='pdfprnt_frontend-css'  href='https://framablog.org/wp-content/plugins/pdf-print/css/frontend.css?ver=2.0.1' type='text/css' media='all' />
+<link rel='stylesheet' id='share-on-diaspora-css'  href='https://framablog.org/wp-content/plugins/share-on-diaspora/share-on-diaspora-css.php?ver=4.9.6' type='text/css' media='all' />
+<link rel='stylesheet' id='wtr-css-css'  href='https://framablog.org/wp-content/plugins/worth-the-read/css/wtr.css?ver=4.9.6' type='text/css' media='all' />
+<link rel='stylesheet' id='wpfla-style-handle-css'  href='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/css/style.css?ver=4.9.6' type='text/css' media='all' />
+<link rel='stylesheet' id='wpt-twitter-feed-css'  href='https://framablog.org/wp-content/plugins/wp-to-twitter/css/twitter-feed.css?ver=4.9.6' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-social-sharing-css'  href='https://framablog.org/wp-content/plugins/wp-social-sharing/static/socialshare.css?ver=1.6' type='text/css' media='all' />
+<link rel='stylesheet' id='kadence_theme-css'  href='https://framablog.org/wp-content/themes/virtue/assets/css/virtue.css?ver=321' type='text/css' media='all' />
+<link rel='stylesheet' id='virtue_skin-css'  href='https://framablog.org/wp-content/themes/virtue/assets/css/skins/default.css' type='text/css' media='all' />
+<link rel='stylesheet' id='virtue_child-css'  href='https://framablog.org/wp-content/themes/framavirtue/style.css?ver=4.9.6' type='text/css' media='all' />
+<script type='text/javascript' src='https://framablog.org/wp-content/plugins/dolomon/js/page.js?ver=4.9.6'></script>
+<script type='text/javascript' src='https://framablog.org/wp-includes/js/jquery/jquery.js?ver=1.12.4'></script>
+<script type='text/javascript' src='https://framablog.org/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1'></script>
+<!--[if lt IE 9]>
+<script type='text/javascript' src='https://framablog.org/wp-content/themes/virtue/assets/js/vendor/respond.min.js?ver=4.9.6'></script>
+<![endif]-->
+<link rel='https://api.w.org/' href='https://framablog.org/wp-json/' />
+<link rel='prev' title='PeerTube&#160;: les réponses à vos questions techniques&#160;!' href='https://framablog.org/2017/12/01/peertube-les-reponses-a-vos-questions-techniques/' />
+<link rel='next' title='Qui veut cadenasser le Web&#160;?' href='https://framablog.org/2017/12/11/qui-veut-cadenasser-le-web/' />
+<meta name="generator" content="WordPress 4.9.6" />
+<link rel="canonical" href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/" />
+<link rel='shortlink' href='https://framablog.org/?p=10996' />
+<link rel="alternate" type="application/json+oembed" href="https://framablog.org/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fframablog.org%2F2017%2F12%2F02%2Favancer-ensemble-vers-la-contribution%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://framablog.org/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fframablog.org%2F2017%2F12%2F02%2Favancer-ensemble-vers-la-contribution%2F&#038;format=xml" />
+<style type="text/css">.wtr-time-wrap{ 
+	/* wraps the entire label */
+	margin: 0 10px;
+
+}
+.wtr-time-number{ 
+	/* applies only to the number */
+	
+}</style><style type="text/css">#logo {padding-top:25px;}#logo {padding-bottom:10px;}#logo {margin-left:0px;}#logo {margin-right:0px;}#nav-main {margin-top:40px;}#nav-main {margin-bottom:10px;}.headerfont, .tp-caption {font-family:Verdana, Geneva, sans-serif;} 
+.topbarmenu ul li {font-family:Verdana, Geneva, sans-serif;}input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } input[type=number] {-moz-appearance: textfield;}.quantity input::-webkit-outer-spin-button,.quantity input::-webkit-inner-spin-button {display: none;}.kad-hidepostauthortop, .postauthortop {display:none;}.product_item .product_details h5 {text-transform: none;}.product_item .product_details h5 {min-height:40px;}h2.lead {
+    font-size:14px;
+}
+
+.kad-btn-primary {
+   background-color: #6A5687;
+}
+.kad-sidebar {
+    background: none;
+    border-top: 1px solid #6A5687;
+}
+
+@media (min-width: 992px) {
+  .kad-sidebar {
+      background: none;
+      border-left: 1px solid #6A5687;
+      border-top:none;
+  }
+}
+
+/* Couleur des catégories */
+.postlist article, .home_blog article { border-width: 2px;}
+
+.postdate {
+    background: #757575;
+    color:#fff;
+}
+.post {  border-color: #757575; }
+
+/* Degooglisons */
+.category-degooglisons-internet.post { border-color:#EB7239; }
+.category-degooglisons-internet .postdate {  background-color:#EB7239; }
+.widget_categories .cat-item-648 a:after {color:#EB7239;}
+
+.widget_categories .cat-item-13,
+.widget_categories .cat-item-11,
+.widget_categories .cat-item-10 {display:none}
+
+/* Framasoft */
+.category-framasoft.post {  border-color:#6A5687; }
+.category-framasoft .postdate {  background-color:#6A5687; }
+.widget_categories .cat-item-3 a:after {color:#6A5687;}
+
+/*Libr'en vrac */
+.category-libren-vrac.post {  border-color:#C48A1B; }
+.category-libren-vrac .postdate {  background-color:#C48A1B; }
+.widget_categories .cat-item-649 a:after {color:#C48A1B;}
+
+.widget_categories .cat-item-7,
+.widget_categories .cat-item-14 {display:none}
+
+/* Libre Cultures */
+.category-libres-cultures.post {  border-color:#C42D16; }
+.category-libres-cultures .postdate {  background-color:#C42D16; }
+.widget_categories .cat-item-6 a:after {color:#C42D16;}
+
+.widget_categories .cat-item-12,
+.widget_categories .cat-item-8,
+.widget_categories .cat-item-15,
+.widget_categories .cat-item-16 {display:none}
+
+/* Libre Logiciels */
+.category-logiciel-libre.post {  border-color:#0C5B7A; }
+.category-logiciel-libre .postdate {  background-color:#0C5B7A; }
+.widget_categories .cat-item-4 a:after {color:#0C5B7A;}
+
+/* Libres Services */
+.category-libres-services.post {  border-color:#677835; }
+.category-libres-services .postdate {  background-color:#677835; }
+.widget_categories .cat-item-650 a:after  {color:#677835;}
+
+.widget_categories .cat-item-9,
+.widget_categories .cat-item-1 {display:none;}
+
+body.single-post .category-claviers-invites .entry-content:before {
+    content: "Les articles présentés ici sont ceux de personnes invitées à s’exprimer sur le Framablog. Ces auteurs et autrices ne font pas partie de l’association, mais leurs mots et leurs idées nous semblent avoir toute leur place ici.";
+    color: #0C5B7A;
+    background-color: #E1F8FC;
+    border: 1px solid #B2D5DB;
+    display:block;
+    padding:15px;
+    border-radius:5px;
+    margin:0px auto 30px;
+}
+body.single-post .category-claviers-invites .entry-content {
+  box-shadow: 0px 0px 6px #38BED6;
+}
+
+/* Diaporama 720x300  */
+#imageslider #play-pause {
+    top:auto;
+    bottom: 50px;
+    margin-left: calc(39% - 35px) !important;
+}
+
+.flexslider .slides img {
+    max-width: 61%;
+}
+.flexslider .slides img {
+    margin: 0 0 0 auto;
+}
+
+.flex-caption {
+    left: 0px;
+    top: 0px;
+    color: #616161;
+    width: 39%;
+    border-right: 1px solid #ddd;
+    padding: 30px;
+    background: #f3f3f3;
+}
+
+.captiontitle, .captiontext {
+    background: none;
+}
+.captiontext p {
+    color: #333;
+}
+
+/* Bio box */
+.author-profile .author-follow a {
+    float:right;
+    background:#EDE6F5;
+}
+
+.googlepluslink, .author-profile .author-follow .followtext { display:none;}
+
+.author-profile .author-follow .facebooklink a:hover {
+    background: #464646;
+}
+.author-profile .author-follow .twitterlink a:hover {
+    background: #6BA9CE;
+}
+@media (min-width: 992px) {
+    #commentform #fs_opt-in,
+    #commentform #fs_opt-in_confirm,
+    #commentform #fs_opt-in_error {
+        min-width: 462px;
+    }
+}
+
+.author-box,
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+    background: #EDE6F5;
+}
+
+#authorTab {
+    background: #fff;
+}
+
+.author-latestposts ul {
+    margin-left: 80px;
+}
+
+#comments .media-body {
+    max-width: 100%;
+}
+
+.comment.trollTopic > .media-body,
+.comment.trollTopic > .avatar {
+    display: none;
+}
+
+.comment-body.troll {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAnCAYAAABJ0cukAAAGkUlEQVRYhb1ZPa8xaxSdiJ9AtDPTTtREi54oURM/gGiJH0C0RE30RE3URE30xA84J+sWN2tnz+MZnPO+9xY7OWe+nv2x9tofnG984Z3cHzcslnMUinl4vgvPd5FMJT4Wz3cRpANkcxkUinmUKyU0Ww2MxkOsNyvs9lscTwdcrmfcH7e3+mhxPlG+UMwjSAeYziZyGA+8XM/Y7bdYLOdYLOeYziahv0fjIUbjofzdH/TQ6bZRq1dRrpSQzWXg+S5icQfJVAJBOkCtXsV0NsHlev4zA+6PG4J0gHKlZPXM8XTAYjl/Mur+uIlcrucng81nL9cz1puVGN3pthGkA3i+i063/TIqLw3I5jLI5jJP1y/XM0bjIXb7Lb7xJR7WSmo5ng6hKGmZziYStfVmhePpILDa7bfI5jJIphJy1scGTGcTxOKOVfnpbIL744b1ZiUeuj9uT1Dic5/iOerZ/qCHWNyxGmE14HI9w/NdrDer0DV6hV6i13ndxOxuvw19wzxDv6tlvVk9GUOHmmdYDegPesjmMqGP8MXpbBJS/p1X+4Ne5L0o45hb5vVkKoHpbPLagPvjBs93rR+g19abVcgTPJBi3osyYDQevjTOjEI2l0Gn235tQKfbRqGY/wivzVYDsbhjlUIx/zZCvK8Z61UtmM4m8HzXboBWyJZ898cNx9NBkjWbyyBIB0+KM0c63TaSqcRLGrxcz+gPelIgg3QgBS8KXoViHoViXqIsBrCo1OpVdLptLJbzkAd3+y1G4yHujxs63bYUHtMAz3dRrpTEm7G48xT24+mA0XhodQCl023LmaRZFrdavSr07nzjC81WA0E6kIS7P26YziZothqo1avoD3piDLHJAkZP0rj1ZoVavYpY3BEFtTdZ2alokA5CbQWjbIMsKXy9WSGby2A6m8BZb1ZIphKiAA9IphKiPA/M5jJCl5r7WTHNA2v1amQ7UK6U3uYaYcsCyXZkt9+iVq8iSAdwCsV8qKp2uu0QhRLTu/0WzVZDGrJavSo90iuqjBK+bypMXRbLeagBpJN2+y3ujxv6gx6SqQQcz3fFk/fH7aniMcz0pPZKVLg/ERYmk641vGr1aoihWOhoaCzuwAnSgXiacGKilSulEJY73fbbDpF50B/0pBGMepZKUFET78xPXS+Yg2Q5x/Ndse54OgiNBulA+nl6nY1VuVIST2iGYoItlnMkUwlhMjKSzYjFci51w/YMaVNDjLqUK6V/I8CDv/ElfT9fiMWdkAcWy7n076yMZtVcb1YgNEnP5UrJWt2Jb96nI8luhBMZ6ng6YDqbSIfqMFl2+60UMJ0DhE+z1ZBr/UEPzVYD680KzVZDIlUo5sX4/qD3NG3pfmqxnEuCmvBhVHk2v8tvjMZDgaZD2my2GlJBzQ/qAsOpih7WXmfOxOIOypWS9ExmorMQ2miU1ZmFktEmCtir0VEOX/J8F9lcxtq/jMZDqRX8IJU0mWi330oNYR6RDlnlzXwZjYdSTAlNUjQTnVR9uZ6RTCVET0cfrB80maVQzEuxMpu4cqWE0XiIy/Us867JSqRHVnf+T/x3um35LnMtmUpgvVmF9CK06LRQN0oWsjVStLw/6MlHTNgwOjZGIeb1Nduo6PmuQFl/UxugC+1TO83WwUZ59Ibnu6GkvlzPIUPM6Oh2pNlqoD/oCc7JZLV6NQRPU5gDbw14NdBo3rZBTd9jzYhS6KfysQGMgsaZLRKe7z5VUPYn+jka81vFyUR06EcG3B83YQLbfcKGXSs/zqSzRYYMR+Zhy81NHaNFimYOEFpknY8M0FCy7YVMitVJHAU7W7TYh9FhLKQkEr2p02wZyUI2LzMSetmk1ytsvMjjpFu2BezjtRLf+JL9KKGWTCXkO57vYjQeolDMP21HfmQAvcMwspFab1ahLRphw0mNiwHOuYRHrV4V0d4l+7CQcUozVyiket3evzVAw4CHskUgnjW29aZBL3+5S7IJ14p62tMKm6hgB/0jAyi6j+GwwXmWcHg1N5gD0av5otlqyH09UOmk/rEB9AqZg00bvUyluFbX1z4VtsyMBCOsDWAF/5UB2hCuR8zZWG/xNFwIE71mNw3UECLEeO2vGqBhoac4c2Wofy/QiW+KueC17V+Pp4O9G/1bQkpkUfrt0B8l3Ijw/79uAGU0Hko/xNrAGeDdYsAm3MiZLc5/ZgChwx3PaDwMDTmcAs1ttinH00HGVs1K/4sBUUYx+Vns3v3KWSjmI39i+geUb7bpZoHEPQAAAABJRU5ErkJggg==) no-repeat calc(100% - 20px) calc(100% - 20px);
+  opacity: 0.6;
+}
+
+.comment-body.troll .comment-reply-link { display: none; }
+
+@media (max-width: 768px) {
+    .entry-content {
+        padding: 0 !important;
+        margin-top: 120px !important;
+    }
+    
+    #topbar .kad-topbar-left {
+        width: 50%;
+        float: left;
+        padding: 0;
+    }
+
+    #topbar .kad-topbar-right {
+        width: 50%;
+        float: right;
+        padding: 0;
+    }
+
+    #topbar .kad-topbar-right form {
+        margin-right: 0;
+    }
+
+    .boxed #wrapper.container {
+        margin: 0 !important;
+    }
+}
+
+/* General */
+[data-url*="://framablog.org"] #wrapper.container {
+  box-shadow: 0px 3px 4px rgba(50, 50, 50, 0.2) !important;
+}
+
+#imageslider {
+  border-top: 5px solid #6A5687;
+}
+
+.page-header {
+  border-bottom: none;
+  padding-left: 20px;
+}
+
+header a { text-decoration: none; }
+
+.home .main { width: 100%; }
+
+.home .entry-content {
+    margin: 0;
+    padding-top: 0;
+}
+
+.home .entry-content img {
+  width: 100%;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+}
+
+.home .entry-content header a {
+    text-decoration: none;
+}
+
+.home .entry-content header h4 {
+    padding-left: 30px;
+}
+
+.home .entry-content p {
+    margin-bottom: 0 !important;
+}
+
+/* Articles */
+#postImage {
+  width: 100%;
+  height: 400px;
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(60%);
+}
+
+#postImage[style*="undefined"] { /* Fallback sur l’image à la une importée en JS */
+  background-image: url(https://framablog.org/wp-content/uploads/2018/03/flypenguin.jpg) !important;
+}
+
+article h1 {
+  color: #fff;
+  padding: 80px 0 20px;
+  text-align: center;
+  font-size: 40px;
+  line-height: 48px;
+  text-shadow: 0 2px 3px rgba(0,0,0, 0.8);
+}
+
+.single-post .main {
+  margin-top: -400px;
+}
+
+.main {
+  float: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.entry-content {
+  background: #fff;
+  padding: 30px;
+  margin-top: 30px;
+}
+
+#wrapper .main p {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+#wrapper .main .post li {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+#wrapper .main blockquote p {
+  font-size: 18px;
+  line-height: 1.8;
+  font-weight: inherit;
+}
+
+#wrapper .main blockquote {
+    padding: 20px 30px 1px;
+    background: #f9f9f9;
+    border-left: 10px solid #6A5687;
+    quotes: "«""»";
+}
+
+#wrapper .main blockquote:before {
+    color: #ccc;
+    content: open-quote;
+    font-size: 4em;
+    margin-right: 0.25em;
+}
+
+#wrapper .main blockquote:after {
+    color: #ccc;
+    content: close-quote;
+    font-size: 4em;
+    text-align:right;
+    display:block;
+    margin-top:-30px;
+    margin-bottom:30px;
+}
+
+#wrapper .entry-content p:first-of-type {
+  margin-top: 0;
+}
+
+.single-article .main > article {
+  padding-left: inherit;
+  padding-right: inherit;
+}
+
+.subhead,
+.wtr-time-wrap.before-content {
+   display: none !important;
+}
+
+#postTime {
+  text-align:center;
+  color: #fff;
+  text-shadow: 0 2px 3px rgba(0,0,0, 0.8);
+}
+
+#postTime * {
+  background:transparent;
+  display: inline;
+  float: none;
+  font-size: 18px;
+  font-weight: normal;
+  color: #fff;
+}
+
+#postTime .fa, #postTime .icon-user {
+  font-style: normal;
+}
+#postTime a {
+  text-decoration: none;
+}
+
+header.banner.headerclass { background: none; }
+
+header .kad_tagline {
+  display: none;
+}
+
+header .kad-header-left {
+  margin: 0 auto;
+  float: none;
+  text-align: center;
+}
+
+#topbar {
+  background: #fff;
+}
+
+#topbar a,
+#topbar-search .search-icon {
+  color: #666;
+}
+
+#topbar-search input[type="text"] {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+#topbar li:nth-of-type(n+2) {
+  display: none;
+}
+
+#topbar .fa {
+  font-size: 18px;
+  padding: 0;
+  vertical-align: middle;
+}
+#wrapper #aside-container {
+  width: 100%;
+  position: relative;
+}
+
+#wrapper #aside-container a[href="/"] {
+  position: absolute;
+  z-index: 6;
+  left: 35px;
+  top: 19px;
+}
+
+.home #wrapper #aside-container a[href="/"] { display: none; }
+
+#wrapper aside {
+  width: auto;
+  float: none;
+  border: none;
+  background: #EDE6F5;
+  position: absolute;
+  z-index: 4;
+}
+
+#wrapper aside div > section {
+  width: 100%;
+  float: left;
+  margin: 10px 0;
+  padding: 20px;
+}
+
+@media (min-width: 768px) {
+  #wrapper aside div > section {
+   width: 50%;
+  }
+}
+
+@media (min-width: 992px) {
+  #wrapper aside div > section {
+   width: 33%;
+  }
+}
+
+#wrapper #text-2 {
+  display: none;
+}
+
+.posttags {
+  color: #fff;
+}
+
+#wrapper .posttags a {
+  padding: .2em .6em .3em;
+  font-weight: 700;
+  color: #fff;
+  border-radius: .25em;
+  text-decoration: none;
+  opacity: 0.8;
+  background: #757575;
+}
+
+#wrapper .posttags a:hover {
+  color: #fff;
+  opacity: 1;
+}
+
+.posttags .icon-tag { display: none; }
+
+.postedintop {
+  display:block;
+  margin-top: 30px;
+}
+
+#wrapper .postedintop a {
+  text-decoration: none;
+}
+
+.postedintop .icon-folder-open { display: none; }
+
+.kad-post-navigation {
+  margin-bottom: 30px;
+}
+
+#actionButtons {
+  width:60px;
+  position:fixed;
+  margin-left: 30px;
+  margin-top: 20px;
+}
+
+@media (max-width: 992px) {
+  #actionButtons {
+    display: none;
+  }
+}
+
+#actionButtons a {
+  margin: 3px;
+}
+
+#actionButtons a.btn {
+  border: 0;
+  color: #fff;
+  font-size: 1px;
+  width: 45px;
+  height: 45px;
+  border-radius: 0;
+  margin: 4px 3px;
+}
+
+#actionButtons a[href="#comments"] {
+  width: 45px;
+  height: 45px;
+  color: #757575;
+  text-decoration: none;
+  display: inline-block;
+  padding: 4x 0px;
+  text-align: center;
+  line-height: 10px;
+  font-size: 14px;
+  background: #fff;
+}
+
+#actionButtons a[href="#comments"]:hover {
+  background: #eee;
+}
+
+#actionButtons a.btn .fa,
+#actionButtons a[href="#comments"] i {
+  font-size: 28px;
+  color: #757575;
+  margin: 10px auto;
+}
+
+.author-box {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+#wrapper #respond {
+  padding-left: 7.5px;
+  padding-right: 7.5px;
+}
+
+#wrapper #respond p {
+  margin-top: 0;
+}
+
+#comments {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#comments .avatar {
+  width: 36px;
+  background: transparent;
+  margin-right: -78px;
+  margin-left: 18px;
+  margin-top: 20px;
+  vertical-align: top;
+}
+
+#comments > ol > li > .avatar {
+  width: 64px;
+}
+
+#comments .comment-body {
+  border: 1px solid #ddd;
+  padding: 30px;
+  position: relative;
+}
+
+#comments .comment-body p {
+  font-size: 14px;
+  margin-top: 2em;
+  margin-bottom: 1.5em;
+}
+
+#comments .media-body {
+  border: none;
+  padding: 0;
+}
+
+#comments .comment-body h5 {
+  margin: 0 40px;
+  padding-top: 0;
+}
+
+#comments > ol > li > .media-body > .comment-body h5 {
+  margin: 0 60px;
+}
+
+#comments .comment-content {
+  margin: 0 0px 0 40px;
+}
+
+#comments > ol > li > .media-body > .comment-body .comment-content {
+  margin: 0 0 0 60px;
+}
+
+#comments .byuser > .media-body > .comment-body {
+  background: linear-gradient(to bottom right, transparent, #D3C5E8);
+}
+
+.icon-facebook::before {
+  content: '\f2e5';
+  font-family: ForkAwesome;
+}
+
+.comment-reply-link {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.comment-reply-link {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.comment-edit-link {
+  font-size: 14px !important;
+  margin-left: 4px;
+}
+
+.comment-meta {
+  font-size: 0.1px;
+  color: #fff;
+}
+
+.comment-meta time a {
+  color: #757575;
+  font-size: 14px;
+}
+
+#respond p.small {
+  font-size: 14px;
+}
+
+#wrapper .btn-youtube {
+  left: inherit;
+  top: 30px;
+  margin-left: 20px;
+  margin-top: 0;
+}
+
+.kad-post-navigation .kad-next-link a,
+.kad-post-navigation .kad-previous-link a {
+  text-decoration:none;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.kad-post-navigation .kad-next-link a:hover,
+.kad-post-navigation .kad-previous-link a:hover,
+.kad-post-navigation .kad-next-link a:focus,
+.kad-post-navigation .kad-previous-link a:focus{
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #8c8c8c;
+}
+
+.kad-post-navigation .kad-next-link a:after {
+  font: normal normal normal 18px/1 ForkAwesome;
+  content: "\f054";
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.kad-post-navigation .kad-previous-link a:before {
+  font: normal normal normal 18px/1 ForkAwesome;
+  content: "\f053";
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+</style>		<style type="text/css" id="wp-custom-css">
+			/*
+Vous pouvez ajouter du CSS personnalisé ici.
+
+Cliquez sur l’icône d’aide ci-dessous pour en savoir plus.
+*/
+.gras{
+   font-weight: bold;
+   text-indent:0;
+   padding:0;
+   border-style: none;
+   font-size: 100px;
+}		</style>
+	<style type="text/css" title="dynamic-css" class="options-output">.wtr-time-wrap{color:#CCCCCC;font-size:16px;opacity: 1;visibility: visible;-webkit-transition: opacity 0.24s ease-in-out;-moz-transition: opacity 0.24s ease-in-out;transition: opacity 0.24s ease-in-out;}.wf-loading .wtr-time-wrap,{opacity: 0;}.ie.wf-loading .wtr-time-wrap,{visibility: hidden;}</style><style type="text/css" title="dynamic-css" class="options-output">header #logo a.brand,.logofont{font-family:Verdana, Geneva, sans-serif;line-height:40px;font-weight:400;font-style:normal;font-size:32px;}.kad_tagline{font-family:Verdana, Geneva, sans-serif;line-height:20px;font-weight:400;font-style:normal;color:#444444;font-size:14px;}.product_item .product_details h5{font-family:Lato;line-height:20px;font-weight:normal;font-style:700;font-size:16px;}h1{font-family:Verdana, Geneva, sans-serif;line-height:40px;font-weight:400;font-style:normal;font-size:38px;}h2{font-family:Verdana, Geneva, sans-serif;line-height:40px;font-weight:normal;font-style:normal;font-size:32px;}h3{font-family:Verdana, Geneva, sans-serif;line-height:40px;font-weight:400;font-style:normal;font-size:28px;}h4{font-family:Verdana, Geneva, sans-serif;line-height:40px;font-weight:400;font-style:normal;font-size:24px;}h5{font-family:Verdana, Geneva, sans-serif;line-height:24px;font-weight:700;font-style:normal;font-size:18px;}body{font-family:Verdana, Geneva, sans-serif;line-height:20px;font-weight:400;font-style:normal;font-size:14px;}#nav-main ul.sf-menu a{font-family:Verdana, Geneva, sans-serif;line-height:18px;font-weight:400;font-style:normal;font-size:12px;}#nav-second ul.sf-menu a{font-family:Verdana, Geneva, sans-serif;line-height:22px;font-weight:400;font-style:normal;font-size:18px;}.kad-nav-inner .kad-mnav, .kad-mobile-nav .kad-nav-inner li a,.nav-trigger-case{font-family:Verdana, Geneva, sans-serif;line-height:20px;font-weight:400;font-style:normal;font-size:16px;}</style></head>
+	
+	<body class="post-template-default single single-post postid-10996 single-format-standard boxed avancer-ensemble-vers-la-contribution">
+        <script type="text/javascript" src="https://framasoft.org/nav/nav.js"></script>
+        <script type="text/javascript" src="https://framablog.org/wp-content/themes/framavirtue/framavirtue.js"></script>
+	<div id="kt-skip-link"><a href="#content">Skip to Main Content</a></div>
+	<div id="wrapper" class="container">
+	<header class="banner headerclass" itemscope itemtype="http://schema.org/WPHeader">
+<div id="topbar" class="topclass">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-sm-6 kad-topbar-left">
+				<div class="topbarmenu clearfix">
+				<ul id="menu-barre-du-haut" class="sf-menu"><li  class="menu-accueil menu-item-11229"><a href="https://framablog.org">Accueil</a></li>
+<li  class="menu-best-of menu-item-1914"><a href="https://framablog.org/selection/">Best of</a></li>
+<li  class="menu-framalang menu-item-5306"><a href="https://participer.framasoft.org/fr/framalang/index.html">Framalang</a></li>
+<li  class="menu-contact menu-item-1919"><a href="http://contact.framasoft.org">Contact</a></li>
+<li  class="menu-mentions-legales menu-item-1920"><a href="https://framasoft.org/nav/html/legals.html#hetzner">Mentions légales</a></li>
+</ul>				</div>
+			</div><!-- close col-md-6 --> 
+			<div class="col-md-6 col-sm-6 kad-topbar-right">
+				<div id="topbar-search" class="topbar-widget">
+					<form role="search" method="get" class="form-search" action="https://framablog.org/">
+	<label>
+		<span class="screen-reader-text">Rechercher :</span>
+		<input type="text" value="" name="s" class="search-query" placeholder="Recherche">
+	</label>
+	<button type="submit" class="search-icon"><i class="icon-search"></i></button>
+</form>				</div>
+			</div> <!-- close col-md-6-->
+		</div> <!-- Close Row -->
+	</div> <!-- Close Container -->
+</div><div class="container">
+  <div class="row">
+      <div class="col-md-6 clearfix kad-header-left">
+            <div id="logo" class="logocase">
+              <a class="brand logofont" href="https://framablog.org/">
+                                  <div id="thelogo">
+                    <img src="https://framablog.org/wp-content/uploads/2015/01/framablog.png" alt="Framablog" width="329" height="57" class="kad-standard-logo" />
+                                      </div>
+                              </a>
+                              <p class="kad_tagline belowlogo-text">... mais ce serait peut-être l'une des plus grandes opportunités manquées de notre époque si le logiciel libre ne libérait rien d'autre que du code</p>
+                         </div> <!-- Close #logo -->
+       </div><!-- close logo span -->
+              
+    </div> <!-- Close Row -->
+     
+</div> <!-- Close Container -->
+  </header>	<div class="wrap contentclass" role="document">
+
+	<div id="content" class="container">
+	<div class="row single-article" itemscope itemtype="http://schema.org/BlogPosting">
+		<div class="main col-lg-9 col-md-8" role="main">
+					<article class="post-10996 post type-post status-publish format-standard has-post-thumbnail hentry category-artiste category-claviers-invites category-contributopia category-framasoft tag-accueillir tag-camp tag-charte tag-contribuer tag-contribution tag-debattre tag-design tag-ensemble tag-gestion tag-grrrnd-zero tag-lunar tag-lyon tag-postit tag-projet tag-quadrature tag-tache tag-ux">
+			<div class="meta_post_image" itemprop="image" itemscope itemtype="https://schema.org/ImageObject"><meta itemprop="url" content="https://framablog.org/wp-content/uploads/2017/12/post_it_bilan.jpg"><meta itemprop="width" content="900"><meta itemprop="height" content="600"></div><div class="postmeta updated color_gray">
+      <div class="postdate bg-lightgray headerfont" itemprop="datePublished">
+      <span class="postday">2</span>
+      Déc 2017    </div>
+</div>				<header>
+
+				<h1 class="entry-title" itemprop="name headline">Avancer ensemble vers la contribution…</h1><div class="subhead">
+    <span class="postauthortop author vcard">
+    <i class="icon-user"></i> par  <span itemprop="author"><a href="https://framablog.org/author/framasoft/" class="fn" rel="author">framasoft</a></span> |</span>
+      
+    <span class="postedintop"><i class="icon-folder-open"></i> Classé dans : <a href="https://framablog.org/category/libres-cultures/artiste/" rel="category tag">Artiste</a>, <a href="https://framablog.org/category/libren-vrac/claviers-invites/" rel="category tag">Claviers invités</a>, <a href="https://framablog.org/category/contributopia/" rel="category tag">Contributopia</a>, <a href="https://framablog.org/category/framasoft/" rel="category tag">Framasoft</a></span>     <span class="kad-hidepostedin">|</span>
+    <span class="postcommentscount">
+    <i class="icon-comments-alt"></i> 8    </span>
+</div>				
+				</header>
+
+				<div class="entry-content" itemprop="articleBody">
+					<span class="wtr-time-wrap before-content"><p class="text-right"><span class="label label-default"><i class="fa fa-clock-o" aria-hidden="true"> </i><span class="sr-only">Temps de lecture</span> <span class="wtr-time-number">14</span> min</span></p></span><div id="wtr-content" 
+	    	data-bg="#FFFFFF" 
+	    	data-fg="#6a5687" 
+	    	data-width="5" 
+	    	data-mute="" 
+	    	data-fgopacity="0.75" 
+	    	data-mutedopacity="0.5" 
+	    	data-placement="top" 
+	    	data-placement-offset="41" 
+	    	data-content-offset="0" 
+	    	data-placement-touch="top" 
+		    data-placement-offset-touch="41" 
+	    	data-transparent="1" 
+	    	data-touch="1" 
+	    	data-comments="" 
+	    	data-commentsbg="#ffcece" 
+	    	data-location="page" 
+	    	data-mutedfg="#b49cd9" 
+	    	><div class="pdfprnt-buttons pdfprnt-buttons-post pdfprnt-top-right"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?print=pdf" class="pdfprnt-button pdfprnt-button-pdf" target="_blank"><img src="https://framablog.org/wp-content/plugins/pdf-print/images/pdf.png" alt="image_pdf" title="View PDF" /></a><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?print=print" class="pdfprnt-button pdfprnt-button-print" target="_blank"><img src="https://framablog.org/wp-content/plugins/pdf-print/images/print.png" alt="image_print" title="Print Content" /></a></div><p><em>Contribuer, oui, mais comment&#160;? Comment susciter des contributions, les accueillir, les dynamiser, lever les obstacles et les blocages de tous  ordres&#160;?</em><br />
+<em><span id="more-10996"></span></em><br />
+<em>Tel a été le questionnement à l&rsquo;origine du <a href="https://framaforms.org/fabulous-contribution-camp-1505398658">Fabulous Contribution Camp</a> qui s&rsquo;est déroulé à Lyon, du 24 au 26 novembre dernier, à l&rsquo;initiative de La Quadrature et de Framasoft. Toutes les personnes qui ont participé ont eu à cœur d&rsquo;identifier les difficultés honnêtement mais aussi de proposer des pistes et des pratiques pour les surmonter…</em></p>
+<p><em>Pour en témoigner, nous donnons la parole aujourd&rsquo;hui à <a href="http://www.maiwann.net/qui_suis_je/">Maiwann</a> qui est UX designer et que nous avions invitée. L&rsquo;article ci-dessous est la simple republication de <a href="http://www.maiwann.net/fabulous-contribution-camp/">son compte-rendu sur son blog</a>. Ses observations, ses réactions et ses chouettes </em>sketchnotes <em>font véritablement plaisir (bientôt peut-être d&rsquo;autres billets des participants&#160;?) et nous indiquent des voies qui sont déjà celles de <a href="https://contributopia.org/fr/home/">Contributopia.</a>. C&rsquo;est un début prometteur, parions que beaucoup d&rsquo;associations pourront en tirer profit et continuer l&rsquo;exploration de la contribution positive.</em></p>
+<h2>Fabulous Contribution Camp</h2>
+<p><a href="https://framablog.org/wp-content/uploads/2017/11/maïwann.jpg"><img class="alignleft size-thumbnail wp-image-10999" src="https://framablog.org/wp-content/uploads/2017/11/maïwann-150x150.jpg" alt="" width="150" height="150" srcset="https://framablog.org/wp-content/uploads/2017/11/maïwann-150x150.jpg 150w, https://framablog.org/wp-content/uploads/2017/11/maïwann.jpg 300w" sizes="(max-width: 150px) 100vw, 150px" /></a>Pour finir ce mois de novembre en beauté, j’ai été invitée par Framasoft à participer au Fabulous Contribution Camp qu’ils co-organisaient avec La Quadrature du Net. Je suis donc partie à Lyon pour rencontrer des contributeur·ice·s de tous horizons (et pas seulement de la technique&#160;!) pour parler des outils et de comment aider celleux qui le souhaitent à contribuer plus simplement.</p>
+<h3 id="un-petit-état-des-lieux">Un petit état des lieux</h3>
+<p>Pyg le disait lors du Capitole du Libre (dans la conférence Contributopia que vous pouvez <a href="https://asso.framasoft.org/nextcloud/index.php/s/3IO3XlxhBdmNFvW?path=%2Fcontributopia">retrouver ici</a>), la majorité des projets de logiciel libre sont soutenus par très peu (voire pas) de contributeur·ice·s. L’exemple le plus marquant est celui des pads (une alternative à GoogleDocs permettant d’écrire collaborativement en ligne)&#160;: Sur l’année dernière, il n’y a pas une seule personne ayant réalisé plus de 50 contributions, alors que le logiciel est très populaire&#160;!</p>
+<p>C’est assez inquiétant, et en même temps pour avoir déjà échoué personnellement, parfois <em>On a l’envie de contribuer et on y arrive pas</em>. Ce qui est quand même assez comique lorsqu’on voit à quel point le logiciel libre a besoin encore et toujours de personnes volontaires&#160;!</p>
+<p>J’avais donc hâte de me joindre à des groupes de réflexion sur le sujet afin d’identifier les problématiques et envisager des pistes de solution tout au long du FCC. Autant vous dire que tout le monde s’est transformé·e·s en designer pour concevoir <em>une meilleure expérience contributeur·ice</em> (Peut-on envisager de dire des CX Designer qui au lieu de signifier Customer eXperience sera notre Contributor eXperience Designer&#160;? ^.^ )</p>
+<h3 id="fcc-cest-parti-">FCC c’est parti&#160;!</h3>
+<p>Le FCC avait lieu à <a href="https://www.grrrndzero.org/">Grrrnd Zero</a>, un lieu au caractère très affirmé, où les murs sont recouverts d’illustrations, près d’un immense chantier participatif destiné à devenir à la fois salle de concert, d’enregistrement et atelier de bricolage/dessin… Nous nous sommes fait accueillir avec un petit déjeuner fabuleux, cette première journée démarrait vraiment bien&#160;!</p>
+<p><a href="https://framablog.org/wp-content/uploads/2017/12/petit_dej.jpg"><img class="aligncenter size-large wp-image-11014" src="https://framablog.org/wp-content/uploads/2017/12/petit_dej-1024x768.jpg" alt="" width="1024" height="768" srcset="https://framablog.org/wp-content/uploads/2017/12/petit_dej-1024x768.jpg 1024w, https://framablog.org/wp-content/uploads/2017/12/petit_dej-300x225.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/petit_dej-768x576.jpg 768w" sizes="(max-width: 1024px) 100vw, 1024px" /></a></p>
+<figure></figure>
+<p>Après un <em>icebreaker</em> rigolo nous demandant de nous regrouper d’abord par provenance géographique (mais comment font les nomades&#160;?), ensuite par coiffure, ensuite par système d’exploitation préféré (oui on était un peu chez les geeks quand même) et enfin par notre engagement associatif principal, nous nous sommes lancés sur des ateliers collaboratifs, animés par les enthousiastes <a href="https://twitter.com/melo_meli">Meli</a> et <a href="https://mastodon.potager.org/@lunar">lunar</a>&#160;!</p>
+<h3 id="failosophy--identifier-les-problèmes">Failosophy&#160;: Identifier les problèmes</h3>
+<p>Pour démarrer, nous nous sommes regroupés par 4 et avons raconté chacun une expérience marquante où <em>notre envie de contribuer s’est soldée par un fail.</em> Nous notions les différentes problématiques rencontrées sur des post-its avant de toutes les regrouper sur un grand mur pour avoir une vue d’ensemble des cas les plus fréquents. Ensuite, nous avons collaborativement trié les post-it ce qui prend “étrangement toujours 8 minutes peu importe le nombre de post-its ou de personne” d’après Lunar… Il faut dire qu’il avait raison&#160;;)</p>
+<p>De grandes catégories regroupent les post-its et font apparaître des motifs récurrents. Ceux que je retiens (car ils me font écho)&#160;:</p>
+<ul>
+<li>La difficulté d’identifier un interlocuteur référent pour s’intégrer au projet</li>
+<li>La peur de demander «&#160;Comment faire&#160;»</li>
+<li>La peur de ne pas être assez doué·e / de dire des «&#160;choses bêtes&#160;»</li>
+<li>Ne pas savoir par où commencer</li>
+<li>La peur de ne pas s’intégrer à la communauté</li>
+<li>Le manque de temps</li>
+<li>La difficulté de déléguer à d’autres un projet qu’on a toujours porté</li>
+<li>Le fait de ne pas avoir réussi à créer une communauté autour d’un projet</li>
+<li>Ne pas connaître la ligne de route d’un projet</li>
+<li>Ne pas savoir comment exprimer les besoins de contribution pour que les intéressé·e·s les comprennent</li>
+</ul>
+<p>J’ai la sensation qu’un grand nombre de ces problèmes peuvent être résolus en&#160;:</p>
+<ul>
+<li>Listant clairement les besoins de contributions, avec les compétences nécessaires, via une interface plus facile d’accès qu’un github (qui est réellement anxiogène pour les non-développeur·euse·s)</li>
+<li>Désignant une personne accueillante comme point d’entrée pour les nouveaux·lles arrivant·e·s, à laquelle il sera facile de s’adresser, et qui saura aiguiller chacun·e vers des tâches simples pour découvrir le projet.</li>
+</ul>
+<p>Cela se recoupe avec les discussions du Capitole du Libre, ce qui donne la sensation que nous sommes sur la bonne voie et que les hypothèses que j’ai entendues la semaine dernière sont des solutions à des problèmes récurrents pour les contributeur·ice·s&#160;!</p>
+<h3 id="Étude-de-cas-6-projets-appellant-à-la-contribution">Étude de cas&#160;: 6 projets appelant à la contribution</h3>
+<p>Dans la phase suivante, pour s’imprégner un peu de ce qui se fait parmi les projets nécessitant contribution, nous avons eu le droit à la présentation de&#160;:</p>
+<ul>
+<li>Exodus, une plateforme qui analyse les applications Android et liste les logiciels traquant notre activité qu’elle y trouve.</li>
+<li>La Revue de Presse de la Quadrature du Net, permettant de soumettre des articles à la revue de presse de façon collaborative.</li>
+<li>Diaspora, un réseau social décentralisé assez proche de la configuration initiale de facebook.</li>
+<li>FAI Maison, un fournisseur d’accès associatif et nantais, qui propose le prix libre (ou contribution consciente)</li>
+<li>Le PiPhone, une plateforme de La Quadrature du Net permettant d’avoir accès à des numéros de députés afin de les appeler pour les encourager à soutenir (ou non) une loi, en proposant un set d’arguments et un retour d’expérience après l’appel.</li>
+<li>FramaForm, une des alternatives de <a href="http://degooglisons-internet.org/">Dégooglisons Internet</a> lancée par Framasoft, que Pyg a développée seul (&#160;!) en 15 jours (&#160;!&#160;!&#160;!). Avec le souci notamment que le logiciel permet plein de choses différentes mais que les options sont difficiles à trouver.</li>
+</ul>
+<p>Le tour d’horizon permet de voir que si chaque projet recherche à fédérer une communauté de contribution, ils sont tous très différents et n’intéressent sans doute pas du tout les même personnes. <em>Les présentations étaient elles aussi très variées selon la personne,</em> de celui qui démarre par l’aspect technique à celui qui met tout de suite en avant les problématiques d’ergonomie. Bien sur, la présentation varie énormément selon les affinités et les problématiques rencontrées par chacun·e. Peut-être qu’avoir une description homogène (qui ne parte dans l’aspect technique que face à des personnes orientées technique) puis des pistes selon les compétences / envies de la personne en face serait à envisager&#160;? (c’est un point que je laisse en suspens, mais il faut avouer qu’à force je suis rebutée par ceux qui m’expliquent immédiatement en quelle technologie est leur application alors que je suis très interessée par celleux qui ont des problématiques de conception&#160;;) )</p>
+<h3 id="icebreaker-rigolo">Icebreaker rigolo</h3>
+<p>Petite recette&#160;: Prenez une feuille et écrivez en gros au marqueur ce dont vous avez envie de parler / un truc à apprendre à quelqu’un, montrez la feuille à tout le monde et formez un binôme avec une personne qui est intéressé·e par votre thème et a un thème qui vous intéresse (ou pas)&#160;!</p>
+<h3 id="grodébat-i">Grodébat I</h3>
+<p>Après déjeuner (des lasagnes végétariennes à tomber &lt;3) nous avons repris certaines catégories de problématiques listées le matin et nous sommes séparés en petits groupes pour déterminer&#160;:</p>
+<ul>
+<li>C’est quoi le problème&#160;?</li>
+<li>Dans l’idéal, avec une baguette magique, qu’est-ce qu’on fait&#160;?</li>
+<li>Quelles solutions concrètes pour y arriver&#160;?</li>
+</ul>
+<p>Nous sommes arrivés à tout un tas de solutions pour nous mettre le pied à l’étrier&#160;:</p>
+<h3 id="vision">Vision&#160;:</h3>
+<p>Créer un manifeste et créer des rencontres mêlant communauté de contributeur·ice·s et utilisateur·ice·s</p>
+<h3 id="accès-au-savoir-appropriation">Accès au savoir &amp; Appropriation&#160;:</h3>
+<p>Formuler des avantages concurrentiels pour les marchés publics et rendre transparents les logiciels utilisés dans le service public</p>
+<h3 id="sortir-de-lentre-soi">Sortir de l’entre-soi&#160;:</h3>
+<p>Trouver des métaphores pour expliquer sans être technique, lister les communautés avec des objectifs similaires mais des besoins différents.</p>
+<h3 id="répartition-des-tâches">Répartition des tâches&#160;:</h3>
+<p>Lister l’ensemble des tâches à faire et leur avancement.</p>
+<h3 id="expression-des-besoins">Expression des besoins&#160;:</h3>
+<p>Lister &amp; Publier les besoins de contribution en petites tâches, Créer un bouton “J’ai un problème” qui s’adresse à un humain (facilitateur ou UX designer)</p>
+<h3 id="rapports-de-pouvoir">Rapports de pouvoir&#160;:</h3>
+<p>Mettre et afficher un système de résolution des conflits.</p>
+<h3 id="gestion-du-temps-et-de-largent">Gestion du temps (et de l’argent)&#160;:</h3>
+<p>Mesurer le temps mis pour une tâche pour le prioriser dans le futur et compléter le financement par le don.</p>
+<h3 id="accueil">Accueil&#160;:</h3>
+<p>Avoir un·e référent·e du projet, co-rédiger une charte d’accueil “Comment accueillir les personnes”.</p>
+<p>Toutes ces solutions qui sont autant de petits pas à mettre en œuvre m’ont beaucoup enthousiasmée&#160;: <em>j’ai l’impression que le chemin est tout tracé pour réaliser de belles choses ensemble&#160;!</em> Nous avons d’ailleurs enchaîné avec de petits groupes de travail concrets permettant de débuter la rédaction d’une charte, designer un bouton “J’ai un problème” ou encore réfléchir à une plateforme listant les besoins de contribution.</p>
+<figure></figure>
+<p><a href="https://framablog.org/wp-content/uploads/2017/12/grodebat.jpg"><img class="size-full wp-image-11015 alignleft" src="https://framablog.org/wp-content/uploads/2017/12/grodebat.jpg" alt="" width="331" height="588" srcset="https://framablog.org/wp-content/uploads/2017/12/grodebat.jpg 331w, https://framablog.org/wp-content/uploads/2017/12/grodebat-169x300.jpg 169w" sizes="(max-width: 331px) 100vw, 331px" /></a></p>
+<p>Tout ça en une seule journée autant vous dire que nous étions lessivé·e·s à la fin, mais après un bon repas (préparé par les cuistots de Grrrnd Zero) il était temps de se coucher pour être fraî·che·s le lendemain&#160;!</p>
+<h3 id="cest-reparti-pour-un-tour-">C’est reparti pour un tour&#160;!</h3>
+<p>C’est avec une fraîcheur toute relative que nous avons entamé la seconde journée du FCC. La fatigue est là, mais la bonne humeur et l’enthousiasme général donnent vraiment envie de finir le week-end en beauté. Nous entamons un tour de météo avec pas mal de personnes dans le brouillard du matin, mais très vite nous faisons chauffer les méninges collectivement.</p>
+<h3 id="contributeurices-où-êtes-vous-">Contributeur·ice·s, où êtes-vous&#160;?</h3>
+<p>Nous démarrons par une séance de «&#160;boule de neige&#160;» où nous sommes invité·e·s à <em>lister les endroits où, demain, nous pourrions aller pour parler du logiciel libre et trouver de nouvelles personnes pour contribuer&#160;!</em> Sur un autre tas, nous écrivons plutôt ce qui nous empêche de le faire actuellement.</p>
+<p>Je liste personnellement mes précédentes écoles de design qui sont, à mon avis, des nids à designers motivé·e·s mais pour qui le monde du libre est inexistant (on a tendance à nous parler principalement de droit d’auteur et nous n’entendons jamais parler de licences libres). Pour y aller cependant, il me faut plus de connaissances sur les licences et une liste de projet dont ils pourraient s’emparer afin de commencer à contribuer rapidement.</p>
+<p>À la fin nous collons tout nos post-it sur les murs et, comme a dit lunar&#160;: <em>“Si chacun ramène 3 personnes, la prochaine fois on est 300.”</em>. Il n’y a plus qu’à&#160;!</p>
+<figure><figcaption><a href="https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde.jpg"><img class="aligncenter size-large wp-image-11016" src="https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-576x1024.jpg" alt="" width="576" height="1024" srcset="https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-576x1024.jpg 576w, https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-169x300.jpg 169w, https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-768x1365.jpg 768w, https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde.jpg 1031w" sizes="(max-width: 576px) 100vw, 576px" /></a></figcaption></figure>
+<h3 id="gros-débat-ii--le-retour">Gros Débat II&#160;: Le retour</h3>
+<p>Nous enchaînons sur des groupes de travail thématiques. Je rejoins celui qui aborde le sujet du financement, et y apprends sans surprise que les subventions demandent un investissement énorme (environ 1/3 du temps total de travail passé pour les demander) et que, si le fonctionnement grâce aux dons permet beaucoup plus de liberté, il est soumis à des règles strictes, notamment au fait qu’on ne peut pas donner de contrepartie en échange d’un don, qui doit être fait uniquement pour soutenir le travail passé et à venir de l’association (dans les grandes lignes).<br />
+Le monde des financements a l’air très nébuleux, ce qui nous fait envisager de rechercher des contributeur·ice·s s’y connaissant en financement comme l’on en rechercherait en design ou en admin sys&#160;!</p>
+<p>Les autres groupes ont pour leur part envisagé&#160;:</p>
+<h3 id="accueil-1">Accueil&#160;:</h3>
+<p>Montrer de l’intérêt aux personnes qui arrivent, lister les besoins afin qu’iels puissent s’en emparer.</p>
+<h3 id="discutons-ensemble">Discutons ensemble&#160;:</h3>
+<p>Diversifier les compétences en listant les besoins (les solutions se regroupent, chouette&#160;!), ne pas imposer des outils libres aux futurs utilisateur·ice·s mais partir de leurs problèmes plutôt (on dirait bien une démarche de conception centrée utilisateur·ice \o/ )</p>
+<h3 id="rencontrer-les-utilisateurices-">Rencontrer les utilisateur·ice·s&#160;:</h3>
+<p>Avoir des relais au sein de l’association ou se greffer à une rencontre existante afin de faciliter les échanges, demander à des UX Designers de se joindre aux rencontres et motiver certains devs à venir voir les tests utilisateurs.</p>
+<h3 id="comment-on-garde-le-lien-post-fcc">Comment on garde le lien post-FCC&#160;:</h3>
+<p>Avoir une plateforme ou l’on puisse mettre des photos, un article de blog (collaboratif&#160;?) récapitulant le week-end, et au-delà, une plateforme listant les besoins de contribution (oui, encore, chouette&#160;!)</p>
+<h3 id="la-machine-infernale-">La machine infernale&#160;!</h3>
+<p>Après le repas composé de pizzas maison (c’est vraiment sympa Grrrnd Zero), nous nous lançons dans la machine infernale&#160;: une première personne se place et commence à enchaîner un son et un geste, de façon répétitive. Une seconde personne la rejoint et va elle aussi réaliser son geste, et chacun va à son tour rejoindre la machine infernale, en répétant indéfiniment son geste et son son jusqu’à ce que… la machine s’emballe&#160;! C’était un petit jeu très chouette et revigorant après la phase digestive&#160;!</p>
+<h3 id="gros-débat-iii">Gros Débat III</h3>
+<p>Pour ce troisième groupe de réflexion, je rejoins pyg qui a envie de réunir des associations afin de les informer sur le logiciel libre, qui leur plaît pour des raisons évidentes de prix, mais aussi de valeurs&#160;! Cependant le numérique est un domaine assez vaste et pour des assos qui ne s’y connaissent pas, il y a besoin de faire de l’éducation aux usages et à ce que cela engendre d’utiliser tel ou telle logiciel ou application.</p>
+<p>Le groupe fourmille d’idées, je retiens pêle-mêle&#160;:</p>
+<ul>
+<li>Il y a un besoin de sensibilisation, de démonstration des possibilités des logiciels libres, et d’accompagnement à la transition,</li>
+<li>Les associations ont besoin d’indépendance, de communiquer et de collaborer</li>
+<li>Les mettre en relation vis à vis de leurs besoins peut permettre une mise en commun de financement pour développer des logiciels ouverts et adaptés</li>
+<li>Il faut aller voir les assos pour savoir ce dont elles ont besoin et ce qu’elles recherchent</li>
+<li>Selon les retours, décider du format, plutôt conférence organisée ou Summer Camp très ouvert&#160;?</li>
+</ul>
+<p>Moi qui recherche à participer à des choses qui ont du sens, me voilà pile au bon endroit et j’en suis très heureuse ^.^</p>
+<h3 id="ca-sent-la-fin-">Ça sent la fin&#160;!</h3>
+<p>Enfin, pour finaliser le FCC, nous avons 4 catégories de post-it, à remplir puis à afficher au mur&#160;:</p>
+<ul>
+<li>❤️ Ce que nous avons fait ce week-end et qui nous a plu&#160;!</li>
+<li>🌟 Ce que j’ai envie de faire dès demain pour contribuer.</li>
+<li>➡ Ce que je fais dans les prochains mois.</li>
+<li>😊 Ce que j’ai envie que quelqu’un d’autre ici fasse (et chacun pouvait récupérer un post-it de ce type pour s’y engager)</li>
+</ul>
+<p>Voici les miens&#160;:</p>
+<p><a href="https://framablog.org/wp-content/uploads/2017/12/post_it_bilan.jpg"><img class="aligncenter size-full wp-image-11017" src="https://framablog.org/wp-content/uploads/2017/12/post_it_bilan.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/post_it_bilan.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/post_it_bilan-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/post_it_bilan-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px" /></a></p>
+<h3 id="merci-le-fcc-">Merci le FCC&#160;!</h3>
+<p>Ce Fabulous Contribution Camp a été une très bonne expérience&#160;: J’ai pu parler UX en long, en large et en travers, à des personnes qui se sont montrées à l’écoute de ce que j’avais à leur raconter (et ça ça fait plaisir&#160;!). Les différentes solutions énoncées, avec des pistes concrètes de réalisation pour se lancer rapidement me donnent des ailes, et j’espère que cette motivation ne va pas retomber de sitôt&#160;!</p>
+<p>Je vous tiendrai au courant de mes avancées dans le monde du libre et de la contribution, en tout cas je remercie Framasoft de m’avoir permis de venir partager un week-end à Lyon avec eux à parler et rêver du futur du numérique&#160;!</p>
+<p>Pour finir, voici les sketchnotes de ce week-end collaboratif. Prenez soin de vous&#160;:)</p>
+<figure><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1.jpg"><img class="aligncenter size-full wp-image-11019" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1.jpg" alt="" width="772" height="527" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1.jpg 772w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1-300x205.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1-768x524.jpg 768w" sizes="(max-width: 772px) 100vw, 772px" /></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2.jpg"><img class="aligncenter size-full wp-image-11020" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2.jpg" alt="" width="716" height="500" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2.jpg 716w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2-300x209.jpg 300w" sizes="(max-width: 716px) 100vw, 716px" /></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3.jpg"><img class="aligncenter size-full wp-image-11021" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px" /></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4.jpg"><img class="aligncenter size-full wp-image-11022" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px" /></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5.jpg"><img class="aligncenter size-full wp-image-11023" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px" /></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6.jpg"><img class="aligncenter size-full wp-image-11024" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6.jpg" alt="" width="600" height="900" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6.jpg 600w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6-200x300.jpg 200w" sizes="(max-width: 600px) 100vw, 600px" /></a></figure>
+<p><time datetime="2017-11-30T11:20:00+00:00"><br />
+Griffonné le 30 </time>novembre 2017</p>
+<p class="licence"><img src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" alt="Licence Creative Commons" /></p>
+<div title='Diaspora*' id='diaspora-button-container'><a href="javascript:(function(){var url = 'https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/' ;var title = 'Avancer ensemble vers la contribution…';   window.open('https://framablog.org/wp-content/plugins/share-on-diaspora/new_window.php?url='+encodeURIComponent(url)+'&amp;title='+encodeURIComponent(title),'post','location=no,links=no,scrollbars=no,toolbar=no,width=620,height=400')})()"><span id='diaspora-button-ownimage-div'><img id='diaspora-button-ownimage-img' src='https://framablog.org/wp-content/uploads/2017/11/diaspora.png' alt=''/></span></a></div></div>		<div class="social-sharing ss-social-sharing">
+				        <a onclick="return ss_plugin_loadpopup_js(this);" rel="external nofollow" class="ss-button-facebook" href="http://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fframablog.org%2F2017%2F12%2F02%2Favancer-ensemble-vers-la-contribution%2F" target="_blank" >Share on Facebook</a><a onclick="return ss_plugin_loadpopup_js(this);" rel="external nofollow" class="ss-button-twitter" href="http://twitter.com/intent/tweet/?text=Avancer+ensemble+vers+la+contribution%E2%80%A6&url=https%3A%2F%2Fframablog.org%2F2017%2F12%2F02%2Favancer-ensemble-vers-la-contribution%2F" target="_blank">Share on Twitter</a>	        	    </div>
+	    				</div>
+
+				<footer class="single-footer">
+				<span class="posttags"><i class="icon-tag"></i><a href="https://framablog.org/tag/accueillir/" rel="tag">accueillir</a>, <a href="https://framablog.org/tag/camp/" rel="tag">Camp</a>, <a href="https://framablog.org/tag/charte/" rel="tag">Charte</a>, <a href="https://framablog.org/tag/contribuer/" rel="tag">Contribuer</a>, <a href="https://framablog.org/tag/contribution/" rel="tag">Contribution</a>, <a href="https://framablog.org/tag/debattre/" rel="tag">Débattre</a>, <a href="https://framablog.org/tag/design/" rel="tag">Design</a>, <a href="https://framablog.org/tag/ensemble/" rel="tag">Ensemble</a>, <a href="https://framablog.org/tag/gestion/" rel="tag">Gestion</a>, <a href="https://framablog.org/tag/grrrnd-zero/" rel="tag">Grrrnd Zero</a>, <a href="https://framablog.org/tag/lunar/" rel="tag">Lunar</a>, <a href="https://framablog.org/tag/lyon/" rel="tag">Lyon</a>, <a href="https://framablog.org/tag/postit/" rel="tag">Postit</a>, <a href="https://framablog.org/tag/projet/" rel="tag">Projet</a>, <a href="https://framablog.org/tag/quadrature/" rel="tag">Quadrature</a>, <a href="https://framablog.org/tag/tache/" rel="tag">Tâche</a>, <a href="https://framablog.org/tag/ux/" rel="tag">UX</a></span><meta itemscope itemprop="mainEntityOfPage" content="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/" itemType="https://schema.org/WebPage" itemid="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/"><meta itemprop="dateModified" content="2017-12-02T18:50:35+00:00"><div itemprop="publisher" itemscope itemtype="https://schema.org/Organization"><div itemprop="logo" itemscope itemtype="https://schema.org/ImageObject"><meta itemprop="url" content="https://framablog.org/wp-content/uploads/2015/01/framablog.png"><meta itemprop="width" content="329"><meta itemprop="height" content="57"></div><meta itemprop="name" content="Framablog"></div><div class="kad-post-navigation clearfix">
+        <div class="alignleft kad-previous-link">
+        <a href="https://framablog.org/2017/12/01/peertube-les-reponses-a-vos-questions-techniques/" rel="prev">Article précédent</a> 
+        </div>
+        <div class="alignright kad-next-link">
+        <a href="https://framablog.org/2017/12/11/qui-veut-cadenasser-le-web/" rel="next">Article suivant</a> 
+        </div>
+ </div> <!-- end navigation -->
+ 				</footer>
+			</article>
+			<div class="author-box">
+	<ul class="nav nav-tabs" id="authorTab">
+		<li class="active">
+			<a href="#about">
+				À propos de l&#039;auteur			</a>
+		</li>
+		<li>
+			<a href="#latest">
+				Articles récents			</a>
+		</li>
+	</ul>
+
+	<div class="tab-content postclass">
+		<div class="tab-pane clearfix active" id="about">
+			<div class="author-profile vcard">
+				<img alt='' src="https://framablog.org/wp-content/uploads/2018/01/Framasoft-logo-couleur-sans-nom-150x150.png" class='avatar pull-left media-object avatar-80 photo wpfla ' width='80' height='80' />				<div class="author-follow">
+					<span class="followtext">Suivre framasoft:</span>
+					
+											<span class="facebooklink">
+						<a href="https://framasphere.org/u/framasoft" title="Suivre  framasoft sur Facebook"><i class="icon-facebook"></i></a>
+						</span>
+											<span class="twitterlink">
+							<a href="http://twitter.com/framasoft" title="Suivre  framasoft sur Twitter"><i class="icon-twitter"></i></a>
+						</span>
+											<span class="googlepluslink">
+							<a href="https://plus.google.com/113481533567002271362/posts" title="Suivre  framasoft sur Google Plus"><i class="icon-google-plus"></i></a>
+						</span>
+									</div><!--Author Follow-->
+
+				<h5 class="author-name"><a href="https://framablog.org/author/framasoft/" title="Articles par framasoft" rel="author">framasoft</a></h5>
+				
+								<p class="author-description author-bio">
+					Réseau d'éducation populaire au Libre. Nous souhaitons faire le trait d'union entre le monde du Libre (logiciel, culturel, matériel, etc...) et le grand public par le biais d'une galaxie de projets à découvrir sur <a href="http://framasoft.org">framasoft.org</a>				</p>
+			</div>
+		</div><!--pane-->
+		
+		<div class="tab-pane clearfix" id="latest">
+			<div class="author-latestposts">
+				<img alt='' src="https://framablog.org/wp-content/uploads/2018/01/Framasoft-logo-couleur-sans-nom-150x150.png" class='avatar pull-left media-object avatar-80 photo wpfla ' width='80' height='80' />				<h5>Articles récents de <a href="https://framablog.org/author/framasoft/" title="Articles par framasoft" rel="author">framasoft</a></h5>
+				<ul>
+											<li>
+							<a href="https://framablog.org/2018/05/15/enquete-criminelle-en-terre-sainte-avec-ernaut-un-nouveau-framabook/">Enquête criminelle en Terre sainte avec Ernaut, un nouveau Framabook</a>
+							<span class="recentpost-date"> - 15 mai 2018</span>
+						</li>
+												<li>
+							<a href="https://framablog.org/2018/04/26/libreoffice-cest-style-un-nouveau-manuel-framabook/">LibreOffice, c&rsquo;est stylé&#160;! &#8212; un nouveau manuel Framabook</a>
+							<span class="recentpost-date"> - 26 avril 2018</span>
+						</li>
+												<li>
+							<a href="https://framablog.org/2018/04/20/mon-cv-il-est-heberge-par-framasoft/">Mon CV&#160;? Il est hébergé par Framasoft&#160;!</a>
+							<span class="recentpost-date"> - 20 avril 2018</span>
+						</li>
+										</ul>
+			</div><!--Latest Post -->
+		</div><!--Latest pane -->
+	</div><!--Tab content -->
+</div><!--Author Box -->
+	<section id="comments">
+		<h3 class="comments-title">
+			8 Responses		</h3>
+
+		<ol class="media-list comment-list">
+			        <li id="comment-74516" class="comment even thread-even depth-1 media comment-74516 parent">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_d.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74516" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">Daniel Ferrand</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-02T17:55:08+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74516">
+							2 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74516#respond' onclick='return addComment.moveForm( "comment-74516", "74516", "respond", "10996" )' aria-label='Répondre à Daniel Ferrand'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>Ce qui serait cool, c&rsquo; est que des plateformes comme GitHub permettent à de simples utilisateurs ne sachant pas coder de donner leurs avis, de proposer de nouvelles fonctionnalités etc.. Que celui qui n&rsquo; a pas d&rsquo; argent pour financer ni de capacités pour coder, puisse tout de même contribuer, en + d&rsquo; être utilisateur et de faire connaître le produit concerné.</p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+<ul class="children">
+        <li id="comment-74517" class="comment odd alt depth-2 media comment-74517 ">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_s.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74517" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">Sweet</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-02T20:11:45+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74517">
+							2 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74517#respond' onclick='return addComment.moveForm( "comment-74517", "74517", "respond", "10996" )' aria-label='Répondre à Sweet'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>Les gens peuvent s&rsquo;exprimer en créant une « issue ».<br />
+Par exemple : <a href="https://github.com/mozilla/pdf.js/issues" rel="nofollow">https://github.com/mozilla/pdf.js/issues</a><br />
+Ou bien : <a href="https://framagit.org/framasoft/framadate/issues" rel="nofollow">https://framagit.org/framasoft/framadate/issues</a></p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+</div></li><!-- #comment-## -->
+        <li id="comment-74520" class="comment even depth-2 media comment-74520 parent">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_t.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74520" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">Toto</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-03T02:14:53+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74520">
+							3 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74520#respond' onclick='return addComment.moveForm( "comment-74520", "74520", "respond", "10996" )' aria-label='Répondre à Toto'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>&gt; Ce qui serait cool, c&rsquo;est que des plateformes comme GitHub permettent à de simples utilisateurs ne sachant pas coder de donner leurs avis, de proposer de nouvelles fonctionnalités, etc.</p>
+<p>Il y a les « issues » pour cela.</p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+<ul class="children">
+        <li id="comment-74533" class="comment odd alt depth-3 media comment-74533 ">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_m.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74533" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">Maiwann</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-03T16:26:50+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74533">
+							3 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74533#respond' onclick='return addComment.moveForm( "comment-74533", "74533", "respond", "10996" )' aria-label='Répondre à Maiwann'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>Les issues ne sont pas du tout adaptées pour les néophytes malheureusement ! 🙁</p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+</div></li><!-- #comment-## -->
+</ul><!-- .children -->
+</div></li><!-- #comment-## -->
+</ul><!-- .children -->
+</div></li><!-- #comment-## -->
+        <li id="comment-74534" class="comment even thread-odd thread-alt depth-1 media comment-74534 ">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_m.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74534" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">Maiwann</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-03T16:27:47+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74534">
+							3 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74534#respond' onclick='return addComment.moveForm( "comment-74534", "74534", "respond", "10996" )' aria-label='Répondre à Maiwann'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>Il paraît que c&rsquo;est dans la feuille de route de Contributopia ^_^</p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+</div></li><!-- #comment-## -->
+        <li id="comment-74544" class="comment odd alt thread-even depth-1 media comment-74544 ">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_l.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74544" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">LauwCost</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-04T11:23:18+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74544">
+							4 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74544#respond' onclick='return addComment.moveForm( "comment-74544", "74544", "respond", "10996" )' aria-label='Répondre à LauwCost'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>Bonjour à tous, </p>
+<p>J&rsquo;ai mis ça sur la pad (<a href="https://mypads.framapad.org/mypads/?/mypads/group/fcc-5g19gh7ev/pad/view/retours-sv19sh742" rel="nofollow">https://mypads.framapad.org/mypads/?/mypads/group/fcc-5g19gh7ev/pad/view/retours-sv19sh742</a>) mais comme il n&rsquo;a pas l&rsquo;air très vivant, je cross-poste (c&rsquo;est mal ?) : </p>
+<p>« Y&rsquo;a quelqu&rsquo;un 😉 ?</p>
+<p>Pour ma part, en faisant bref :<br />
+    &#8211; beaucoup aimé la diversité des profils et des origines (pas que des développeurs.euses)<br />
+    &#8211; Journée dynamique où la question de l&rsquo;animation a été mûrement réfléchie et efficace quant à la production et au brassage<br />
+    &#8211; pas encore complètement familier de Diaspora, comment consolide-t-on un groupe FCC ?  Il faut déjà communiquer son adresse pour que chacun puisse se lier ? Si j&rsquo;ai bon, alors <a href="mailto:LauwCost@framasphere.org">LauwCost@framasphere.org</a> et mastodon (si c&rsquo;est la bonne syntaxe : <a href="mailto:LauwCost@mastodon.gougere.fr">LauwCost@mastodon.gougere.fr</a>)<br />
+    &#8211; Très léger bémol qui, proportionnellement, ne pèse guère par rapport à toute la positivité de la journée : peut-être faut-il gérer plus discrètement la question des « régimes ». La phrase initiale dans la convocation est parfaite mais peut-être la gestion sur place peut-elle être améliorée&#8230; </p>
+<p>Voilà pour moi,<br />
+Merci à tous et aux organisateurs.trices.</p>
+<p>LauwCost</p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+</div></li><!-- #comment-## -->
+        <li id="comment-74545" class="comment even thread-odd thread-alt depth-1 media comment-74545 ">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_m.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74545" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">Mika38</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-04T15:47:41+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74545">
+							4 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74545#respond' onclick='return addComment.moveForm( "comment-74545", "74545", "respond", "10996" )' aria-label='Répondre à Mika38'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>Super article. Je vois comme une tendance faire le design du libre orienter pour le contributeur/consomateur.  Et, J&rsquo;aime beaucoup ta manière de prendre des notes. </p>
+<p>Au début de l&rsquo;article, vous donnez le lien vers une présentation de 100 slides:<br />
+« Un petit état des lieux<br />
+Pyg le disait lors du Capitole du Libre (dans la conférence Contributopia que vous pouvez retrouver ici) »<br />
+Lien :<br />
+<a href="https://asso.framasoft.org/nextcloud/index.php/s/3IO3XlxhBdmNFvW?path=%2Fcontributopia" rel="nofollow">https://asso.framasoft.org/nextcloud/index.php/s/3IO3XlxhBdmNFvW?path=%2Fcontributopia</a></p>
+<p>Un dixième des slides sont corrompus. Serait-il possible d&rsquo;avoir la présentation au complet? Aussi si une vidéo de la présentation est disponible, je serais preneur.</p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+</div></li><!-- #comment-## -->
+        <li id="comment-74736" class="comment odd alt thread-even depth-1 media comment-74736 ">
+        <img alt='' src='https://framablog.org/wp-content/plugins/wp-first-letter-avatar/images/default/48/latin_l.png' class='avatar pull-left media-object avatar-36 photo wpfla ' width='36' height='36' />    		<div class="media-body">
+            <article id="div-comment-74736" class="comment-body">
+            	<header class="comment-header clearfix">
+					<h5 class="media-heading comment-author"><span class="fn">Laurent</span></h5>
+					<div class="comment-meta comment-metadata">
+						<time datetime="2017-12-18T21:35:15+00:00"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/#comment-74736">
+							18 décembre 2017</a>
+						</time>
+						|
+						<a rel='nofollow' class='comment-reply-link' href='https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?replytocom=74736#respond' onclick='return addComment.moveForm( "comment-74736", "74736", "respond", "10996" )' aria-label='Répondre à Laurent'>Reply</a>	        
+											</div>
+				</header>
+								<div class="comment-content">
+                    <p>J&rsquo;ai eu une expérience décevante de signalement d&rsquo;un problème d&rsquo;ergonomie sur le projet FireFox OS :<br />
+l&rsquo;appli de lecture de musique avait un comportement illogique pour l&rsquo;utilisateur. En gros, le comportement de la fonction « lecture aléatoire » n&rsquo;était pas dépendant du contexte (à l&rsquo;intérieur d&rsquo;un album, dans un genre particulier&#8230;) où elle était appelée : un comportement très différent du comportement de tous les lecteurs disponibles sur les autres plateformes.<br />
+&#8211; J&rsquo;ouvre donc un ticket (avec une belle introduction de remerciement d&rsquo;un « utilisateur non-codeur » et d&rsquo;encouragements) pour expliquer le « user view » du problème d&rsquo;ergonomie avec mon anglais basic.<br />
+&#8211; Réponse : 1- c&rsquo;est logique en « coder view » : aléatoire, c&rsquo;est aléatoire (je n&rsquo;ai pas fait l&rsquo;effort de comprendre la « user view ») &amp; 2- code toi-même si ça ne te convient pas (les conseilleurs ne sont pas les codeurs).<br />
+&#8211; J&rsquo;ai bien compris que l&rsquo;équipe &#8211; sous pression &#8211; devait avoir bien du mal à débugger des fonctions critiques ou avait des difficultés plus prioritaires avec des développements stratégiques, mais il n&#8217;empêche.<br />
+&#8211; Résultat : je n&rsquo;ai plus fait aucun retour sur les autres défauts de comportement &amp; j&rsquo;ai une appréhension à le refaire sur d&rsquo;autres projet.<br />
+Le projet est mort depuis, non repris par une communauté comme espéré par Mozilla.<br />
+La conclusion est peut-être qu&rsquo;il faut un traducteur/médiateur user-coder derrière le bouton « je veux parler à un humain », parfois juste pour dire poliment qu&rsquo;on hiérarchise les priorités mais que la remarque reste dans la pile.</p>
+                </div><!-- .comment-content -->
+            </article><!-- .comment-body -->
+</div></li><!-- #comment-## -->
+		</ol>
+
+			</section><!-- /#comments -->
+
+	<section id="respond">
+		<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title">Laissez un commentaire <small><a rel="nofollow" id="cancel-comment-reply-link" href="/2017/12/02/avancer-ensemble-vers-la-contribution/#respond" style="display:none;">Annuler la réponse</a></small></h3>			<form action="https://framablog.org/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate>
+				<p class="comment-form-comment"><label for="comment">Commentaire</label> <textarea id="comment" name="comment" cols="45" rows="8" class="input-xlarge" aria-required="true" required="required"></textarea></p><div class="row"><div class="col-md-4"><label for="author">Nom complet <span class="comment-required">*</span></label> <input id="author" name="author" type="text" value="" aria-required="true" /></div>
+<div class="col-md-4"><label for="email">Courriel (ne sera pas publié) <span class="comment-required">*</span></label> <input type="email" class="text" name="email" id="email" value="" aria-required="true" /></div>
+<div class="col-md-4"><label for="url">Site</label> <input id="url" name="url" type="url" value="" /></div>
+</div><p class="form-submit"><input name="submit" type="submit" id="submit" class="kad-btn kad-btn-primary" value="Envoyer un commentaire" /> <input type='hidden' name='comment_post_ID' value='10996' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+</p><p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="ba0ff28cc2" /></p><p style="display:none"><textarea name="more_comment" cols="100%" rows="10"></textarea><label  for="more_comment">If you are a human, do not fill in this field.</label></p><p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="77"/></p>			</form>
+			</div><!-- #respond -->
+	<div id="wtr-comments-end"></div>	</section><!-- /#respond -->
+		</div>
+						<aside class="col-lg-3 col-md-4 kad-sidebar" role="complementary" itemscope itemtype="http://schema.org/WPSideBar">
+					<div class="sidebar">
+								<section id="recent-posts-2" class="widget-1 widget-first widget widget_recent_entries"><div class="widget-inner">		<h3>Articles récents</h3>		<ul>
+											<li>
+					<a href="https://framablog.org/2018/06/04/21-degres-de-liberte-20/">21 degrés de liberté – 20</a>
+									</li>
+											<li>
+					<a href="https://framablog.org/2018/05/31/peertube-vers-la-version-1-et-au-dela/">PeerTube&#160;: vers la version 1, et au-delà&#160;!</a>
+									</li>
+											<li>
+					<a href="https://framablog.org/2018/05/28/21-degres-de-liberte-19/">21 degrés de liberté &#8211; 19</a>
+									</li>
+											<li>
+					<a href="https://framablog.org/2018/05/25/funkwhale-les-baleines-melomanes-libres-et-decentralisees/">Funkwhale, les baleines mélomanes libres et décentralisées</a>
+									</li>
+											<li>
+					<a href="https://framablog.org/2018/05/23/comment-reparer-les-medias-sociaux-et-faire-encore-mieux/">Comment réparer les médias sociaux (et faire encore mieux)</a>
+									</li>
+					</ul>
+		</div></section><section id="archives-2" class="widget-2 widget widget_archive"><div class="widget-inner"><h3>Archives</h3>		<label class="screen-reader-text" for="archives-dropdown-2">Archives</label>
+		<select id="archives-dropdown-2" name="archive-dropdown" onchange='document.location.href=this.options[this.selectedIndex].value;'>
+			
+			<option value="">Sélectionner un mois</option>
+				<option value='https://framablog.org/2018/06/'> juin 2018 &nbsp;(1)</option>
+	<option value='https://framablog.org/2018/05/'> mai 2018 &nbsp;(10)</option>
+	<option value='https://framablog.org/2018/04/'> avril 2018 &nbsp;(12)</option>
+	<option value='https://framablog.org/2018/03/'> mars 2018 &nbsp;(11)</option>
+	<option value='https://framablog.org/2018/02/'> février 2018 &nbsp;(9)</option>
+	<option value='https://framablog.org/2018/01/'> janvier 2018 &nbsp;(11)</option>
+	<option value='https://framablog.org/2017/12/'> décembre 2017 &nbsp;(6)</option>
+	<option value='https://framablog.org/2017/11/'> novembre 2017 &nbsp;(6)</option>
+	<option value='https://framablog.org/2017/10/'> octobre 2017 &nbsp;(11)</option>
+	<option value='https://framablog.org/2017/09/'> septembre 2017 &nbsp;(8)</option>
+	<option value='https://framablog.org/2017/08/'> août 2017 &nbsp;(8)</option>
+	<option value='https://framablog.org/2017/07/'> juillet 2017 &nbsp;(6)</option>
+	<option value='https://framablog.org/2017/06/'> juin 2017 &nbsp;(9)</option>
+	<option value='https://framablog.org/2017/05/'> mai 2017 &nbsp;(7)</option>
+	<option value='https://framablog.org/2017/04/'> avril 2017 &nbsp;(8)</option>
+	<option value='https://framablog.org/2017/03/'> mars 2017 &nbsp;(10)</option>
+	<option value='https://framablog.org/2017/02/'> février 2017 &nbsp;(9)</option>
+	<option value='https://framablog.org/2017/01/'> janvier 2017 &nbsp;(7)</option>
+	<option value='https://framablog.org/2016/12/'> décembre 2016 &nbsp;(7)</option>
+	<option value='https://framablog.org/2016/11/'> novembre 2016 &nbsp;(10)</option>
+	<option value='https://framablog.org/2016/10/'> octobre 2016 &nbsp;(20)</option>
+	<option value='https://framablog.org/2016/09/'> septembre 2016 &nbsp;(15)</option>
+	<option value='https://framablog.org/2016/08/'> août 2016 &nbsp;(10)</option>
+	<option value='https://framablog.org/2016/07/'> juillet 2016 &nbsp;(9)</option>
+	<option value='https://framablog.org/2016/06/'> juin 2016 &nbsp;(8)</option>
+	<option value='https://framablog.org/2016/05/'> mai 2016 &nbsp;(11)</option>
+	<option value='https://framablog.org/2016/04/'> avril 2016 &nbsp;(10)</option>
+	<option value='https://framablog.org/2016/03/'> mars 2016 &nbsp;(7)</option>
+	<option value='https://framablog.org/2016/02/'> février 2016 &nbsp;(3)</option>
+	<option value='https://framablog.org/2016/01/'> janvier 2016 &nbsp;(7)</option>
+	<option value='https://framablog.org/2015/12/'> décembre 2015 &nbsp;(9)</option>
+	<option value='https://framablog.org/2015/11/'> novembre 2015 &nbsp;(3)</option>
+	<option value='https://framablog.org/2015/10/'> octobre 2015 &nbsp;(16)</option>
+	<option value='https://framablog.org/2015/09/'> septembre 2015 &nbsp;(12)</option>
+	<option value='https://framablog.org/2015/08/'> août 2015 &nbsp;(6)</option>
+	<option value='https://framablog.org/2015/07/'> juillet 2015 &nbsp;(8)</option>
+	<option value='https://framablog.org/2015/06/'> juin 2015 &nbsp;(17)</option>
+	<option value='https://framablog.org/2015/05/'> mai 2015 &nbsp;(11)</option>
+	<option value='https://framablog.org/2015/04/'> avril 2015 &nbsp;(8)</option>
+	<option value='https://framablog.org/2015/03/'> mars 2015 &nbsp;(15)</option>
+	<option value='https://framablog.org/2015/02/'> février 2015 &nbsp;(16)</option>
+	<option value='https://framablog.org/2015/01/'> janvier 2015 &nbsp;(6)</option>
+	<option value='https://framablog.org/2014/12/'> décembre 2014 &nbsp;(6)</option>
+	<option value='https://framablog.org/2014/11/'> novembre 2014 &nbsp;(5)</option>
+	<option value='https://framablog.org/2014/10/'> octobre 2014 &nbsp;(6)</option>
+	<option value='https://framablog.org/2014/09/'> septembre 2014 &nbsp;(13)</option>
+	<option value='https://framablog.org/2014/08/'> août 2014 &nbsp;(10)</option>
+	<option value='https://framablog.org/2014/07/'> juillet 2014 &nbsp;(6)</option>
+	<option value='https://framablog.org/2014/06/'> juin 2014 &nbsp;(15)</option>
+	<option value='https://framablog.org/2014/05/'> mai 2014 &nbsp;(13)</option>
+	<option value='https://framablog.org/2014/04/'> avril 2014 &nbsp;(17)</option>
+	<option value='https://framablog.org/2014/03/'> mars 2014 &nbsp;(24)</option>
+	<option value='https://framablog.org/2014/02/'> février 2014 &nbsp;(17)</option>
+	<option value='https://framablog.org/2014/01/'> janvier 2014 &nbsp;(23)</option>
+	<option value='https://framablog.org/2013/12/'> décembre 2013 &nbsp;(22)</option>
+	<option value='https://framablog.org/2013/11/'> novembre 2013 &nbsp;(41)</option>
+	<option value='https://framablog.org/2013/10/'> octobre 2013 &nbsp;(28)</option>
+	<option value='https://framablog.org/2013/09/'> septembre 2013 &nbsp;(16)</option>
+	<option value='https://framablog.org/2013/08/'> août 2013 &nbsp;(23)</option>
+	<option value='https://framablog.org/2013/07/'> juillet 2013 &nbsp;(10)</option>
+	<option value='https://framablog.org/2013/06/'> juin 2013 &nbsp;(31)</option>
+	<option value='https://framablog.org/2013/05/'> mai 2013 &nbsp;(26)</option>
+	<option value='https://framablog.org/2013/04/'> avril 2013 &nbsp;(26)</option>
+	<option value='https://framablog.org/2013/03/'> mars 2013 &nbsp;(36)</option>
+	<option value='https://framablog.org/2013/02/'> février 2013 &nbsp;(37)</option>
+	<option value='https://framablog.org/2013/01/'> janvier 2013 &nbsp;(33)</option>
+	<option value='https://framablog.org/2012/12/'> décembre 2012 &nbsp;(24)</option>
+	<option value='https://framablog.org/2012/11/'> novembre 2012 &nbsp;(23)</option>
+	<option value='https://framablog.org/2012/10/'> octobre 2012 &nbsp;(34)</option>
+	<option value='https://framablog.org/2012/09/'> septembre 2012 &nbsp;(27)</option>
+	<option value='https://framablog.org/2012/08/'> août 2012 &nbsp;(9)</option>
+	<option value='https://framablog.org/2012/07/'> juillet 2012 &nbsp;(12)</option>
+	<option value='https://framablog.org/2012/06/'> juin 2012 &nbsp;(15)</option>
+	<option value='https://framablog.org/2012/05/'> mai 2012 &nbsp;(16)</option>
+	<option value='https://framablog.org/2012/04/'> avril 2012 &nbsp;(4)</option>
+	<option value='https://framablog.org/2012/03/'> mars 2012 &nbsp;(16)</option>
+	<option value='https://framablog.org/2012/02/'> février 2012 &nbsp;(18)</option>
+	<option value='https://framablog.org/2012/01/'> janvier 2012 &nbsp;(28)</option>
+	<option value='https://framablog.org/2011/12/'> décembre 2011 &nbsp;(28)</option>
+	<option value='https://framablog.org/2011/11/'> novembre 2011 &nbsp;(9)</option>
+	<option value='https://framablog.org/2011/10/'> octobre 2011 &nbsp;(15)</option>
+	<option value='https://framablog.org/2011/09/'> septembre 2011 &nbsp;(21)</option>
+	<option value='https://framablog.org/2011/08/'> août 2011 &nbsp;(24)</option>
+	<option value='https://framablog.org/2011/07/'> juillet 2011 &nbsp;(3)</option>
+	<option value='https://framablog.org/2011/06/'> juin 2011 &nbsp;(5)</option>
+	<option value='https://framablog.org/2011/05/'> mai 2011 &nbsp;(18)</option>
+	<option value='https://framablog.org/2011/04/'> avril 2011 &nbsp;(14)</option>
+	<option value='https://framablog.org/2011/03/'> mars 2011 &nbsp;(16)</option>
+	<option value='https://framablog.org/2011/02/'> février 2011 &nbsp;(24)</option>
+	<option value='https://framablog.org/2011/01/'> janvier 2011 &nbsp;(39)</option>
+	<option value='https://framablog.org/2010/12/'> décembre 2010 &nbsp;(6)</option>
+	<option value='https://framablog.org/2010/11/'> novembre 2010 &nbsp;(18)</option>
+	<option value='https://framablog.org/2010/10/'> octobre 2010 &nbsp;(20)</option>
+	<option value='https://framablog.org/2010/09/'> septembre 2010 &nbsp;(19)</option>
+	<option value='https://framablog.org/2010/08/'> août 2010 &nbsp;(27)</option>
+	<option value='https://framablog.org/2010/07/'> juillet 2010 &nbsp;(9)</option>
+	<option value='https://framablog.org/2010/06/'> juin 2010 &nbsp;(17)</option>
+	<option value='https://framablog.org/2010/05/'> mai 2010 &nbsp;(20)</option>
+	<option value='https://framablog.org/2010/04/'> avril 2010 &nbsp;(22)</option>
+	<option value='https://framablog.org/2010/03/'> mars 2010 &nbsp;(16)</option>
+	<option value='https://framablog.org/2010/02/'> février 2010 &nbsp;(28)</option>
+	<option value='https://framablog.org/2010/01/'> janvier 2010 &nbsp;(26)</option>
+	<option value='https://framablog.org/2009/12/'> décembre 2009 &nbsp;(21)</option>
+	<option value='https://framablog.org/2009/11/'> novembre 2009 &nbsp;(19)</option>
+	<option value='https://framablog.org/2009/10/'> octobre 2009 &nbsp;(20)</option>
+	<option value='https://framablog.org/2009/09/'> septembre 2009 &nbsp;(16)</option>
+	<option value='https://framablog.org/2009/08/'> août 2009 &nbsp;(1)</option>
+	<option value='https://framablog.org/2009/07/'> juillet 2009 &nbsp;(11)</option>
+	<option value='https://framablog.org/2009/06/'> juin 2009 &nbsp;(34)</option>
+	<option value='https://framablog.org/2009/05/'> mai 2009 &nbsp;(32)</option>
+	<option value='https://framablog.org/2009/04/'> avril 2009 &nbsp;(37)</option>
+	<option value='https://framablog.org/2009/03/'> mars 2009 &nbsp;(41)</option>
+	<option value='https://framablog.org/2009/02/'> février 2009 &nbsp;(36)</option>
+	<option value='https://framablog.org/2009/01/'> janvier 2009 &nbsp;(34)</option>
+	<option value='https://framablog.org/2008/12/'> décembre 2008 &nbsp;(27)</option>
+	<option value='https://framablog.org/2008/11/'> novembre 2008 &nbsp;(19)</option>
+	<option value='https://framablog.org/2008/10/'> octobre 2008 &nbsp;(15)</option>
+	<option value='https://framablog.org/2008/09/'> septembre 2008 &nbsp;(25)</option>
+	<option value='https://framablog.org/2008/08/'> août 2008 &nbsp;(20)</option>
+	<option value='https://framablog.org/2008/07/'> juillet 2008 &nbsp;(3)</option>
+	<option value='https://framablog.org/2008/06/'> juin 2008 &nbsp;(21)</option>
+	<option value='https://framablog.org/2008/05/'> mai 2008 &nbsp;(20)</option>
+	<option value='https://framablog.org/2008/04/'> avril 2008 &nbsp;(21)</option>
+	<option value='https://framablog.org/2008/03/'> mars 2008 &nbsp;(15)</option>
+	<option value='https://framablog.org/2008/02/'> février 2008 &nbsp;(12)</option>
+	<option value='https://framablog.org/2008/01/'> janvier 2008 &nbsp;(7)</option>
+	<option value='https://framablog.org/2007/08/'> août 2007 &nbsp;(1)</option>
+	<option value='https://framablog.org/2007/07/'> juillet 2007 &nbsp;(6)</option>
+	<option value='https://framablog.org/2007/06/'> juin 2007 &nbsp;(10)</option>
+	<option value='https://framablog.org/2007/05/'> mai 2007 &nbsp;(23)</option>
+	<option value='https://framablog.org/2007/04/'> avril 2007 &nbsp;(17)</option>
+	<option value='https://framablog.org/2007/03/'> mars 2007 &nbsp;(17)</option>
+	<option value='https://framablog.org/2007/02/'> février 2007 &nbsp;(7)</option>
+	<option value='https://framablog.org/2007/01/'> janvier 2007 &nbsp;(3)</option>
+	<option value='https://framablog.org/2006/12/'> décembre 2006 &nbsp;(2)</option>
+	<option value='https://framablog.org/2006/11/'> novembre 2006 &nbsp;(5)</option>
+	<option value='https://framablog.org/2006/10/'> octobre 2006 &nbsp;(30)</option>
+	<option value='https://framablog.org/2006/09/'> septembre 2006 &nbsp;(22)</option>
+
+		</select>
+		</div></section><section id="categories-2" class="widget-3 widget widget_categories"><div class="widget-inner"><h3>Catégories</h3>		<ul>
+	<li class="cat-item cat-item-1159"><a href="https://framablog.org/category/internet-et-societe/21-degres-de-liberte/" >21 degrés de liberté</a>
+</li>
+	<li class="cat-item cat-item-1077"><a href="https://framablog.org/category/libres-cultures/artiste/" >Artiste</a>
+</li>
+	<li class="cat-item cat-item-1055"><a href="https://framablog.org/category/libren-vrac/claviers-invites/" title="Les articles présentés ici sont ceux de personnes invitées à s&#039;exprimer sur le Framablog. Ces auteurs et autrices ne font pas partie de l&#039;association, mais leurs mots et leurs idées nous semblent avoir toute leur place ici.">Claviers invités</a>
+</li>
+	<li class="cat-item cat-item-1171"><a href="https://framablog.org/category/contributopia/communs/" >Communs</a>
+</li>
+	<li class="cat-item cat-item-1110"><a href="https://framablog.org/category/contributopia/" >Contributopia</a>
+</li>
+	<li class="cat-item cat-item-648"><a href="https://framablog.org/category/degooglisons-internet/" title="Quand les GAFAM et consorts proposent un internet privatif, fermé, centralisateur et espionnant... On a envie de tendre vers des solutions Libres, Ethiques Décentralisées et Solidaires...">Dégooglisons Internet</a>
+</li>
+	<li class="cat-item cat-item-885"><a href="https://framablog.org/category/libres-cultures/des-routes-et-des-ponts/" >Des routes et des Ponts</a>
+</li>
+	<li class="cat-item cat-item-1230"><a href="https://framablog.org/category/internet-et-societe/droits-numeriques/" >Droits numériques</a>
+</li>
+	<li class="cat-item cat-item-7"><a href="https://framablog.org/category/libren-vrac/education/" title="La catégorie Education tient tout particulièrement à Framasoft qui a été fondé par des enseignants. Dans la mesure où le logiciels libre n&#039;a pas encore forcément une juste place à l&#039;école, il y a beaucoup à dire et à faire.">Éducation</a>
+</li>
+	<li class="cat-item cat-item-1166"><a href="https://framablog.org/category/libres-cultures/ernaut/" >Ernaut</a>
+</li>
+	<li class="cat-item cat-item-1240"><a href="https://framablog.org/category/federation/" >Fédération</a>
+</li>
+	<li class="cat-item cat-item-1051"><a href="https://framablog.org/category/libres-cultures/framabook/" >Framabook</a>
+</li>
+	<li class="cat-item cat-item-1229"><a href="https://framablog.org/category/framasite/" >Framasite</a>
+</li>
+	<li class="cat-item cat-item-3"><a href="https://framablog.org/category/framasoft/" title="La catégorie Framasoft concerne tout ce qui touche de près ou de loin au réseau de sites et de projets Framasoft ainsi qu&#039;à l&#039;actualité de son association.">Framasoft</a>
+</li>
+	<li class="cat-item cat-item-13"><a href="https://framablog.org/category/degooglisons-internet/apple-google-microsoft/" title="La catégorie Google Apple Facebook Amazon Microsoft évoque la bataille sans merci que se livrent ces géants sur tous les fronts... Et leur avidité pour nos données et notre attention. Et le logiciel libre dans tout ça ?">G.A.F.A.M.</a>
+</li>
+	<li class="cat-item cat-item-12"><a href="https://framablog.org/category/libres-cultures/grisebouille/" title="La catégorie Grise Bouille (anciennement Geektionnerd) regroupe les planches humoristiques de Simon Gee Giraudot qui croque l&#039;actualité pour nous.">Grise Bouille</a>
+</li>
+	<li class="cat-item cat-item-872"><a href="https://framablog.org/category/internet-et-societe/" >Internet et société</a>
+</li>
+	<li class="cat-item cat-item-763"><a href="https://framablog.org/category/libres-cultures/interview/" >Interview</a>
+</li>
+	<li class="cat-item cat-item-11"><a href="https://framablog.org/category/degooglisons-internet/libertes-numeriques/" title="La catégorie Libertés numériques témoigne de la difficulté de préserver un Internet neutre, libre et ouvert sous la pression de certains politiques et de certaines industries. Menacer le réseau c&#039;est menacer l&#039;avenir de la société toute entière.">Libertés Numériques</a>
+</li>
+	<li class="cat-item cat-item-649"><a href="https://framablog.org/category/libren-vrac/" title="Le Libre se retrouve partout et sous bien des formes... Voici des interviews, des initiatives, des interventions et des nouvelles qui, en un sens, nous interrogent sur le monde du Libre.">Libr&#039;en Vrac</a>
+</li>
+	<li class="cat-item cat-item-6"><a href="https://framablog.org/category/libres-cultures/" title="La catégorie Libres Cultures propose des billets qui gravitent autour d&#039;une insaisissable mais pourtant bien présente « culture libre ». C&#039;est un peu la catégorie extension du domaine du logiciel libre.">Libres Cultures</a>
+</li>
+	<li class="cat-item cat-item-4"><a href="https://framablog.org/category/logiciel-libre/" title="La catégorie Libres Logiciels propose des informations diverses et variées autour du logiciel libre. Il s&#039;agit non seulement d&#039;évoquer son actualité que de s&#039;interroger ensemble sur son évolution.">Libres Logiciels</a>
+</li>
+	<li class="cat-item cat-item-650"><a href="https://framablog.org/category/libres-services/" title="Le logiciel s&#039;est envolé dans les nuages (c&#039;est à dire sur les ordinateurs des autres). Ces services, applications web et autres outils en lignes connaissent un succès croissant... et le libre, dans tout ça ?">Libres Services</a>
+</li>
+	<li class="cat-item cat-item-14"><a href="https://framablog.org/category/libren-vrac/librologies/" title="La catégorie Librologies regroupe les chroniques idéologiques du mouvement du Libre de Valentin Villenave">Librologies</a>
+</li>
+	<li class="cat-item cat-item-10"><a href="https://framablog.org/category/degooglisons-internet/migration/" title="La catégorie Migration est une sorte de chroniques relatant les passages divers et variés du propriétaire vers le libre. Une attention toute particulière est donnée à la substitition de l&#039;OS Windows par GNU/Linux.">Migration</a>
+</li>
+	<li class="cat-item cat-item-8"><a href="https://framablog.org/category/libres-cultures/musique/" title="La catégorie Musique se passe de toute description, non ? Il s&#039;agit aussi bien de suivre l&#039;évolution de ce champ artistique fortement bousculé par le numérique que de référencer de temps en temps des artistes qui n&#039;hésitent pas à faire le pari de la musique libre.">Musique</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="https://framablog.org/category/non-classe/" >Non classé</a>
+</li>
+	<li class="cat-item cat-item-15"><a href="https://framablog.org/category/libres-cultures/open-advice/" >Open Advice</a>
+</li>
+	<li class="cat-item cat-item-16"><a href="https://framablog.org/category/libres-cultures/pouhiou/" >Pouhiou</a>
+</li>
+	<li class="cat-item cat-item-9"><a href="https://framablog.org/category/libres-services/wikipedia/" title="La catégorie Wikipédia concerne ce qui touche de près ou de loin à la célèbre encyclopédie, véritable fer de lance d&#039;une culture libre qui se cherche mais qui avance inéxorablement.">Wikipédia</a>
+</li>
+		</ul>
+</div></section><section id="text-2" class="widget-4 widget widget_text"><div class="widget-inner">			<div class="textwidget"><script type="text/javascript">
+jQuery('document').ready(function(){
+    /* Pas de support dans les commentaires */
+    jQuery('#comment').before('<p class="small">Pour toutes demandes d’aide, questions ou idées d’améliorations sur les services de <b class="violet">Frama</b><b class="orange">soft</b>, merci de nous contacter plutôt sur <b><a href="https://contact.framasoft.org">contact.framasoft.org</a></b>.</p>');
+
+    /* Fix liens blip.framatube.org - À corriger directement en BdD */
+    jQuery('video, a, source, track').each(function() { 
+        if(jQuery(this).attr('src')!=undefined) {
+            var blip_url_src = jQuery(this).attr('src').replace('blip.framatube.org/', 'framatube.org/blip/');
+            jQuery(this).attr('src', blip_url_src);
+        }
+        if(jQuery(this).attr('poster')!=undefined) {
+            var blip_url_poster = jQuery(this).attr('poster').replace('blip.framatube.org/', 'framatube.org/blip/');
+            jQuery(this).attr('poster', blip_url_poster);
+        }
+        if(jQuery(this).attr('href')!=undefined) { 
+            var blip_url_href = jQuery(this).attr('href').replace('blip.framatube.org/', 'framatube.org/blip/');
+            jQuery(this).attr('href', blip_url_href);
+        }
+    });
+
+    /* Partage sur Mastodon */
+    if(jQuery('.ss-button-facebook').length) {
+        jQuery('.ss-button-facebook').before(
+            '<a style="display: block;margin-right: 8px;text-indent: 0;float: left;margin-top: 7px;" rel="external nofollow" class="ss-button-mastodon" href="'+jQuery('.ss-button-twitter').attr('href').replace('http://twitter.com/intent/tweet/?text=','web+mastodon://share?text=').replace('&url=','%0A')+'" target="_blank"><img src="/wp-content/uploads/2017/12/mastodon.png" alt="Share on Mastodon"></a>'
+        );
+        jQuery('.posttags').before(jQuery('.social-sharing'));
+    }
+});
+</script></div>
+		</div></section><section id="tag_cloud-2" class="widget-5 widget widget_tag_cloud"><div class="widget-inner"><h3>Étiquettes</h3><div class="tagcloud"><a href="https://framablog.org/tag/apple/" class="tag-cloud-link tag-link-43 tag-link-position-1" style="font-size: 9.2389380530973pt;" aria-label="Apple (81 éléments)">Apple</a>
+<a href="https://framablog.org/tag/artlibre/" class="tag-cloud-link tag-link-50 tag-link-position-2" style="font-size: 8.3716814159292pt;" aria-label="ArtLibre (68 éléments)">ArtLibre</a>
+<a href="https://framablog.org/tag/cc/" class="tag-cloud-link tag-link-85 tag-link-position-3" style="font-size: 13.575221238938pt;" aria-label="CC (181 éléments)">CC</a>
+<a href="https://framablog.org/tag/code/" class="tag-cloud-link tag-link-106 tag-link-position-4" style="font-size: 11.716814159292pt;" aria-label="Code (129 éléments)">Code</a>
+<a href="https://framablog.org/tag/communaute/" class="tag-cloud-link tag-link-110 tag-link-position-5" style="font-size: 17.16814159292pt;" aria-label="Communaute (356 éléments)">Communaute</a>
+<a href="https://framablog.org/tag/confidentialite/" class="tag-cloud-link tag-link-118 tag-link-position-6" style="font-size: 8.8672566371681pt;" aria-label="Confidentialite (75 éléments)">Confidentialite</a>
+<a href="https://framablog.org/tag/copyfight/" class="tag-cloud-link tag-link-123 tag-link-position-7" style="font-size: 14.194690265487pt;" aria-label="CopyFight (204 éléments)">CopyFight</a>
+<a href="https://framablog.org/tag/debat/" class="tag-cloud-link tag-link-136 tag-link-position-8" style="font-size: 13.203539823009pt;" aria-label="Debat (169 éléments)">Debat</a>
+<a href="https://framablog.org/tag/degooglisons/" class="tag-cloud-link tag-link-138 tag-link-position-9" style="font-size: 12.088495575221pt;" aria-label="Degooglisons (136 éléments)">Degooglisons</a>
+<a href="https://framablog.org/tag/economie/" class="tag-cloud-link tag-link-162 tag-link-position-10" style="font-size: 14.318584070796pt;" aria-label="Economie (208 éléments)">Economie</a>
+<a href="https://framablog.org/tag/entreprise/" class="tag-cloud-link tag-link-171 tag-link-position-11" style="font-size: 10.601769911504pt;" aria-label="Entreprise (103 éléments)">Entreprise</a>
+<a href="https://framablog.org/tag/facebook/" class="tag-cloud-link tag-link-184 tag-link-position-12" style="font-size: 8pt;" aria-label="Facebook (64 éléments)">Facebook</a>
+<a href="https://framablog.org/tag/firefox/" class="tag-cloud-link tag-link-194 tag-link-position-13" style="font-size: 8.6194690265487pt;" aria-label="Firefox (71 éléments)">Firefox</a>
+<a href="https://framablog.org/tag/framabook/" class="tag-cloud-link tag-link-203 tag-link-position-14" style="font-size: 9.858407079646pt;" aria-label="Framabook (90 éléments)">Framabook</a>
+<a href="https://framablog.org/tag/fsf/" class="tag-cloud-link tag-link-182 tag-link-position-15" style="font-size: 8.2477876106195pt;" aria-label="FSF (66 éléments)">FSF</a>
+<a href="https://framablog.org/tag/gafam/" class="tag-cloud-link tag-link-651 tag-link-position-16" style="font-size: 15.557522123894pt;" aria-label="GAFAM (260 éléments)">GAFAM</a>
+<a href="https://framablog.org/tag/geektionnerd/" class="tag-cloud-link tag-link-654 tag-link-position-17" style="font-size: 14.690265486726pt;" aria-label="Geektionnerd (225 éléments)">Geektionnerd</a>
+<a href="https://framablog.org/tag/google/" class="tag-cloud-link tag-link-235 tag-link-position-18" style="font-size: 13.575221238938pt;" aria-label="Google (181 éléments)">Google</a>
+<a href="https://framablog.org/tag/hadopi/" class="tag-cloud-link tag-link-243 tag-link-position-19" style="font-size: 11.716814159292pt;" aria-label="Hadopi (129 éléments)">Hadopi</a>
+<a href="https://framablog.org/tag/informatique/" class="tag-cloud-link tag-link-253 tag-link-position-20" style="font-size: 10.106194690265pt;" aria-label="Informatique (94 éléments)">Informatique</a>
+<a href="https://framablog.org/tag/innovation/" class="tag-cloud-link tag-link-255 tag-link-position-21" style="font-size: 12.955752212389pt;" aria-label="Innovation (160 éléments)">Innovation</a>
+<a href="https://framablog.org/tag/internet/" class="tag-cloud-link tag-link-257 tag-link-position-22" style="font-size: 15.433628318584pt;" aria-label="Internet (255 éléments)">Internet</a>
+<a href="https://framablog.org/tag/interview/" class="tag-cloud-link tag-link-258 tag-link-position-23" style="font-size: 12.336283185841pt;" aria-label="Interview (142 éléments)">Interview</a>
+<a href="https://framablog.org/tag/librevolution/" class="tag-cloud-link tag-link-286 tag-link-position-24" style="font-size: 15.557522123894pt;" aria-label="Librevolution (260 éléments)">Librevolution</a>
+<a href="https://framablog.org/tag/linux/" class="tag-cloud-link tag-link-289 tag-link-position-25" style="font-size: 12.83185840708pt;" aria-label="Linux (159 éléments)">Linux</a>
+<a href="https://framablog.org/tag/livre/" class="tag-cloud-link tag-link-291 tag-link-position-26" style="font-size: 11.097345132743pt;" aria-label="Livre (114 éléments)">Livre</a>
+<a href="https://framablog.org/tag/marketing/" class="tag-cloud-link tag-link-307 tag-link-position-27" style="font-size: 9.1150442477876pt;" aria-label="Marketing (79 éléments)">Marketing</a>
+<a href="https://framablog.org/tag/merci/" class="tag-cloud-link tag-link-310 tag-link-position-28" style="font-size: 8.3716814159292pt;" aria-label="Merci (68 éléments)">Merci</a>
+<a href="https://framablog.org/tag/microsoft/" class="tag-cloud-link tag-link-311 tag-link-position-29" style="font-size: 14.070796460177pt;" aria-label="Microsoft (199 éléments)">Microsoft</a>
+<a href="https://framablog.org/tag/mozilla/" class="tag-cloud-link tag-link-319 tag-link-position-30" style="font-size: 8.6194690265487pt;" aria-label="Mozilla (71 éléments)">Mozilla</a>
+<a href="https://framablog.org/tag/musique-libre/" class="tag-cloud-link tag-link-655 tag-link-position-31" style="font-size: 8.1238938053097pt;" aria-label="Musique Libre (65 éléments)">Musique Libre</a>
+<a href="https://framablog.org/tag/opensource/" class="tag-cloud-link tag-link-347 tag-link-position-32" style="font-size: 10.477876106195pt;" aria-label="OpenSource (101 éléments)">OpenSource</a>
+<a href="https://framablog.org/tag/planet/" class="tag-cloud-link tag-link-373 tag-link-position-33" style="font-size: 22pt;" aria-label="Planet (860 éléments)">Planet</a>
+<a href="https://framablog.org/tag/planetedu/" class="tag-cloud-link tag-link-374 tag-link-position-34" style="font-size: 12.336283185841pt;" aria-label="PlanetEdu (144 éléments)">PlanetEdu</a>
+<a href="https://framablog.org/tag/politique/" class="tag-cloud-link tag-link-378 tag-link-position-35" style="font-size: 15.309734513274pt;" aria-label="Politique (251 éléments)">Politique</a>
+<a href="https://framablog.org/tag/projet/" class="tag-cloud-link tag-link-383 tag-link-position-36" style="font-size: 10.725663716814pt;" aria-label="Projet (105 éléments)">Projet</a>
+<a href="https://framablog.org/tag/rezotic/" class="tag-cloud-link tag-link-404 tag-link-position-37" style="font-size: 20.513274336283pt;" aria-label="RezoTIC (654 éléments)">RezoTIC</a>
+<a href="https://framablog.org/tag/stallman/" class="tag-cloud-link tag-link-431 tag-link-position-38" style="font-size: 11.469026548673pt;" aria-label="Stallman (121 éléments)">Stallman</a>
+<a href="https://framablog.org/tag/traduction/" class="tag-cloud-link tag-link-458 tag-link-position-39" style="font-size: 20.761061946903pt;" aria-label="Traduction (683 éléments)">Traduction</a>
+<a href="https://framablog.org/tag/troll/" class="tag-cloud-link tag-link-459 tag-link-position-40" style="font-size: 9.2389380530973pt;" aria-label="Troll (80 éléments)">Troll</a>
+<a href="https://framablog.org/tag/ubuntu/" class="tag-cloud-link tag-link-464 tag-link-position-41" style="font-size: 9.7345132743363pt;" aria-label="Ubuntu (88 éléments)">Ubuntu</a>
+<a href="https://framablog.org/tag/video/" class="tag-cloud-link tag-link-472 tag-link-position-42" style="font-size: 13.946902654867pt;" aria-label="Video (196 éléments)">Video</a>
+<a href="https://framablog.org/tag/weneedyou/" class="tag-cloud-link tag-link-480 tag-link-position-43" style="font-size: 9.3628318584071pt;" aria-label="WeNeedYou (83 éléments)">WeNeedYou</a>
+<a href="https://framablog.org/tag/windows/" class="tag-cloud-link tag-link-494 tag-link-position-44" style="font-size: 11.469026548673pt;" aria-label="Windows (123 éléments)">Windows</a>
+<a href="https://framablog.org/tag/education/" class="tag-cloud-link tag-link-652 tag-link-position-45" style="font-size: 14.194690265487pt;" aria-label="Éducation (203 éléments)">Éducation</a></div>
+</div></section><section id="text-4" class="widget-6 widget widget_text"><div class="widget-inner">			<div class="textwidget"><p class="text-right" style="margin-top: -20px;"><a href="/tag">Tous les mots-clés</a></p></div>
+		</div></section><section id="text-3" class="widget-7 widget widget_text"><div class="widget-inner"><h3>Suivre le blog</h3>			<div class="textwidget"><ul>
+     <li><a href="https://framablog.org/feed/">Flux <abbr title="Really Simple Syndication">RSS</abbr> des articles</a></li>
+    <li><a href="https://framablog.org/comments/feed/">Flux <abbr title="Really Simple Syndication">RSS</abbr> des commentaires</a></li>
+</ul></div>
+		</div></section><section id="text-5" class="widget-8 widget-last widget widget_text"><div class="widget-inner"><h3>Licence du Blog</h3>			<div class="textwidget"><a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />Sauf mentions contraires (et repérez-les, elles sont nombreuses ^^) le contenu de ce blog est mis à disposition selon les termes de la <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Licence Creative Commons Attribution -  Partage dans les Mêmes Conditions 4.0 International</a>.
+<script>
+jQuery(document).ready(() => {
+  jQuery('.comment-body').has('.comment-author a[href*="://troll.frama"]').addClass('troll');
+
+// Images « À la une » vides
+jQuery('article.post').has('img[src*="placehold.it"]')
+  .find('.post-text-container').removeClass('col-md-7').addClass('col-md-12');
+jQuery('article.post').has('img[src*="placehold.it"]')
+  .find('.post-image-container').remove();
+
+// Bouton « Plus d’articles » sur l’accueil
+jQuery('.home_blog').append(`
+  <p class="clearfix">
+    <a href="/${jQuery('.post:last a:last').attr('href').split('/')[3]}/page/2/" class="btn btn-block btn-default">Plus d’articles</a>
+  </p>`);
+});
+</script><script type="text/javascript" src="https://framablog.org/wp-content/uploads/newtheme.js"></script></div>
+		</div></section>					</div><!-- /.sidebar -->
+				</aside><!-- /aside -->
+						</div><!-- /.row-->
+		</div><!-- /.content -->
+	</div><!-- /.wrap -->
+	<footer id="containerfooter" class="footerclass" itemscope itemtype="http://schema.org/WPFooter">
+  <div class="container">
+  	<div class="row">
+  								        						            </div>
+        <div class="footercredits clearfix">
+    		
+    		        	<p>&copy; 2018 Framablog - WordPress Theme by <a href="https://www.kadencethemes.com/" target="_blank">Kadence Themes</a></p>
+    	</div>
+
+  </div>
+
+</footer>
+</div><!--Wrapper-->
+
+<div id="wtr-comments-end" class="at-footer"></div><script type='text/javascript' src='https://framablog.org/wp-content/plugins/worth-the-read/js/wtr.js?ver=4.9.6'></script>
+<script type='text/javascript' src='https://framablog.org/wp-content/plugins/better-wp-security/core/modules/wordpress-tweaks/js/blankshield/blankshield.min.js?ver=4087'></script>
+<script type='text/javascript' src='https://framablog.org/wp-content/plugins/better-wp-security/core/modules/wordpress-tweaks/js/block-tabnapping.js?ver=4087'></script>
+<script type='text/javascript' src='https://framablog.org/wp-content/plugins/wp-social-sharing/static/socialshare.js?ver=1.6'></script>
+<script type='text/javascript' src='https://framablog.org/wp-includes/js/comment-reply.min.js?ver=4.9.6'></script>
+<script type='text/javascript' src='https://framablog.org/wp-includes/js/imagesloaded.min.js?ver=3.2.0'></script>
+<script type='text/javascript' src='https://framablog.org/wp-includes/js/masonry.min.js?ver=3.3.2'></script>
+<script type='text/javascript' src='https://framablog.org/wp-content/themes/virtue/assets/js/min/plugins-min.js?ver=321'></script>
+<script type='text/javascript' src='https://framablog.org/wp-content/themes/virtue/assets/js/main.js?ver=321'></script>
+<script type='text/javascript' src='https://framablog.org/wp-includes/js/wp-embed.min.js?ver=4.9.6'></script>
+<script async="async" type='text/javascript' src='https://framablog.org/wp-content/plugins/akismet/_inc/form.js?ver=4.0.3'></script>
+	</body>
+</html>
+<!--
+Performance optimized by W3 Total Cache. Learn more: https://www.w3-edge.com/products/
+
+Mise en cache objet de 184/307 objets utilisant memcached
+Page Caching using memcached (SSL caching disabled) 
+Mise en cache de base de données 5/32 requêtes dans 0.004 secondes utilisant memcached
+
+Served from: framablog.org @ 2018-06-04 09:14:46 by W3 Total Cache
+-->
+-----PARSED_CONTENT-----
+<p class="text-right"><em class="fa fa-clock-o" aria-hidden="true"> </em>Temps de lecture 14 min</p>
+<div id="wtr-content" data-bg="#FFFFFF" data-fg="#6a5687" data-width="5" data-mute="" data-fgopacity="0.75" data-mutedopacity="0.5" data-placement="top" data-placement-offset="41" data-content-offset="0" data-placement-touch="top" data-placement-offset-touch="41" data-transparent="1" data-touch="1" data-comments="" data-commentsbg="#ffcece" data-location="page" data-mutedfg="#b49cd9">
+<div class="pdfprnt-buttons pdfprnt-buttons-post pdfprnt-top-right"><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?print=pdf" class="pdfprnt-button pdfprnt-button-pdf" target="_blank"><img src="https://framablog.org/wp-content/plugins/pdf-print/images/pdf.png" alt="image_pdf" title="View PDF"/></a><a href="https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/?print=print" class="pdfprnt-button pdfprnt-button-print" target="_blank"><img src="https://framablog.org/wp-content/plugins/pdf-print/images/print.png" alt="image_print" title="Print Content"/></a></div>
+<p><em>Contribuer, oui, mais comment ? Comment susciter des contributions, les accueillir, les dynamiser, lever les obstacles et les blocages de tous  ordres ?</em><br/><br/><em>Tel a été le questionnement à l’origine du <a href="https://framaforms.org/fabulous-contribution-camp-1505398658">Fabulous Contribution Camp</a> qui s’est déroulé à Lyon, du 24 au 26 novembre dernier, à l’initiative de La Quadrature et de Framasoft. Toutes les personnes qui ont participé ont eu à cœur d’identifier les difficultés honnêtement mais aussi de proposer des pistes et des pratiques pour les surmonter…</em></p>
+<p><em>Pour en témoigner, nous donnons la parole aujourd’hui à <a href="http://www.maiwann.net/qui_suis_je/">Maiwann</a> qui est UX designer et que nous avions invitée. L’article ci-dessous est la simple republication de <a href="http://www.maiwann.net/fabulous-contribution-camp/">son compte-rendu sur son blog</a>. Ses observations, ses réactions et ses chouettes</em> sketchnotes <em>font véritablement plaisir (bientôt peut-être d’autres billets des participants ?) et nous indiquent des voies qui sont déjà celles de <a href="https://contributopia.org/fr/home/">Contributopia.</a>. C’est un début prometteur, parions que beaucoup d’associations pourront en tirer profit et continuer l’exploration de la contribution positive.</em></p>
+<h2>Fabulous Contribution Camp</h2>
+<p><a href="https://framablog.org/wp-content/uploads/2017/11/ma%C3%AFwann.jpg"><img class="alignleft size-thumbnail wp-image-10999" src="https://framablog.org/wp-content/uploads/2017/11/ma%C3%AFwann-150x150.jpg" alt="" width="150" height="150" srcset="https://framablog.org/wp-content/uploads/2017/11/maïwann-150x150.jpg 150w, https://framablog.org/wp-content/uploads/2017/11/maïwann.jpg 300w" sizes="(max-width: 150px) 100vw, 150px"/></a>Pour finir ce mois de novembre en beauté, j’ai été invitée par Framasoft à participer au Fabulous Contribution Camp qu’ils co-organisaient avec La Quadrature du Net. Je suis donc partie à Lyon pour rencontrer des contributeur·ice·s de tous horizons (et pas seulement de la technique !) pour parler des outils et de comment aider celleux qui le souhaitent à contribuer plus simplement.</p>
+<h3 id="un-petit-état-des-lieux">Un petit état des lieux</h3>
+<p>Pyg le disait lors du Capitole du Libre (dans la conférence Contributopia que vous pouvez <a href="https://asso.framasoft.org/nextcloud/index.php/s/3IO3XlxhBdmNFvW?path=%2Fcontributopia">retrouver ici</a>), la majorité des projets de logiciel libre sont soutenus par très peu (voire pas) de contributeur·ice·s. L’exemple le plus marquant est celui des pads (une alternative à GoogleDocs permettant d’écrire collaborativement en ligne) : Sur l’année dernière, il n’y a pas une seule personne ayant réalisé plus de 50 contributions, alors que le logiciel est très populaire !</p>
+<p>C’est assez inquiétant, et en même temps pour avoir déjà échoué personnellement, parfois <em>On a l’envie de contribuer et on y arrive pas</em>. Ce qui est quand même assez comique lorsqu’on voit à quel point le logiciel libre a besoin encore et toujours de personnes volontaires !</p>
+<p>J’avais donc hâte de me joindre à des groupes de réflexion sur le sujet afin d’identifier les problématiques et envisager des pistes de solution tout au long du FCC. Autant vous dire que tout le monde s’est transformé·e·s en designer pour concevoir <em>une meilleure expérience contributeur·ice</em> (Peut-on envisager de dire des CX Designer qui au lieu de signifier Customer eXperience sera notre Contributor eXperience Designer ? ^.^ )</p>
+<h3 id="fcc-cest-parti-">FCC c’est parti !</h3>
+<p>Le FCC avait lieu à <a href="https://www.grrrndzero.org/">Grrrnd Zero</a>, un lieu au caractère très affirmé, où les murs sont recouverts d’illustrations, près d’un immense chantier participatif destiné à devenir à la fois salle de concert, d’enregistrement et atelier de bricolage/dessin… Nous nous sommes fait accueillir avec un petit déjeuner fabuleux, cette première journée démarrait vraiment bien !</p>
+<p><a href="https://framablog.org/wp-content/uploads/2017/12/petit_dej.jpg"><img class="aligncenter size-large wp-image-11014" src="https://framablog.org/wp-content/uploads/2017/12/petit_dej-1024x768.jpg" alt="" width="1024" height="768" srcset="https://framablog.org/wp-content/uploads/2017/12/petit_dej-1024x768.jpg 1024w, https://framablog.org/wp-content/uploads/2017/12/petit_dej-300x225.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/petit_dej-768x576.jpg 768w" sizes="(max-width: 1024px) 100vw, 1024px"/></a></p>
+<p>Après un <em>icebreaker</em> rigolo nous demandant de nous regrouper d’abord par provenance géographique (mais comment font les nomades ?), ensuite par coiffure, ensuite par système d’exploitation préféré (oui on était un peu chez les geeks quand même) et enfin par notre engagement associatif principal, nous nous sommes lancés sur des ateliers collaboratifs, animés par les enthousiastes <a href="https://twitter.com/melo_meli">Meli</a> et <a href="https://mastodon.potager.org/@lunar">lunar</a> !</p>
+<h3 id="failosophy--identifier-les-problèmes">Failosophy : Identifier les problèmes</h3>
+<p>Pour démarrer, nous nous sommes regroupés par 4 et avons raconté chacun une expérience marquante où <em>notre envie de contribuer s’est soldée par un fail.</em> Nous notions les différentes problématiques rencontrées sur des post-its avant de toutes les regrouper sur un grand mur pour avoir une vue d’ensemble des cas les plus fréquents. Ensuite, nous avons collaborativement trié les post-it ce qui prend “étrangement toujours 8 minutes peu importe le nombre de post-its ou de personne” d’après Lunar… Il faut dire qu’il avait raison ;)</p>
+<p>De grandes catégories regroupent les post-its et font apparaître des motifs récurrents. Ceux que je retiens (car ils me font écho) :</p>
+<ul><li>La difficulté d’identifier un interlocuteur référent pour s’intégrer au projet</li>
+<li>La peur de demander « Comment faire »</li>
+<li>La peur de ne pas être assez doué·e / de dire des « choses bêtes »</li>
+<li>Ne pas savoir par où commencer</li>
+<li>La peur de ne pas s’intégrer à la communauté</li>
+<li>Le manque de temps</li>
+<li>La difficulté de déléguer à d’autres un projet qu’on a toujours porté</li>
+<li>Le fait de ne pas avoir réussi à créer une communauté autour d’un projet</li>
+<li>Ne pas connaître la ligne de route d’un projet</li>
+<li>Ne pas savoir comment exprimer les besoins de contribution pour que les intéressé·e·s les comprennent</li>
+</ul><p>J’ai la sensation qu’un grand nombre de ces problèmes peuvent être résolus en :</p>
+<ul><li>Listant clairement les besoins de contributions, avec les compétences nécessaires, via une interface plus facile d’accès qu’un github (qui est réellement anxiogène pour les non-développeur·euse·s)</li>
+<li>Désignant une personne accueillante comme point d’entrée pour les nouveaux·lles arrivant·e·s, à laquelle il sera facile de s’adresser, et qui saura aiguiller chacun·e vers des tâches simples pour découvrir le projet.</li>
+</ul><p>Cela se recoupe avec les discussions du Capitole du Libre, ce qui donne la sensation que nous sommes sur la bonne voie et que les hypothèses que j’ai entendues la semaine dernière sont des solutions à des problèmes récurrents pour les contributeur·ice·s !</p>
+<h3 id="Étude-de-cas-6-projets-appellant-à-la-contribution">Étude de cas : 6 projets appelant à la contribution</h3>
+<p>Dans la phase suivante, pour s’imprégner un peu de ce qui se fait parmi les projets nécessitant contribution, nous avons eu le droit à la présentation de :</p>
+<ul><li>Exodus, une plateforme qui analyse les applications Android et liste les logiciels traquant notre activité qu’elle y trouve.</li>
+<li>La Revue de Presse de la Quadrature du Net, permettant de soumettre des articles à la revue de presse de façon collaborative.</li>
+<li>Diaspora, un réseau social décentralisé assez proche de la configuration initiale de facebook.</li>
+<li>FAI Maison, un fournisseur d’accès associatif et nantais, qui propose le prix libre (ou contribution consciente)</li>
+<li>Le PiPhone, une plateforme de La Quadrature du Net permettant d’avoir accès à des numéros de députés afin de les appeler pour les encourager à soutenir (ou non) une loi, en proposant un set d’arguments et un retour d’expérience après l’appel.</li>
+<li>FramaForm, une des alternatives de <a href="http://degooglisons-internet.org/">Dégooglisons Internet</a> lancée par Framasoft, que Pyg a développée seul ( !) en 15 jours ( ! ! !). Avec le souci notamment que le logiciel permet plein de choses différentes mais que les options sont difficiles à trouver.</li>
+</ul><p>Le tour d’horizon permet de voir que si chaque projet recherche à fédérer une communauté de contribution, ils sont tous très différents et n’intéressent sans doute pas du tout les même personnes. <em>Les présentations étaient elles aussi très variées selon la personne,</em> de celui qui démarre par l’aspect technique à celui qui met tout de suite en avant les problématiques d’ergonomie. Bien sur, la présentation varie énormément selon les affinités et les problématiques rencontrées par chacun·e. Peut-être qu’avoir une description homogène (qui ne parte dans l’aspect technique que face à des personnes orientées technique) puis des pistes selon les compétences / envies de la personne en face serait à envisager ? (c’est un point que je laisse en suspens, mais il faut avouer qu’à force je suis rebutée par ceux qui m’expliquent immédiatement en quelle technologie est leur application alors que je suis très interessée par celleux qui ont des problématiques de conception ;) )</p>
+<h3 id="icebreaker-rigolo">Icebreaker rigolo</h3>
+<p>Petite recette : Prenez une feuille et écrivez en gros au marqueur ce dont vous avez envie de parler / un truc à apprendre à quelqu’un, montrez la feuille à tout le monde et formez un binôme avec une personne qui est intéressé·e par votre thème et a un thème qui vous intéresse (ou pas) !</p>
+<h3 id="grodébat-i">Grodébat I</h3>
+<p>Après déjeuner (des lasagnes végétariennes à tomber &lt;3) nous avons repris certaines catégories de problématiques listées le matin et nous sommes séparés en petits groupes pour déterminer :</p>
+<ul><li>C’est quoi le problème ?</li>
+<li>Dans l’idéal, avec une baguette magique, qu’est-ce qu’on fait ?</li>
+<li>Quelles solutions concrètes pour y arriver ?</li>
+</ul><p>Nous sommes arrivés à tout un tas de solutions pour nous mettre le pied à l’étrier :</p>
+<h3 id="vision">Vision :</h3>
+<p>Créer un manifeste et créer des rencontres mêlant communauté de contributeur·ice·s et utilisateur·ice·s</p>
+<h3 id="accès-au-savoir-appropriation">Accès au savoir &amp; Appropriation :</h3>
+<p>Formuler des avantages concurrentiels pour les marchés publics et rendre transparents les logiciels utilisés dans le service public</p>
+<h3 id="sortir-de-lentre-soi">Sortir de l’entre-soi :</h3>
+<p>Trouver des métaphores pour expliquer sans être technique, lister les communautés avec des objectifs similaires mais des besoins différents.</p>
+<h3 id="répartition-des-tâches">Répartition des tâches :</h3>
+<p>Lister l’ensemble des tâches à faire et leur avancement.</p>
+<h3 id="expression-des-besoins">Expression des besoins :</h3>
+<p>Lister &amp; Publier les besoins de contribution en petites tâches, Créer un bouton “J’ai un problème” qui s’adresse à un humain (facilitateur ou UX designer)</p>
+<h3 id="rapports-de-pouvoir">Rapports de pouvoir :</h3>
+<p>Mettre et afficher un système de résolution des conflits.</p>
+<h3 id="gestion-du-temps-et-de-largent">Gestion du temps (et de l’argent) :</h3>
+<p>Mesurer le temps mis pour une tâche pour le prioriser dans le futur et compléter le financement par le don.</p>
+<h3 id="accueil">Accueil :</h3>
+<p>Avoir un·e référent·e du projet, co-rédiger une charte d’accueil “Comment accueillir les personnes”.</p>
+<p>Toutes ces solutions qui sont autant de petits pas à mettre en œuvre m’ont beaucoup enthousiasmée : <em>j’ai l’impression que le chemin est tout tracé pour réaliser de belles choses ensemble !</em> Nous avons d’ailleurs enchaîné avec de petits groupes de travail concrets permettant de débuter la rédaction d’une charte, designer un bouton “J’ai un problème” ou encore réfléchir à une plateforme listant les besoins de contribution.</p>
+<p><a href="https://framablog.org/wp-content/uploads/2017/12/grodebat.jpg"><img class="size-full wp-image-11015 alignleft" src="https://framablog.org/wp-content/uploads/2017/12/grodebat.jpg" alt="" width="331" height="588" srcset="https://framablog.org/wp-content/uploads/2017/12/grodebat.jpg 331w, https://framablog.org/wp-content/uploads/2017/12/grodebat-169x300.jpg 169w" sizes="(max-width: 331px) 100vw, 331px"/></a></p>
+<p>Tout ça en une seule journée autant vous dire que nous étions lessivé·e·s à la fin, mais après un bon repas (préparé par les cuistots de Grrrnd Zero) il était temps de se coucher pour être fraî·che·s le lendemain !</p>
+<h3 id="cest-reparti-pour-un-tour-">C’est reparti pour un tour !</h3>
+<p>C’est avec une fraîcheur toute relative que nous avons entamé la seconde journée du FCC. La fatigue est là, mais la bonne humeur et l’enthousiasme général donnent vraiment envie de finir le week-end en beauté. Nous entamons un tour de météo avec pas mal de personnes dans le brouillard du matin, mais très vite nous faisons chauffer les méninges collectivement.</p>
+<h3 id="contributeurices-où-êtes-vous-">Contributeur·ice·s, où êtes-vous ?</h3>
+<p>Nous démarrons par une séance de « boule de neige » où nous sommes invité·e·s à <em>lister les endroits où, demain, nous pourrions aller pour parler du logiciel libre et trouver de nouvelles personnes pour contribuer !</em> Sur un autre tas, nous écrivons plutôt ce qui nous empêche de le faire actuellement.</p>
+<p>Je liste personnellement mes précédentes écoles de design qui sont, à mon avis, des nids à designers motivé·e·s mais pour qui le monde du libre est inexistant (on a tendance à nous parler principalement de droit d’auteur et nous n’entendons jamais parler de licences libres). Pour y aller cependant, il me faut plus de connaissances sur les licences et une liste de projet dont ils pourraient s’emparer afin de commencer à contribuer rapidement.</p>
+<p>À la fin nous collons tout nos post-it sur les murs et, comme a dit lunar : <em>“Si chacun ramène 3 personnes, la prochaine fois on est 300.”</em>. Il n’y a plus qu’à !</p>
+<figure><figcaption><a href="https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde.jpg"><img class="aligncenter size-large wp-image-11016" src="https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-576x1024.jpg" alt="" width="576" height="1024" srcset="https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-576x1024.jpg 576w, https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-169x300.jpg 169w, https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde-768x1365.jpg 768w, https://framablog.org/wp-content/uploads/2017/12/cherchons_du_monde.jpg 1031w" sizes="(max-width: 576px) 100vw, 576px"/></a></figcaption></figure><h3 id="gros-débat-ii--le-retour">Gros Débat II : Le retour</h3>
+<p>Nous enchaînons sur des groupes de travail thématiques. Je rejoins celui qui aborde le sujet du financement, et y apprends sans surprise que les subventions demandent un investissement énorme (environ 1/3 du temps total de travail passé pour les demander) et que, si le fonctionnement grâce aux dons permet beaucoup plus de liberté, il est soumis à des règles strictes, notamment au fait qu’on ne peut pas donner de contrepartie en échange d’un don, qui doit être fait uniquement pour soutenir le travail passé et à venir de l’association (dans les grandes lignes).<br/>
+Le monde des financements a l’air très nébuleux, ce qui nous fait envisager de rechercher des contributeur·ice·s s’y connaissant en financement comme l’on en rechercherait en design ou en admin sys !</p>
+<p>Les autres groupes ont pour leur part envisagé :</p>
+<h3 id="accueil-1">Accueil :</h3>
+<p>Montrer de l’intérêt aux personnes qui arrivent, lister les besoins afin qu’iels puissent s’en emparer.</p>
+<h3 id="discutons-ensemble">Discutons ensemble :</h3>
+<p>Diversifier les compétences en listant les besoins (les solutions se regroupent, chouette !), ne pas imposer des outils libres aux futurs utilisateur·ice·s mais partir de leurs problèmes plutôt (on dirait bien une démarche de conception centrée utilisateur·ice \o/ )</p>
+<h3 id="rencontrer-les-utilisateurices-">Rencontrer les utilisateur·ice·s :</h3>
+<p>Avoir des relais au sein de l’association ou se greffer à une rencontre existante afin de faciliter les échanges, demander à des UX Designers de se joindre aux rencontres et motiver certains devs à venir voir les tests utilisateurs.</p>
+<h3 id="comment-on-garde-le-lien-post-fcc">Comment on garde le lien post-FCC :</h3>
+<p>Avoir une plateforme ou l’on puisse mettre des photos, un article de blog (collaboratif ?) récapitulant le week-end, et au-delà, une plateforme listant les besoins de contribution (oui, encore, chouette !)</p>
+<h3 id="la-machine-infernale-">La machine infernale !</h3>
+<p>Après le repas composé de pizzas maison (c’est vraiment sympa Grrrnd Zero), nous nous lançons dans la machine infernale : une première personne se place et commence à enchaîner un son et un geste, de façon répétitive. Une seconde personne la rejoint et va elle aussi réaliser son geste, et chacun va à son tour rejoindre la machine infernale, en répétant indéfiniment son geste et son son jusqu’à ce que… la machine s’emballe ! C’était un petit jeu très chouette et revigorant après la phase digestive !</p>
+<h3 id="gros-débat-iii">Gros Débat III</h3>
+<p>Pour ce troisième groupe de réflexion, je rejoins pyg qui a envie de réunir des associations afin de les informer sur le logiciel libre, qui leur plaît pour des raisons évidentes de prix, mais aussi de valeurs ! Cependant le numérique est un domaine assez vaste et pour des assos qui ne s’y connaissent pas, il y a besoin de faire de l’éducation aux usages et à ce que cela engendre d’utiliser tel ou telle logiciel ou application.</p>
+<p>Le groupe fourmille d’idées, je retiens pêle-mêle :</p>
+<ul><li>Il y a un besoin de sensibilisation, de démonstration des possibilités des logiciels libres, et d’accompagnement à la transition,</li>
+<li>Les associations ont besoin d’indépendance, de communiquer et de collaborer</li>
+<li>Les mettre en relation vis à vis de leurs besoins peut permettre une mise en commun de financement pour développer des logiciels ouverts et adaptés</li>
+<li>Il faut aller voir les assos pour savoir ce dont elles ont besoin et ce qu’elles recherchent</li>
+<li>Selon les retours, décider du format, plutôt conférence organisée ou Summer Camp très ouvert ?</li>
+</ul><p>Moi qui recherche à participer à des choses qui ont du sens, me voilà pile au bon endroit et j’en suis très heureuse ^.^</p>
+<h3 id="ca-sent-la-fin-">Ça sent la fin !</h3>
+<p>Enfin, pour finaliser le FCC, nous avons 4 catégories de post-it, à remplir puis à afficher au mur :</p>
+<ul><li>❤️ Ce que nous avons fait ce week-end et qui nous a plu !</li>
+<li>🌟 Ce que j’ai envie de faire dès demain pour contribuer.</li>
+<li>➡ Ce que je fais dans les prochains mois.</li>
+<li>😊 Ce que j’ai envie que quelqu’un d’autre ici fasse (et chacun pouvait récupérer un post-it de ce type pour s’y engager)</li>
+</ul><p>Voici les miens :</p>
+<p><a href="https://framablog.org/wp-content/uploads/2017/12/post_it_bilan.jpg"><img class="aligncenter size-full wp-image-11017" src="https://framablog.org/wp-content/uploads/2017/12/post_it_bilan.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/post_it_bilan.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/post_it_bilan-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/post_it_bilan-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px"/></a></p>
+<h3 id="merci-le-fcc-">Merci le FCC !</h3>
+<p>Ce Fabulous Contribution Camp a été une très bonne expérience : J’ai pu parler UX en long, en large et en travers, à des personnes qui se sont montrées à l’écoute de ce que j’avais à leur raconter (et ça ça fait plaisir !). Les différentes solutions énoncées, avec des pistes concrètes de réalisation pour se lancer rapidement me donnent des ailes, et j’espère que cette motivation ne va pas retomber de sitôt !</p>
+<p>Je vous tiendrai au courant de mes avancées dans le monde du libre et de la contribution, en tout cas je remercie Framasoft de m’avoir permis de venir partager un week-end à Lyon avec eux à parler et rêver du futur du numérique !</p>
+<p>Pour finir, voici les sketchnotes de ce week-end collaboratif. Prenez soin de vous :)</p>
+<figure><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1.jpg"><img class="aligncenter size-full wp-image-11019" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1.jpg" alt="" width="772" height="527" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1.jpg 772w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1-300x205.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_1-768x524.jpg 768w" sizes="(max-width: 772px) 100vw, 772px"/></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2.jpg"><img class="aligncenter size-full wp-image-11020" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2.jpg" alt="" width="716" height="500" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2.jpg 716w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_2-300x209.jpg 300w" sizes="(max-width: 716px) 100vw, 716px"/></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3.jpg"><img class="aligncenter size-full wp-image-11021" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_3-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px"/></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4.jpg"><img class="aligncenter size-full wp-image-11022" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_4-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px"/></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5.jpg"><img class="aligncenter size-full wp-image-11023" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5.jpg" alt="" width="900" height="600" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5.jpg 900w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5-300x200.jpg 300w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_5-768x512.jpg 768w" sizes="(max-width: 900px) 100vw, 900px"/></a><a href="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6.jpg"><img class="aligncenter size-full wp-image-11024" src="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6.jpg" alt="" width="600" height="900" srcset="https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6.jpg 600w, https://framablog.org/wp-content/uploads/2017/12/2017_11_25_6-200x300.jpg 200w" sizes="(max-width: 600px) 100vw, 600px"/></a></figure><p><time datetime="2017-11-30T11:20:00+00:00"><br/>
+Griffonné le 30</time> novembre 2017</p>
+<p class="licence"><img src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" alt="Licence Creative Commons"/></p>
+<div title="Diaspora*" id="diaspora-button-container"><a href="javascript:(function()%7Bvar%20url%20=%20'https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/'%20;var%20title%20=%20'Avancer%20ensemble%20vers%20la%20contribution…';%20window.open('https://framablog.org/wp-content/plugins/share-on-diaspora/new_window.php?url='+encodeURIComponent(url)+'&amp;title='+encodeURIComponent(title),'post','location=no,links=no,scrollbars=no,toolbar=no,width=620,height=400')%7D)()"><img id="diaspora-button-ownimage-img" src="https://framablog.org/wp-content/uploads/2017/11/diaspora.png" alt=""/></a></div>
+</div>
+<div class="social-sharing ss-social-sharing"><a onclick="return ss_plugin_loadpopup_js(this);" rel="external nofollow" class="ss-button-facebook" href="http://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fframablog.org%2F2017%2F12%2F02%2Favancer-ensemble-vers-la-contribution%2F" target="_blank">Share on Facebook</a><a onclick="return ss_plugin_loadpopup_js(this);" rel="external nofollow" class="ss-button-twitter" href="http://twitter.com/intent/tweet/?text=Avancer+ensemble+vers+la+contribution%E2%80%A6&amp;url=https%3A%2F%2Fframablog.org%2F2017%2F12%2F02%2Favancer-ensemble-vers-la-contribution%2F" target="_blank">Share on Twitter</a></div>
+-----PARSED_CONTENT_WITHOUT_TIDY-----
+<figure></figure>
