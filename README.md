@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/j0k3r/graby.svg?branch=master)](https://travis-ci.org/j0k3r/graby)
 [![Coverage Status](https://coveralls.io/repos/j0k3r/graby/badge.svg?branch=master&service=github)](https://coveralls.io/github/j0k3r/graby?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/j0k3r/graby/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/j0k3r/graby/?branch=master)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fj0k3r%2Fgraby.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fj0k3r%2Fgraby?ref=badge_shield)
 
 Graby helps you extract article content from web pages.
 
@@ -296,3 +297,7 @@ $graby = new Graby(array(
     ),
 ));
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fj0k3r%2Fgraby.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fj0k3r%2Fgraby?ref=badge_large)
