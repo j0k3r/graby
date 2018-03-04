@@ -339,7 +339,7 @@ class ConfigBuilder
             } elseif (in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
                 $config->$command = ('yes' === $val || 'true' === $val);
                 // check for single statement commands stored as strings
-            } elseif (in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri'], true)) {
+            } elseif (in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
                 $config->$command = $val;
                 // check for replace_string(find): replace
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
