@@ -495,9 +495,8 @@ class GrabyFunctionalTest extends TestCase
         $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
-        $this->assertSame('2016-01-25T15:25:51+00:00', $res['date']);
         $this->assertContains('[Rencontre] Ils bossaient sur une exclu Kinect qui ne sortira jamais', $res['title']);
-        $this->assertContains('Le Journal du Gamer', $res['summary']);
+        $this->assertContains('Le jeu s’appelle The Best Party Ever', $res['summary']);
         $this->assertSame('text/html', $res['content_type']);
     }
 

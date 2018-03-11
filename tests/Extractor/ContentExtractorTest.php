@@ -744,6 +744,11 @@ class ContentExtractorTest extends TestCase
                 '<div>' . str_repeat('this is the best part of the show', 10) . '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-sources="http://0.0.0.0/big_image.jpg"/></div>',
                 '<img src="http://0.0.0.0/big_image.jpg"',
             ],
+            // test with img attribute from site config
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-toto-src="http://0.0.0.0/big_image.jpg"/></div>',
+                '<img src="http://0.0.0.0/big_image.jpg"',
+            ],
         ];
     }
 
@@ -758,6 +763,7 @@ class ContentExtractorTest extends TestCase
 
         $config = new SiteConfig();
         $config->body = ['//div'];
+        $config->src_lazy_load_attr = 'data-toto-src';
 
         $res = $contentExtractor->process(
             $html,

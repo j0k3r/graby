@@ -335,13 +335,13 @@ class ConfigBuilder
             // check for commands where we accept multiple statements
             if (in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author', 'strip_attr'], true)) {
                 array_push($config->$command, $val);
-                // check for single statement commands that evaluate to true or false
+            // check for single statement commands that evaluate to true or false
             } elseif (in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
                 $config->$command = ('yes' === $val || 'true' === $val);
-                // check for single statement commands stored as strings
-            } elseif (in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri'], true)) {
+            // check for single statement commands stored as strings
+            } elseif (in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
                 $config->$command = $val;
-                // check for replace_string(find): replace
+            // check for replace_string(find): replace
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
                 array_push($config->find_string, $match[2]);
                 array_push($config->replace_string, $val);

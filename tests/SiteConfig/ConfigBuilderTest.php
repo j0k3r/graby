@@ -35,6 +35,7 @@ class ConfigBuilderTest extends TestCase
             'title: hoho',
             'tidy: yes',
             'parser: bob',
+            'src_lazy_load_attr: data-toto-src',
             'date: foo',
             'replace_string(toto): titi',
             'http_header(user-agent): my-user-agent',
@@ -47,6 +48,7 @@ class ConfigBuilderTest extends TestCase
         $configExpected->title = ['hoho'];
         $configExpected->tidy = true;
         $configExpected->parser = 'bob';
+        $configExpected->src_lazy_load_attr = 'data-toto-src';
         $configExpected->find_string = ['toto'];
         $configExpected->replace_string = ['titi'];
         $configExpected->http_header = [

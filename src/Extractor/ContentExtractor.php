@@ -179,6 +179,11 @@ class ContentExtractor
             $this->siteConfig = $this->buildSiteConfig($url, $html);
         }
 
+        // add lazyload information from siteconfig
+        if ($this->siteConfig->src_lazy_load_attr && !in_array($this->siteConfig->src_lazy_load_attr, $this->config['src_lazy_load_attributes'], true)) {
+            $this->config['src_lazy_load_attributes'][] = $this->siteConfig->src_lazy_load_attr;
+        }
+
         // do string replacements
         if (!empty($this->siteConfig->find_string)) {
             if (count($this->siteConfig->find_string) === count($this->siteConfig->replace_string)) {
