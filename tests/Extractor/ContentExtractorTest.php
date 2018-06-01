@@ -938,4 +938,23 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertContains('bob', $contentExtractor->getAuthors());
         $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
+
+    public function testUniqueAuthors()
+    {
+        $url = 'https://www.lemonde.fr/pixels/article/2018/05/30/bloodstained-curse-of-the-moon-delicieux-jeu-de-vampires-a-la-mode-des-annees-1980_5307173_4408996.html';
+        $html = '<script type="application/ld+json">{"author":{"@type":"Person","name":"William Audureau"}}</script><a class="auteur" target="_blank" href="/journaliste/william-audureau/">William Audureau</a>';
+
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+        $siteConfig = $contentExtractor->buildSiteConfig($url);
+
+        $contentExtractor->process(
+            $html,
+            $url,
+            $siteConfig
+        );
+        $authors = $contentExtractor->getAuthors();
+        $authorsUnique = array_unique($authors);
+
+        $this->assertTrue(count($authors) === count($authorsUnique), 'There is no duplicate authors');
+    }
 }
