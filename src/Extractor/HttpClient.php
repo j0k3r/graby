@@ -166,20 +166,12 @@ class HttpClient
         $body = (string) $response->getBody();
 
         // be sure to remove conditional comments for IE
-        // we only remove conditional comments until we found the <head> tag
-        // they usually contains the <html> tag which we try to found and replace the last occurence
-        // with the whole conditional comments
-        preg_match('/^\<!--\[if(\X+)\<!\[endif\]--\>(\X+)\<head\>$/mi', $body, $matchesConditional);
+        // (regex found here: https://stackoverflow.com/a/137831/569101)
+        preg_match_all('/<!--\[if\s(?:[^<]+|<(?!!\[endif\]-->))*<!\[endif\]-->/mi', $body, $matchesConditional);
 
-        if (count($matchesConditional) > 1) {
-            preg_match_all('/\<html([\sa-z0-9\=\"\"\-:\/\.\#]+)\>$/mi', $matchesConditional[0], $matchesHtml);
-
-            if (count($matchesHtml) > 1) {
-                $htmlTag = end($matchesHtml[0]);
-
-                if (!empty($htmlTag)) {
-                    $body = str_replace($matchesConditional[0], $htmlTag . '<head>', $body);
-                }
+        if (isset($matchesConditional[0]) && count($matchesConditional[0]) > 1) {
+            foreach ($matchesConditional as $conditionalComment) {
+                $body = str_replace($conditionalComment, '', $body);
             }
         }
 
