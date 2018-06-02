@@ -23,7 +23,7 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(['debug' => true]);
         $graby->setLogger($logger);
 
-        $res = $graby->fetchContent('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html');
+        $res = $graby->fetchContent('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html');
 
         $this->assertCount(12, $res);
 
@@ -42,7 +42,7 @@ class GrabyFunctionalTest extends TestCase
 
         $this->assertSame(200, $res['status']);
         $this->assertSame('fr', $res['language']);
-        $this->assertSame('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
+        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
         $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res['title']);
         $this->assertSame('text/html', $res['content_type']);
         $this->assertSame('max-age=300', $res['all_headers']['cache-control']);
@@ -74,7 +74,7 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('Cached site config with key: {key}', $records[10]['message']);
         $this->assertSame('Cached site config with key: {key}', $records[11]['message']);
         $this->assertSame('Fetching url: {url}', $records[12]['message']);
-        $this->assertSame('http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $records[12]['context']['url']);
+        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $records[12]['context']['url']);
         $this->assertSame('Trying using method "{method}" on url "{url}"', $records[13]['message']);
         $this->assertSame('get', $records[13]['context']['method']);
         $this->assertSame('Use default referer "{referer}" for url "{url}"', $records[15]['message']);
@@ -85,7 +85,7 @@ class GrabyFunctionalTest extends TestCase
     public function testRealFetchContent2()
     {
         $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html');
+        $res = $graby->fetchContent('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html');
 
         $this->assertCount(12, $res);
 
@@ -105,7 +105,7 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame(200, $res['status']);
         $this->assertSame(['bjori'], $res['authors']);
         $this->assertEmpty($res['language']);
-        $this->assertSame('https://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html', $res['url']);
+        $this->assertSame('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html', $res['url']);
         $this->assertSame('Next Generation MongoDB Driver for PHP!', $res['title']);
         $this->assertContains('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
         $this->assertSame('text/html', $res['content_type']);
@@ -122,7 +122,7 @@ class GrabyFunctionalTest extends TestCase
     public function testBadUrl()
     {
         $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('http://bjori.blogspot.fr/201');
+        $res = $graby->fetchContent('https://bjori.blogspot.com/201');
 
         $this->assertCount(12, $res);
 
@@ -141,7 +141,7 @@ class GrabyFunctionalTest extends TestCase
 
         $this->assertSame(404, $res['status']);
         $this->assertEmpty($res['language']);
-        $this->assertSame('https://bjori.blogspot.fr/201', $res['url']);
+        $this->assertSame('https://bjori.blogspot.com/201', $res['url']);
         $this->assertSame("bjori doesn't blog", $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
         $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
@@ -216,7 +216,7 @@ class GrabyFunctionalTest extends TestCase
     public function testImageFile()
     {
         $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('http://i.imgur.com/w9n2ID2.jpg');
+        $res = $graby->fetchContent('https://i.imgur.com/KQQ7D9z.jpg');
 
         $this->assertCount(12, $res);
 
@@ -236,9 +236,9 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame(200, $res['status']);
         $this->assertEmpty($res['language']);
         $this->assertEmpty($res['authors']);
-        $this->assertSame('http://i.imgur.com/w9n2ID2.jpg', $res['url']);
+        $this->assertSame('https://i.imgur.com/KQQ7D9z.jpg', $res['url']);
         $this->assertSame('Image', $res['title']);
-        $this->assertSame('<a href="http://i.imgur.com/w9n2ID2.jpg"><img src="http://i.imgur.com/w9n2ID2.jpg" alt="image" /></a>', $res['html']);
+        $this->assertSame('<a href="https://i.imgur.com/KQQ7D9z.jpg"><img src="https://i.imgur.com/KQQ7D9z.jpg" alt="image" /></a>', $res['html']);
         $this->assertEmpty($res['summary']);
         $this->assertSame('image/jpeg', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
@@ -247,8 +247,8 @@ class GrabyFunctionalTest extends TestCase
     public function dataDate()
     {
         return [
-            ['http://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html', '2011-07-05T22:09:18+0200'],
-            ['https://www.reddit.com/r/LinuxActionShow/comments/1fccny/arch_linux_survival_guide/', '2013-05-30T16:01:58+00:00'],
+            ['https://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html', '2011-07-05T22:09:18+0200'],
+            ['https://www.ouest-france.fr/europe/pays-bas/qu-est-ce-c-est-que-cette-drole-de-chose-qui-vaut-320-000-euros-5797318', '2018-06-01T15:50:43+02:00'],
         ];
     }
 
@@ -282,8 +282,8 @@ class GrabyFunctionalTest extends TestCase
     public function dataAuthors()
     {
         return [
-            ['http://www.lexpress.fr/actualite/medias/thierry-ardisson-et-bruno-masure-se-sont-affrontes-sur-c8_1892942.html', ['Audrey Kucinskas']],
-            ['http://www.liberation.fr/planete/2017/04/05/donald-trump-et-xi-jinping-tentative-de-flirt-en-floride_1560768', ['Raphaël Balenieri, correspondant à Pékin', 'Frédéric Autran, correspondant à New York']],
+            ['https://www.20minutes.fr/sport/football/2282359-20180601-video-france-italie-bleus-ambiancent-regalent-va-essayer-trop-enflammer', ['Jean Saint-Marc']],
+            ['https://www.liberation.fr/planete/2017/04/05/donald-trump-et-xi-jinping-tentative-de-flirt-en-floride_1560768', ['Raphaël Balenieri, correspondant à Pékin', 'Frédéric Autran, correspondant à New York']],
         ];
     }
 
@@ -323,7 +323,7 @@ class GrabyFunctionalTest extends TestCase
     public function dataWithAccent()
     {
         return [
-            ['http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'],
+            ['http://pérotin.com/post/2015/08/31/Le-cadran-solaire-amoureux'],
             ['https://en.wikipedia.org/wiki/Café'],
             ['http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement'],
             ['http://www.pro-linux.de/news/1/23430/linus-torvalds-über-das-internet-der-dinge.html'],
