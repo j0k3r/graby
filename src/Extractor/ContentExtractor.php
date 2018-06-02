@@ -651,6 +651,14 @@ class ContentExtractor
         return $this->nextPageUrl;
     }
 
+    protected function addAuthor($authorDirty)
+    {
+        $author = trim($authorDirty);
+        if (!in_array($author, $this->authors, true)) {
+            $this->authors[] = $author;
+        }
+    }
+
     /**
      * Check if given node list exists and has length more than 0.
      *
@@ -825,13 +833,13 @@ class ContentExtractor
             if ($fns && $fns->length > 0) {
                 foreach ($fns as $fn) {
                     if ('' !== trim($fn->textContent)) {
-                        $this->authors[] = trim($fn->textContent);
+                        $this->addAuthor($fn->textContent);
                         $this->logger->log('debug', 'hNews: found author: ' . trim($fn->textContent));
                     }
                 }
             } else {
                 if ('' !== trim($author->textContent)) {
-                    $this->authors[] = trim($author->textContent);
+                    $this->addAuthor($author->textContent);
                     $this->logger->log('debug', 'hNews: found author: ' . trim($author->textContent));
                 }
             }
@@ -1096,7 +1104,7 @@ class ContentExtractor
             }
 
             if (isset($data['author']['name'])) {
-                $this->authors[] = $data['author']['name'];
+                $this->addAuthor($data['author']['name']);
             }
         }
     }
