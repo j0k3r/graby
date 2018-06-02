@@ -637,7 +637,7 @@ class HttpClientTest extends TestCase
 <meta name="description" content="Osqledaren">
 <meta name="keywords" content="osqledaren, newspaper">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1, minimum-scale=1, maximum-scale=1">',
-                'expectedBody' => '<html lang="sv-SE"><head>',
+                'removeData' => '<meta http-equiv="refresh" content="0; url=/ie.html" />',
             ],
             [
                 'url' => 'http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html',
@@ -650,7 +650,7 @@ class HttpClientTest extends TestCase
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">',
-                'expectedBody' => '<html lang="fr"><head>',
+                'removeData' => '<html class="ie9">',
             ],
             [
                 'url' => 'https://venngage.com/blog/hashtags-are-worthless/',
@@ -666,7 +666,12 @@ class HttpClientTest extends TestCase
 <!--<![endif]-->
         <head>
                 <meta charset="UTF-8" />',
-                'expectedBody' => '<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#"><head>',
+                'removeData' => '<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">',
+            ],
+            [
+                'url' => 'https://edition.cnn.com/2012/05/13/us/new-york-police-policy/index.html',
+                'html' => '<!DOCTYPE html><html class="no-js"><head><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta charset="utf-8"><meta content="text/html" http-equiv="Content-Type"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0"><link href="/favicon.ie9.ico" rel="Shortcut Icon" type="image/x-icon"/><link href="//cdn.cnn.com/cnn/.e/img/3.0/global/misc/apple-touch-icon.png" rel="apple-touch-icon" type="image/png"/><!--[if lte IE 9]><meta http-equiv="refresh" content="1;url=/2.85.0/static/unsupp.html" /><![endif]--><!--[if gt IE 9><!--><!--<![endif]--><title>New York police tout improving crime numbers to defend frisking policy  - CNN</title><meta content="us" name="section"><meta name="referrer" content="unsafe-url"><meta content="2012-05-13T21:22:42Z" property="og:pubdate"><meta content="2012-05-13T21:22:42Z" name="pubdate"><meta content="2012-05-14T02:34:10Z" name="lastmod"><meta content="https://www.cnn.com/2012/05/13/us/new-york-police-policy/index.html" property="og:url"><meta content="By the CNN Wire Staff" name="author">',
+                'removeData' => '<meta http-equiv="refresh" content="1;url=/2.85.0/static/unsupp.html" />',
             ],
         ];
     }
@@ -674,7 +679,7 @@ class HttpClientTest extends TestCase
     /**
      * @dataProvider dataForConditionalComments
      */
-    public function testWithMetaRefreshInConditionalComments($url, $html, $expectedBody)
+    public function testWithMetaRefreshInConditionalComments($url, $html, $removeData)
     {
         $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
             ->disableOriginalConstructor()
@@ -708,7 +713,9 @@ class HttpClientTest extends TestCase
         $res = $http->fetch($url);
 
         $this->assertSame($url, $res['effective_url']);
-        $this->assertContains($expectedBody, $res['body']);
+        $this->assertNotContains($removeData, $res['body']);
+        $this->assertNotContains('<!--[if ', $res['body']);
+        $this->assertNotContains('endif', $res['body']);
         $this->assertSame('text/html', $res['headers']);
         $this->assertSame(200, $res['status']);
     }
