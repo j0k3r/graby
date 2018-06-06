@@ -666,7 +666,7 @@ class HttpClientTest extends TestCase
 <!--<![endif]-->
         <head>
                 <meta charset="UTF-8" />',
-                'removeData' => '<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">',
+                'removeData' => '<html class="ie ie7" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">',
             ],
             [
                 'url' => 'https://edition.cnn.com/2012/05/13/us/new-york-police-policy/index.html',
