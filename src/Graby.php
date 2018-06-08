@@ -252,7 +252,8 @@ class Graby
         }
 
         $html = $this->convert2Utf8($response['body'], $response['all_headers']);
-        // Removing empty nodes
+
+        // Remove empty nodes (except iframe)
         $re = '/<([^>\s]+)[^iframe|>]*>(?:\s*(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;)\s*)*<\/\1>/m';
         $html = preg_replace($re, '', $html);
 
