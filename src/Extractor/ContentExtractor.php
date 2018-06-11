@@ -745,9 +745,10 @@ class ContentExtractor
         }
 
         // check for given css class
-        $elems = $this->xpath->query($xpathExpression, $node);
+        // shut up operator as there is no pre-validation possible.
+        $elems = @$this->xpath->query($xpathExpression, $node);
 
-        if (false === $this->hasElements($elems)) {
+        if (false === $elems || false === $this->hasElements($elems)) {
             return true;
         }
 
@@ -866,9 +867,10 @@ class ContentExtractor
             return false;
         }
 
-        $elems = $this->xpath->query($xpathExpression, $node);
+        // shut up operator as there is no pre-validation possible.
+        $elems = @$this->xpath->query($xpathExpression, $node);
 
-        if (false === $this->hasElements($elems)) {
+        if (false === $elems || false === $this->hasElements($elems)) {
             return $detectBody;
         }
 
