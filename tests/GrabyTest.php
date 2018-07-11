@@ -1456,4 +1456,26 @@ class GrabyTest extends TestCase
         // So we don't want to see that again
         $this->assertNotContains('<figure><p>Après un <em>icebreaker</em>', $res['html']);
     }
+
+    public function testMetaAuthor()
+    {
+        $response = new Response(
+            200,
+            [
+                'content-type' => 'text/html',
+            ],
+            Stream::factory(__DIR__ . '/fixtures/sites/keithjgrant.test')
+        );
+        $client = new Client();
+        $client->getEmitter()->attach(new Mock([$response]));
+
+        $graby = new Graby();
+        $res = $graby->fetchContent('https://keithjgrant.com/posts/2018/06/resilient-declarative-contextual/');
+
+        // The initial treatment was encapsulating the content into the empty node
+        // So we don't want to see that again
+        $authors = $res['authors'];
+        $this->assertEquals(1, count($authors));
+        $this->assertEquals('Keith J. Grant', $authors[0]);
+    }
 }
