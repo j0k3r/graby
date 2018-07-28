@@ -297,6 +297,12 @@ class ContentExtractor
             $this->logger->log('debug', 'Trying {pattern} to strip element', ['pattern' => $pattern]);
             $elems = $this->xpath->query($pattern, $this->readability->dom);
 
+            if (false === $elems) {
+                $this->logger->log('debug', 'Bad pattern');
+
+                continue;
+            }
+
             $this->removeElements($elems, 'Stripping {length} elements (strip)');
         }
 
@@ -305,6 +311,12 @@ class ContentExtractor
             $this->logger->log('debug', 'Trying {string} to strip element', ['string' => $string]);
             $string = strtr($string, ["'" => '', '"' => '']);
             $elems = $this->xpath->query("//*[contains(@class, '$string') or contains(@id, '$string')]", $this->readability->dom);
+
+            if (false === $elems) {
+                $this->logger->log('debug', 'Bad pattern');
+
+                continue;
+            }
 
             $this->removeElements($elems, 'Stripping {length} elements (strip_id_or_class)');
         }
