@@ -889,6 +889,13 @@ class ContentExtractor
         $this->logger->log('debug', $type . ': found "' . $elems->length . '" with ' . $xpathExpression);
 
         if (1 === $elems->length) {
+            // body can't be an attribute
+            if ($elems->item(0) instanceof \DOMAttr) {
+                $this->logger->log('debug', 'Body can not be an attribute');
+
+                return true;
+            }
+
             $this->body = $elems->item(0);
 
             // prune (clean up elements that may not be content)
