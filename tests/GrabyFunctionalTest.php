@@ -181,38 +181,6 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame([], $res['open_graph']);
     }
 
-    public function testPdfFileBadEncoding()
-    {
-        $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('http://a-eon.biz/PDF/News_Release_Developer.pdf');
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertEmpty($res['language']);
-        $this->assertSame(['Trevor'], $res['authors']);
-        $this->assertSame('2015-10-24T15:42:34+13:00', $res['date']);
-        $this->assertSame('http://a-eon.biz/PDF/News_Release_Developer.pdf', $res['url']);
-        $this->assertSame('News_Release_Developer', $res['title']);
-        $this->assertContains('Amiga developers and users', $res['html']);
-        $this->assertContains('Kickstarting', $res['summary']);
-        $this->assertSame('application/pdf', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
-    }
-
     public function testImageFile()
     {
         $graby = new Graby(['debug' => true]);
@@ -248,12 +216,11 @@ class GrabyFunctionalTest extends TestCase
     {
         return [
             ['https://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html', '2011-07-05T22:09:18+0200'],
-            ['https://www.ouest-france.fr/europe/pays-bas/qu-est-ce-c-est-que-cette-drole-de-chose-qui-vaut-320-000-euros-5797318', '2018-06-01T15:50:43+02:00'],
+            ['https://www.20minutes.fr/sport/football/2282359-20180601-video-france-italie-bleus-ambiancent-regalent-va-essayer-trop-enflammer', '2018-06-01T23:03:11+02:00'],
         ];
     }
 
     /**
-     * @requires extension tidy
      * @dataProvider dataDate
      */
     public function testDate($url, $expectedDate)
@@ -326,7 +293,6 @@ class GrabyFunctionalTest extends TestCase
             ['http://pérotin.com/post/2015/08/31/Le-cadran-solaire-amoureux'],
             ['https://en.wikipedia.org/wiki/Café'],
             ['http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement'],
-            ['http://www.pro-linux.de/news/1/23430/linus-torvalds-über-das-internet-der-dinge.html'],
         ];
     }
 
@@ -411,36 +377,6 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    /**
-     * @requires extension tidy
-     */
-    public function testUTF16Content()
-    {
-        $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('http://www.ufocasebook.com/gulfbreeze.html');
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertContains('The Gulf Breeze, Florida UFOs (Ed Walters), UFO Casebook files', $res['title']);
-        $this->assertContains('Location of last UFO sighting in Gulf Breeze on Soundside Drive', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
-    }
-
     public function testKoreanPage()
     {
         $graby = new Graby(['debug' => true]);
@@ -498,34 +434,6 @@ class GrabyFunctionalTest extends TestCase
         $this->assertContains('[Rencontre] Ils bossaient sur une exclu Kinect qui ne sortira jamais', $res['title']);
         $this->assertContains('Le jeu s’appelle The Best Party Ever', $res['summary']);
         $this->assertSame('text/html', $res['content_type']);
-    }
-
-    public function testMultipleOgImage()
-    {
-        $graby = new Graby([
-            'debug' => true,
-        ]);
-        $res = $graby->fetchContent('https://blog.tinned-software.net/restore-mysql-replication-after-error/');
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertSame('2015-06-08T19:08:47+00:00', $res['date']);
-        $this->assertContains('Restore MySQL replication after error - Experiencing Technology', $res['title']);
-        $this->assertSame('https://blog.tinned-software.net/wp-content/uploads/2014/03/Fix_MySQL_replication_error.png', $res['open_graph']['og_image']);
     }
 
     public function testKeepOlStartAttribute()
