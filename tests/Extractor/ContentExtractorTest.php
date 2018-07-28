@@ -957,4 +957,21 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue(count($authors) === count($authorsUnique), 'There is no duplicate authors');
     }
+
+    public function testBodyAsDomAttribute()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        // a xpath retrieving a dom attribute
+        $config->body = ['//iframe/@src'];
+
+        $res = $contentExtractor->process(
+            '   <iframe src="blog_0x34.md.html" frameborder="0" style="overflow:hidden; display:block; position: absolute; height: 80%; width:100%;"></iframe>',
+            'https://domattr.io/woops!',
+            $config
+        );
+
+        $this->assertFalse($res, 'Extraction failed');
+    }
 }
