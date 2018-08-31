@@ -12,7 +12,7 @@ class SafeCurlHandlerTest extends TestCase
 {
     protected function setUp()
     {
-        if (!function_exists('curl_reset')) {
+        if (!\function_exists('curl_reset')) {
             $this->markTestSkipped('curl_reset() is not available');
         }
     }

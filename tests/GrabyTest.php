@@ -154,7 +154,7 @@ class GrabyTest extends TestCase
         $this->assertSame($title, $res['title'], 'Same title');
         $this->assertSame($summary, $res['summary'], 'Same summary');
 
-        if (function_exists('tidy_parse_string')) {
+        if (\function_exists('tidy_parse_string')) {
             $this->assertSame($parsedContent, $res['html'], 'Same html');
         } else {
             $this->assertSame($parsedContentWithoutTidy, $res['html'], 'Same html');
@@ -993,8 +993,8 @@ class GrabyTest extends TestCase
             ['hello "you" are fine', 15, '...', 'hello "you" are...'],
             ['hello <p>you</p> are fine', 13, '...', 'hello you are...'],
             ["hello you\n are fine", 13, '...', 'hello you are...'],
-            [chr(0xc2) . chr(0xa0) . 'hello you are fine', 13, '...', 'hello you are...'],
-            ['hello you are fine' . chr(0xc2) . chr(0xa0), 13, '...', 'hello you are...'],
+            [\chr(0xc2) . \chr(0xa0) . 'hello you are fine', 13, '...', 'hello you are...'],
+            ['hello you are fine' . \chr(0xc2) . \chr(0xa0), 13, '...', 'hello you are...'],
         ];
     }
 
@@ -1005,7 +1005,7 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('getExcerpt');
         $method->setAccessible(true);
 
@@ -1032,7 +1032,7 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteStr');
         $method->setAccessible(true);
 
@@ -1065,7 +1065,7 @@ class GrabyTest extends TestCase
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteAttr');
         $method->setAccessible(true);
 
@@ -1097,7 +1097,7 @@ class GrabyTest extends TestCase
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
@@ -1118,7 +1118,7 @@ class GrabyTest extends TestCase
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
@@ -1132,7 +1132,7 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('extractOpenGraph');
         $method->setAccessible(true);
 
@@ -1330,7 +1330,7 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('validateUrl');
         $method->setAccessible(true);
 
@@ -1343,7 +1343,7 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('extractOpenGraph');
         $method->setAccessible(true);
 

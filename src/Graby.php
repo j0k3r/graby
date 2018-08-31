@@ -198,7 +198,7 @@ class Graby
         // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
         while (1 === $contentBlock->childNodes->length && XML_ELEMENT_NODE === $contentBlock->firstChild->nodeType) {
             // only follow these tag names
-            if (!in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
+            if (!\in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
                 break;
             }
 
@@ -207,7 +207,7 @@ class Graby
 
         // convert content block to HTML string
         // Need to preserve things like body: //img[@id='feature']
-        if (in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer', 'li', 'td'], true)) {
+        if (\in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer', 'li', 'td'], true)) {
             $html = $contentBlock->innerHTML;
         } else {
             $html = $contentBlock->ownerDocument->saveXML($contentBlock); // essentially outerHTML
@@ -247,7 +247,7 @@ class Graby
         // check if action defined for returned Content-Type, like image, pdf, audio or video
         $mimeInfo = $this->getMimeActionInfo($response['all_headers']);
         $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response);
-        if (is_array($infos)) {
+        if (\is_array($infos)) {
             return $infos;
         }
 
@@ -279,7 +279,7 @@ class Graby
             // check if action defined for returned Content-Type
             $mimeInfo = $this->getMimeActionInfo($singlePageResponse['all_headers']);
             $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse);
-            if (is_array($infos)) {
+            if (\is_array($infos)) {
                 return $infos;
             }
 
@@ -323,7 +323,7 @@ class Graby
                 }
 
                 // check it's not what we have already!
-                if (in_array($nextPageUrl, $multiPageUrls, true)) {
+                if (\in_array($nextPageUrl, $multiPageUrls, true)) {
                     $this->logger->log('debug', 'URL already processed');
                     $multiPageContent = [];
                     break;
@@ -396,7 +396,7 @@ class Graby
 
         $res['html'] = $this->cleanupHtml($contentBlock, $effectiveUrl);
 
-        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => ($res + ['html' => strlen($res['html'])])]);
+        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => ($res + ['html' => \strlen($res['html'])])]);
 
         return $res;
     }
@@ -528,7 +528,7 @@ class Graby
      */
     private function handleMimeAction($mimeInfo, $effectiveUrl, $response = [])
     {
-        if (!isset($mimeInfo['action']) || !in_array($mimeInfo['action'], ['link', 'exclude'], true)) {
+        if (!isset($mimeInfo['action']) || !\in_array($mimeInfo['action'], ['link', 'exclude'], true)) {
             return;
         }
 
@@ -577,25 +577,25 @@ class Graby
 
             // Title can be a string or an array with one key
             if (isset($details['Title'])) {
-                if (is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
+                if (\is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
                     $infos['title'] = $details['Title'][0];
-                } elseif (is_string($details['Title']) && '' !== trim($details['Title'])) {
+                } elseif (\is_string($details['Title']) && '' !== trim($details['Title'])) {
                     $infos['title'] = $details['Title'];
                 }
             }
 
             if (isset($details['Author'])) {
-                if (is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
+                if (\is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
                     $infos['authors'][] = $details['Author'][0];
-                } elseif (is_string($details['Author']) && '' !== trim($details['Author'])) {
+                } elseif (\is_string($details['Author']) && '' !== trim($details['Author'])) {
                     $infos['authors'][] = $details['Author'];
                 }
             }
 
             if (isset($details['CreationDate'])) {
-                if (is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
+                if (\is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
                     $infos['date'] = $details['CreationDate'][0];
-                } elseif (is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
+                } elseif (\is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
                     $infos['date'] = $details['CreationDate'];
                 }
             }
@@ -643,7 +643,7 @@ class Graby
         foreach ($siteConfig->single_page_link as $pattern) {
             $elems = $xpath->evaluate($pattern, $readability->dom);
 
-            if (is_string($elems)) {
+            if (\is_string($elems)) {
                 $singlePageUrl = trim($elems);
                 break;
             } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
@@ -902,7 +902,7 @@ class Graby
         // remove strange things
         $html = str_replace('</[>', '', $html);
 
-        if (is_array($contentType)) {
+        if (\is_array($contentType)) {
             $contentType = implode("\n", $contentType);
         }
 
@@ -951,30 +951,30 @@ class Graby
         if (empty($encoding) || 'iso-8859-1' === $encoding) {
             // replace MS Word smart qutoes
             $trans = [];
-            $trans[chr(130)] = '&sbquo;'; // Single Low-9 Quotation Mark
-            $trans[chr(131)] = '&fnof;'; // Latin Small Letter F With Hook
-            $trans[chr(132)] = '&bdquo;'; // Double Low-9 Quotation Mark
-            $trans[chr(133)] = '&hellip;'; // Horizontal Ellipsis
-            $trans[chr(134)] = '&dagger;'; // Dagger
-            $trans[chr(135)] = '&Dagger;'; // Double Dagger
-            $trans[chr(136)] = '&circ;'; // Modifier Letter Circumflex Accent
-            $trans[chr(137)] = '&permil;'; // Per Mille Sign
-            $trans[chr(138)] = '&Scaron;'; // Latin Capital Letter S With Caron
-            $trans[chr(139)] = '&lsaquo;'; // Single Left-Pointing Angle Quotation Mark
-            $trans[chr(140)] = '&OElig;'; // Latin Capital Ligature OE
-            $trans[chr(145)] = '&lsquo;'; // Left Single Quotation Mark
-            $trans[chr(146)] = '&rsquo;'; // Right Single Quotation Mark
-            $trans[chr(147)] = '&ldquo;'; // Left Double Quotation Mark
-            $trans[chr(148)] = '&rdquo;'; // Right Double Quotation Mark
-            $trans[chr(149)] = '&bull;'; // Bullet
-            $trans[chr(150)] = '&ndash;'; // En Dash
-            $trans[chr(151)] = '&mdash;'; // Em Dash
-            $trans[chr(152)] = '&tilde;'; // Small Tilde
-            $trans[chr(153)] = '&trade;'; // Trade Mark Sign
-            $trans[chr(154)] = '&scaron;'; // Latin Small Letter S With Caron
-            $trans[chr(155)] = '&rsaquo;'; // Single Right-Pointing Angle Quotation Mark
-            $trans[chr(156)] = '&oelig;'; // Latin Small Ligature OE
-            $trans[chr(159)] = '&Yuml;'; // Latin Capital Letter Y With Diaeresis
+            $trans[\chr(130)] = '&sbquo;'; // Single Low-9 Quotation Mark
+            $trans[\chr(131)] = '&fnof;'; // Latin Small Letter F With Hook
+            $trans[\chr(132)] = '&bdquo;'; // Double Low-9 Quotation Mark
+            $trans[\chr(133)] = '&hellip;'; // Horizontal Ellipsis
+            $trans[\chr(134)] = '&dagger;'; // Dagger
+            $trans[\chr(135)] = '&Dagger;'; // Double Dagger
+            $trans[\chr(136)] = '&circ;'; // Modifier Letter Circumflex Accent
+            $trans[\chr(137)] = '&permil;'; // Per Mille Sign
+            $trans[\chr(138)] = '&Scaron;'; // Latin Capital Letter S With Caron
+            $trans[\chr(139)] = '&lsaquo;'; // Single Left-Pointing Angle Quotation Mark
+            $trans[\chr(140)] = '&OElig;'; // Latin Capital Ligature OE
+            $trans[\chr(145)] = '&lsquo;'; // Left Single Quotation Mark
+            $trans[\chr(146)] = '&rsquo;'; // Right Single Quotation Mark
+            $trans[\chr(147)] = '&ldquo;'; // Left Double Quotation Mark
+            $trans[\chr(148)] = '&rdquo;'; // Right Double Quotation Mark
+            $trans[\chr(149)] = '&bull;'; // Bullet
+            $trans[\chr(150)] = '&ndash;'; // En Dash
+            $trans[\chr(151)] = '&mdash;'; // Em Dash
+            $trans[\chr(152)] = '&tilde;'; // Small Tilde
+            $trans[\chr(153)] = '&trade;'; // Trade Mark Sign
+            $trans[\chr(154)] = '&scaron;'; // Latin Small Letter S With Caron
+            $trans[\chr(155)] = '&rsaquo;'; // Single Right-Pointing Angle Quotation Mark
+            $trans[\chr(156)] = '&oelig;'; // Latin Small Ligature OE
+            $trans[\chr(159)] = '&Yuml;'; // Latin Capital Letter Y With Diaeresis
             $html = strtr($html, $trans);
         }
 

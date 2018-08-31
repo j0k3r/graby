@@ -171,10 +171,10 @@ class HttpClient
         // with the whole conditional comments
         preg_match('/^\<!--\[if(\X+)\<!\[endif\]--\>(\X+)\<head\>$/mi', $body, $matchesConditional);
 
-        if (count($matchesConditional) > 1) {
+        if (\count($matchesConditional) > 1) {
             preg_match_all('/\<html([\sa-z0-9\=\"\"\-:\/\.\#]+)\>$/mi', $matchesConditional[0], $matchesHtml);
 
-            if (count($matchesHtml) > 1) {
+            if (\count($matchesHtml) > 1) {
                 $htmlTag = end($matchesHtml[0]);
 
                 if (!empty($htmlTag)) {
@@ -187,7 +187,7 @@ class HttpClient
         // (regex found here: https://stackoverflow.com/a/137831/569101)
         preg_match_all('/<!--\[if\s(?:[^<]+|<(?!!\[endif\]-->))*<!\[endif\]-->/mi', $body, $matchesConditional);
 
-        if (isset($matchesConditional[0]) && count($matchesConditional[0]) > 1) {
+        if (isset($matchesConditional[0]) && \count($matchesConditional[0]) > 1) {
             foreach ($matchesConditional as $conditionalComment) {
                 $body = str_replace($conditionalComment, '', $body);
             }
@@ -209,7 +209,7 @@ class HttpClient
 
         $this->logger->log('debug', 'Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
-            'body' => '(only length for debug): ' . strlen($body),
+            'body' => '(only length for debug): ' . \strlen($body),
             'headers' => $contentType,
             'all_headers' => $headers,
             'status' => $response->getStatusCode(),
@@ -235,7 +235,7 @@ class HttpClient
     {
         // rewrite part of urls to something more readable
         foreach ($this->config['rewrite_url'] as $find => $action) {
-            if (false !== strpos($url, $find) && is_array($action)) {
+            if (false !== strpos($url, $find) && \is_array($action)) {
                 $url = strtr($url, $action);
             }
         }
@@ -318,7 +318,7 @@ class HttpClient
             return false;
         }
 
-        return in_array($ext, $this->config['header_only_clues'], true);
+        return \in_array($ext, $this->config['header_only_clues'], true);
     }
 
     /**
@@ -350,7 +350,7 @@ class HttpClient
         $try = [$host];
         $split = explode('.', $host);
 
-        if (count($split) > 1) {
+        if (\count($split) > 1) {
             // remove first subdomain
             array_shift($split);
             $try[] = '.' . implode('.', $split);
@@ -414,7 +414,7 @@ class HttpClient
         $match[2] = strtolower(trim($match[2]));
 
         foreach ([$match[1], $match[2]] as $mime) {
-            if (in_array($mime, $this->config['header_only_types'], true)) {
+            if (\in_array($mime, $this->config['header_only_types'], true)) {
                 return true;
             }
         }
@@ -514,7 +514,7 @@ class HttpClient
     {
         $headers = [];
         foreach ($response->getHeaders() as $name => $value) {
-            $headers[strtolower($name)] = is_array($value) ? implode(', ', $value) : $value;
+            $headers[strtolower($name)] = \is_array($value) ? implode(', ', $value) : $value;
         }
 
         return $headers;
