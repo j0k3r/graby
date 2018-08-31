@@ -180,13 +180,13 @@ class ContentExtractor
         }
 
         // add lazyload information from siteconfig
-        if ($this->siteConfig->src_lazy_load_attr && !in_array($this->siteConfig->src_lazy_load_attr, $this->config['src_lazy_load_attributes'], true)) {
+        if ($this->siteConfig->src_lazy_load_attr && !\in_array($this->siteConfig->src_lazy_load_attr, $this->config['src_lazy_load_attributes'], true)) {
             $this->config['src_lazy_load_attributes'][] = $this->siteConfig->src_lazy_load_attr;
         }
 
         // do string replacements
         if (!empty($this->siteConfig->find_string)) {
-            if (count($this->siteConfig->find_string) === count($this->siteConfig->replace_string)) {
+            if (\count($this->siteConfig->find_string) === \count($this->siteConfig->replace_string)) {
                 $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $count);
                 $this->logger->log('debug', 'Strings replaced: {count} (find_string and/or replace_string)', ['count' => $count]);
             } else {
@@ -198,7 +198,7 @@ class ContentExtractor
         // load and parse html
         $parser = $this->siteConfig->parser();
 
-        if (!in_array($parser, $this->config['allowed_parsers'], true)) {
+        if (!\in_array($parser, $this->config['allowed_parsers'], true)) {
             $this->logger->log('debug', 'HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $parser, 'default_parser' => $this->config['default_parser']]);
             $parser = $this->config['default_parser'];
         }
@@ -208,6 +208,8 @@ class ContentExtractor
         $this->readability = $this->getReadability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
         $tidied = $this->readability->tidied;
 
+        $this->logger->log('debug', 'Body size after Readability: {length}', ['length' => \strlen($this->readability->dom->saveXML())]);
+
         // we use xpath to find elements in the given HTML document
         $this->xpath = new \DOMXPath($this->readability->dom);
 
@@ -216,7 +218,7 @@ class ContentExtractor
         foreach ($this->siteConfig->next_page_link as $pattern) {
             $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
 
-            if (is_string($elems)) {
+            if (\is_string($elems)) {
                 $this->nextPageUrl = trim($elems);
                 break;
             } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
@@ -353,7 +355,7 @@ class ContentExtractor
 
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => strlen($this->readability->dom->savexml())]);
+            $this->logger->log('debug', 'Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => \strlen($this->readability->dom->saveXML())]);
 
             $res = $this->extractBody(
                 true,
@@ -542,7 +544,7 @@ class ContentExtractor
                 }
 
                 if (XML_ELEMENT_NODE === $firstChild->nodeType
-                    && in_array(strtolower($firstChild->tagName), ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)
+                    && \in_array(strtolower($firstChild->tagName), ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)
                     && (strtolower(trim($firstChild->textContent)) === strtolower(trim($this->title)))) {
                     $this->body->removeChild($firstChild);
                 }
@@ -666,7 +668,7 @@ class ContentExtractor
     protected function addAuthor($authorDirty)
     {
         $author = trim($authorDirty);
-        if (!in_array($author, $this->authors, true)) {
+        if (!\in_array($author, $this->authors, true)) {
             $this->authors[] = $author;
         }
     }
@@ -750,7 +752,7 @@ class ContentExtractor
         }
 
         // we define the default callback here
-        if (!is_callable($returnCallback)) {
+        if (!\is_callable($returnCallback)) {
             $returnCallback = function ($element) {
                 return trim($element);
             };
@@ -963,13 +965,13 @@ class ContentExtractor
     {
         $readability = new Readability($html, $url, $parser, $enableTidy);
 
-        if (isset($this->config['readability']['pre_filters']) && is_array($this->config['readability']['pre_filters'])) {
+        if (isset($this->config['readability']['pre_filters']) && \is_array($this->config['readability']['pre_filters'])) {
             foreach ($this->config['readability']['pre_filters'] as $filter => $replacer) {
                 $readability->addPreFilter($filter, $replacer);
             }
         }
 
-        if (isset($this->config['readability']['post_filters']) && is_array($this->config['readability']['post_filters'])) {
+        if (isset($this->config['readability']['post_filters']) && \is_array($this->config['readability']['post_filters'])) {
             foreach ($this->config['readability']['post_filters'] as $filter => $replacer) {
                 $readability->addPostFilter($filter, $replacer);
             }
@@ -997,7 +999,7 @@ class ContentExtractor
     private function extractEntityFromPattern($entity, $pattern, $returnCallback = null)
     {
         // we define the default callback here
-        if (!is_callable($returnCallback)) {
+        if (!\is_callable($returnCallback)) {
             $returnCallback = function ($e) {
                 return trim($e);
             };
@@ -1006,7 +1008,7 @@ class ContentExtractor
         $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
         $entityValue = null;
 
-        if (is_string($elems) && '' !== trim($elems)) {
+        if (\is_string($elems) && '' !== trim($elems)) {
             $entityValue = $returnCallback($elems);
 
             $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
@@ -1048,7 +1050,7 @@ class ContentExtractor
     private function extractMultipleEntityFromPattern($entity, $pattern, $returnCallback = null)
     {
         // we define the default callback here
-        if (!is_callable($returnCallback)) {
+        if (!\is_callable($returnCallback)) {
             $returnCallback = function ($e) {
                 return trim($e);
             };
@@ -1057,7 +1059,7 @@ class ContentExtractor
         $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
         $entityValue = null;
 
-        if (is_string($elems) && '' !== trim($elems)) {
+        if (\is_string($elems) && '' !== trim($elems)) {
             $entityValue[] = $returnCallback($elems);
 
             $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
@@ -1105,6 +1107,8 @@ class ContentExtractor
         foreach ($matches[1] as $matche) {
             $data = json_decode(trim($matche), true);
 
+            $this->logger->log('debug', 'JSON-LD data: {JsonLdData}', ['JsonLdData' => $data]);
+
             // just in case datePublished isn't defined, we use the modified one at first
             if (isset($data['dateModified'])) {
                 $this->date = $data['dateModified'];
@@ -1125,7 +1129,15 @@ class ContentExtractor
             }
 
             if (isset($data['author']['name'])) {
-                $this->addAuthor($data['author']['name']);
+                $authors = $data['author']['name'];
+
+                if (false === \is_array($authors)) {
+                    $authors = [$authors];
+                }
+
+                foreach ($authors as $author) {
+                    $this->addAuthor($author);
+                }
             }
         }
     }

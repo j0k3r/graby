@@ -104,7 +104,7 @@ class ContentExtractorTest extends TestCase
         }
 
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'test_url', 'date'] as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPath for: ' . $value);
+            $this->assertGreaterThan(0, \count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
@@ -137,7 +137,7 @@ class ContentExtractorTest extends TestCase
         );
 
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'author', 'date'] as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPath for: ' . $value);
+            $this->assertGreaterThan(0, \count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
@@ -825,12 +825,12 @@ class ContentExtractorTest extends TestCase
         $this->assertGreaterThanOrEqual(6, $records);
         $this->assertSame('Attempting to parse HTML with {parser}', $records[0]['message']);
         $this->assertSame('libxml', $records[0]['context']['parser']);
-        $this->assertSame('Trying {pattern} for language', $records[1]['message']);
-        $this->assertSame('Using Readability', $records[3]['message']);
-        $this->assertSame('Detected title: {title}', $records[4]['message']);
+        $this->assertSame('Trying {pattern} for language', $records[2]['message']);
+        $this->assertSame('Using Readability', $records[4]['message']);
+        $this->assertSame('Detected title: {title}', $records[5]['message']);
 
-        if (function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[5]['message']);
+        if (\function_exists('tidy_parse_string')) {
+            $this->assertSame('Trying again without tidy', $records[6]['message']);
         }
     }
 
@@ -955,7 +955,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $authors = $contentExtractor->getAuthors();
         $authorsUnique = array_unique($authors);
 
-        $this->assertTrue(count($authors) === count($authorsUnique), 'There is no duplicate authors');
+        $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
     }
 
     public function testBodyAsDomAttribute()

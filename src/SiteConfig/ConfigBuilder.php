@@ -205,7 +205,7 @@ class ConfigBuilder
             $host = substr($host, 4);
         }
 
-        if (!$host || (strlen($host) > 200) || !preg_match($this->config['hostname_regex'], ltrim($host, '.'))) {
+        if (!$host || (\strlen($host) > 200) || !preg_match($this->config['hostname_regex'], ltrim($host, '.'))) {
             return false;
         }
 
@@ -216,7 +216,7 @@ class ConfigBuilder
         if (!$exactHostMatch) {
             $split = explode('.', $host);
 
-            if (count($split) > 1) {
+            if (\count($split) > 1) {
                 // remove first subdomain
                 array_shift($split);
                 $try[] = '.' . implode('.', $split);
@@ -240,7 +240,7 @@ class ConfigBuilder
 
                 $configLines = file($this->configFiles[$host . '.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 // no lines ? we don't found config then
-                if (empty($configLines) || !is_array($configLines)) {
+                if (empty($configLines) || !\is_array($configLines)) {
                     return false;
                 }
 
@@ -322,7 +322,7 @@ class ConfigBuilder
             // get command
             $command = explode(':', $line, 2);
             // if there's no colon ':', skip this line
-            if (2 !== count($command)) {
+            if (2 !== \count($command)) {
                 continue;
             }
 
@@ -333,19 +333,19 @@ class ConfigBuilder
             }
 
             // check for commands where we accept multiple statements
-            if (in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author', 'strip_attr'], true)) {
+            if (\in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author', 'strip_attr'], true)) {
                 array_push($config->$command, $val);
             // check for single statement commands that evaluate to true or false
-            } elseif (in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
+            } elseif (\in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
                 $config->$command = ('yes' === $val || 'true' === $val);
             // check for single statement commands stored as strings
-            } elseif (in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
+            } elseif (\in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
                 $config->$command = $val;
             // check for replace_string(find): replace
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
                 array_push($config->find_string, $match[2]);
                 array_push($config->replace_string, $val);
-            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && in_array($match[2], ['user-agent', 'referer'], true)) {
+            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array($match[2], ['user-agent', 'referer'], true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
             }
         }
