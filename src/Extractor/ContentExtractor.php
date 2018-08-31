@@ -208,6 +208,8 @@ class ContentExtractor
         $this->readability = $this->getReadability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
         $tidied = $this->readability->tidied;
 
+        $this->logger->log('debug', 'Body size after Readability: {length}', ['length' => strlen($this->readability->dom->savexml())]);
+
         // we use xpath to find elements in the given HTML document
         $this->xpath = new \DOMXPath($this->readability->dom);
 
@@ -1105,6 +1107,8 @@ class ContentExtractor
         foreach ($matches[1] as $matche) {
             $data = json_decode(trim($matche), true);
 
+            $this->logger->log('debug', 'JSON-LD data: {JsonLdData}', ['JsonLdData' => $data]);
+
             // just in case datePublished isn't defined, we use the modified one at first
             if (isset($data['dateModified'])) {
                 $this->date = $data['dateModified'];
@@ -1125,7 +1129,15 @@ class ContentExtractor
             }
 
             if (isset($data['author']['name'])) {
-                $this->addAuthor($data['author']['name']);
+                $authors = $data['author']['name'];
+
+                if (false === is_array($authors)) {
+                    $authors = [$authors];
+                }
+
+                foreach ($authors as $author) {
+                    $this->addAuthor($author);
+                }
             }
         }
     }

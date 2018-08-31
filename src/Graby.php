@@ -660,7 +660,7 @@ class Graby
         }
 
         if (!$singlePageUrl) {
-            $this->logger->log('debug', 'No url found');
+            $this->logger->log('debug', 'No single page url found');
 
             return false;
         }

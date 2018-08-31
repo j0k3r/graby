@@ -825,12 +825,12 @@ class ContentExtractorTest extends TestCase
         $this->assertGreaterThanOrEqual(6, $records);
         $this->assertSame('Attempting to parse HTML with {parser}', $records[0]['message']);
         $this->assertSame('libxml', $records[0]['context']['parser']);
-        $this->assertSame('Trying {pattern} for language', $records[1]['message']);
-        $this->assertSame('Using Readability', $records[3]['message']);
-        $this->assertSame('Detected title: {title}', $records[4]['message']);
+        $this->assertSame('Trying {pattern} for language', $records[2]['message']);
+        $this->assertSame('Using Readability', $records[4]['message']);
+        $this->assertSame('Detected title: {title}', $records[5]['message']);
 
         if (function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[5]['message']);
+            $this->assertSame('Trying again without tidy', $records[6]['message']);
         }
     }
 
