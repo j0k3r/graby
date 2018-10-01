@@ -874,4 +874,83 @@ class HttpClientTest extends TestCase
         $this->assertSame($expectedReferer, $records[2]['context']['referer']);
         $this->assertSame($url, $records[2]['context']['url']);
     }
+
+    public function dataForCookie()
+    {
+        return [
+            [
+                'url' => 'http://www.google.com',
+                'httpHeader' => [],
+                'expectedCookie' => false,
+            ],
+            [
+                'url' => 'http://www.mozilla.org',
+                'httpHeader' => ['cookie' => null],
+                'expectedCookie' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['cookie' => ''],
+                'expectedCookie' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['cookie' => 'GDPR_consent=1'],
+                'expectedCookie' => 'GDPR_consent=1',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForCookie
+     */
+    public function testCookie($url, $httpHeader, $expectedCookie)
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->any())
+            ->method('getEffectiveUrl')
+            ->willReturn($url);
+
+        $response->expects($this->any())
+            ->method('getHeaders')
+            ->willReturn([]);
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->any())
+            ->method('get')
+            ->willReturn($response);
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($client);
+        $http->setLogger($logger);
+
+        $http->fetch($url, false, $httpHeader);
+
+        $records = $handler->getRecords();
+
+        // if cookie is enable, a log will be available, otherwise not
+        if ($expectedCookie) {
+            $this->assertSame($expectedCookie, $records[3]['context']['cookie']);
+            $this->assertSame($url, $records[3]['context']['url']);
+        } else {
+            $this->assertArrayNotHasKey('cookie', $records[3]['context']);
+        }
+    }
 }
