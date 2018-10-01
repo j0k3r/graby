@@ -345,7 +345,7 @@ class ConfigBuilder
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
                 array_push($config->find_string, $match[2]);
                 array_push($config->replace_string, $val);
-            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array($match[2], ['user-agent', 'referer'], true)) {
+            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), ['user-agent', 'referer', 'cookie'], true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
             }
         }

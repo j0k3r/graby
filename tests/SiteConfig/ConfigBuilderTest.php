@@ -40,6 +40,7 @@ class ConfigBuilderTest extends TestCase
             'replace_string(toto): titi',
             'http_header(user-agent): my-user-agent',
             'http_header(referer): http://idontl.ie',
+            'http_header(Cookie): GDPR_consent=1',
             'strip_attr: @class',
             'strip_attr: @style',
         ]);
@@ -54,6 +55,7 @@ class ConfigBuilderTest extends TestCase
         $configExpected->http_header = [
             'user-agent' => 'my-user-agent',
             'referer' => 'http://idontl.ie',
+            'cookie' => 'GDPR_consent=1',
         ];
         $configExpected->date = ['foo'];
         $configExpected->strip_attr = ['@class', '@style'];

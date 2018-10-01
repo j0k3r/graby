@@ -114,19 +114,24 @@ class HttpClient
 
         $this->logger->log('debug', 'Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
 
+        $options = [
+            'headers' => [
+                'User-Agent' => $this->getUserAgent($url, $httpHeader),
+                // add referer for picky sites
+                'Referer' => $this->getReferer($url, $httpHeader),
+            ],
+            'timeout' => $this->config['timeout'],
+            'connect_timeout' => $this->config['timeout'],
+        ];
+
+        // don't add an empty line with cookie if none are defined
+        $cookie = $this->getCookie($url, $httpHeader);
+        if ($cookie) {
+            $options['headers']['Cookie'] = $cookie;
+        }
+
         try {
-            $response = $this->client->$method(
-                $url,
-                [
-                    'headers' => [
-                        'User-Agent' => $this->getUserAgent($url, $httpHeader),
-                        // add referer for picky sites
-                        'Referer' => $this->getReferer($url, $httpHeader),
-                    ],
-                    'timeout' => $this->config['timeout'],
-                    'connect_timeout' => $this->config['timeout'],
-                ]
-            );
+            $response = $this->client->$method($url, $options);
         } catch (RequestException $e) {
             // no response attached to the exception, we won't be able to retrieve content from it
             if (!$e->hasResponse()) {
@@ -392,6 +397,26 @@ class HttpClient
         $this->logger->log('debug', 'Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => $url]);
 
         return $default_referer;
+    }
+
+    /**
+     * Find a cookie for this url.
+     * Based on the site config, it will return the cookie if any.
+     *
+     * @param string $url        Absolute url
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     *
+     * @return string
+     */
+    private function getCookie($url, $httpHeader = [])
+    {
+        if (!empty($httpHeader['cookie'])) {
+            $this->logger->log('debug', 'Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
+
+            return $httpHeader['cookie'];
+        }
+
+        return '';
     }
 
     /**
