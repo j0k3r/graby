@@ -413,7 +413,7 @@ class GrabyFunctionalTest extends TestCase
                 ],
             ],
         ]);
-        $res = $graby->fetchContent('http://www.journaldugamer.com/tests/rencontre-ils-bossaient-sur-une-exclu-kinect-qui-ne-sortira-jamais/');
+        $res = $graby->fetchContent('https://www.clubic.com/carte-graphique/carte-graphique-amd/article-478936-1-radeon-hd-7750-7770.html');
 
         $this->assertCount(12, $res);
 
@@ -431,8 +431,10 @@ class GrabyFunctionalTest extends TestCase
         $this->assertArrayHasKey('all_headers', $res);
 
         $this->assertSame(200, $res['status']);
-        $this->assertContains('[Rencontre] Ils bossaient sur une exclu Kinect qui ne sortira jamais', $res['title']);
-        $this->assertContains('Le jeu s’appelle The Best Party Ever', $res['summary']);
+        $this->assertContains('Radeon HD 7750/7770 : DirectX 11.1 & PCI-Express 3.0 accessibles', $res['title']);
+        $this->assertContains('Avec un peu de retard sur le planning', $res['summary']);
+        // which should be on the page 6
+        $this->assertContains('2560x1600', $res['html']);
         $this->assertSame('text/html', $res['content_type']);
     }
 
