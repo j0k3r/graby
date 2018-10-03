@@ -1475,7 +1475,7 @@ class GrabyTest extends TestCase
         // The initial treatment was encapsulating the content into the empty node
         // So we don't want to see that again
         $authors = $res['authors'];
-        $this->assertEquals(1, count($authors));
+        $this->assertEquals(1, \count($authors));
         $this->assertEquals('Keith J. Grant', $authors[0]);
     }
 }
