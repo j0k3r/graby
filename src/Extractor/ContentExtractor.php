@@ -1128,6 +1128,10 @@ class ContentExtractor
                 $this->title = $data['headline'];
             }
 
+            if (isset($data['name'])) {
+                $this->title = $data['name'];
+            }
+
             if (isset($data['author']['name'])) {
                 $authors = $data['author']['name'];
 
