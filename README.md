@@ -42,7 +42,7 @@ Also, if you got problem from parsing a content without Tidy installed, please i
 
 Add the lib using composer:
 
-    composer require j0k3r/graby
+    composer require eudaco/graby
 
 Use the class to retrieve content:
 
