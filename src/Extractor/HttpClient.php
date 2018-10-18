@@ -65,7 +65,7 @@ class HttpClient
             'timeout' => 10,
             // number of redirection allowed until we assume request won't be complete
             'max_redirect' => 10,
-
+			
 			// Additional Guzzle configs.
 			'config' => []
         ]);
