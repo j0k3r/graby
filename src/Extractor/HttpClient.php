@@ -65,6 +65,9 @@ class HttpClient
             'timeout' => 10,
             // number of redirection allowed until we assume request won't be complete
             'max_redirect' => 10,
+
+			// Additional Guzzle configs.
+			'config' => []
         ]);
 
         $this->config = $resolver->resolve($config);
@@ -129,6 +132,11 @@ class HttpClient
         if ($cookie) {
             $options['headers']['Cookie'] = $cookie;
         }
+
+		// Add additional configs
+		if (!empty($this->config['config'])) {
+			$options['config'] = $this->config['config'];
+		}
 
         try {
             $response = $this->client->$method($url, $options);
