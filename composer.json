@@ -25,15 +25,17 @@
         "symfony/options-resolver": "~2.6|~3.0",
         "monolog/monolog": "^1.13.1",
         "smalot/pdfparser": "~0.11",
-        "wallabag/tcpdf": "^6.2",
+        "tecnickcom/tcpdf": "^6.2.26",
         "true/punycode": "~2.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "~2.0",
         "php-coveralls/php-coveralls": "~0.6",
-        "symfony/phpunit-bridge": "~2.6|~3.0"
+        "symfony/phpunit-bridge": "~2.6|~3.0|~4.0"
     },
     "autoload": {
-        "psr-4": { "Graby\\": "src/" }
+        "psr-4": {
+            "Graby\\": "src/"
+        }
     }
 }
