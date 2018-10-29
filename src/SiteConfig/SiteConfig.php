@@ -132,6 +132,13 @@ class SiteConfig
      */
     public $login_extra_fields = [];
 
+    /**
+     * Explicitly skip getting data from JSON-LD
+     *
+     * @var string
+     */
+    public $skip_json_ld = false;
+
     protected $default_tidy = true; // used if undeclared
     protected $default_autodetect_on_failure = true; // used if undeclared
     protected $default_prune = true; // used if undeclared

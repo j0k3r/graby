@@ -281,7 +281,7 @@ class ConfigBuilder
 
         // check for single statement commands
         // we do not overwrite existing non null values
-        foreach (['tidy', 'prune', 'parser', 'autodetect_on_failure', 'requires_login'] as $var) {
+        foreach (['tidy', 'prune', 'parser', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'] as $var) {
             if ($currentConfig->$var === null) {
                 $currentConfig->$var = $newConfig->$var;
             }
@@ -336,7 +336,7 @@ class ConfigBuilder
             if (\in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author', 'strip_attr'], true)) {
                 array_push($config->$command, $val);
             // check for single statement commands that evaluate to true or false
-            } elseif (\in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
+            } elseif (\in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'], true)) {
                 $config->$command = ('yes' === $val || 'true' === $val);
             // check for single statement commands stored as strings
             } elseif (\in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
