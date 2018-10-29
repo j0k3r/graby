@@ -133,7 +133,7 @@ class SiteConfig
     public $login_extra_fields = [];
 
     /**
-     * Explicitly skip getting data from JSON-LD
+     * Explicitly skip getting data from JSON-LD.
      *
      * @var string
      */
