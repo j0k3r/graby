@@ -939,6 +939,29 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
+    public function testJsonLdSkipper()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        $config->skip_json_ld = true;
+
+        $res = $contentExtractor->process(
+            '<html><script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><body><div>hello !hello !hello !hello !hello !hello !hello !<p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+            'https://skipjsonld.io/jsonld',
+            $config
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertEmpty($contentExtractor->getTitle());
+        $this->assertNull($contentExtractor->getDate());
+        $this->assertEmpty($contentExtractor->getAuthors());
+        $this->assertContains('this is the best part of the show', $content_block->ownerDocument->saveXML($content_block));
+    }
+
     public function testJsonLdName()
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);

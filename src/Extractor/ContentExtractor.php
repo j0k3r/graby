@@ -292,7 +292,9 @@ class ContentExtractor
         }
 
         // use JSON-LD to retrieve information
-        $this->extractJsonLdInformation($html);
+        if (false === $this->siteConfig->skip_json_ld) {
+            $this->extractJsonLdInformation($html);
+        }
 
         // strip elements (using xpath expressions)
         foreach ($this->siteConfig->strip as $pattern) {
