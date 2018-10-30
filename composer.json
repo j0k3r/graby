@@ -31,9 +31,11 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "~2.0",
         "php-coveralls/php-coveralls": "~0.6",
-        "symfony/phpunit-bridge": "~2.6|~3.0"
+        "symfony/phpunit-bridge": "~2.6|~3.0|~4.0"
     },
     "autoload": {
-        "psr-4": { "Graby\\": "src/" }
+        "psr-4": {
+            "Graby\\": "src/"
+        }
     }
 }
