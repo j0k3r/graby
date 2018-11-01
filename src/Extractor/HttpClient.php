@@ -2,6 +2,7 @@
 
 namespace Graby\Extractor;
 
+use Guzzle\Parser\Cookie\CookieParser;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
@@ -127,7 +128,7 @@ class HttpClient
         // don't add an empty line with cookie if none are defined
         $cookie = $this->getCookie($url, $httpHeader);
         if ($cookie) {
-            $options['headers']['Cookie'] = $cookie;
+            $options['cookies'] = $cookie;
         }
 
         try {
@@ -406,17 +407,24 @@ class HttpClient
      * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
-     * @return string
+     * @return array|false
      */
     private function getCookie($url, $httpHeader = [])
     {
         if (!empty($httpHeader['cookie'])) {
             $this->logger->log('debug', 'Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
 
-            return $httpHeader['cookie'];
+            $parser = new CookieParser();
+            $data = $parser->parseCookie($httpHeader['cookie']);
+
+            if (false === $data) {
+                return false;
+            }
+
+            return $data['cookies'];
         }
 
-        return '';
+        return false;
     }
 
     /**

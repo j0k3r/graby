@@ -491,4 +491,36 @@ class GrabyFunctionalTest extends TestCase
         $this->assertCount(1, $res['authors']);
         $this->assertSame('Jeremy Goujon', $res['authors'][0]);
     }
+
+    public function testCookie()
+    {
+        $graby = new Graby([
+            'debug' => true,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ],
+            ],
+        ]);
+        $res = $graby->fetchContent('http://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia');
+
+        $this->assertCount(12, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
+
+        $this->assertSame(200, $res['status']);
+        // if the cookie wasn't taking into account, it'll be "NPR Choice page"
+        $this->assertSame('Michael Flynn\'s Contradictory Line On Russia', $res['title']);
+    }
 }
