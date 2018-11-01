@@ -26,7 +26,8 @@
         "monolog/monolog": "^1.13.1",
         "smalot/pdfparser": "~0.11",
         "wallabag/tcpdf": "^6.2",
-        "true/punycode": "~2.0"
+        "true/punycode": "~2.0",
+        "guzzle/parser": "^3.9"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "~2.0",
