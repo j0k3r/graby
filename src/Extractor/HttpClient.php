@@ -2,7 +2,6 @@
 
 namespace Graby\Extractor;
 
-use Guzzle\Parser\Cookie\CookieParser;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Message\Response;
@@ -414,14 +413,25 @@ class HttpClient
         if (!empty($httpHeader['cookie'])) {
             $this->logger->log('debug', 'Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
 
-            $parser = new CookieParser();
-            $data = $parser->parseCookie($httpHeader['cookie']);
+            $cookies = [];
+            $pieces = array_filter(array_map('trim', explode(';', $httpHeader['cookie'])));
 
-            if (false === $data) {
-                return false;
+            foreach ($pieces as $part) {
+                $cookieParts = explode('=', $part, 2);
+                $key = trim($cookieParts[0]);
+
+                if (1 === \count($cookieParts)) {
+                    // Can be a single value (e.g. secure, httpOnly)
+                    $value = true;
+                } else {
+                    // Be sure to strip wrapping quotes
+                    $value = trim($cookieParts[1], " \n\r\t\0\x0B\"");
+                }
+
+                $cookies[$key] = $value;
             }
 
-            return $data['cookies'];
+            return $cookies;
         }
 
         return false;
