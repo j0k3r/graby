@@ -18,7 +18,7 @@ matrix:
         - php: hhvm
     # only one build will send the coverage, this'll speed up other one
     include:
-        - php: 7.0
+        - php: 7.2
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
 
 # faster builds on new travis setup not using sudo
@@ -32,7 +32,6 @@ cache:
 
 before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
-    - composer self-update
 
 install:
     - composer install --no-interaction --prefer-dist -o
