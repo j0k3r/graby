@@ -474,6 +474,17 @@ class ContentExtractor
             }
         );
 
+        $this->extractEntityFromQuery(
+            'authors',
+            $detectAuthor,
+            '//meta[@name="author"]/@content',
+            $this->readability->dom,
+            'Author found (meta name="author"): {author}',
+            function ($element, $currentEntity) {
+                return $currentEntity + [trim($element)];
+            }
+        );
+
         // Find date in pubdate marked time element
         // For the same reason given above, we only use this
         // if there's exactly one element.

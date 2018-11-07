@@ -56,7 +56,7 @@ class GrabyTest extends TestCase
         $tests = [];
 
         $fileFixtureIterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(__DIR__ . '/fixtures/sites/'),
+            new \RecursiveDirectoryIterator(__DIR__ . '/fixtures/sites/testCase/'),
             \RecursiveIteratorIterator::LEAVES_ONLY
         );
         foreach ($fileFixtureIterator as $file) {
@@ -1425,12 +1425,12 @@ class GrabyTest extends TestCase
             [
                 'content-type' => 'text/plain',
             ],
-            Stream::factory(__DIR__ . '/fixtures/sites/malformed_UTF8_characters.txt')
+            Stream::factory(file_get_contents(__DIR__ . '/fixtures/malformed_UTF8_characters.txt'))
         );
         $client = new Client();
         $client->getEmitter()->attach(new Mock([$reponse]));
 
-        $graby = new Graby();
+        $graby = new Graby([], $client);
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
 
         $this->assertArrayHasKey('html', $res);
@@ -1444,16 +1444,38 @@ class GrabyTest extends TestCase
             [
                 'content-type' => 'text/html',
             ],
-            Stream::factory(__DIR__ . '/fixtures/sites/framablog.test')
+            Stream::factory(file_get_contents(__DIR__ . '/fixtures/sites/framablog.test'))
         );
         $client = new Client();
         $client->getEmitter()->attach(new Mock([$response]));
 
-        $graby = new Graby();
+        $graby = new Graby([], $client);
         $res = $graby->fetchContent('https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/');
 
         // The initial treatment was encapsulating the content into the empty node
         // So we don't want to see that again
         $this->assertNotContains('<figure><p>Après un <em>icebreaker</em>', $res['html']);
+    }
+
+    public function testMetaAuthor()
+    {
+        $response = new Response(
+            200,
+            [
+                'content-type' => 'text/html',
+            ],
+            Stream::factory(file_get_contents(__DIR__ . '/fixtures/sites/keithjgrant.test'))
+        );
+        $client = new Client();
+        $client->getEmitter()->attach(new Mock([$response]));
+
+        $graby = new Graby([], $client);
+        $res = $graby->fetchContent('https://keithjgrant.com/posts/2018/06/resilient-declarative-contextual/');
+
+        // The initial treatment was encapsulating the content into the empty node
+        // So we don't want to see that again
+        $authors = $res['authors'];
+        $this->assertEquals(1, \count($authors));
+        $this->assertEquals('Keith J. Grant', $authors[0]);
     }
 }
