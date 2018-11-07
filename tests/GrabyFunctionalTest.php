@@ -45,7 +45,7 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
         $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res['title']);
         $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame('max-age=300', $res['all_headers']['cache-control']);
+        $this->assertContains('max-age=300', $res['all_headers']['cache-control']);
 
         $this->assertArrayHasKey('og_site_name', $res['open_graph']);
         $this->assertArrayHasKey('og_locale', $res['open_graph']);
@@ -111,44 +111,6 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('text/html', $res['content_type']);
     }
 
-    public function testContentWithXSS()
-    {
-        $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('https://gist.githubusercontent.com/nicosomb/e58ca3585324b124e5146500ab2ac45a/raw/53f53bb7e5a6f99f4e84d263e9dd36ab0e154ff8/html.txt');
-
-        $this->assertNotContains('<script>', $res['html']);
-    }
-
-    public function testBadUrl()
-    {
-        $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('https://bjori.blogspot.com/201');
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame(404, $res['status']);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('https://bjori.blogspot.com/201', $res['url']);
-        $this->assertSame("bjori doesn't blog", $res['title']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['html']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertNotEmpty($res['open_graph']);
-    }
-
     public function testPdfFile()
     {
         $graby = new Graby(['debug' => true]);
@@ -210,81 +172,6 @@ class GrabyFunctionalTest extends TestCase
         $this->assertEmpty($res['summary']);
         $this->assertSame('image/jpeg', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
-    }
-
-    public function dataDate()
-    {
-        return [
-            ['https://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html', '2011-07-05T22:09:18+0200'],
-            ['https://www.20minutes.fr/sport/football/2282359-20180601-video-france-italie-bleus-ambiancent-regalent-va-essayer-trop-enflammer', '2018-06-01T23:03:11+02:00'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataDate
-     */
-    public function testDate($url, $expectedDate)
-    {
-        $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent($url);
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame($expectedDate, $res['date']);
-    }
-
-    public function dataAuthors()
-    {
-        return [
-            ['https://www.20minutes.fr/sport/football/2282359-20180601-video-france-italie-bleus-ambiancent-regalent-va-essayer-trop-enflammer', ['Jean Saint-Marc']],
-            ['https://www.liberation.fr/planete/2017/04/05/donald-trump-et-xi-jinping-tentative-de-flirt-en-floride_1560768', ['Raphaël Balenieri, correspondant à Pékin', 'Frédéric Autran, correspondant à New York']],
-        ];
-    }
-
-    /**
-     * @dataProvider dataAuthors
-     */
-    public function testAuthors($url, $expectedAuthors)
-    {
-        $graby = new Graby([
-            'debug' => true,
-            'extractor' => [
-                'config_builder' => [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ],
-            ],
-        ]);
-        $res = $graby->fetchContent($url);
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame($expectedAuthors, $res['authors']);
     }
 
     public function dataWithAccent()
@@ -436,62 +323,6 @@ class GrabyFunctionalTest extends TestCase
         // which should be on the page 6
         $this->assertContains('2560x1600', $res['html']);
         $this->assertSame('text/html', $res['content_type']);
-    }
-
-    public function testKeepOlStartAttribute()
-    {
-        $graby = new Graby([
-            'debug' => true,
-        ]);
-        $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertContains('<ol start="2">', $res['html']);
-        $this->assertContains('<ol start="3">', $res['html']);
-        $this->assertContains('<ol start="4">', $res['html']);
-    }
-
-    public function testJsonLd()
-    {
-        $graby = new Graby([
-            'debug' => true,
-        ]);
-        $res = $graby->fetchContent('http://www.20minutes.fr/sport/football/2155935-20171022-stade-rennais-portugais-paulo-fonseca-remplacer-christian-gourcuff');
-
-        $this->assertCount(12, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertSame('Stade Rennais: Le Portugais Paulo Fonseca pour remplacer Christian Gourcuff?', $res['title']);
-        $this->assertCount(1, $res['authors']);
-        $this->assertSame('Jeremy Goujon', $res['authors'][0]);
     }
 
     public function testCookie()
