@@ -7,22 +7,19 @@ php:
     - 7.0
     - 7.1
     - 7.2
-    - hhvm
+    - 7.3
     - nightly
 
 # run build against nightly but allow them to fail
 matrix:
     fast_finish: true
     allow_failures:
+        - php: 7.3
         - php: nightly
-        - php: hhvm
     # only one build will send the coverage, this'll speed up other one
     include:
         - php: 7.2
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
-
-# faster builds on new travis setup not using sudo
-sudo: false
 
 # cache vendor dirs
 cache:
