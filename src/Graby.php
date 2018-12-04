@@ -254,7 +254,7 @@ class Graby
         $html = $this->convert2Utf8($response['body'], $response['all_headers']);
 
         // Remove empty nodes (except iframe)
-        $re = '/<(?!iframe)([^>\s]+)[^>]*>(?:\s*(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;)\s*)*<\/\1>/m';
+        $re = '/<(?!iframe)([^>\s]+)[^>]*>(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;|\s)*<\/\1>/m';
         $html = preg_replace($re, '', $html);
 
         // some non utf8 enconding might be breaking after converting to utf8
