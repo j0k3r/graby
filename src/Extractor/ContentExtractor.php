@@ -314,7 +314,7 @@ class ContentExtractor
         foreach ($this->siteConfig->strip_id_or_class as $string) {
             $this->logger->log('debug', 'Trying {string} to strip element', ['string' => $string]);
             $string = strtr($string, ["'" => '', '"' => '']);
-            $elems = $this->xpath->query("//*[contains(@class, '$string') or contains(@id, '$string')]", $this->readability->dom);
+            $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class), ' '),' $string ') or contains(concat(' ',normalize-space(@id),' '), ' $string ')]", $this->readability->dom);
 
             if (false === $elems) {
                 $this->logger->log('debug', 'Bad pattern');

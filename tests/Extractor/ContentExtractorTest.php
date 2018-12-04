@@ -381,13 +381,14 @@ class ContentExtractorTest extends TestCase
         return [
             ['commentlist', '<html><body><nav id="commentlist">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
             ['related_post', '<html><body><nav id="high">' . str_repeat('hello !', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'this is the best part of the show'],
+            ['related', '<html><body><nav id="high">' . str_repeat('lorem ipsum dolor', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', null, 'class="related_post"'],
         ];
     }
 
     /**
      * @dataProvider dataForStripIdOrClass
      */
-    public function testApplyStripIdOrClass($pattern, $html, $removedContent)
+    public function testApplyStripIdOrClass($pattern, $html, $removedContent, $matchContent = null)
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -403,7 +404,11 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertNotContains($removedContent, $content);
+        if (null === $removedContent) {
+            $this->assertContains($matchContent, $content);
+        } else {
+            $this->assertNotContains($removedContent, $content);
+        }
     }
 
     public function dataForStripImageSrc()
