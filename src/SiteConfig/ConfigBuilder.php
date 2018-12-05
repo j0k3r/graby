@@ -76,7 +76,7 @@ class ConfigBuilder
 
         $this->cache[$key] = $config;
 
-        $this->logger->log('debug', 'Cached site config with key: {key}', ['key' => $key]);
+        $this->logger->info('Cached site config with key: {key}', ['key' => $key]);
     }
 
     /**
@@ -147,7 +147,7 @@ class ConfigBuilder
         // is merged version already cached?
         $cachedSiteConfig = $this->getCachedVersion($host . '.merged');
         if (false !== $cachedSiteConfig) {
-            $this->logger->log('debug', 'Returning cached and merged site config for {host}', ['host' => $host]);
+            $this->logger->info('Returning cached and merged site config for {host}', ['host' => $host]);
 
             return $cachedSiteConfig;
         }
@@ -166,7 +166,7 @@ class ConfigBuilder
         // load global config?
         $configGlobal = $this->loadSiteConfig('global', true);
         if ($config->autodetect_on_failure() && false !== $configGlobal) {
-            $this->logger->log('debug', 'Appending site config settings from global.txt');
+            $this->logger->info('Appending site config settings from global.txt');
             $this->mergeConfig($config, $configGlobal);
 
             if ($addToCache && false === $this->getCachedVersion('global')) {
@@ -238,17 +238,17 @@ class ConfigBuilder
         $config = new SiteConfig();
 
         // look for site config file in primary folder
-        $this->logger->log('debug', '. looking for site config for {host} in primary folder', ['host' => $host]);
+        $this->logger->info('. looking for site config for {host} in primary folder', ['host' => $host]);
         foreach ($try as $host) {
             if ($cachedConfig = $this->getCachedVersion($host)) {
-                $this->logger->log('debug', '... site config for {host} already loaded in this request', ['host' => $host]);
+                $this->logger->info('... site config for {host} already loaded in this request', ['host' => $host]);
 
                 return $cachedConfig;
             }
 
             // if we found site config, process it
             if (isset($this->configFiles[$host . '.txt'])) {
-                $this->logger->log('debug', '... found site config {host}', ['host' => $host . '.txt']);
+                $this->logger->info('... found site config {host}', ['host' => $host . '.txt']);
 
                 $configLines = file($this->configFiles[$host . '.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 // no lines ? we don't found config then
@@ -264,7 +264,7 @@ class ConfigBuilder
 
         // append global config?
         if ('global' !== $host && $config->autodetect_on_failure() && isset($this->configFiles['global.txt'])) {
-            $this->logger->log('debug', 'Appending site config settings from global.txt');
+            $this->logger->info('Appending site config settings from global.txt');
 
             $configGlobal = $this->loadSiteConfig('global', true);
             if (false !== $configGlobal) {

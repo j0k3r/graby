@@ -17,7 +17,7 @@ class GrabyFunctionalTest extends TestCase
     public function testRealFetchContent()
     {
         $logger = new Logger('foo');
-        $handler = new TestHandler();
+        $handler = new TestHandler($level = Logger::INFO);
         $logger->pushHandler($handler);
 
         $graby = new Graby(['debug' => true]);

@@ -147,7 +147,7 @@ class ContentExtractor
         $configFingerprint = $this->configBuilder->buildForHost($fingerprintHost);
 
         if (!empty($this->config['fingerprints']) && false !== $configFingerprint) {
-            $this->logger->log('debug', 'Appending site config settings from {host} (fingerprint match)', ['host' => $fingerprintHost]);
+            $this->logger->info('Appending site config settings from {host} (fingerprint match)', ['host' => $fingerprintHost]);
             $this->configBuilder->mergeConfig($config, $configFingerprint);
 
             if ($addToCache && false === $this->configBuilder->getCachedVersion($fingerprintHost)) {
@@ -184,31 +184,36 @@ class ContentExtractor
             $this->config['src_lazy_load_attributes'][] = $this->siteConfig->src_lazy_load_attr;
         }
 
+        $this->logger->debug('Actual site config', ['siteConfig' => $this->siteConfig]);
+
         // do string replacements
         if (!empty($this->siteConfig->find_string)) {
             if (\count($this->siteConfig->find_string) === \count($this->siteConfig->replace_string)) {
                 $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $count);
-                $this->logger->log('debug', 'Strings replaced: {count} (find_string and/or replace_string)', ['count' => $count]);
+                $this->logger->info('Strings replaced: {count} (find_string and/or replace_string)', ['count' => $count]);
             } else {
-                $this->logger->log('debug', 'Skipped string replacement - incorrect number of find-replace strings in site config');
+                $this->logger->info('Skipped string replacement - incorrect number of find-replace strings in site config');
             }
             unset($count);
         }
+
+        $this->logger->debug('HTML after site config strings replacements', ['html' => $html]);
 
         // load and parse html
         $parser = $this->siteConfig->parser();
 
         if (!\in_array($parser, $this->config['allowed_parsers'], true)) {
-            $this->logger->log('debug', 'HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $parser, 'default_parser' => $this->config['default_parser']]);
+            $this->logger->info('HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $parser, 'default_parser' => $this->config['default_parser']]);
             $parser = $this->config['default_parser'];
         }
 
-        $this->logger->log('debug', 'Attempting to parse HTML with {parser}', ['parser' => $parser]);
+        $this->logger->info('Attempting to parse HTML with {parser}', ['parser' => $parser]);
 
         $this->readability = $this->getReadability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
         $tidied = $this->readability->tidied;
 
-        $this->logger->log('debug', 'Body size after Readability: {length}', ['length' => \strlen($this->readability->dom->saveXML())]);
+        $this->logger->info('Body size after Readability: {length}', ['length' => \strlen($this->readability->dom->saveXML())]);
+        $this->logger->debug('Body after Readability', ['dom_saveXML' => $this->readability->dom->saveXML()]);
 
         // we use xpath to find elements in the given HTML document
         $this->xpath = new \DOMXPath($this->readability->dom);
@@ -246,7 +251,7 @@ class ContentExtractor
 
         // try to get title
         foreach ($this->siteConfig->title as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} for title', ['pattern' => $pattern]);
+            $this->logger->info('Trying {pattern} for title', ['pattern' => $pattern]);
 
             if ($this->extractEntityFromPattern('title', $pattern)) {
                 break;
@@ -256,7 +261,7 @@ class ContentExtractor
         // try to get author (if it hasn't already been set)
         if (empty($this->authors)) {
             foreach ($this->siteConfig->author as $pattern) {
-                $this->logger->log('debug', 'Trying {pattern} for author', ['pattern' => $pattern]);
+                $this->logger->info('Trying {pattern} for author', ['pattern' => $pattern]);
 
                 if ($this->extractMultipleEntityFromPattern('authors', $pattern)) {
                     break;
@@ -266,7 +271,7 @@ class ContentExtractor
 
         // try to get date
         foreach ($this->siteConfig->date as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} for date', ['pattern' => $pattern]);
+            $this->logger->info('Trying {pattern} for date', ['pattern' => $pattern]);
 
             if ($this->extractEntityFromPattern('date', $pattern)) {
                 break;
@@ -276,13 +281,13 @@ class ContentExtractor
         // try to get language
         $langXpath = ['//html[@lang]/@lang', '//meta[@name="DC.language"]/@content'];
         foreach ($langXpath as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} for language', ['pattern' => $pattern]);
+            $this->logger->info('Trying {pattern} for language', ['pattern' => $pattern]);
             $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
 
             if ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 foreach ($elems as $elem) {
                     $this->language = trim($elem->textContent);
-                    $this->logger->log('debug', 'Language matched: {language}', ['language' => $this->language]);
+                    $this->logger->info('Language matched: {language}', ['language' => $this->language]);
                 }
 
                 if (null !== $this->language) {
@@ -298,11 +303,11 @@ class ContentExtractor
 
         // strip elements (using xpath expressions)
         foreach ($this->siteConfig->strip as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} to strip element', ['pattern' => $pattern]);
+            $this->logger->info('Trying {pattern} to strip element', ['pattern' => $pattern]);
             $elems = $this->xpath->query($pattern, $this->readability->dom);
 
             if (false === $elems) {
-                $this->logger->log('debug', 'Bad pattern');
+                $this->logger->info('Bad pattern');
 
                 continue;
             }
@@ -312,12 +317,12 @@ class ContentExtractor
 
         // strip elements (using id and class attribute values)
         foreach ($this->siteConfig->strip_id_or_class as $string) {
-            $this->logger->log('debug', 'Trying {string} to strip element', ['string' => $string]);
+            $this->logger->info('Trying {string} to strip element', ['string' => $string]);
             $string = strtr($string, ["'" => '', '"' => '']);
             $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class), ' '),' $string ') or contains(concat(' ',normalize-space(@id),' '), ' $string ')]", $this->readability->dom);
 
             if (false === $elems) {
-                $this->logger->log('debug', 'Bad pattern');
+                $this->logger->info('Bad pattern');
 
                 continue;
             }
@@ -355,9 +360,11 @@ class ContentExtractor
 
         $this->removeElements($elems, 'Stripping {length} empty a elements');
 
+        $this->logger->debug('DOM after site config stripping', ['dom_saveXML' => $this->readability->dom->saveXML()]);
+
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => \strlen($this->readability->dom->saveXML())]);
+            $this->logger->info('Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => \strlen($this->readability->dom->saveXML())]);
 
             $res = $this->extractBody(
                 true,
@@ -398,7 +405,7 @@ class ContentExtractor
             $elems = $this->xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $this->readability->dom);
 
             if ($this->hasElements($elems)) {
-                $this->logger->log('debug', 'hNews: found hentry');
+                $this->logger->info('hNews: found hentry');
                 $hentry = $elems->item(0);
 
                 // check for entry-title
@@ -497,7 +504,7 @@ class ContentExtractor
         );
 
         foreach ($this->siteConfig->strip_attr as $pattern) {
-            $this->logger->log('debug', 'Trying {pattern} to strip attribute', ['pattern' => $pattern]);
+            $this->logger->info('Trying {pattern} to strip attribute', ['pattern' => $pattern]);
             $elems = $this->xpath->query($pattern, $this->readability->dom);
 
             $this->removeAttributes($elems, 'Stripping {length} attributes (strip_attr)');
@@ -506,7 +513,7 @@ class ContentExtractor
         // still missing title or body, so we detect using Readability
         $success = false;
         if ($detectTitle || $detectBody) {
-            $this->logger->log('debug', 'Using Readability');
+            $this->logger->info('Using Readability');
             // clone body if we're only using Readability for title (otherwise it may interfere with body element)
             if (isset($this->body)) {
                 $this->body = $this->body->cloneNode(true);
@@ -516,7 +523,7 @@ class ContentExtractor
 
         if ($detectTitle && $this->readability->getTitle()) {
             $this->title = trim($this->readability->getTitle()->textContent);
-            $this->logger->log('debug', 'Detected title: {title}', ['title' => $this->title]);
+            $this->logger->info('Detected title: {title}', ['title' => $this->title]);
         }
 
         $parseDate = date_parse($this->date);
@@ -528,11 +535,11 @@ class ContentExtractor
         }
 
         if ($this->date) {
-            $this->logger->log('debug', 'Detected date: {date}', ['date' => $this->date]);
+            $this->logger->info('Detected date: {date}', ['date' => $this->date]);
         }
 
         if ($detectBody && $success) {
-            $this->logger->log('debug', 'Detecting body');
+            $this->logger->info('Detecting body');
             $this->body = $this->readability->getContent();
 
             if (1 === $this->body->childNodes->length && XML_ELEMENT_NODE === $this->body->firstChild->nodeType) {
@@ -541,7 +548,7 @@ class ContentExtractor
 
             // prune (clean up elements that may not be content)
             if ($this->siteConfig->prune()) {
-                $this->logger->log('debug', 'Pruning content');
+                $this->logger->info('Pruning content');
                 $this->readability->prepArticle($this->body);
             }
         }
@@ -623,7 +630,7 @@ class ContentExtractor
         if (!$this->success && $tidied && $smartTidy) {
             unset($this->body, $this->xpath);
 
-            $this->logger->log('debug', 'Trying again without tidy');
+            $this->logger->info('Trying again without tidy');
 
             return $this->process(
                 $this->readability->original_html,
@@ -633,7 +640,7 @@ class ContentExtractor
             );
         }
 
-        $this->logger->log('debug', 'Success ? {is_success}', ['is_success' => $this->success]);
+        $this->logger->info('Success ? {is_success}', ['is_success' => $this->success]);
 
         return $this->success;
     }
@@ -711,7 +718,7 @@ class ContentExtractor
         }
 
         if (null !== $logMessage) {
-            $this->logger->log('debug', $logMessage, ['length' => $elems->length]);
+            $this->logger->info($logMessage, ['length' => $elems->length]);
         }
 
         for ($i = $elems->length - 1; $i >= 0; --$i) {
@@ -730,7 +737,7 @@ class ContentExtractor
     private function removeAttributes(\DOMNodeList $elems, $logMessage = null)
     {
         if (null !== $logMessage) {
-            $this->logger->log('debug', $logMessage, ['length' => $elems->length]);
+            $this->logger->info($logMessage, ['length' => $elems->length]);
         }
 
         foreach ($elems as $el) {
@@ -783,7 +790,7 @@ class ContentExtractor
             $elems->item(0)->textContent,
             $this->{$entity}
         );
-        $this->logger->log('debug', $logMessage, [$entity => $this->{$entity}]);
+        $this->logger->info($logMessage, [$entity => $this->{$entity}]);
 
         // remove entity from document
         try {
@@ -862,13 +869,13 @@ class ContentExtractor
                 foreach ($fns as $fn) {
                     if ('' !== trim($fn->textContent)) {
                         $this->addAuthor($fn->textContent);
-                        $this->logger->log('debug', 'hNews: found author: ' . trim($fn->textContent));
+                        $this->logger->info('hNews: found author: ' . trim($fn->textContent));
                     }
                 }
             } else {
                 if ('' !== trim($author->textContent)) {
                     $this->addAuthor($author->textContent);
-                    $this->logger->log('debug', 'hNews: found author: ' . trim($author->textContent));
+                    $this->logger->info('hNews: found author: ' . trim($author->textContent));
                 }
             }
 
@@ -901,12 +908,12 @@ class ContentExtractor
             return $detectBody;
         }
 
-        $this->logger->log('debug', $type . ': found "' . $elems->length . '" with ' . $xpathExpression);
+        $this->logger->info($type . ': found "' . $elems->length . '" with ' . $xpathExpression);
 
         if (1 === $elems->length) {
             // body can't be an attribute
             if ($elems->item(0) instanceof \DOMAttr) {
-                $this->logger->log('debug', 'Body can not be an attribute');
+                $this->logger->info('Body can not be an attribute');
 
                 return true;
             }
@@ -915,7 +922,7 @@ class ContentExtractor
 
             // prune (clean up elements that may not be content)
             if ($this->siteConfig->prune()) {
-                $this->logger->log('debug', 'Pruning content');
+                $this->logger->info('Pruning content');
                 $this->readability->prepArticle($this->body);
             }
 
@@ -923,7 +930,7 @@ class ContentExtractor
         }
 
         $this->body = $this->readability->dom->createElement('div');
-        $this->logger->log('debug', '{nb} body elems found', ['nb' => $elems->length]);
+        $this->logger->info('{nb} body elems found', ['nb' => $elems->length]);
         $len = 0;
 
         foreach ($elems as $elem) {
@@ -944,11 +951,11 @@ class ContentExtractor
             }
 
             if ($isDescendant) {
-                $this->logger->log('debug', '...element is child of another body element, skipping.');
+                $this->logger->info('...element is child of another body element, skipping.');
             } else {
                 // prune (clean up elements that may not be content)
                 if ($this->siteConfig->prune()) {
-                    $this->logger->log('debug', '...pruning content');
+                    $this->logger->info('...pruning content');
                     $this->readability->prepArticle($elem);
                 }
 
@@ -959,7 +966,7 @@ class ContentExtractor
             }
         }
 
-        $this->logger->log('debug', '...{len} elements added to body', ['len' => $len]);
+        $this->logger->info('...{len} elements added to body', ['len' => $len]);
 
         return false;
     }
@@ -1024,13 +1031,13 @@ class ContentExtractor
         if (\is_string($elems) && '' !== trim($elems)) {
             $entityValue = $returnCallback($elems);
 
-            $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
-            $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
+            $this->logger->info("{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
+            $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
         } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
             $entityValue = $returnCallback($elems->item(0)->textContent);
 
-            $this->logger->log('debug', "{$entity} matched: {{$entity}}", [$entity => $entityValue]);
-            $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
+            $this->logger->info("{$entity} matched: {{$entity}}", [$entity => $entityValue]);
+            $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
 
             // remove entity from document
             try {
@@ -1075,8 +1082,8 @@ class ContentExtractor
         if (\is_string($elems) && '' !== trim($elems)) {
             $entityValue[] = $returnCallback($elems);
 
-            $this->logger->log('debug', "{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
-            $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
+            $this->logger->info("{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
+            $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
         } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
             foreach ($elems as $item) {
                 $entityValue[] = $returnCallback($item->textContent);
@@ -1089,8 +1096,8 @@ class ContentExtractor
                 }
             }
 
-            $this->logger->log('debug', "{$entity} matched: {{$entity}}", [$entity => $entityValue]);
-            $this->logger->log('debug', '...XPath match: {pattern}', ['pattern', $pattern]);
+            $this->logger->info("{$entity} matched: {{$entity}}", [$entity => $entityValue]);
+            $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
         }
 
         if (null !== $entityValue) {
@@ -1120,7 +1127,7 @@ class ContentExtractor
         foreach ($matches[1] as $matche) {
             $data = json_decode(trim($matche), true);
 
-            $this->logger->log('debug', 'JSON-LD data: {JsonLdData}', ['JsonLdData' => $data]);
+            $this->logger->info('JSON-LD data: {JsonLdData}', ['JsonLdData' => $data]);
 
             // just in case datePublished isn't defined, we use the modified one at first
             if (isset($data['dateModified'])) {
