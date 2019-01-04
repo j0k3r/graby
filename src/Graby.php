@@ -265,8 +265,8 @@ class Graby
 
         // Remove empty lines to avoid runaway evaluation of following regex
         // on badly coded websites
-        $re = '/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/';
-        $html = preg_replace($re, '\n', $html);
+        $re = '/^[ \t]*[\r\n]+/m';
+        $html = preg_replace($re, '', $html);
 
         // Remove empty nodes (except iframe)
         $re = '/<(?!iframe)([^>\s]+)[^>]*>(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;|\s)*<\/\1>/m';
