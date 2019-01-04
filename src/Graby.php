@@ -114,6 +114,16 @@ class Graby
     }
 
     /**
+     * Reload configuration files.
+     *
+     * @see ConfigBuilder::loadConfigFiles
+     */
+    public function reloadConfigFiles()
+    {
+        $this->configBuilder->loadConfigFiles();
+    }
+
+    /**
      * Return a config.
      *
      * @param string $key

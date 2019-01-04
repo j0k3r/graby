@@ -37,12 +37,24 @@ class ConfigBuilder
             $this->logger = new NullLogger();
         }
 
-        $this->configFiles = Files::getFiles($this->config['site_config']);
+        $this->loadConfigFiles();
     }
 
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
+    }
+
+    /**
+     * Load configuration files from filesystem.
+     * The load is externalized into a dedicated public method so we can reload config files after a custom creation of a config file.
+     *     - Config files are loaded when the class is instancied.
+     *     - If we add a new file after, it won't be loaded.
+     *     - We'll need to manually reload config files.
+     */
+    public function loadConfigFiles()
+    {
+        $this->configFiles = Files::getFiles($this->config['site_config']);
     }
 
     /**
