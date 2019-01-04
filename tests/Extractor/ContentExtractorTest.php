@@ -979,6 +979,18 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('name !!', $contentExtractor->getTitle());
     }
 
+    public function testJsonLdDateArray()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"] }</script><p>hihi</p>',
+            'https://nativead.io/jsonld'
+        );
+
+        $this->assertSame('05/29/2014', $contentExtractor->getDate());
+    }
+
     public function testUniqueAuthors()
     {
         $url = 'https://www.lemonde.fr/pixels/article/2018/05/30/bloodstained-curse-of-the-moon-delicieux-jeu-de-vampires-a-la-mode-des-annees-1980_5307173_4408996.html';
