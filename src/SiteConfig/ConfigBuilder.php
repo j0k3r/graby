@@ -291,6 +291,15 @@ class ConfigBuilder
             $currentConfig->$var = array_unique(array_merge($currentConfig->$var, $newConfig->$var));
         }
 
+        // special handling of if_page_contains directive
+        foreach (['single_page_link'] as $var) {
+            if (isset($currentConfig->if_page_contains[$var]) && isset($newConfig->if_page_contains[$var])) {
+                $currentConfig->if_page_contains[$var] = array_merge($newConfig->if_page_contains[$var], $currentConfig->if_page_contains[$var]);
+            } elseif (isset($newConfig->if_page_contains[$var])) {
+                $currentConfig->if_page_contains[$var] = $newConfig->if_page_contains[$var];
+            }
+        }
+
         // check for single statement commands
         // we do not overwrite existing non null values
         foreach (['tidy', 'prune', 'parser', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'] as $var) {
@@ -359,9 +368,26 @@ class ConfigBuilder
                 array_push($config->replace_string, $val);
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), ['user-agent', 'referer', 'cookie', 'accept'], true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
+            // special treatment for if_page_contains
+            } elseif (\in_array($command, ['if_page_contains'], true)) {
+                $this->handleIfPageContainsCondition($config, $val);
             }
         }
 
         return $config;
+    }
+
+    // Add if_page_page_contains
+    // TODO: Expand so it can be used with other rules too
+    private function handleIfPageContainsCondition(SiteConfig $config, $condition)
+    {
+        if (empty($config->single_page_link)) {
+            return;
+        }
+
+        $key = end($config->single_page_link);
+        reset($config->single_page_link);
+
+        $config->if_page_contains['single_page_link'][$key] = (string) $condition;
     }
 }

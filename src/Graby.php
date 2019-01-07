@@ -656,6 +656,18 @@ class Graby
         $singlePageUrl = null;
 
         foreach ($siteConfig->single_page_link as $pattern) {
+            // Do we have conditions?
+            $condition = $siteConfig->getIfPageContainsCondition('single_page_link', $pattern);
+
+            if ($condition) {
+                $elems = $xpath->evaluate($condition, $readability->dom);
+
+                // move on to next single page link XPath in case condition isn't met
+                if (!($elems instanceof \DOMNodeList && $elems->length > 0)) {
+                    continue;
+                }
+            }
+
             $elems = $xpath->evaluate($pattern, $readability->dom);
 
             if (\is_string($elems)) {

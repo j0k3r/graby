@@ -1634,6 +1634,42 @@ class GrabyTest extends TestCase
     }
 
     /**
+     * Validated using the site_config in "tests/fixtures".
+     */
+    public function testIfPageContains()
+    {
+        $graby = $this->getGrabyWithMock(
+            '/fixtures/content/timothysykes-keepol.html',
+            200,
+            [
+                'extractor' => [
+                    'config_builder' => [
+                        'site_config' => [__DIR__ . '/fixtures/site_config'],
+                    ],
+                ],
+            ]
+        );
+        $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
+
+        $this->assertCount(12, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
+
+        $this->assertSame(200, $res['status']);
+    }
+
+    /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
      */
     private function getGrabyWithMock($filePath, $status = 200, array $grabyConfig = [])
