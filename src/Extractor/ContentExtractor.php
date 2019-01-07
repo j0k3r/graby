@@ -1131,6 +1131,11 @@ class ContentExtractor
                 $this->date = $data['datePublished'];
             }
 
+            // sometimes the date is an array
+            if (\is_array($this->date)) {
+                $this->date = reset($this->date);
+            }
+
             // body should be a DOMNode
             if (isset($data['articlebody'])) {
                 $dom = new \DOMDocument('1.0', 'utf-8');
