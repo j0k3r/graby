@@ -130,6 +130,11 @@ class HttpClient
             $options['cookies'] = $cookie;
         }
 
+        $accept = $this->getAccept($url, $httpHeader);
+        if ($accept) {
+            $options['headers']['Accept'] = $accept;
+        }
+
         try {
             $response = $this->client->$method($url, $options);
         } catch (RequestException $e) {
@@ -432,6 +437,27 @@ class HttpClient
             }
 
             return $cookies;
+        }
+
+        return false;
+    }
+
+    /**
+     * Find an accept header for this url.
+     * Based on the site config, it will return the accept if any.
+     * Otherwise it will return false.
+     *
+     * @param string $url        Absolute url
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     *
+     * @return string|false
+     */
+    private function getAccept($url, $httpHeader = [])
+    {
+        if (!empty($httpHeader['accept'])) {
+            $this->logger->log('debug', 'Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
+
+            return $httpHeader['accept'];
         }
 
         return false;

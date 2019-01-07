@@ -953,4 +953,83 @@ class HttpClientTest extends TestCase
             $this->assertArrayNotHasKey('cookie', $records[3]['context']);
         }
     }
+
+    public function dataForAccept()
+    {
+        return [
+            [
+                'url' => 'http://www.google.com',
+                'httpHeader' => [],
+                'expectedAccept' => false,
+            ],
+            [
+                'url' => 'http://www.mozilla.org',
+                'httpHeader' => ['accept' => null],
+                'expectedAccept' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['accept' => ''],
+                'expectedAccept' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['accept' => '*/*'],
+                'expectedAccept' => '*/*',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAccept
+     */
+    public function testAccept($url, $httpHeader, $expectedAccept)
+    {
+        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $response->expects($this->any())
+            ->method('getEffectiveUrl')
+            ->willReturn($url);
+
+        $response->expects($this->any())
+            ->method('getHeaders')
+            ->willReturn([]);
+
+        $response->expects($this->any())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $response->expects($this->any())
+            ->method('getBody')
+            ->willReturn('');
+
+        $client = $this->getMockBuilder('GuzzleHttp\Client')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client->expects($this->any())
+            ->method('get')
+            ->willReturn($response);
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($client);
+        $http->setLogger($logger);
+
+        $http->fetch($url, false, $httpHeader);
+
+        $records = $handler->getRecords();
+
+        // if accept is enable, a log will be available, otherwise not
+        if ($expectedAccept) {
+            $this->assertSame($expectedAccept, $records[3]['context']['accept']);
+            $this->assertSame($url, $records[3]['context']['url']);
+        } else {
+            $this->assertArrayNotHasKey('accept', $records[3]['context']);
+        }
+    }
 }
