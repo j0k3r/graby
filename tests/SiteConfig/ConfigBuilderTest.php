@@ -43,6 +43,8 @@ class ConfigBuilderTest extends TestCase
             'http_header(Cookie): GDPR_consent=1',
             'strip_attr: @class',
             'strip_attr: @style',
+            'single_page_link: //canonical',
+            'if_page_contains: //div/article/header',
         ]);
 
         $configExpected = new SiteConfig();
@@ -59,6 +61,12 @@ class ConfigBuilderTest extends TestCase
         ];
         $configExpected->date = ['foo'];
         $configExpected->strip_attr = ['@class', '@style'];
+        $configExpected->single_page_link = ['//canonical'];
+        $configExpected->if_page_contains = [
+            'single_page_link' => [
+                '//canonical' => '//div/article/header',
+            ],
+        ];
 
         $this->assertEquals($configExpected, $configActual);
 

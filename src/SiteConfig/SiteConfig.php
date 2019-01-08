@@ -68,6 +68,10 @@ class SiteConfig
     // Test URL - if present, can be used to test the config above
     public $test_url = [];
 
+    // If page contains - XPath expression. Used to determine if the preceding rule gets evaluated or not.
+    // Currently only works with single_page_link.
+    public $if_page_contains = [];
+
     // Single-page link - should identify a link element or URL pointing to the page holding the entire article
     // This is useful for sites which split their articles across multiple pages. Links to such pages tend to
     // display the first page with links to the other pages at the bottom. Often there is also a link to a page
@@ -206,5 +210,20 @@ class SiteConfig
         }
 
         return $this->autodetect_on_failure;
+    }
+
+    /**
+     * Return a condition for the given name (if exists).
+     *
+     * @param string $name  Rule name (only single_page_link is supported for now)
+     * @param string $value Value of the rule (currently only an url)
+     *
+     * @return string|null
+     */
+    public function getIfPageContainsCondition($name, $value)
+    {
+        if (isset($this->if_page_contains[$name]) && isset($this->if_page_contains[$name][$value])) {
+            return $this->if_page_contains[$name][$value];
+        }
     }
 }
