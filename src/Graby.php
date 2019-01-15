@@ -24,6 +24,7 @@ class Graby
 {
     private $debug = false;
     private $logger;
+    private $logLevel = 'info';
 
     private $config = [];
 
@@ -44,6 +45,7 @@ class Graby
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             'debug' => false,
+            'log_level' => 'info',
             'rewrite_relative_urls' => true,
             'singlepage' => true,
             'multipage' => true,
@@ -71,11 +73,22 @@ class Graby
         $this->config = $resolver->resolve($config);
 
         $this->debug = (bool) $this->config['debug'];
+        $this->logLevel = $this->config['log_level'];
         $this->logger = new NullLogger();
 
+        // Debug mode can be activated with 'debug' => true
+        // More details on the retrieved code and its consequent modifications can be obtained using 'log_level' = 'debug'
         if ($this->debug) {
             $this->logger = new Logger('graby');
-            $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/graby.log'));
+
+            // This statement has to be before Logger::INFO to catch all DEBUG messages
+            if ('debug' === $this->logLevel) {
+                // Emptying of the HTML logfile to avoid gigantic logs
+                fclose(fopen(__DIR__ . '/../log/html.log', 'w'));
+                $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/html.log', Logger::DEBUG));
+            }
+
+            $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/graby.log', Logger::INFO, false));
         }
 
         $this->configBuilder = $configBuilder;
@@ -148,7 +161,7 @@ class Graby
      */
     public function fetchContent($url)
     {
-        $this->logger->log('debug', 'Graby is ready to fetch');
+        $this->logger->info('Graby is ready to fetch');
 
         $infos = $this->doFetchContent($url);
 
@@ -179,7 +192,7 @@ class Graby
 
         // in case of extractor failed
         if (null === $contentBlock) {
-            $this->logger->log('debug', 'Cleanup html failed. Return given content (a bit cleaned)');
+            $this->logger->info('Cleanup html failed. Return given content (a bit cleaned)');
 
             return trim($this->cleanupXss($originalContentBlock));
         }
@@ -229,6 +242,8 @@ class Graby
             $html = preg_replace('!</?a[^>]*>!', '', $html);
         }
 
+        $this->logger->debug('Body after cleanupHtml, before cleanupXss', ['html' => $html]);
+
         return trim($this->cleanupXss($html));
     }
 
@@ -244,7 +259,7 @@ class Graby
         $url = $this->validateUrl($url);
         $siteConfig = $this->configBuilder->buildFromUrl($url);
 
-        $this->logger->log('debug', 'Fetching url: {url}', ['url' => $url]);
+        $this->logger->info('Fetching url: {url}', ['url' => $url]);
 
         $response = $this->httpClient->fetch($url, false, $siteConfig->http_header);
 
@@ -263,6 +278,8 @@ class Graby
 
         $html = $this->convert2Utf8($response['body'], $response['all_headers']);
 
+        $this->logger->debug('Fetched HTML', ['html' => $html]);
+
         // Remove empty lines to avoid runaway evaluation of following regex
         // on badly coded websites
         $re = '/^[ \t]*[\r\n]+/m';
@@ -271,6 +288,8 @@ class Graby
         // Remove empty nodes (except iframe)
         $re = '/<(?!iframe)([^>\s]+)[^>]*>(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;|\s)*<\/\1>/m';
         $html = preg_replace($re, '', $html);
+
+        $this->logger->debug('HTML after regex empty nodes stripping', ['html' => $html]);
 
         // some non utf8 enconding might be breaking after converting to utf8
         // when it happen the string (usually) starts with this character
@@ -281,7 +300,7 @@ class Graby
 
         $ogData = $this->extractOpenGraph($html, $effectiveUrl);
 
-        $this->logger->log('debug', 'Opengraph data: {ogData}', ['ogData' => $ogData]);
+        $this->logger->info('Opengraph data: {ogData}', ['ogData' => $ogData]);
 
         // @TODO: log raw html + headers
 
@@ -299,12 +318,12 @@ class Graby
             }
 
             $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['all_headers']);
-            $this->logger->log('debug', 'Retrieved single-page view from "{url}"', ['url' => $effectiveUrl]);
+            $this->logger->info('Retrieved single-page view from "{url}"', ['url' => $effectiveUrl]);
 
             unset($singlePageResponse);
         }
 
-        $this->logger->log('debug', 'Attempting to extract content');
+        $this->logger->info('Attempting to extract content');
 
         $extractResult = $this->extractor->process($html, $effectiveUrl);
         $readability = $this->extractor->readability;
@@ -322,24 +341,24 @@ class Graby
         // Deal with multi-page articles
         $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
         if ($this->config['multipage'] && $isMultiPage) {
-            $this->logger->log('debug', 'Attempting to process multi-page article');
+            $this->logger->info('Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
             $multiPageUrls = [$effectiveUrl];
             $multiPageContent = [];
 
             while ($nextPageUrl = $this->extractor->getNextPageUrl()) {
-                $this->logger->log('debug', 'Processing next page: {url}', ['url' => $nextPageUrl]);
+                $this->logger->info('Processing next page: {url}', ['url' => $nextPageUrl]);
                 // If we've got URL, resolve against $url
                 $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
                 if (!$nextPageUrl) {
-                    $this->logger->log('debug', 'Failed to resolve against: {url}', ['url' => $effectiveUrl]);
+                    $this->logger->info('Failed to resolve against: {url}', ['url' => $effectiveUrl]);
                     $multiPageContent = [];
                     break;
                 }
 
                 // check it's not what we have already!
                 if (\in_array($nextPageUrl, $multiPageUrls, true)) {
-                    $this->logger->log('debug', 'URL already processed');
+                    $this->logger->info('URL already processed');
                     $multiPageContent = [];
                     break;
                 }
@@ -353,7 +372,7 @@ class Graby
                 $mimeInfo = $this->getMimeActionInfo($response['all_headers']);
 
                 if (isset($mimeInfo['action'])) {
-                    $this->logger->log('debug', 'MIME type requires different action');
+                    $this->logger->info('MIME type requires different action');
                     $multiPageContent = [];
                     break;
                 }
@@ -364,7 +383,7 @@ class Graby
                 );
 
                 if (!$extracSuccess) {
-                    $this->logger->log('debug', 'Failed to extract content');
+                    $this->logger->info('Failed to extract content');
                     $multiPageContent = [];
                     break;
                 }
@@ -374,7 +393,7 @@ class Graby
 
             // did we successfully deal with this multi-page article?
             if (empty($multiPageContent)) {
-                $this->logger->log('debug', 'Failed to extract all parts of multi-page article, so not going to include them');
+                $this->logger->info('Failed to extract all parts of multi-page article, so not going to include them');
                 $page = $readability->dom->createElement('p');
                 $page->innerHTML = '<em>This article appears to continue on subsequent pages which we could not extract</em>';
                 $multiPageContent[] = $page;
@@ -404,14 +423,14 @@ class Graby
 
         // if we failed to extract content...
         if (!$extractResult || null === $contentBlock) {
-            $this->logger->log('debug', 'Extract failed');
+            $this->logger->info('Extract failed');
 
             return $res;
         }
 
         $res['html'] = $this->cleanupHtml($contentBlock, $effectiveUrl);
 
-        $this->logger->log('debug', 'Returning data (most interesting ones): {data}', ['data' => ($res + ['html' => \strlen($res['html'])])]);
+        $this->logger->info('Returning data (most interesting ones): {data}', ['data' => ($res + ['html' => \strlen($res['html'])])]);
 
         return $res;
     }
@@ -638,12 +657,12 @@ class Graby
      */
     private function getSinglePage($html, $url)
     {
-        $this->logger->log('debug', 'Looking for site config files to see if single page link exists');
+        $this->logger->info('Looking for site config files to see if single page link exists');
         $siteConfig = $this->configBuilder->buildFromUrl($url);
 
         // no single page found?
         if (empty($siteConfig->single_page_link)) {
-            $this->logger->log('debug', 'No "single_page_link" config found');
+            $this->logger->info('No "single_page_link" config found');
 
             return false;
         }
@@ -687,7 +706,7 @@ class Graby
         }
 
         if (!$singlePageUrl) {
-            $this->logger->log('debug', 'No single page url found');
+            $this->logger->info('No single page url found');
 
             return false;
         }
@@ -701,13 +720,13 @@ class Graby
             $response = $this->httpClient->fetch($singlePageUrl, false, $siteConfig->http_header);
 
             if ($response['status'] < 300) {
-                $this->logger->log('debug', 'Single page content found with url', ['url' => $singlePageUrl]);
+                $this->logger->info('Single page content found with url', ['url' => $singlePageUrl]);
 
                 return $response;
             }
         }
 
-        $this->logger->log('debug', 'No content found with url', ['url' => $singlePageUrl]);
+        $this->logger->info('No content found with url', ['url' => $singlePageUrl]);
 
         return false;
     }
@@ -935,7 +954,7 @@ class Graby
 
         if (empty($contentType) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, PREG_SET_ORDER)) {
             // error parsing the response
-            $this->logger->log('debug', 'Could not find Content-Type header in HTTP response', ['headers' => $headers]);
+            $this->logger->info('Could not find Content-Type header in HTTP response', ['headers' => $headers]);
         } else {
             // get last matched element (in case of redirects)
             $match = end($match);
@@ -1009,12 +1028,12 @@ class Graby
             // https://www.w3.org/International/articles/http-charset/index#charset
             // HTTP 1.1 says that the default charset is ISO-8859-1
             $encoding = $encoding ?: 'iso-8859-1';
-            $this->logger->log('debug', 'Converting to UTF-8', ['encoding' => $encoding]);
+            $this->logger->info('Converting to UTF-8', ['encoding' => $encoding]);
 
             return \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8') ?: $html;
         }
 
-        $this->logger->log('debug', 'Treating as UTF-8', ['encoding' => $encoding]);
+        $this->logger->info('Treating as UTF-8', ['encoding' => $encoding]);
 
         return $html;
     }
@@ -1032,7 +1051,7 @@ class Graby
             return $html;
         }
 
-        $this->logger->log('debug', 'Filtering HTML to remove XSS');
+        $this->logger->info('Filtering HTML to remove XSS');
 
         return htmLawed(
             $html,

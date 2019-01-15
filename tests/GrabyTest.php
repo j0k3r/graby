@@ -18,6 +18,7 @@ class GrabyTest extends TestCase
         $graby = new Graby(['debug' => true]);
 
         $this->assertTrue($graby->getConfig('debug'));
+        $this->assertSame('info', $graby->getConfig('log_level'));
     }
 
     /**

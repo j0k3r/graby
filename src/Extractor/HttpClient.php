@@ -112,7 +112,7 @@ class HttpClient
             $method = 'head';
         }
 
-        $this->logger->log('debug', 'Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
+        $this->logger->info('Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
 
         $options = [
             'headers' => [
@@ -148,8 +148,8 @@ class HttpClient
                     'status' => 500,
                 ];
 
-                $this->logger->log('warning', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
-                $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
+                $this->logger->warning('Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
+                $this->logger->info('Data fetched: {data}', ['data' => $data]);
 
                 return $this->sendResults($data);
             }
@@ -157,7 +157,7 @@ class HttpClient
             // exception has a response which means we might be able to retrieve content from it, log it and continue
             $response = $e->getResponse();
 
-            $this->logger->log('warning', 'Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
+            $this->logger->warning('Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
         }
 
         $effectiveUrl = $response->getEffectiveUrl();
@@ -217,7 +217,7 @@ class HttpClient
         // remove utm parameters & fragment
         $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', rawurldecode($effectiveUrl));
 
-        $this->logger->log('debug', 'Data fetched: {data}', ['data' => [
+        $this->logger->info('Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
             'body' => '(only length for debug): ' . \strlen($body),
             'headers' => $contentType,
@@ -289,7 +289,7 @@ class HttpClient
         }
 
         if (self::$nbRedirect > $this->config['max_redirect']) {
-            $this->logger->log('debug', 'Endless redirect: ' . self::$nbRedirect . ' on "{url}"', ['url' => $url]);
+            $this->logger->warning('Endless redirect: ' . self::$nbRedirect . ' on "{url}"', ['url' => $url]);
 
             return false;
         }
@@ -346,7 +346,7 @@ class HttpClient
         $ua = $this->config['ua_browser'];
 
         if (!empty($httpHeader['user-agent'])) {
-            $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => $url]);
+            $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => $url]);
 
             return $httpHeader['user-agent'];
         }
@@ -368,13 +368,13 @@ class HttpClient
 
         foreach ($try as $h) {
             if (isset($this->config['user_agents'][$h])) {
-                $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config['user_agents'][$h], 'url' => $url]);
+                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config['user_agents'][$h], 'url' => $url]);
 
                 return $this->config['user_agents'][$h];
             }
         }
 
-        $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', ['user-agent' => $ua, 'url' => $url]);
+        $this->logger->info('Use default user-agent "{user-agent}" for url "{url}"', ['user-agent' => $ua, 'url' => $url]);
 
         return $ua;
     }
@@ -394,12 +394,12 @@ class HttpClient
         $default_referer = $this->config['default_referer'];
 
         if (!empty($httpHeader['referer'])) {
-            $this->logger->log('debug', 'Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => $url]);
+            $this->logger->info('Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => $url]);
 
             return $httpHeader['referer'];
         }
 
-        $this->logger->log('debug', 'Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => $url]);
+        $this->logger->info('Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => $url]);
 
         return $default_referer;
     }
@@ -416,7 +416,7 @@ class HttpClient
     private function getCookie($url, $httpHeader = [])
     {
         if (!empty($httpHeader['cookie'])) {
-            $this->logger->log('debug', 'Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
+            $this->logger->info('Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
 
             $cookies = [];
             $pieces = array_filter(array_map('trim', explode(';', $httpHeader['cookie'])));
@@ -455,7 +455,7 @@ class HttpClient
     private function getAccept($url, $httpHeader = [])
     {
         if (!empty($httpHeader['accept'])) {
-            $this->logger->log('debug', 'Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
+            $this->logger->info('Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
 
             return $httpHeader['accept'];
         }
@@ -513,7 +513,7 @@ class HttpClient
         $redirectUrl = str_replace('&amp;', '&', trim($match[1]));
         if (preg_match('!^https?://!i', $redirectUrl)) {
             // already absolute
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $redirectUrl);
+            $this->logger->info('Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $redirectUrl);
 
             return $redirectUrl;
         }
@@ -526,7 +526,7 @@ class HttpClient
         }
 
         if ($absolute = \SimplePie_IRI::absolutize($base, $redirectUrl)) {
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $absolute);
+            $this->logger->info('Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $absolute);
 
             return $absolute->get_iri();
         }
@@ -559,7 +559,7 @@ class HttpClient
             return false;
         }
 
-        $this->logger->log('debug', 'Added escaped fragment to url');
+        $this->logger->info('Added escaped fragment to url');
 
         $query = ['_escaped_fragment_' => ''];
 
