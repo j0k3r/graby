@@ -835,7 +835,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Detected title: {title}', $records[5]['message']);
 
         if (\function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[8]['message']);
+            $this->assertSame('Trying again without tidy', $records[7]['message']);
         }
     }
 
