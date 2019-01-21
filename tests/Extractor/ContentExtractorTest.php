@@ -835,7 +835,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Detected title: {title}', $records[5]['message']);
 
         if (\function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[6]['message']);
+            $this->assertSame('Trying again without tidy', $records[7]['message']);
         }
     }
 
@@ -913,7 +913,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $res = $contentExtractor->process(
-            ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p><hihi/p>',
+            ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p>hihi</p>',
             'https://nativead.io/woops!'
         );
 
@@ -922,7 +922,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $content_block = $contentExtractor->getContent();
 
         $this->assertTrue($contentExtractor->isNativeAd());
-        $this->assertContains('<p><hihi/></p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
     public function testJsonLd()
@@ -1025,5 +1025,18 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         );
 
         $this->assertFalse($res, 'Extraction failed');
+    }
+
+    public function testBadDate()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            '   <meta property="article:published_time" content="-0001-11-30T00:00:00+00:00" /> <p>' . str_repeat('this is the best part of the show', 10) . '</p> ',
+            'https://domattr.io/woops!'
+        );
+
+        $this->assertTrue($res, 'Extraction went fine');
+        $this->assertNull($contentExtractor->getDate(), 'Date got vanish because it was wrong');
     }
 }
