@@ -530,14 +530,14 @@ class ContentExtractor
 
         // If no year has been found during date_parse, we nuke the whole value
         // because the date is invalid
-        if (false === $parseDate['year']) {
+        if (null !== $this->date && false === $parseDate['year']) {
             $this->logger->info('Date is bad (wrong year): {date}', ['date' => $this->date]);
 
             $this->date = null;
         }
 
         // in case the date can't be converted we assume it's a wrong date
-        if (0 > strtotime($this->date) || false === strtotime($this->date)) {
+        if (null !== $this->date && 0 > strtotime($this->date) || false === strtotime($this->date)) {
             $this->logger->info('Date is bad (strtotime failed): {date}', ['date' => $this->date]);
 
             $this->date = null;
