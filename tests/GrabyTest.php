@@ -540,7 +540,7 @@ class GrabyTest extends TestCase
 
         $response->expects($this->any())
             ->method('getBody')
-            ->willReturn(file_get_contents(__DIR__ . '/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf'));
+            ->willReturn(file_get_contents(__DIR__ . '/fixtures/Document1_pdfcreator.pdf'));
 
         $client = $this->getMockBuilder('GuzzleHttp\Client')
             ->disableOriginalConstructor()
@@ -556,12 +556,12 @@ class GrabyTest extends TestCase
 
         $this->assertCount(12, $res);
         $this->assertEmpty($res['language']);
-        $this->assertSame('2011-12-20T21:58:48+00:00', $res['date']);
-        $this->assertSame(['David Baca'], $res['authors']);
-        $this->assertSame('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
-        $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
+        $this->assertSame('2013-09-01T22:20:38+02:00', $res['date']);
+        $this->assertSame(['Sebastien MALOT'], $res['authors']);
+        $this->assertSame('Document1', $res['title']);
+        $this->assertContains('orem ipsum dolor sit amet', $res['html']);
         $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
-        $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['summary']);
+        $this->assertContains('orem ipsum dolor sit amet', $res['summary']);
         $this->assertSame('application/pdf', $res['content_type']);
         $this->assertSame([], $res['open_graph']);
         $this->assertFalse($res['native_ad']);

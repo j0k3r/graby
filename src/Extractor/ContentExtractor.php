@@ -537,7 +537,7 @@ class ContentExtractor
         }
 
         // in case the date can't be converted we assume it's a wrong date
-        if (0 > strtotime($this->date)) {
+        if (0 > strtotime($this->date) || false === strtotime($this->date)) {
             $this->logger->info('Date is bad (strtotime failed): {date}', ['date' => $this->date]);
 
             $this->date = null;
