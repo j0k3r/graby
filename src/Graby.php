@@ -430,7 +430,7 @@ class Graby
 
         $res['html'] = $this->cleanupHtml($contentBlock, $effectiveUrl);
 
-        $this->logger->info('Returning data (most interesting ones): {data}', ['data' => ($res + ['html' => \strlen($res['html'])])]);
+        $this->logger->info('Returning data (most interesting ones): {data}', ['data' => ['html' => '(only length for debug): ' . \strlen($res['html'])] + $res]);
 
         return $res;
     }
@@ -681,7 +681,7 @@ class Graby
             if ($condition) {
                 $elems = $xpath->evaluate($condition, $readability->dom);
 
-                // move on to next single page link XPath in case condition isn't met
+                // move on to next single_page_link XPath in case condition isn't met
                 if (!($elems instanceof \DOMNodeList && $elems->length > 0)) {
                     continue;
                 }

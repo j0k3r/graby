@@ -1637,7 +1637,7 @@ class GrabyTest extends TestCase
     /**
      * Validated using the site_config in "tests/fixtures".
      */
-    public function testIfPageContains()
+    public function testIfPageContainsWithSinglePageLink()
     {
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/timothysykes-keepol.html',
@@ -1651,6 +1651,43 @@ class GrabyTest extends TestCase
             ]
         );
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
+
+        $this->assertCount(12, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('content_type', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('all_headers', $res);
+
+        $this->assertSame(200, $res['status']);
+    }
+
+    /**
+     * Validated using the site_config in "tests/fixtures".
+     */
+    public function testIfPageContainsWithNextPageLink()
+    {
+        $graby = $this->getGrabyWithMock(
+            '/fixtures/content/rollingstone.html',
+            200,
+            [
+                'debug' => true,
+                'extractor' => [
+                    'config_builder' => [
+                        'site_config' => [__DIR__ . '/fixtures/site_config'],
+                    ],
+                ],
+            ]
+        );
+        $res = $graby->fetchContent('https://www.rollingstone.com/?redirurl=/politics/news/greed-and-debt-the-true-story-of-mitt-romney-and-bain-capital-20120829');
 
         $this->assertCount(12, $res);
 
