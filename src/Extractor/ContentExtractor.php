@@ -221,6 +221,18 @@ class ContentExtractor
         // try to get next page link
         // @todo: should we test if the link is actually a link?
         foreach ($this->siteConfig->next_page_link as $pattern) {
+            // Do we have conditions?
+            $condition = $this->siteConfig->getIfPageContainsCondition('next_page_link', $pattern);
+
+            if ($condition) {
+                $elems = $this->xpath->evaluate($condition, $this->readability->dom);
+
+                // move on to next next_page_link XPath in case condition isn't met
+                if (!($elems instanceof \DOMNodeList && $elems->length > 0)) {
+                    continue;
+                }
+            }
+
             $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
 
             if (\is_string($elems)) {

@@ -69,7 +69,7 @@ class SiteConfig
     public $test_url = [];
 
     // If page contains - XPath expression. Used to determine if the preceding rule gets evaluated or not.
-    // Currently only works with single_page_link.
+    // Currently only works with single_page_link & next_page_link (first one has priority over the second one).
     public $if_page_contains = [];
 
     // Single-page link - should identify a link element or URL pointing to the page holding the entire article
@@ -215,7 +215,7 @@ class SiteConfig
     /**
      * Return a condition for the given name (if exists).
      *
-     * @param string $name  Rule name (only single_page_link is supported for now)
+     * @param string $name  Rule name (only single_page_link & next_page_link is supported for now)
      * @param string $value Value of the rule (currently only an url)
      *
      * @return string|null

@@ -377,17 +377,30 @@ class ConfigBuilder
         return $config;
     }
 
-    // Add if_page_page_contains
-    // TODO: Expand so it can be used with other rules too
+    /**
+     * Build `if_page_contains` rule based on other previous rules defined for:
+     *     - single_page_link.
+     *     - next_page_link.
+     *
+     * First one has priority over the next one.
+     *
+     * @param SiteConfig $config    Current config
+     * @param string     $condition XPath condition
+     */
     private function handleIfPageContainsCondition(SiteConfig $config, $condition)
     {
-        if (empty($config->single_page_link)) {
+        if (!empty($config->single_page_link)) {
+            $rule = 'single_page_link';
+        } elseif (!empty($config->next_page_link)) {
+            $rule = 'next_page_link';
+        } else {
+            // no link found, we can't apply "if_page_contains"
             return;
         }
 
-        $key = end($config->single_page_link);
-        reset($config->single_page_link);
+        $key = end($config->$rule);
+        reset($config->$rule);
 
-        $config->if_page_contains['single_page_link'][$key] = (string) $condition;
+        $config->if_page_contains[$rule][$key] = (string) $condition;
     }
 }
