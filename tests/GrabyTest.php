@@ -7,9 +7,10 @@ use GuzzleHttp\Psr7\Response;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\PhpUnit\DnsMock;
 
-class GrabyTest extends \PHPUnit_Framework_TestCase
+class GrabyTest extends TestCase
 {
     /**
      * A human IPv4 corresponding to example.com.
@@ -21,6 +22,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $graby = new Graby(['debug' => true]);
 
         $this->assertTrue($graby->getConfig('debug'));
+        $this->assertSame('info', $graby->getConfig('log_level'));
     }
 
     /**
@@ -128,7 +130,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($title, $res['title'], 'Same title');
         $this->assertSame($summary, $res['summary'], 'Same summary');
 
-        if (function_exists('tidy_parse_string')) {
+        if (\function_exists('tidy_parse_string')) {
             $this->assertSame($parsedContent, $res['html'], 'Same html');
         } else {
             $this->assertSame($parsedContentWithoutTidy, $res['html'], 'Same html');
@@ -366,7 +368,7 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
         $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/pdf'],
-            file_get_contents(__DIR__ . '/fixtures/Good_Product_Manager_Bad_Product_Manager_KV.pdf')
+            file_get_contents(__DIR__ . '/fixtures/Document1_pdfcreator.pdf')
         ));
         $graby = new Graby([], $httpMockClient);
 
@@ -374,12 +376,12 @@ class GrabyTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
-        $this->assertSame('2011-12-20T21:58:48+00:00', $res['date']);
-        $this->assertSame(['David Baca'], $res['authors']);
-        $this->assertSame('Microsoft Word - Good_Product_Manager_Bad_Product_Manager_KV.doc', $res['title']);
-        $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['html']);
+        $this->assertSame('2013-09-01T22:20:38+02:00', $res['date']);
+        $this->assertSame(['Sebastien MALOT'], $res['authors']);
+        $this->assertSame('Document1', $res['title']);
+        $this->assertContains('orem ipsum dolor sit amet', $res['html']);
         $this->assertContains('http://example.com/test.pdf', $res['url']);
-        $this->assertContains('Good Product Manager Bad Product Manager By Ben Horowitz and David Weiden', $res['summary']);
+        $this->assertContains('orem ipsum dolor sit amet', $res['summary']);
         $this->assertSame('application/pdf', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
@@ -697,8 +699,8 @@ HTML
             ['hello "you" are fine', 15, '...', 'hello "you" are...'],
             ['hello <p>you</p> are fine', 13, '...', 'hello you are...'],
             ["hello you\n are fine", 13, '...', 'hello you are...'],
-            [chr(0xc2) . chr(0xa0) . 'hello you are fine', 13, '...', 'hello you are...'],
-            ['hello you are fine' . chr(0xc2) . chr(0xa0), 13, '...', 'hello you are...'],
+            [\chr(0xc2) . \chr(0xa0) . 'hello you are fine', 13, '...', 'hello you are...'],
+            ['hello you are fine' . \chr(0xc2) . \chr(0xa0), 13, '...', 'hello you are...'],
         ];
     }
 
@@ -709,7 +711,7 @@ HTML
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('getExcerpt');
         $method->setAccessible(true);
 
@@ -736,7 +738,7 @@ HTML
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteStr');
         $method->setAccessible(true);
 
@@ -769,7 +771,7 @@ HTML
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteAttr');
         $method->setAccessible(true);
 
@@ -801,7 +803,7 @@ HTML
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
@@ -822,7 +824,7 @@ HTML
 
         $e = $doc->firstChild;
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
@@ -949,7 +951,7 @@ HTML
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(get_class($graby));
+        $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('validateUrl');
         $method->setAccessible(true);
 
@@ -1017,13 +1019,300 @@ HTML
 
     public function testEncodingUtf8ForTextPlainPage()
     {
-        $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new Response(200, ['content-type' => 'text/plain'], file_get_contents(__DIR__ . '/fixtures/malformed_UTF8_characters.txt')));
-
-        $graby = new Graby([], $httpMockClient);
+        $graby = $this->getGrabyWithMock('/fixtures/content/malformed_UTF8_characters.txt');
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
 
         $this->assertArrayHasKey('html', $res);
         $this->assertNotFalse(json_encode($res['html']), json_last_error_msg());
+    }
+
+    public function testEmptyNodesRemoved()
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/framablog.html');
+        $res = $graby->fetchContent('https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/');
+
+        // The initial treatment was encapsulating the content into the empty node
+        // So we don't want to see that again
+        $this->assertNotContains('<figure><p>Après un <em>icebreaker</em>', $res['html']);
+    }
+
+    public function testMetaAuthor()
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/keithjgrant.html');
+        $res = $graby->fetchContent('https://keithjgrant.com/posts/2018/06/resilient-declarative-contextual/');
+
+        // The initial treatment was encapsulating the content into the empty node
+        // So we don't want to see that again
+        $authors = $res['authors'];
+        $this->assertEquals(1, \count($authors));
+        $this->assertEquals('Keith J. Grant', $authors[0]);
+    }
+
+    public function testJsonLd()
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/20minutes-jsonld.html');
+        $res = $graby->fetchContent('http://www.20minutes.fr/sport/football/2155935-20171022-stade-rennais-portugais-paulo-fonseca-remplacer-christian-gourcuff');
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame(200, $res['status']);
+        $this->assertSame('Stade Rennais: Le Portugais Paulo Fonseca pour remplacer Christian Gourcuff?', $res['title']);
+        $this->assertCount(1, $res['authors']);
+        $this->assertSame('Jeremy Goujon', $res['authors'][0]);
+    }
+
+    public function testKeepOlStartAttribute()
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/timothysykes-keepol.html');
+        $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame(200, $res['status']);
+        $this->assertContains('<ol start="2">', $res['html']);
+        $this->assertContains('<ol start="3">', $res['html']);
+        $this->assertContains('<ol start="4">', $res['html']);
+    }
+
+    public function testContentWithXSS()
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/gist-xss.html');
+        $res = $graby->fetchContent('https://gist.githubusercontent.com/nicosomb/94d1e08c42baff9184c313d638de1195/raw/d63b0bc99225604a9f4b57bfea1cd7a538c8ceeb/gistfile1.txt');
+
+        $this->assertNotContains('<script>', $res['html']);
+    }
+
+    public function testBadUrl()
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);
+        $res = $graby->fetchContent('https://bjori.blogspot.com/201');
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame(404, $res['status']);
+        $this->assertEmpty($res['language']);
+        $this->assertSame('https://bjori.blogspot.com/201', $res['url']);
+        $this->assertSame("bjori doesn't blog", $res['title']);
+        $this->assertSame('[unable to retrieve full-text content]', $res['html']);
+        $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
+    }
+
+    public function dataDate()
+    {
+        return [
+            [
+                'https://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html',
+                'lemonde-date.html',
+                '2011-07-05T22:09:59+02:00',
+            ],
+            [
+                'https://www.20minutes.fr/sport/football/2282359-20180601-video-france-italie-bleus-ambiancent-regalent-va-essayer-trop-enflammer',
+                '20minutes-date.html',
+                '2018-06-01T23:03:11+02:00',
+            ],
+        ];
+    }
+
+    /**
+     * @requires extension tidy
+     * @dataProvider dataDate
+     */
+    public function testDate($url, $file, $expectedDate)
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/' . $file);
+        $res = $graby->fetchContent($url);
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame($expectedDate, $res['date']);
+    }
+
+    public function dataAuthors()
+    {
+        return [
+            [
+                'https://www.20minutes.fr/sport/football/2282359-20180601-video-france-italie-bleus-ambiancent-regalent-va-essayer-trop-enflammer',
+                '20minutes-authors.html',
+                ['Jean Saint-Marc'],
+            ],
+            [
+                'https://www.liberation.fr/planete/2017/04/05/donald-trump-et-xi-jinping-tentative-de-flirt-en-floride_1560768',
+                'liberation-authors.html',
+                ['Raphaël Balenieri, correspondant à Pékin', 'Frédéric Autran, correspondant à New York'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataAuthors
+     */
+    public function testAuthors($url, $file, $expectedAuthors)
+    {
+        $graby = $this->getGrabyWithMock(
+            '/fixtures/content/' . $file,
+            200,
+            [
+                'extractor' => [
+                    'config_builder' => [
+                        'site_config' => [__DIR__ . '/fixtures/site_config'],
+                    ],
+                ],
+            ]
+        );
+        $res = $graby->fetchContent($url);
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame($expectedAuthors, $res['authors']);
+    }
+
+    /**
+     * Validated using the site_config in "tests/fixtures".
+     */
+    public function testIfPageContainsWithSinglePageLink()
+    {
+        $graby = $this->getGrabyWithMock(
+            '/fixtures/content/timothysykes-keepol.html',
+            200,
+            [
+                'extractor' => [
+                    'config_builder' => [
+                        'site_config' => [__DIR__ . '/fixtures/site_config'],
+                    ],
+                ],
+            ]
+        );
+        $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame(200, $res['status']);
+    }
+
+    /**
+     * Validated using the site_config in "tests/fixtures".
+     */
+    public function testIfPageContainsWithNextPageLink()
+    {
+        $graby = $this->getGrabyWithMock(
+            '/fixtures/content/rollingstone.html',
+            200,
+            [
+                'debug' => true,
+                'extractor' => [
+                    'config_builder' => [
+                        'site_config' => [__DIR__ . '/fixtures/site_config'],
+                    ],
+                ],
+            ]
+        );
+        $res = $graby->fetchContent('https://www.rollingstone.com/?redirurl=/politics/news/greed-and-debt-the-true-story-of-mitt-romney-and-bain-capital-20120829');
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame(200, $res['status']);
+    }
+
+    /**
+     * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
+     */
+    private function getGrabyWithMock($filePath, $status = 200, array $grabyConfig = [])
+    {
+        $response = new Response(
+            $status,
+            ['content-type' => 'text/html'],
+            file_get_contents(__DIR__ . $filePath)
+        );
+
+        $client = new HttpMockClient();
+        $client->addResponse($response);
+
+        return new Graby($grabyConfig, $client);
     }
 }

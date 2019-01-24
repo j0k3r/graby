@@ -6,8 +6,9 @@ use Graby\Extractor\ContentExtractor;
 use Graby\SiteConfig\SiteConfig;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class ContentExtractorTest extends \PHPUnit_Framework_TestCase
+class ContentExtractorTest extends TestCase
 {
     protected static $contentExtractorConfig;
 
@@ -104,7 +105,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         }
 
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'test_url', 'date'] as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPath for: ' . $value);
+            $this->assertGreaterThan(0, \count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
@@ -137,7 +138,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         );
 
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'author', 'date'] as $value) {
-            $this->assertGreaterThan(0, count($res->$value), 'Check count XPath for: ' . $value);
+            $this->assertGreaterThan(0, \count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
@@ -381,13 +382,14 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         return [
             ['commentlist', '<html><body><nav id="commentlist">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
             ['related_post', '<html><body><nav id="high">' . str_repeat('hello !', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'this is the best part of the show'],
+            ['related', '<html><body><nav id="high">' . str_repeat('lorem ipsum dolor', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', null, 'class="related_post"'],
         ];
     }
 
     /**
      * @dataProvider dataForStripIdOrClass
      */
-    public function testApplyStripIdOrClass($pattern, $html, $removedContent)
+    public function testApplyStripIdOrClass($pattern, $html, $removedContent, $matchContent = null)
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -403,7 +405,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertNotContains($removedContent, $content);
+        if (null === $removedContent) {
+            $this->assertContains($matchContent, $content);
+        } else {
+            $this->assertNotContains($removedContent, $content);
+        }
     }
 
     public function dataForStripImageSrc()
@@ -744,6 +750,11 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
                 '<div>' . str_repeat('this is the best part of the show', 10) . '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-sources="http://0.0.0.0/big_image.jpg"/></div>',
                 '<img src="http://0.0.0.0/big_image.jpg"',
             ],
+            // test with img attribute from site config
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-toto-src="http://0.0.0.0/big_image.jpg"/></div>',
+                '<img src="http://0.0.0.0/big_image.jpg"',
+            ],
         ];
     }
 
@@ -758,6 +769,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
 
         $config = new SiteConfig();
         $config->body = ['//div'];
+        $config->src_lazy_load_attr = 'data-toto-src';
 
         $res = $contentExtractor->process(
             $html,
@@ -800,7 +812,7 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
     public function testLogMessage()
     {
         $logger = new Logger('foo');
-        $handler = new TestHandler();
+        $handler = new TestHandler($level = Logger::INFO);
         $logger->pushHandler($handler);
 
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
@@ -819,15 +831,15 @@ class ContentExtractorTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThanOrEqual(6, $records);
         $this->assertSame('Attempting to parse HTML with {parser}', $records[0]['message']);
         $this->assertSame('libxml', $records[0]['context']['parser']);
-        $this->assertSame('Opengraph "og:" data: {ogData}', $records[1]['message']);
-        $this->assertSame('Opengraph "article:" data: {ogData}', $records[2]['message']);
-        $this->assertSame('Trying {pattern} for language', $records[3]['message']);
+        $this->assertSame('Opengraph "og:" data: {ogData}', $records[2]['message']);
+        $this->assertSame('Opengraph "article:" data: {ogData}', $records[3]['message']);
         $this->assertSame('Trying {pattern} for language', $records[4]['message']);
-        $this->assertSame('Using Readability', $records[5]['message']);
-        $this->assertSame('Detected title: {title}', $records[6]['message']);
+        $this->assertSame('Trying {pattern} for language', $records[5]['message']);
+        $this->assertSame('Using Readability', $records[6]['message']);
+        $this->assertSame('Detected title: {title}', $records[7]['message']);
 
-        if (function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[7]['message']);
+        if (\function_exists('tidy_parse_string')) {
+            $this->assertSame('Trying again without tidy', $records[9]['message']);
         }
     }
 
@@ -993,5 +1005,101 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertEmpty($contentExtractor->getImage());
         $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    public function testJsonLdSkipper()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        $config->skip_json_ld = true;
+
+        $res = $contentExtractor->process(
+            '<html><script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><body><div>hello !hello !hello !hello !hello !hello !hello !<p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
+            'https://skipjsonld.io/jsonld',
+            $config
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertEmpty($contentExtractor->getTitle());
+        $this->assertNull($contentExtractor->getDate());
+        $this->assertEmpty($contentExtractor->getAuthors());
+        $this->assertContains('this is the best part of the show', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    public function testJsonLdName()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "name": "name !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
+            'https://nativead.io/jsonld'
+        );
+
+        $this->assertSame('name !!', $contentExtractor->getTitle());
+    }
+
+    public function testJsonLdDateArray()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"] }</script><p>hihi</p>',
+            'https://nativead.io/jsonld'
+        );
+
+        $this->assertSame('05/29/2014', $contentExtractor->getDate());
+    }
+
+    public function testUniqueAuthors()
+    {
+        $url = 'https://www.lemonde.fr/pixels/article/2018/05/30/bloodstained-curse-of-the-moon-delicieux-jeu-de-vampires-a-la-mode-des-annees-1980_5307173_4408996.html';
+        $html = '<script type="application/ld+json">{"author":{"@type":"Person","name":"William Audureau"}}</script><a class="auteur" target="_blank" href="/journaliste/william-audureau/">William Audureau</a>';
+
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+        $siteConfig = $contentExtractor->buildSiteConfig($url);
+
+        $contentExtractor->process(
+            $html,
+            $url,
+            $siteConfig
+        );
+        $authors = $contentExtractor->getAuthors();
+        $authorsUnique = array_unique($authors);
+
+        $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
+    }
+
+    public function testBodyAsDomAttribute()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        // a xpath retrieving a dom attribute
+        $config->body = ['//iframe/@src'];
+
+        $res = $contentExtractor->process(
+            '   <iframe src="blog_0x34.md.html" frameborder="0" style="overflow:hidden; display:block; position: absolute; height: 80%; width:100%;"></iframe>',
+            'https://domattr.io/woops!',
+            $config
+        );
+
+        $this->assertFalse($res, 'Extraction failed');
+    }
+
+    public function testBadDate()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            '   <meta property="article:published_time" content="-0001-11-30T00:00:00+00:00" /> <p>' . str_repeat('this is the best part of the show', 10) . '</p> ',
+            'https://domattr.io/woops!'
+        );
+
+        $this->assertTrue($res, 'Extraction went fine');
+        $this->assertNull($contentExtractor->getDate(), 'Date got vanish because it was wrong');
     }
 }

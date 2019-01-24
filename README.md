@@ -3,6 +3,8 @@
 [![Join the chat at https://gitter.im/j0k3r/graby](https://badges.gitter.im/j0k3r/graby.svg)](https://gitter.im/j0k3r/graby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/j0k3r/graby.svg?branch=master)](https://travis-ci.org/j0k3r/graby)
 [![Coverage Status](https://coveralls.io/repos/j0k3r/graby/badge.svg?branch=master&service=github)](https://coveralls.io/github/j0k3r/graby?branch=master)
+[![Total Downloads](https://poser.pugx.org/j0k3r/graby/downloads)](https://packagist.org/packages/j0k3r/graby)
+[![License](https://poser.pugx.org/j0k3r/graby/license)](https://packagist.org/packages/j0k3r/graby)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/j0k3r/graby/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/j0k3r/graby/?branch=master)
 
 Graby helps you extract article content from web pages.
@@ -155,6 +157,7 @@ monolog:
         graby:
             type: service
             id: graby.log_handler
+            # use "debug" to got a lot of data (like HTML at each step) otherwise "info" is fine
             level: debug
             channels: ['graby']
 ```
@@ -208,6 +211,8 @@ $graby = new Graby(array(
     // Enable or disable debugging.
     // This will only generate log information in a file (log/graby.log)
     'debug' => false,
+    // use 'debug' value if you want more data (HTML at each step for example) to be dumped in a different file (log/html.log)
+    'log_level' => 'info',
     // If enabled relative URLs found in the extracted content are automatically rewritten as absolute URLs.
     'rewrite_relative_urls' => true,
     // If enabled, we will try to follow single page links (e.g. print view) on multi-page articles.
@@ -241,10 +246,12 @@ $graby = new Graby(array(
     // * 'exclude' - exclude this item from the result
     // * 'link' - create HTML link to the item
     'content_type_exc' => array(
+       'application/zip' => array('action' => 'link', 'name' => 'ZIP'),
        'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
        'image'           => array('action' => 'link', 'name' => 'Image'),
        'audio'           => array('action' => 'link', 'name' => 'Audio'),
        'video'           => array('action' => 'link', 'name' => 'Video'),
+       'text/plain'      => array('action' => 'link', 'name' => 'Plain text'),
     ),
     // How we handle link in content
     // Valid values :
@@ -271,7 +278,6 @@ $graby = new Graby(array(
         // HTTP responses which match these content types will
         // be returned without body.
         'header_only_types' => array(
-           'application/pdf',
            'image',
            'audio',
            'video',
@@ -279,7 +285,7 @@ $graby = new Graby(array(
         // URLs ending with one of these extensions will
         // prompt Humble HTTP Agent to send a HEAD request first
         // to see if returned content type matches $headerOnlyTypes.
-        'header_only_clues' => array('pdf', 'mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
+        'header_only_clues' => array('mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
         // User Agent strings - mapping domain names
         'user_agents' => array(),
         // AJAX triggers to search for.
@@ -300,12 +306,12 @@ $graby = new Graby(array(
         // value is host name to use for site config lookup if fingerprint matches
         // \s* match anything INCLUDING new lines
         'fingerprints' => array(
-            '/\<meta\s*content=\"blogger\"\s*name=\"generator\"/i' => 'fingerprint.blogspot.com',
-            '/\<meta\s*name=\"generator\"\s*content=\"Blogger\"/i' => 'fingerprint.blogspot.com',
-            '/\<meta\s*name=\"generator\"\s*content=\"WordPress/i' => 'fingerprint.wordpress.com',
+            '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
+            '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
+            '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
         ),
         'config_builder' => array(
-            // Array of directories path to extra site config folder WITHOUT trailing slash
+            // Directory path to the site config folder WITHOUT trailing slash
             'site_config' => array(),
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ),

@@ -1,0 +1,21 @@
+Defined site here should use the following structure:
+
+-----URL-----
+
+-----URL_EFFECTIVE-----
+
+-----HEADER-----
+
+-----LANGUAGE-----
+
+-----AUTHOR-----
+
+-----TITLE-----
+
+-----SUMMARY-----
+
+-----RAW_CONTENT-----
+
+-----PARSED_CONTENT-----
+
+-----PARSED_CONTENT_WITHOUT_TIDY-----

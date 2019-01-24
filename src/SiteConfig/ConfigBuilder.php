@@ -37,12 +37,24 @@ class ConfigBuilder
             $this->logger = new NullLogger();
         }
 
-        $this->configFiles = Files::getFiles($this->config['site_config']);
+        $this->loadConfigFiles();
     }
 
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
+    }
+
+    /**
+     * Load configuration files from filesystem.
+     * The load is externalized into a dedicated public method so we can reload config files after a custom creation of a config file.
+     *     - Config files are loaded when the class is instancied.
+     *     - If we add a new file after, it won't be loaded.
+     *     - We'll need to manually reload config files.
+     */
+    public function loadConfigFiles()
+    {
+        $this->configFiles = Files::getFiles($this->config['site_config']);
     }
 
     /**
@@ -64,7 +76,7 @@ class ConfigBuilder
 
         $this->cache[$key] = $config;
 
-        $this->logger->log('debug', 'Cached site config with key: {key}', ['key' => $key]);
+        $this->logger->info('Cached site config with key: {key}', ['key' => $key]);
     }
 
     /**
@@ -135,7 +147,7 @@ class ConfigBuilder
         // is merged version already cached?
         $cachedSiteConfig = $this->getCachedVersion($host . '.merged');
         if (false !== $cachedSiteConfig) {
-            $this->logger->log('debug', 'Returning cached and merged site config for {host}', ['host' => $host]);
+            $this->logger->info('Returning cached and merged site config for {host}', ['host' => $host]);
 
             return $cachedSiteConfig;
         }
@@ -154,7 +166,7 @@ class ConfigBuilder
         // load global config?
         $configGlobal = $this->loadSiteConfig('global', true);
         if ($config->autodetect_on_failure() && false !== $configGlobal) {
-            $this->logger->log('debug', 'Appending site config settings from global.txt');
+            $this->logger->info('Appending site config settings from global.txt');
             $this->mergeConfig($config, $configGlobal);
 
             if ($addToCache && false === $this->getCachedVersion('global')) {
@@ -205,7 +217,7 @@ class ConfigBuilder
             $host = substr($host, 4);
         }
 
-        if (!$host || (strlen($host) > 200) || !preg_match($this->config['hostname_regex'], ltrim($host, '.'))) {
+        if (!$host || (\strlen($host) > 200) || !preg_match($this->config['hostname_regex'], ltrim($host, '.'))) {
             return false;
         }
 
@@ -216,7 +228,7 @@ class ConfigBuilder
         if (!$exactHostMatch) {
             $split = explode('.', $host);
 
-            if (count($split) > 1) {
+            if (\count($split) > 1) {
                 // remove first subdomain
                 array_shift($split);
                 $try[] = '.' . implode('.', $split);
@@ -226,21 +238,21 @@ class ConfigBuilder
         $config = new SiteConfig();
 
         // look for site config file in primary folder
-        $this->logger->log('debug', '. looking for site config for {host} in primary folder', ['host' => $host]);
+        $this->logger->info('. looking for site config for {host} in primary folder', ['host' => $host]);
         foreach ($try as $host) {
             if ($cachedConfig = $this->getCachedVersion($host)) {
-                $this->logger->log('debug', '... site config for {host} already loaded in this request', ['host' => $host]);
+                $this->logger->info('... site config for {host} already loaded in this request', ['host' => $host]);
 
                 return $cachedConfig;
             }
 
             // if we found site config, process it
             if (isset($this->configFiles[$host . '.txt'])) {
-                $this->logger->log('debug', '... found site config {host}', ['host' => $host . '.txt']);
+                $this->logger->info('... found site config {host}', ['host' => $host . '.txt']);
 
                 $configLines = file($this->configFiles[$host . '.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 // no lines ? we don't found config then
-                if (empty($configLines) || !is_array($configLines)) {
+                if (empty($configLines) || !\is_array($configLines)) {
                     return false;
                 }
 
@@ -252,7 +264,7 @@ class ConfigBuilder
 
         // append global config?
         if ('global' !== $host && $config->autodetect_on_failure() && isset($this->configFiles['global.txt'])) {
-            $this->logger->log('debug', 'Appending site config settings from global.txt');
+            $this->logger->info('Appending site config settings from global.txt');
 
             $configGlobal = $this->loadSiteConfig('global', true);
             if (false !== $configGlobal) {
@@ -279,9 +291,18 @@ class ConfigBuilder
             $currentConfig->$var = array_unique(array_merge($currentConfig->$var, $newConfig->$var));
         }
 
+        // special handling of if_page_contains directive
+        foreach (['single_page_link'] as $var) {
+            if (isset($currentConfig->if_page_contains[$var]) && isset($newConfig->if_page_contains[$var])) {
+                $currentConfig->if_page_contains[$var] = array_merge($newConfig->if_page_contains[$var], $currentConfig->if_page_contains[$var]);
+            } elseif (isset($newConfig->if_page_contains[$var])) {
+                $currentConfig->if_page_contains[$var] = $newConfig->if_page_contains[$var];
+            }
+        }
+
         // check for single statement commands
         // we do not overwrite existing non null values
-        foreach (['tidy', 'prune', 'parser', 'autodetect_on_failure', 'requires_login'] as $var) {
+        foreach (['tidy', 'prune', 'parser', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'] as $var) {
             if ($currentConfig->$var === null) {
                 $currentConfig->$var = $newConfig->$var;
             }
@@ -322,7 +343,7 @@ class ConfigBuilder
             // get command
             $command = explode(':', $line, 2);
             // if there's no colon ':', skip this line
-            if (2 !== count($command)) {
+            if (2 !== \count($command)) {
                 continue;
             }
 
@@ -333,23 +354,53 @@ class ConfigBuilder
             }
 
             // check for commands where we accept multiple statements
-            if (in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author', 'strip_attr'], true)) {
+            if (\in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author', 'strip_attr'], true)) {
                 array_push($config->$command, $val);
-                // check for single statement commands that evaluate to true or false
-            } elseif (in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login'], true)) {
+            // check for single statement commands that evaluate to true or false
+            } elseif (\in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'], true)) {
                 $config->$command = ('yes' === $val || 'true' === $val);
-                // check for single statement commands stored as strings
-            } elseif (in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri'], true)) {
+            // check for single statement commands stored as strings
+            } elseif (\in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
                 $config->$command = $val;
-                // check for replace_string(find): replace
+            // check for replace_string(find): replace
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
                 array_push($config->find_string, $match[2]);
                 array_push($config->replace_string, $val);
-            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && in_array($match[2], ['user-agent', 'referer'], true)) {
+            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), ['user-agent', 'referer', 'cookie', 'accept'], true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
+            // special treatment for if_page_contains
+            } elseif (\in_array($command, ['if_page_contains'], true)) {
+                $this->handleIfPageContainsCondition($config, $val);
             }
         }
 
         return $config;
+    }
+
+    /**
+     * Build `if_page_contains` rule based on other previous rules defined for:
+     *     - single_page_link.
+     *     - next_page_link.
+     *
+     * First one has priority over the next one.
+     *
+     * @param SiteConfig $config    Current config
+     * @param string     $condition XPath condition
+     */
+    private function handleIfPageContainsCondition(SiteConfig $config, $condition)
+    {
+        if (!empty($config->single_page_link)) {
+            $rule = 'single_page_link';
+        } elseif (!empty($config->next_page_link)) {
+            $rule = 'next_page_link';
+        } else {
+            // no link found, we can't apply "if_page_contains"
+            return;
+        }
+
+        $key = end($config->$rule);
+        reset($config->$rule);
+
+        $config->if_page_contains[$rule][$key] = (string) $condition;
     }
 }

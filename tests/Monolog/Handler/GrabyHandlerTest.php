@@ -4,8 +4,9 @@ namespace Tests\Graby\Monolog\Handler;
 
 use Graby\Monolog\Handler\GrabyHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class GrabyHandlerTest extends \PHPUnit_Framework_TestCase
+class GrabyHandlerTest extends TestCase
 {
     public function testFormat()
     {

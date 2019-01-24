@@ -135,20 +135,31 @@ class HttpClient
             $method = 'head';
         }
 
-        $this->logger->log('debug', 'Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
+        $this->logger->info('Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
+
+        $headers = [
+            'User-Agent' => $this->getUserAgent($url, $httpHeader),
+            // add referer for picky sites
+            'Referer' => $this->getReferer($url, $httpHeader),
+        ];
+
+        // don't add an empty line with cookie if none are defined
+        $cookie = $this->getCookie($url, $httpHeader);
+
+        if ($cookie) {
+            $headers['Cookie'] = self::buildCookieString($cookie);
+        }
+
+        $accept = $this->getAccept($url, $httpHeader);
+        if ($accept) {
+            $headers['Accept'] = $accept;
+        }
 
         try {
             /** @var ResponseInterface $response */
-            $response = $this->client->$method(
-                $url,
-                [
-                    'User-Agent' => $this->getUserAgent($url, $httpHeader),
-                    // add referer for picky sites
-                    'Referer' => $this->getReferer($url, $httpHeader),
-                ]
-            );
+            $response = $this->client->$method($url, $headers);
         } catch (LoopException $e) {
-            $this->logger->log('debug', 'Endless redirect: ' . ($this->config['max_redirect'] + 1) . ' on "{url}"', ['url' => $url]);
+            $this->logger->info('Endless redirect: ' . ($this->config['max_redirect'] + 1) . ' on "{url}"', ['url' => $url]);
 
             return [
                 'effective_url' => $url,
@@ -171,7 +182,7 @@ class HttpClient
                 'status' => $response->getStatusCode(),
             ];
 
-            $this->logger->log('warning', 'Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
+            $this->logger->warning('Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
 
             return $data;
         } catch (RequestException $e) {
@@ -184,8 +195,8 @@ class HttpClient
                 'status' => 500,
             ];
 
-            $this->logger->log('warning', 'Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
-            $this->logger->log('debug', 'Data fetched: {data}', ['data' => $data]);
+            $this->logger->warning('Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
+            $this->logger->info('Data fetched: {data}', ['data' => $data]);
 
             return $data;
         }
@@ -202,21 +213,31 @@ class HttpClient
 
         $body = (string) $response->getBody();
 
-        // be sure to remove conditional comments for IE
+        // be sure to remove conditional comments for IE around the html tag
         // we only remove conditional comments until we found the <head> tag
         // they usually contains the <html> tag which we try to found and replace the last occurence
         // with the whole conditional comments
         preg_match('/^\<!--\[if(\X+)\<!\[endif\]--\>(\X+)\<head\>$/mi', $body, $matchesConditional);
 
-        if (count($matchesConditional) > 1) {
+        if (\count($matchesConditional) > 1) {
             preg_match_all('/\<html([\sa-z0-9\=\"\"\-:\/\.\#]+)\>$/mi', $matchesConditional[0], $matchesHtml);
 
-            if (count($matchesHtml) > 1) {
+            if (\count($matchesHtml) > 1) {
                 $htmlTag = end($matchesHtml[0]);
 
                 if (!empty($htmlTag)) {
                     $body = str_replace($matchesConditional[0], $htmlTag . '<head>', $body);
                 }
+            }
+        }
+
+        // be sure to remove ALL other conditional comments for IE
+        // (regex found here: https://stackoverflow.com/a/137831/569101)
+        preg_match_all('/<!--\[if\s(?:[^<]+|<(?!!\[endif\]-->))*<!\[endif\]-->/mi', $body, $matchesConditional);
+
+        if (isset($matchesConditional[0]) && \count($matchesConditional[0]) > 1) {
+            foreach ($matchesConditional as $conditionalComment) {
+                $body = str_replace($conditionalComment, '', $body);
             }
         }
 
@@ -234,9 +255,9 @@ class HttpClient
         // remove utm parameters & fragment
         $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', rawurldecode($effectiveUrl));
 
-        $this->logger->log('debug', 'Data fetched: {data}', ['data' => [
+        $this->logger->info('Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
-            'body' => '(only length for debug): ' . strlen($body),
+            'body' => '(only length for debug): ' . \strlen($body),
             'headers' => $headers,
             'status' => $response->getStatusCode(),
         ]]);
@@ -260,7 +281,7 @@ class HttpClient
     {
         // rewrite part of urls to something more readable
         foreach ($this->config['rewrite_url'] as $find => $action) {
-            if (false !== strpos($url, $find) && is_array($action)) {
+            if (false !== strpos($url, $find) && \is_array($action)) {
                 $url = strtr($url, $action);
             }
         }
@@ -303,7 +324,7 @@ class HttpClient
             return false;
         }
 
-        return in_array($ext, $this->config['header_only_clues'], true);
+        return \in_array($ext, $this->config['header_only_clues'], true);
     }
 
     /**
@@ -321,7 +342,7 @@ class HttpClient
         $ua = $this->config['ua_browser'];
 
         if (!empty($httpHeader['user-agent'])) {
-            $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => $url]);
+            $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => $url]);
 
             return $httpHeader['user-agent'];
         }
@@ -335,7 +356,7 @@ class HttpClient
         $try = [$host];
         $split = explode('.', $host);
 
-        if (count($split) > 1) {
+        if (\count($split) > 1) {
             // remove first subdomain
             array_shift($split);
             $try[] = '.' . implode('.', $split);
@@ -343,13 +364,13 @@ class HttpClient
 
         foreach ($try as $h) {
             if (isset($this->config['user_agents'][$h])) {
-                $this->logger->log('debug', 'Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config['user_agents'][$h], 'url' => $url]);
+                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config['user_agents'][$h], 'url' => $url]);
 
                 return $this->config['user_agents'][$h];
             }
         }
 
-        $this->logger->log('debug', 'Use default user-agent "{user-agent}" for url "{url}"', ['user-agent' => $ua, 'url' => $url]);
+        $this->logger->info('Use default user-agent "{user-agent}" for url "{url}"', ['user-agent' => $ua, 'url' => $url]);
 
         return $ua;
     }
@@ -369,14 +390,89 @@ class HttpClient
         $default_referer = $this->config['default_referer'];
 
         if (!empty($httpHeader['referer'])) {
-            $this->logger->log('debug', 'Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => $url]);
+            $this->logger->info('Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => $url]);
 
             return $httpHeader['referer'];
         }
 
-        $this->logger->log('debug', 'Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => $url]);
+        $this->logger->info('Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => $url]);
 
         return $default_referer;
+    }
+
+    /**
+     * Find a cookie for this url.
+     * Based on the site config, it will return the cookie if any.
+     *
+     * @param string $url        Absolute url
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     *
+     * @return array|false
+     */
+    private function getCookie($url, $httpHeader = [])
+    {
+        if (!empty($httpHeader['cookie'])) {
+            $this->logger->info('Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
+
+            $cookies = [];
+            $pieces = array_filter(array_map('trim', explode(';', $httpHeader['cookie'])));
+
+            foreach ($pieces as $part) {
+                $cookieParts = explode('=', $part, 2);
+                $key = trim($cookieParts[0]);
+
+                if (1 === \count($cookieParts)) {
+                    // Can be a single value (e.g. secure, httpOnly)
+                    $value = true;
+                } else {
+                    // Be sure to strip wrapping quotes
+                    $value = trim($cookieParts[1], " \n\r\t\0\x0B\"");
+                }
+
+                $cookies[$key] = $value;
+            }
+
+            return $cookies;
+        }
+
+        return false;
+    }
+
+    /**
+     * Create a string passable to Cookie request header.
+     *
+     * @see https://tools.ietf.org/html/rfc6265.html#section-4.2.1
+     *
+     * @param array $cookies Array of cookie name ⇒ value
+     *
+     * @return string
+     */
+    private static function buildCookieString($cookies)
+    {
+        return implode('; ', array_map(function ($name) use ($cookies) {
+            return $name . '=' . $cookies[$name];
+        }, array_keys($cookies)));
+    }
+
+    /**
+     * Find an accept header for this url.
+     * Based on the site config, it will return the accept if any.
+     * Otherwise it will return false.
+     *
+     * @param string $url        Absolute url
+     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     *
+     * @return string|false
+     */
+    private function getAccept($url, $httpHeader = [])
+    {
+        if (!empty($httpHeader['accept'])) {
+            $this->logger->info('Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
+
+            return $httpHeader['accept'];
+        }
+
+        return false;
     }
 
     /**
@@ -401,7 +497,7 @@ class HttpClient
         $match[2] = strtolower(trim($match[2]));
 
         foreach ([$match[1], $match[2]] as $mime) {
-            if (in_array($mime, $this->config['header_only_types'], true)) {
+            if (\in_array($mime, $this->config['header_only_types'], true)) {
                 return true;
             }
         }
@@ -431,7 +527,7 @@ class HttpClient
         $redirectUrl = str_replace('&amp;', '&', trim($match[1]));
         if (preg_match('!^https?://!i', $redirectUrl)) {
             // already absolute
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $redirectUrl);
+            $this->logger->info('Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $redirectUrl);
 
             return $redirectUrl;
         }
@@ -444,7 +540,7 @@ class HttpClient
         }
 
         if ($absolute = \SimplePie_IRI::absolutize($base, $redirectUrl)) {
-            $this->logger->log('debug', 'Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $absolute);
+            $this->logger->info('Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $absolute);
 
             return $absolute->get_iri();
         }
@@ -477,7 +573,7 @@ class HttpClient
             return false;
         }
 
-        $this->logger->log('debug', 'Added escaped fragment to url');
+        $this->logger->info('Added escaped fragment to url');
 
         $query = ['_escaped_fragment_' => ''];
 
@@ -502,7 +598,7 @@ class HttpClient
         $headers = [];
         foreach ($response->getHeaders() as $name => $value) {
             // some Content-Type are urlencoded like: image%2Fjpeg
-            $headers[strtolower($name)] = urldecode(is_array($value) ? implode(', ', $value) : $value);
+            $headers[strtolower($name)] = urldecode(\is_array($value) ? implode(', ', $value) : $value);
         }
 
         return $headers;
