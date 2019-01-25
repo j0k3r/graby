@@ -48,5 +48,5 @@ script:
 after_success:
     - |
         if [[ "$PHPUNIT_FLAGS" != "" ]]; then
-            travis_retry php vendor/bin/coveralls -v -x coverage.clover
+            travis_retry php vendor/bin/php-coveralls -v -x coverage.clover
         fi
