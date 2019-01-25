@@ -409,7 +409,7 @@ class HttpClient
      * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
-     * @return ?string
+     * @return string|null
      */
     private function getCookie($url, $httpHeader = [])
     {
