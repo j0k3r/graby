@@ -32,6 +32,9 @@ class SiteConfig
     // Strip attributes matching these xpath expressions (0 or more)
     public $strip_attr = [];
 
+    // Attribute used to replace lazyload image (like `data-lazy-src`)
+    public $src_lazy_load_attr = null;
+
     // Strip elements which contain these strings (0 or more) in the id or class attribute
     public $strip_id_or_class = [];
 
@@ -64,6 +67,10 @@ class SiteConfig
 
     // Test URL - if present, can be used to test the config above
     public $test_url = [];
+
+    // If page contains - XPath expression. Used to determine if the preceding rule gets evaluated or not.
+    // Currently only works with single_page_link & next_page_link (first one has priority over the second one).
+    public $if_page_contains = [];
 
     // Single-page link - should identify a link element or URL pointing to the page holding the entire article
     // This is useful for sites which split their articles across multiple pages. Links to such pages tend to
@@ -128,6 +135,13 @@ class SiteConfig
      * @var array hash of form field name => value
      */
     public $login_extra_fields = [];
+
+    /**
+     * Explicitly skip getting data from JSON-LD.
+     *
+     * @var string
+     */
+    public $skip_json_ld = false;
 
     protected $default_tidy = true; // used if undeclared
     protected $default_autodetect_on_failure = true; // used if undeclared
@@ -196,5 +210,20 @@ class SiteConfig
         }
 
         return $this->autodetect_on_failure;
+    }
+
+    /**
+     * Return a condition for the given name (if exists).
+     *
+     * @param string $name  Rule name (only single_page_link & next_page_link is supported for now)
+     * @param string $value Value of the rule (currently only an url)
+     *
+     * @return string|null
+     */
+    public function getIfPageContainsCondition($name, $value)
+    {
+        if (isset($this->if_page_contains[$name]) && isset($this->if_page_contains[$name][$value])) {
+            return $this->if_page_contains[$name][$value];
+        }
     }
 }

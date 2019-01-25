@@ -6,25 +6,23 @@ php:
     - 7.0
     - 7.1
     - 7.2
+    - 7.3
     - nightly
 
 # run build against nightly but allow them to fail
 matrix:
     fast_finish: true
     allow_failures:
-        - php: 7.2
+        - php: 7.3
         - php: nightly
     # only one build will send the coverage, this'll speed up other one
     include:
-        - php: 7.0
-          env: PHPUNIT_FLAGS="--coverage-clover coverage.clover" CS_FIXER=run
-        - php: 7.0
+        - php: 7.2
+          env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
+        - php: 7.2
           env: GUZZLE6=run
-        - php: 7.0
+        - php: 7.2
           env: CURL=run
-
-# faster builds on new travis setup not using sudo
-sudo: false
 
 # cache vendor dirs
 cache:
@@ -34,11 +32,10 @@ cache:
 
 before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
-    - composer self-update
     - if [ "$GUZZLE6" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
-    - if [ "$GUZZLE6" = "run" ]; then composer require php-http/guzzle6-adapter --dev -n ; fi;
+    - if [ "$GUZZLE6" = "run" ]; then composer require php-http/guzzle6-adapter '^1.0' --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
-    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '^1.0' --dev -n ; fi;
 
 install:
     - composer install --no-interaction --prefer-dist -o

@@ -6,12 +6,15 @@ use Graby\SiteConfig\ConfigBuilder;
 use Graby\SiteConfig\SiteConfig;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
+class ConfigBuilderTest extends TestCase
 {
     public function testConstructDefault()
     {
-        new ConfigBuilder(['site_config' => [__DIR__]]);
+        $builder = new ConfigBuilder(['site_config' => [__DIR__]]);
+
+        $this->assertInstanceOf('Graby\SiteConfig\ConfigBuilder', $builder);
     }
 
     public function testBuildFromArrayNoLines()
@@ -32,26 +35,38 @@ class ConfigBuilderTest extends \PHPUnit_Framework_TestCase
             'title: hoho',
             'tidy: yes',
             'parser: bob',
+            'src_lazy_load_attr: data-toto-src',
             'date: foo',
             'replace_string(toto): titi',
             'http_header(user-agent): my-user-agent',
             'http_header(referer): http://idontl.ie',
+            'http_header(Cookie): GDPR_consent=1',
             'strip_attr: @class',
             'strip_attr: @style',
+            'single_page_link: //canonical',
+            'if_page_contains: //div/article/header',
         ]);
 
         $configExpected = new SiteConfig();
         $configExpected->title = ['hoho'];
         $configExpected->tidy = true;
         $configExpected->parser = 'bob';
+        $configExpected->src_lazy_load_attr = 'data-toto-src';
         $configExpected->find_string = ['toto'];
         $configExpected->replace_string = ['titi'];
         $configExpected->http_header = [
             'user-agent' => 'my-user-agent',
             'referer' => 'http://idontl.ie',
+            'cookie' => 'GDPR_consent=1',
         ];
         $configExpected->date = ['foo'];
         $configExpected->strip_attr = ['@class', '@style'];
+        $configExpected->single_page_link = ['//canonical'];
+        $configExpected->if_page_contains = [
+            'single_page_link' => [
+                '//canonical' => '//div/article/header',
+            ],
+        ];
 
         $this->assertEquals($configExpected, $configActual);
 

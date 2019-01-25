@@ -7,9 +7,10 @@ use GuzzleHttp\Psr7\Response;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 
-class HttpClientTest extends \PHPUnit_Framework_TestCase
+class HttpClientTest extends TestCase
 {
     public function dataForFetchGet()
     {
@@ -380,7 +381,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 <meta name="description" content="Osqledaren">
 <meta name="keywords" content="osqledaren, newspaper">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1, minimum-scale=1, maximum-scale=1">',
-                'expectedBody' => '<html lang="sv-SE"><head>',
+                'removeData' => '<meta http-equiv="refresh" content="0; url=/ie.html" />',
             ],
             [
                 'url' => 'http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html',
@@ -393,7 +394,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">',
-                'expectedBody' => '<html lang="fr"><head>',
+                'removeData' => '<html class="ie9">',
             ],
             [
                 'url' => 'https://venngage.com/blog/hashtags-are-worthless/',
@@ -409,7 +410,12 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 <!--<![endif]-->
         <head>
                 <meta charset="UTF-8" />',
-                'expectedBody' => '<html lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#"><head>',
+                'removeData' => '<html class="ie ie7" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">',
+            ],
+            [
+                'url' => 'https://edition.cnn.com/2012/05/13/us/new-york-police-policy/index.html',
+                'html' => '<!DOCTYPE html><html class="no-js"><head><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta charset="utf-8"><meta content="text/html" http-equiv="Content-Type"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0"><link href="/favicon.ie9.ico" rel="Shortcut Icon" type="image/x-icon"/><link href="//cdn.cnn.com/cnn/.e/img/3.0/global/misc/apple-touch-icon.png" rel="apple-touch-icon" type="image/png"/><!--[if lte IE 9]><meta http-equiv="refresh" content="1;url=/2.85.0/static/unsupp.html" /><![endif]--><!--[if gt IE 9><!--><!--<![endif]--><title>New York police tout improving crime numbers to defend frisking policy  - CNN</title><meta content="us" name="section"><meta name="referrer" content="unsafe-url"><meta content="2012-05-13T21:22:42Z" property="og:pubdate"><meta content="2012-05-13T21:22:42Z" name="pubdate"><meta content="2012-05-14T02:34:10Z" name="lastmod"><meta content="https://www.cnn.com/2012/05/13/us/new-york-police-policy/index.html" property="og:url"><meta content="By the CNN Wire Staff" name="author">',
+                'removeData' => '<meta http-equiv="refresh" content="1;url=/2.85.0/static/unsupp.html" />',
             ],
         ];
     }
@@ -417,7 +423,7 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataForConditionalComments
      */
-    public function testWithMetaRefreshInConditionalComments($url, $html, $expectedBody)
+    public function testWithMetaRefreshInConditionalComments($url, $html, $removeData)
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $html));
@@ -426,7 +432,9 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
         $res = $http->fetch($url);
 
         $this->assertSame($url, $res['effective_url']);
-        $this->assertContains($expectedBody, $res['body']);
+        $this->assertNotContains($removeData, $res['body']);
+        $this->assertNotContains('<!--[if ', $res['body']);
+        $this->assertNotContains('endif', $res['body']);
         $this->assertSame('text/html', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
@@ -534,5 +542,113 @@ class HttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expectedReferer, $records[2]['context']['referer']);
         $this->assertSame($url, $records[2]['context']['url']);
+    }
+
+    public function dataForCookie()
+    {
+        return [
+            [
+                'url' => 'http://www.google.com',
+                'httpHeader' => [],
+                'expectedCookie' => false,
+            ],
+            [
+                'url' => 'http://www.mozilla.org',
+                'httpHeader' => ['cookie' => null],
+                'expectedCookie' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['cookie' => ''],
+                'expectedCookie' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['cookie' => 'GDPR_consent=1'],
+                'expectedCookie' => 'GDPR_consent=1',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForCookie
+     */
+    public function testCookie($url, $httpHeader, $expectedCookie)
+    {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], ''));
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($httpMockClient);
+        $http->setLogger($logger);
+
+        $http->fetch($url, false, $httpHeader);
+
+        $records = $handler->getRecords();
+
+        // if cookie is enable, a log will be available, otherwise not
+        if ($expectedCookie) {
+            $this->assertSame($expectedCookie, $records[3]['context']['cookie']);
+            $this->assertSame($url, $records[3]['context']['url']);
+        } else {
+            $this->assertArrayNotHasKey('cookie', $records[3]['context']);
+        }
+    }
+
+    public function dataForAccept()
+    {
+        return [
+            [
+                'url' => 'http://www.google.com',
+                'httpHeader' => [],
+                'expectedAccept' => false,
+            ],
+            [
+                'url' => 'http://www.mozilla.org',
+                'httpHeader' => ['accept' => null],
+                'expectedAccept' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['accept' => ''],
+                'expectedAccept' => false,
+            ],
+            [
+                'url' => 'http://fr.wikipedia.org/wiki/Copyright',
+                'httpHeader' => ['accept' => '*/*'],
+                'expectedAccept' => '*/*',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAccept
+     */
+    public function testAccept($url, $httpHeader, $expectedAccept)
+    {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], ''));
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($httpMockClient);
+        $http->setLogger($logger);
+
+        $http->fetch($url, false, $httpHeader);
+
+        $records = $handler->getRecords();
+
+        // if accept is enable, a log will be available, otherwise not
+        if ($expectedAccept) {
+            $this->assertSame($expectedAccept, $records[3]['context']['accept']);
+            $this->assertSame($url, $records[3]['context']['url']);
+        } else {
+            $this->assertArrayNotHasKey('accept', $records[3]['context']);
+        }
     }
 }

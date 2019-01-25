@@ -49,7 +49,7 @@ class GrabyFormatter extends HtmlFormatter
 
     protected function convertToString($data)
     {
-        if (is_bool($data)) {
+        if (\is_bool($data)) {
             return $data ? '(bool) true' : '(bool) false';
         }
 
