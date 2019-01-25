@@ -147,7 +147,7 @@ class HttpClient
         $cookie = $this->getCookie($url, $httpHeader);
 
         if ($cookie) {
-            $headers['Cookie'] = self::buildCookieString($cookie);
+            $headers['Cookie'] = $cookie;
         }
 
         $accept = $this->getAccept($url, $httpHeader);
@@ -402,12 +402,14 @@ class HttpClient
 
     /**
      * Find a cookie for this url.
-     * Based on the site config, it will return the cookie if any.
+     *
+     * Based on the site config, it will return a string that can
+     * be passed to Cookie request header, if any.
      *
      * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
      *
-     * @return array|false
+     * @return ?string
      */
     private function getCookie($url, $httpHeader = [])
     {
@@ -432,26 +434,13 @@ class HttpClient
                 $cookies[$key] = $value;
             }
 
-            return $cookies;
+            // see https://tools.ietf.org/html/rfc6265.html#section-4.2.1
+            return implode('; ', array_map(function ($name) use ($cookies) {
+                return $name . '=' . $cookies[$name];
+            }, array_keys($cookies)));
         }
 
-        return false;
-    }
-
-    /**
-     * Create a string passable to Cookie request header.
-     *
-     * @see https://tools.ietf.org/html/rfc6265.html#section-4.2.1
-     *
-     * @param array $cookies Array of cookie name ⇒ value
-     *
-     * @return string
-     */
-    private static function buildCookieString($cookies)
-    {
-        return implode('; ', array_map(function ($name) use ($cookies) {
-            return $name . '=' . $cookies[$name];
-        }, array_keys($cookies)));
+        return null;
     }
 
     /**
