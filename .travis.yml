@@ -16,8 +16,6 @@ matrix:
         - php: 7.2
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
         - php: 7.2
-          env: GUZZLE6=run
-        - php: 7.2
           env: CURL=run
 
 # cache vendor dirs
@@ -28,9 +26,7 @@ cache:
 
 before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
-    - if [ "$GUZZLE6" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
-    - if [ "$GUZZLE6" = "run" ]; then composer require php-http/guzzle6-adapter '^2.0' --dev -n ; fi;
-    - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '2.x-dev' --dev -n ; fi;
 
 install:
