@@ -3,7 +3,7 @@
 namespace Graby\HttpClient\Plugin;
 
 use Http\Client\Common\Plugin\Journal;
-use Http\Client\Exception;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -40,7 +40,7 @@ class History implements Journal
         $this->lastResponse = $response;
     }
 
-    public function addFailure(RequestInterface $request, Exception $exception)
+    public function addFailure(RequestInterface $request, ClientExceptionInterface $exception)
     {
     }
 }
