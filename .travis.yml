@@ -29,9 +29,9 @@ cache:
 before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
     - if [ "$GUZZLE6" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
-    - if [ "$GUZZLE6" = "run" ]; then composer require php-http/guzzle6-adapter '^1.0' --dev -n ; fi;
+    - if [ "$GUZZLE6" = "run" ]; then composer require php-http/guzzle6-adapter '^2.0' --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle5-adapter --dev -n ; fi;
-    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '^1.0' --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '2.x-dev' --dev -n ; fi;
 
 install:
     - composer install --no-interaction --prefer-dist -o
