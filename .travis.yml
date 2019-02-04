@@ -28,6 +28,7 @@ before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
     - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '2.x-dev' --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer require zendframework/zend-diactoros --dev -n ; fi;
 
 install:
     - composer install --no-interaction --prefer-dist -o

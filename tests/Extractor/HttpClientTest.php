@@ -297,8 +297,8 @@ class HttpClientTest extends TestCase
             $adapter = new \Http\Adapter\Guzzle5\Client($guzzle);
         } elseif (class_exists('Http\Client\Curl\Client')) {
             $adapter = new \Http\Client\Curl\Client(
-                \Http\Discovery\MessageFactoryDiscovery::find(),
-                \Http\Discovery\StreamFactoryDiscovery::find(),
+                null,
+                null,
                 [
                     CURLOPT_TIMEOUT => 2,
                 ]

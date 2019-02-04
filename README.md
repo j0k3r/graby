@@ -40,7 +40,7 @@ By default, this lib will use the [Tidy extension](https://github.com/htacg/tidy
 
 Also, if you got problem from parsing a content without Tidy installed, please install it and try again.
 
-### Retrieve content from an url
+### Installation
 
 Add the lib using composer:
 
@@ -49,9 +49,13 @@ Add the lib using composer:
 Why `php-http/guzzle6-adapter`? Because Graby is decoupled form any HTTP messaging client with help by [HTTPlug](http://httplug.io/) (see [HTTPlug for library users](http://docs.php-http.org/en/latest/httplug/users.html)).
 
 Graby is tested & should work great with:
+
 - `php-http/guzzle6-adapter`
-- `php-http/guzzle5-adapter`
 - `php-http/curl-client`
+
+If you want to use the cURL client, you should install a PSR-17 response factory [from this list](http://docs.php-http.org/en/latest/discovery.html#common-errors).
+
+### Retrieve content from an url
 
 Use the class to retrieve content:
 
@@ -172,21 +176,6 @@ $logs = $this->get('monolog.handler.graby')->getRecords();
 
 If you need to define a timeout, you must create the `Http\Client\HttpClient` manually,
 configure it and inject it to `Graby\Graby`.
-
-- For Guzzle 5:
-
-    ```php
-    use Graby\Graby;
-    use GuzzleHttp\Client as GuzzleClient;
-    use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
-
-    $guzzle = new GuzzleClient([
-        'defaults' => [
-            'timeout' => 2,
-        ]
-    ]);
-    $graby = new Graby([], new GuzzleAdapter($guzzle));
-    ```
 
 - For Guzzle 6:
 
