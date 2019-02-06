@@ -16,6 +16,8 @@ matrix:
         - php: 7.2
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
         - php: 7.2
+          env: GUZZLE5=run
+        - php: 7.2
           env: CURL=run
 
 # cache vendor dirs
@@ -26,6 +28,12 @@ cache:
 
 before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
+
+    - if [ "$GUZZLE5" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
+    # because it require Guzzle 6
+    - if [ "$GUZZLE5" = "run" ]; then composer remove php-coveralls/php-coveralls --dev -n ; fi;
+    - if [ "$GUZZLE5" = "run" ]; then composer require php-http/guzzle5-adapter '^2.0' --dev -n ; fi;
+
     - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '2.x-dev' --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer require zendframework/zend-diactoros --dev -n ; fi;
