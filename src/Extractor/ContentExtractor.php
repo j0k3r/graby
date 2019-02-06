@@ -532,7 +532,7 @@ class ContentExtractor
             $success = $this->readability->init();
         }
 
-        if ($detectTitle && $this->readability->getTitle()) {
+        if ($detectTitle && $this->readability->getTitle()->textContent) {
             $this->title = trim($this->readability->getTitle()->textContent);
             $this->logger->info('Detected title: {title}', ['title' => $this->title]);
         }
@@ -727,7 +727,7 @@ class ContentExtractor
      */
     private function hasElements(\DOMNodeList $elems)
     {
-        return $elems && $elems->length > 0;
+        return $elems->length > 0;
     }
 
     /**
@@ -747,7 +747,7 @@ class ContentExtractor
         }
 
         for ($i = $elems->length - 1; $i >= 0; --$i) {
-            if ($elems->item($i)->parentNode) {
+            if (null !== $elems->item($i) && null !== $elems->item($i)->parentNode) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
         }
@@ -830,15 +830,19 @@ class ContentExtractor
     /**
      * Extract title for a given CSS class a node.
      *
-     * @param bool     $detectTitle Do we have to detect title ?
-     * @param string   $cssClass    CSS class to look for
-     * @param \DOMNode $node        DOMNode to look into
-     * @param string   $logMessage
+     * @param bool          $detectTitle Do we have to detect title ?
+     * @param string        $cssClass    CSS class to look for
+     * @param \DOMNode|null $node        DOMNode to look into
+     * @param string        $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
-    private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
+    private function extractTitle($detectTitle, $cssClass, \DOMNode $node = null, $logMessage)
     {
+        if (null === $node) {
+            return true;
+        }
+
         return $this->extractEntityFromQuery(
             'title',
             $detectTitle,
@@ -851,15 +855,19 @@ class ContentExtractor
     /**
      * Extract date for a given CSS class a node.
      *
-     * @param bool     $detectDate Do we have to detect date ?
-     * @param string   $cssClass   CSS class to look for
-     * @param \DOMNode $node       DOMNode to look into
-     * @param string   $logMessage
+     * @param bool          $detectDate Do we have to detect date ?
+     * @param string        $cssClass   CSS class to look for
+     * @param \DOMNode|null $node       DOMNode to look into
+     * @param string        $logMessage
      *
      * @return bool Telling if we have to detect date again or not
      */
-    private function extractDate($detectDate, $cssClass, \DOMNode $node, $logMessage)
+    private function extractDate($detectDate, $cssClass, \DOMNode $node = null, $logMessage)
     {
+        if (null === $node) {
+            return true;
+        }
+
         return $this->extractEntityFromQuery(
             'date',
             $detectDate,
@@ -872,15 +880,19 @@ class ContentExtractor
     /**
      * Extract author.
      *
-     * @param bool     $detectAuthor Do we have to detect author ?
-     * @param \DOMNode $node         DOMNode to look into
+     * @param bool          $detectAuthor Do we have to detect author ?
+     * @param \DOMNode|null $node         DOMNode to look into
      *
      * @return bool Telling if we have to detect author again or not
      */
-    private function extractAuthor($detectAuthor, \DOMNode $node)
+    private function extractAuthor($detectAuthor, \DOMNode $node = null)
     {
         if (false === $detectAuthor) {
             return false;
+        }
+
+        if (null === $node) {
+            return true;
         }
 
         // check for time element with pubdate attribute
@@ -913,17 +925,21 @@ class ContentExtractor
     /**
      * Extract body from a given CSS for a node.
      *
-     * @param bool     $detectBody      Do we have to detect body ?
-     * @param string   $xpathExpression XPath expression to extract body
-     * @param \DOMNode $node            DOMNode to look into
-     * @param string   $type            Format type we are looking for, only used for log message
+     * @param bool          $detectBody      Do we have to detect body ?
+     * @param string        $xpathExpression XPath expression to extract body
+     * @param \DOMNode|null $node            DOMNode to look into
+     * @param string        $type            Format type we are looking for, only used for log message
      *
      * @return bool Telling if we have to detect body again or not
      */
-    private function extractBody($detectBody, $xpathExpression, \DOMNode $node, $type)
+    private function extractBody($detectBody, $xpathExpression, \DOMNode $node = null, $type)
     {
         if (false === $detectBody) {
             return false;
+        }
+
+        if (null === $node) {
+            return true;
         }
 
         // shut up operator as there is no pre-validation possible.
@@ -984,10 +1000,8 @@ class ContentExtractor
                     $this->readability->prepArticle($elem);
                 }
 
-                if ($elem) {
-                    ++$len;
-                    $this->body->appendChild($elem);
-                }
+                ++$len;
+                $this->body->appendChild($elem);
             }
         }
 
@@ -1059,6 +1073,10 @@ class ContentExtractor
             $this->logger->info("{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
             $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
         } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
+            if (null === $elems->item(0)) {
+                return false;
+            }
+
             $entityValue = $returnCallback($elems->item(0)->textContent);
 
             $this->logger->info("{$entity} matched: {{$entity}}", [$entity => $entityValue]);
@@ -1176,7 +1194,7 @@ class ContentExtractor
 
         $ogMetas = [];
         foreach ($metas as $meta) {
-            $property = str_replace(':', '_', $meta->getAttribute('property'));
+            $property = str_replace(':', '_', (string) $meta->getAttribute('property'));
 
             if (\in_array($property, ['og_image', 'og_image_url', 'og_image_secure_url'], true)) {
                 // avoid image data:uri to avoid sending too much data
@@ -1221,7 +1239,7 @@ class ContentExtractor
 
         $articleMetas = [];
         foreach ($metas as $meta) {
-            $articleMetas[str_replace(':', '_', $meta->getAttribute('property'))] = $meta->getAttribute('content');
+            $articleMetas[str_replace(':', '_', (string) $meta->getAttribute('property'))] = $meta->getAttribute('content');
         }
 
         $this->logger->info('Opengraph "article:" data: {ogData}', ['ogData' => $articleMetas]);

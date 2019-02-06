@@ -4,6 +4,7 @@ namespace Graby\Extractor;
 
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
+use GuzzleHttp\Psr7\Uri;
 use Http\Client\Common\Exception\LoopException;
 use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin;
@@ -86,10 +87,10 @@ class HttpClient
 
         $this->config = $resolver->resolve($config);
 
-        $this->logger = $logger;
         if (null === $logger) {
-            $this->logger = new NullLogger();
+            $logger = new NullLogger();
         }
+        $this->logger = $logger;
 
         $this->responseHistory = new History();
         $this->client = new HttpMethodsClient(
@@ -198,7 +199,11 @@ class HttpClient
             return $data;
         }
 
-        $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
+        $effectiveUrl = $url;
+        if (null !== $this->responseHistory->getLastRequest()) {
+            $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
+        }
+
         $headers = $this->formatHeaders($response);
 
         // the response content-type did not match our 'header only' types,
@@ -287,7 +292,7 @@ class HttpClient
         if ($fragmentPos = strpos($url, '#!')) {
             $fragment = parse_url($url, PHP_URL_FRAGMENT);
             // strip '!'
-            $fragment = substr($fragment, 1);
+            $fragment = substr((string) $fragment, 1);
             $query = ['_escaped_fragment_' => $fragment];
 
             // url without fragment
@@ -346,12 +351,12 @@ class HttpClient
 
         $host = parse_url($url, PHP_URL_HOST);
 
-        if ('www.' === strtolower(substr($host, 0, 4))) {
-            $host = substr($host, 4);
+        if ('www.' === strtolower(substr((string) $host, 0, 4))) {
+            $host = substr((string) $host, 4);
         }
 
         $try = [$host];
-        $split = explode('.', $host);
+        $split = explode('.', (string) $host);
 
         if (\count($split) > 1) {
             // remove first subdomain
@@ -518,20 +523,7 @@ class HttpClient
             return $redirectUrl;
         }
 
-        // absolutize redirect URL
-        $base = new \SimplePie_IRI($url);
-        // remove '//' in URL path (causes URLs not to resolve properly)
-        if (isset($base->ipath)) {
-            $base->ipath = str_replace('//', '/', $base->ipath);
-        }
-
-        if ($absolute = \SimplePie_IRI::absolutize($base, $redirectUrl)) {
-            $this->logger->info('Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $absolute);
-
-            return $absolute->get_iri();
-        }
-
-        return false;
+        return (string) Uri::resolve(new Uri($url), $redirectUrl);
     }
 
     /**
@@ -584,7 +576,7 @@ class HttpClient
         $headers = [];
         foreach ($response->getHeaders() as $name => $value) {
             // some Content-Type are urlencoded like: image%2Fjpeg
-            $headers[strtolower($name)] = urldecode(\is_array($value) ? implode(', ', $value) : $value);
+            $headers[strtolower($name)] = urldecode(implode(', ', $value));
         }
 
         return $headers;

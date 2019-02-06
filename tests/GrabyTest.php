@@ -69,7 +69,7 @@ class GrabyTest extends TestCase
                 continue;
             }
 
-            $test = file_get_contents($file->getRealpath());
+            $test = (string) file_get_contents($file->getRealpath());
 
             preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
 
@@ -194,8 +194,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForNotValid
      *
-     * @expectedException \Exception
-     * @expectedExceptionMessage is not valid.
+     * @expectedException \InvalidArgumentException
      */
     public function testNotValidUrls($url)
     {
@@ -309,7 +308,7 @@ class GrabyTest extends TestCase
         $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/pdf'],
-            file_get_contents(__DIR__ . '/fixtures/document1.pdf')
+            (string) file_get_contents(__DIR__ . '/fixtures/document1.pdf')
         ));
 
         $graby = new Graby([], $httpMockClient);
@@ -363,7 +362,7 @@ class GrabyTest extends TestCase
         $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'application/pdf'],
-            file_get_contents(__DIR__ . '/fixtures/Document1_pdfcreator.pdf')
+            (string) file_get_contents(__DIR__ . '/fixtures/Document1_pdfcreator.pdf')
         ));
         $graby = new Graby([], $httpMockClient);
 
@@ -627,6 +626,11 @@ HTML
         $httpMockClient->addResponse(new Response(
             200,
             ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="/:/">next page</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
         ));
 
@@ -750,7 +754,7 @@ HTML
             ['http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'src', 'http://example.org/path/to/image.jpg'],
             ['http://example.org', '<a href="/lol">test</a>', 'src', 'src', ''],
             ['http://example.org', '<iframe src="/lol" />', 'src', 'src', 'http://example.org/lol'],
-            ['http://example.org', '<a href="#fn-ref-23">1</a>', 'href', 'href', '#fn-ref-23'],
+            ['http://example.org', '<a href="#fn-ref-23">1</a>', 'href', 'href', 'http://example.org#fn-ref-23'],
         ];
     }
 
@@ -764,7 +768,7 @@ HTML
         $doc = new \DOMDocument();
         $doc->loadXML($string);
 
-        $e = $doc->firstChild;
+        $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteAttr');
@@ -796,7 +800,7 @@ HTML
         $doc = new \DOMDocument();
         $doc->loadXML($string);
 
-        $e = $doc->firstChild;
+        $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
@@ -817,7 +821,7 @@ HTML
         $doc = new \DOMDocument();
         $doc->loadXML('<a href="/lol"><img src=" /path/to/image.jpg" /></a>');
 
-        $e = $doc->firstChild;
+        $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
@@ -826,7 +830,8 @@ HTML
         $method->invokeArgs($graby, ['http://example.org', $e]);
 
         $this->assertSame('http://example.org/lol', $e->getAttribute('href'));
-        $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->getAttribute('src'));
+        $this->assertNotNull($e->firstChild->attributes->getNamedItem('src'));
+        $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->attributes->getNamedItem('src')->nodeValue);
     }
 
     public function testContentLinksRemove()
@@ -1018,7 +1023,7 @@ HTML
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
 
         $this->assertArrayHasKey('html', $res);
-        $this->assertNotFalse(json_encode($res['html']), json_last_error_msg());
+        $this->assertTrue(false !== json_encode($res['html']), json_last_error_msg());
     }
 
     public function testEmptyNodesRemoved()
@@ -1301,7 +1306,7 @@ HTML
         $response = new Response(
             $status,
             ['content-type' => 'text/html'],
-            file_get_contents(__DIR__ . $filePath)
+            (string) file_get_contents(__DIR__ . $filePath)
         );
 
         $client = new HttpMockClient();

@@ -71,18 +71,18 @@ class ConfigBuilderTest extends TestCase
         $this->assertEquals($configExpected, $configActual);
 
         // without using default value
-        $this->assertTrue($configActual->tidy(false));
+        $this->assertTrue(true === $configActual->tidy(false));
         $this->assertSame('bob', $configActual->parser(false));
 
         $this->assertNull($configActual->prune(false));
         $this->assertNull($configActual->autodetect_on_failure(false));
 
         // using default values
-        $this->assertTrue($configActual->tidy(true));
+        $this->assertTrue(true === $configActual->tidy(true));
         $this->assertSame('bob', $configActual->parser(true));
 
-        $this->assertTrue($configActual->prune(true));
-        $this->assertTrue($configActual->autodetect_on_failure(true));
+        $this->assertTrue(true === $configActual->prune(true));
+        $this->assertTrue(true === $configActual->autodetect_on_failure(true));
     }
 
     public function dataForAddToCache()
@@ -190,7 +190,7 @@ class ConfigBuilderTest extends TestCase
         $res = $configBuilder->loadSiteConfig($host);
 
         if (false === $expectedRes) {
-            $this->assertFalse($res, 'No site config generated');
+            $this->assertTrue(false === $res, 'No site config generated');
         } else {
             $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res, 'Site config generated');
             $this->assertSame($matchedHost, $res->cache_key);

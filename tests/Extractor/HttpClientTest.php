@@ -173,28 +173,6 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    /**
-     * This will force `SimplePie_IRI::absolutize` to return false because the relative url is wrong.
-     */
-    public function testFetchGetWithMetaRefreshBadBase()
-    {
-        $url = 'http://wikipedia.org/wiki/Copyright';
-        $body = '<html><meta HTTP-EQUIV="REFRESH" content="0; url=::/bernama/v6/newsindex.php?id=943513"></html>';
-
-        $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $body));
-
-        $http = new HttpClient($httpMockClient);
-        $res = $http->fetch($url);
-
-        $this->assertCount(1, $httpMockClient->getRequests());
-        $this->assertEquals('GET', $httpMockClient->getRequests()[0]->getMethod());
-        $this->assertSame($url, $res['effective_url']);
-        $this->assertSame($body, $res['body']);
-        $this->assertSame('text/html', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
-    }
-
     public function testWith404ResponseWithResponse()
     {
         $httpMockClient = new HttpMockClient();

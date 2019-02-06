@@ -65,7 +65,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->findHostUsingFingerprints('');
 
-        $this->assertFalse($res, 'Nothing host found because empty html');
+        $this->assertNotSame($fingerprints, $res, 'Nothing host found because empty html');
 
         $res = $contentExtractor->findHostUsingFingerprints($html);
 
@@ -836,8 +836,8 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Trying {pattern} for language', $records[4]['message']);
         $this->assertSame('Trying {pattern} for language', $records[5]['message']);
         $this->assertSame('Using Readability', $records[6]['message']);
-        $this->assertSame('Detected title: {title}', $records[7]['message']);
-        $this->assertSame('Trying again without tidy', $records[9]['message']);
+        $this->assertSame('Date is bad (strtotime failed): {date}', $records[7]['message']);
+        $this->assertSame('Attempting to parse HTML with {parser}', $records[9]['message']);
     }
 
     public function testWithCustomFiltersForReadability()

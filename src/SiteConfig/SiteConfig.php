@@ -106,28 +106,28 @@ class SiteConfig
      *
      * @var string
      */
-    public $not_logged_in_xpath = false;
+    public $not_logged_in_xpath;
 
     /**
      * Site's login form URI, if applicable.
      *
      * @var string
      */
-    public $login_uri = false;
+    public $login_uri;
 
     /**
      * Name of the site's login form username field. Example: username.
      *
      * @var string
      */
-    public $login_username_field = false;
+    public $login_username_field;
 
     /**
      * Name of the site's login form password field. Example: password.
      *
      * @var string
      */
-    public $login_password_field = false;
+    public $login_password_field;
 
     /**
      * Extra fields to POST to the site's login form.
@@ -139,7 +139,7 @@ class SiteConfig
     /**
      * Explicitly skip getting data from JSON-LD.
      *
-     * @var string
+     * @var bool
      */
     public $skip_json_ld = false;
 
