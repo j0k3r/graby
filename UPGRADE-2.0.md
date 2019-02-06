@@ -1,11 +1,11 @@
-#UPGRADE FROM 1.x to 2.0
+# UPGRADE FROM 1.x to 2.0
 
-###:warning: BC changes
+### :warning: BC changes
 
 - Support for PHP < 7.1 has been dropped
 - PHP extension tidy is now a requirement
 
-###:electric_plug: Now decoupled from the HTTP client
+### :electric_plug: Now decoupled from the HTTP client
 
 Graby 1 was hardly tied to Guzzle 5.
 
@@ -32,11 +32,11 @@ use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
 $graby = new Graby([], new GuzzleAdapter(new GuzzleClient()));
 ```
 
-###:wave: Configuration removed
+### :wave: Configuration removed
 
 - `http_client.timeout` option is gone, you should now implement it using the adapter of your choice, see [this part of the README](https://github.com/j0k3r/graby#timeout-configuration).
 
-###:twisted_rightwards_arrows: Return information
+### :twisted_rightwards_arrows: Return information
 
 - `all_headers` became `headers`
 - `open_graph` no longer exist (title, image & locale are merged into global result)
