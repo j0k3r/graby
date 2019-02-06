@@ -36,25 +36,22 @@ That's why I made this fork:
 
 ### Requirements
 
-By default, this lib will use the [Tidy extension](https://github.com/htacg/tidy-html5) if it's available. Tidy is only used to cleanup the given HTML and avoid problems with bad HTML structure, etc .. It'll be suggested by Composer.
-
-Also, if you got problem from parsing a content without Tidy installed, please install it and try again.
+- PHP >= 7.1
+- [Tidy](https://github.com/htacg/tidy-html5) & cURL extensions enabled
 
 ### Installation
 
-Add the lib using composer:
+Add the lib using [Composer](https://getcomposer.org/):
 
     composer require j0k3r/graby php-http/guzzle6-adapter
 
-Why `php-http/guzzle6-adapter`? Because Graby is decoupled form any HTTP messaging client with help by [HTTPlug](http://httplug.io/) (see [HTTPlug for library users](http://docs.php-http.org/en/latest/httplug/users.html)).
+Why `php-http/guzzle6-adapter`? Because Graby is decoupled form any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
 
 Graby is tested & should work great with:
 
-- `php-http/guzzle6-adapter`
-- `php-http/guzzle5-adapter`
-- `php-http/curl-client`
-
-If you want to use the cURL client, you should install a PSR-17 response factory [from this list](http://docs.php-http.org/en/latest/discovery.html#common-errors).
+- Guzzle 6 (using `php-http/guzzle6-adapter`)
+- Guzzle 5 (using `php-http/guzzle5-adapter`)
+- cURL (using `php-http/curl-client` and a PSR-17 response factory [from this list](https://packagist.org/providers/psr/http-factory-implementation))
 
 ### Retrieve content from an url
 

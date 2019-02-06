@@ -71,7 +71,7 @@ class GrabyTest extends TestCase
 
             $test = file_get_contents($file->getRealpath());
 
-            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT_WITHOUT_TIDY-----\s*(.*)/sx', $test, $match);
+            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
 
             $tests[] = [
                 $match[1], // url
@@ -83,7 +83,6 @@ class GrabyTest extends TestCase
                 $match[7], // summary
                 $match[8], // raw content
                 $match[9], // parsed content
-                $match[10], // parsed content without tidy
             ];
         }
 
@@ -93,7 +92,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent, $parsedContentWithoutTidy)
+    public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent)
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
@@ -130,11 +129,7 @@ class GrabyTest extends TestCase
         $this->assertSame($title, $res['title'], 'Same title');
         $this->assertSame($summary, $res['summary'], 'Same summary');
 
-        if (\function_exists('tidy_parse_string')) {
-            $this->assertSame($parsedContent, $res['html'], 'Same html');
-        } else {
-            $this->assertSame($parsedContentWithoutTidy, $res['html'], 'Same html');
-        }
+        $this->assertSame($parsedContent, $res['html'], 'Same html');
 
         $this->assertContains('text/html', $res['headers']['content-type']);
         $this->assertFalse($res['native_ad']);
@@ -1152,7 +1147,6 @@ HTML
     }
 
     /**
-     * @requires extension tidy
      * @dataProvider dataDate
      */
     public function testDate($url, $file, $expectedDate)

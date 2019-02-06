@@ -837,10 +837,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Trying {pattern} for language', $records[5]['message']);
         $this->assertSame('Using Readability', $records[6]['message']);
         $this->assertSame('Detected title: {title}', $records[7]['message']);
-
-        if (\function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[9]['message']);
-        }
+        $this->assertSame('Trying again without tidy', $records[9]['message']);
     }
 
     public function testWithCustomFiltersForReadability()
