@@ -164,7 +164,6 @@ class HttpClient
             return [
                 'effective_url' => $url,
                 'body' => '',
-                'headers' => '',
                 'headers' => [],
                 // Too many Redirects
                 'status' => 310,
@@ -177,7 +176,6 @@ class HttpClient
             $data = [
                 'effective_url' => (string) $e->getRequest()->getUri(),
                 'body' => (string) $response->getBody(),
-                'headers' => isset($headers['content-type']) ? $headers['content-type'] : '',
                 'headers' => $headers,
                 'status' => $response->getStatusCode(),
             ];
@@ -190,7 +188,6 @@ class HttpClient
             $data = [
                 'effective_url' => (string) $e->getRequest()->getUri(),
                 'body' => '',
-                'headers' => '',
                 'headers' => [],
                 'status' => 500,
             ];

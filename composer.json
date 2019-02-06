@@ -39,7 +39,9 @@
         "php-http/mock-client": "^1.2",
         "php-http/guzzle6-adapter": "^2.0",
         "guzzlehttp/psr7": "^1.5",
-        "php-coveralls/php-coveralls": "^2.0"
+        "php-coveralls/php-coveralls": "^2.0",
+        "phpstan/phpstan": "^0.11",
+        "phpstan/phpstan-phpunit": "^0.11"
     },
     "extra": {
         "branch-alias": {
@@ -49,6 +51,11 @@
     "autoload": {
         "psr-4": {
             "Graby\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Graby\\": "tests/"
         }
     }
 }

@@ -761,7 +761,7 @@ HTML
     {
         $graby = new Graby();
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($string);
 
         $e = $doc->firstChild;
@@ -793,7 +793,7 @@ HTML
     {
         $graby = new Graby();
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($string);
 
         $e = $doc->firstChild;
@@ -814,7 +814,7 @@ HTML
     {
         $graby = new Graby();
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML('<a href="/lol"><img src=" /path/to/image.jpg" /></a>');
 
         $e = $doc->firstChild;

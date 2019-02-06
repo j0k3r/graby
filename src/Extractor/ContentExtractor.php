@@ -1149,7 +1149,7 @@ class ContentExtractor
 
         libxml_use_internal_errors(true);
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadHTML($html);
 
         libxml_use_internal_errors(false);
@@ -1165,7 +1165,7 @@ class ContentExtractor
     /**
      * Extract OpenGraph data from the response.
      *
-     * @param \DOMXPath $xpath DOMXpath from the DomDocument of the page
+     * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
      *
      * @see http://stackoverflow.com/a/7454737/569101
      */
@@ -1238,7 +1238,7 @@ class ContentExtractor
     /**
      * Extract data from JSON-LD information.
      *
-     * @param \DOMXPath $xpath DOMXpath from the DomDocument of the page
+     * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
      *
      * @see https://json-ld.org/spec/latest/json-ld/
      */
