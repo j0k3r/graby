@@ -28,9 +28,9 @@
         "psr/http-message": "^1.0",
         "php-http/httplug": "^2.0",
         "php-http/discovery": "^1.0",
-        "php-http/client-common": "2.0.0-RC1",
+        "php-http/client-common": "^2.0",
         "php-http/message": "^1.7",
-        "j0k3r/httplug-ssrf-plugin": "2.0.x-dev"
+        "j0k3r/httplug-ssrf-plugin": "^2.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "~2.14",
