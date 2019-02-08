@@ -1313,6 +1313,11 @@ class ContentExtractor
 
             if (!empty($data['image']['url'])) {
                 $this->image = $data['image']['url'];
+
+                // some people use ImageObject url field as an array instead of a string...
+                if (\is_array($data['image']['url'])) {
+                    $this->image = current($data['image']['url']);
+                }
             }
         }
     }
