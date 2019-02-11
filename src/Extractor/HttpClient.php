@@ -11,7 +11,6 @@ use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
-use Http\Client\Exception\HttpException;
 use Http\Client\Exception\RequestException;
 use Http\Client\HttpClient as Client;
 use Http\Discovery\MessageFactoryDiscovery;
@@ -169,21 +168,6 @@ class HttpClient
                 // Too many Redirects
                 'status' => 310,
             ];
-        } catch (HttpException $e) {
-            // exception has a response which means we might be able to retrieve content from it, log it and continue
-            $response = $e->getResponse();
-            $headers = $this->formatHeaders($response);
-
-            $data = [
-                'effective_url' => (string) $e->getRequest()->getUri(),
-                'body' => (string) $response->getBody(),
-                'headers' => $headers,
-                'status' => $response->getStatusCode(),
-            ];
-
-            $this->logger->warning('Request throw exception (with a response): {error_message}', ['error_message' => $e->getMessage()]);
-
-            return $data;
         } catch (RequestException $e) {
             // no response attached to the exception, we won't be able to retrieve content from it
             $data = [
@@ -192,8 +176,23 @@ class HttpClient
                 'headers' => [],
                 'status' => 500,
             ];
+            $message = 'Request throw exception (with no response): {error_message}';
 
-            $this->logger->warning('Request throw exception (with no response): {error_message}', ['error_message' => $e->getMessage()]);
+            if (method_exists($e, 'getResponse')) {
+                // exception has a response which means we might be able to retrieve content from it, log it and continue
+                $response = $e->getResponse();
+                $headers = $this->formatHeaders($response);
+
+                $data = [
+                    'effective_url' => (string) $e->getRequest()->getUri(),
+                    'body' => (string) $response->getBody(),
+                    'headers' => $headers,
+                    'status' => $response->getStatusCode(),
+                ];
+                $message = 'Request throw exception (with a response): {error_message}';
+            }
+
+            $this->logger->warning($message, ['error_message' => $e->getMessage()]);
             $this->logger->info('Data fetched: {data}', ['data' => $data]);
 
             return $data;
