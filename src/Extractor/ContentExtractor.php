@@ -1145,8 +1145,18 @@ class ContentExtractor
             return;
         }
 
+        $ignoreNames = [];
+        $candidateNames = [];
+
         foreach ($matches[1] as $matche) {
             $data = json_decode(trim($matche), true);
+
+            if (isset($data['@type']) && \in_array($data['@type'], ['Organization', 'WebSite', 'Person'], true)) {
+                if (isset($data['name'])) {
+                    $ignoreNames[] = $data['name'];
+                }
+                continue;
+            }
 
             $this->logger->info('JSON-LD data: {JsonLdData}', ['JsonLdData' => $data]);
 
@@ -1171,11 +1181,11 @@ class ContentExtractor
             }
 
             if (isset($data['headline'])) {
-                $this->title = $data['headline'];
+                $candidateNames[] = $data['headline'];
             }
 
             if (isset($data['name'])) {
-                $this->title = $data['name'];
+                $candidateNames[] = $data['name'];
             }
 
             if (isset($data['author']['name'])) {
@@ -1187,6 +1197,14 @@ class ContentExtractor
 
                 foreach ($authors as $author) {
                     $this->addAuthor($author);
+                }
+            }
+        }
+
+        if (\is_array($candidateNames) && \count($candidateNames) > 0) {
+            foreach ($candidateNames as $name) {
+                if (!\in_array($name, $ignoreNames, true)) {
+                    $this->title = $name;
                 }
             }
         }

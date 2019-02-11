@@ -94,7 +94,7 @@ class ConfigBuilder
             $key = substr($key, 4);
         }
 
-        if (array_key_exists($key, $this->cache)) {
+        if (\array_key_exists($key, $this->cache)) {
             return $this->cache[$key];
         }
 
