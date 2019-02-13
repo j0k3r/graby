@@ -1264,10 +1264,18 @@ class ContentExtractor
     {
         $scripts = $xpath->query('//*/script[@type="application/ld+json"]');
 
+        $ignoreNames = [];
+        $candidateNames = [];
+
         foreach ($scripts as $script) {
             $data = json_decode(trim($script->nodeValue), true);
 
-            $this->logger->info('JSON-LD data: {data}', ['data' => $data]);
+            if (isset($data['@type']) && \in_array($data['@type'], ['Organization', 'WebSite', 'Person'], true)) {
+                if (isset($data['name'])) {
+                    $ignoreNames[] = $data['name'];
+                }
+                continue;
+            }
 
             $this->logger->info('JSON-LD data: {JsonLdData}', ['JsonLdData' => $data]);
 
@@ -1292,11 +1300,11 @@ class ContentExtractor
             }
 
             if (!empty($data['headline'])) {
-                $this->title = $data['headline'];
+                $candidateNames[] = $data['headline'];
             }
 
             if (!empty($data['name'])) {
-                $this->title = $data['name'];
+                $candidateNames[] = $data['name'];
             }
 
             if (!empty($data['author']['name'])) {
@@ -1317,6 +1325,14 @@ class ContentExtractor
                 // some people use ImageObject url field as an array instead of a string...
                 if (\is_array($data['image']['url'])) {
                     $this->image = current($data['image']['url']);
+                }
+            }
+        }
+
+        if (\is_array($candidateNames) && \count($candidateNames) > 0) {
+            foreach ($candidateNames as $name) {
+                if (!\in_array($name, $ignoreNames, true)) {
+                    $this->title = $name;
                 }
             }
         }

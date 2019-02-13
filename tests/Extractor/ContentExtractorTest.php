@@ -1004,6 +1004,35 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
+    public function testJsonLdIgnoreList()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "NewsArticle", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "headline": "The Foobar Company is launching globally", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
+            'https://example.com/jsonld'
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $this->assertSame('The Foobar Company is launching globally', $contentExtractor->getTitle());
+        $this->assertContains('Foobar CEO', $contentExtractor->getAuthors());
+    }
+
+    public function testJsonLdIgnoreListWithPeriodical()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Periodical", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "name": "Foobar Company", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><h1>Hello world, this is title</h1><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
+            'https://example.com/jsonld'
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $this->assertSame('Hello world, this is title', $contentExtractor->getTitle());
+    }
+
     public function testJsonLdSkipper()
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
