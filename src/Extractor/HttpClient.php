@@ -38,6 +38,7 @@ class HttpClient
                 'tnr.com' => ['tnr.com/article/' => 'tnr.com/print/article/'],
                 '.m.wikipedia.org' => ['.m.wikipedia.org' => '.wikipedia.org'],
                 'm.vanityfair.com' => ['m.vanityfair.com' => 'www.vanityfair.com'],
+                'www.lesswrong.com' => ['www.lesswrong.com' => 'www.greaterwrong.com'],
             ],
             // Prevent certain file/mime types
             // HTTP responses which match these content types will
