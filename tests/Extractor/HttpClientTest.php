@@ -266,14 +266,20 @@ class HttpClientTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
+        $isCurl = false;
+        $isGuzzle = false;
+
         // find with adapter is installed
         if (class_exists('Http\Adapter\Guzzle6\Client')) {
+            $isGuzzle = true;
             $guzzle = new \GuzzleHttp\Client(['timeout' => 2]);
             $adapter = new \Http\Adapter\Guzzle6\Client($guzzle);
         } elseif (class_exists('Http\Adapter\Guzzle5\Client')) {
+            $isGuzzle = true;
             $guzzle = new \GuzzleHttp\Client(['defaults' => ['timeout' => 2]]);
             $adapter = new \Http\Adapter\Guzzle5\Client($guzzle);
         } elseif (class_exists('Http\Client\Curl\Client')) {
+            $isCurl = true;
             $adapter = new \Http\Client\Curl\Client(
                 null,
                 null,
@@ -297,7 +303,11 @@ class HttpClientTest extends TestCase
         $this->assertSame('Request throw exception (with no response): {error_message}', $records[3]['message']);
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
         // "cURL error 28: Connection timed out after"
-        $this->assertContains('cURL error 28', $records[3]['formatted']);
+        if ($isGuzzle) {
+            $this->assertContains('cURL error 28', $records[3]['formatted']);
+        } else {
+            $this->assertContains('Connection timed out after', $records[3]['formatted']);
+        }
     }
 
     public function testNbRedirectsReached()
