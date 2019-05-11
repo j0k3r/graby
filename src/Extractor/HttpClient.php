@@ -5,6 +5,7 @@ namespace Graby\Extractor;
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\Exception\LoopException;
 use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin;
@@ -522,7 +523,7 @@ class HttpClient
             return $redirectUrl;
         }
 
-        return (string) Uri::resolve(new Uri($url), $redirectUrl);
+        return (string) UriResolver::resolve(new Uri($url), new Uri($redirectUrl));
     }
 
     /**

@@ -6,6 +6,7 @@ use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
 use Graby\SiteConfig\ConfigBuilder;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\Plugin\CookiePlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\HttpClient as Client;
@@ -833,7 +834,7 @@ class Graby
             return false;
         }
 
-        return (string) Uri::resolve(new Uri($base), $url);
+        return (string) UriResolver::resolve(new Uri($base), new Uri($url));
     }
 
     /**
