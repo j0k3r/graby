@@ -39,6 +39,8 @@ class Graby
     private $configBuilder;
     private $punycode;
 
+    private $imgNoReferrer = false;
+
     /**
      * @param array         $config
      * @param Client|null   $client        Http client
@@ -179,6 +181,13 @@ class Graby
         return $infos;
     }
 
+    public function toggleImgNoReferrer($toggle)
+    {
+        if (\is_bool($toggle)) {
+            $this->imgNoReferrer = $toggle;
+        }
+    }
+
     /**
      * Cleanup HTML from a DOMElement or a string.
      *
@@ -234,6 +243,14 @@ class Graby
             }
 
             $contentBlock = $contentBlock->firstChild;
+        }
+
+        // set or replace referrerpolicy to no-referrer in img tags
+        if ($this->imgNoReferrer) {
+            $imgTags = $contentBlock->getElementsByTagName('img');
+            foreach ($imgTags as $img) {
+                $img->setAttribute('referrerpolicy', 'no-referrer');
+            }
         }
 
         // convert content block to HTML string
