@@ -297,7 +297,7 @@ class HttpClientTest extends TestCase
         $this->assertSame('Request throw exception (with no response): {error_message}', $records[3]['message']);
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
         // "cURL error 28: Connection timed out after"
-        $this->assertContains('Connection timed out after', $records[3]['formatted']);
+        $this->assertContains('cURL error 28', $records[3]['formatted']);
     }
 
     public function testNbRedirectsReached()

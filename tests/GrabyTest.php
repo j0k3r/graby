@@ -156,7 +156,9 @@ class GrabyTest extends TestCase
             'allowed_urls' => ['wikipedia.org', 'wikimedia.com'],
         ], $httpMockClient);
 
-        $graby->fetchContent($url);
+        $res = $graby->fetchContent($url);
+
+        $this->assertSame($res['url'], $urlChanged);
     }
 
     public function dataForBlocked()
@@ -768,6 +770,7 @@ HTML
         $doc = new \DOMDocument();
         $doc->loadXML($string);
 
+        /** @var \DOMElement */
         $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
@@ -800,6 +803,7 @@ HTML
         $doc = new \DOMDocument();
         $doc->loadXML($string);
 
+        /** @var \DOMElement */
         $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
@@ -821,6 +825,7 @@ HTML
         $doc = new \DOMDocument();
         $doc->loadXML('<a href="/lol"><img src=" /path/to/image.jpg" /></a>');
 
+        /** @var \DOMElement */
         $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));

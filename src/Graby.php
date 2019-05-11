@@ -486,6 +486,10 @@ class Graby
 
         $url = filter_var($url, FILTER_SANITIZE_URL);
 
+        if (false === $url) {
+            throw new \InvalidArgumentException(sprintf('Sanitizing url "%s" failed.', $url));
+        }
+
         if (false === $this->isUrlAllowed($url)) {
             throw new \InvalidArgumentException(sprintf('Url "%s" is not allowed to be parsed.', $url));
         }
@@ -872,10 +876,6 @@ class Graby
         $encoding = null;
         // remove strange things
         $html = str_replace('</[>', '', $html);
-
-        if (\is_array($contentType)) {
-            $contentType = implode("\n", $contentType);
-        }
 
         if (empty($contentType) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, PREG_SET_ORDER)) {
             // error parsing the response
