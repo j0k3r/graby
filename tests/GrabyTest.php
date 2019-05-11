@@ -1305,52 +1305,42 @@ HTML
 
     public function testImgNoReferrer()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>'
+        ));
 
-        $response->expects($this->any())
-                ->method('getEffectiveUrl')
-                ->willReturn('http://example.com');
-
-        $response->expects($this->any())
-                ->method('getHeaders')
-                ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-                ->method('getStatusCode')
-                ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby([], $client);
+        $graby = new Graby(['content_links' => 'remove'], $httpMockClient);
 
         $graby->toggleImgNoReferrer(true);
         $res = $graby->fetchContent('example.com');
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($res['html']);
 
-        $this->assertTrue($doc->getElementsByTagName('img')->item(0)->hasAttribute('referrerpolicy'));
-        $this->assertSame('no-referrer', $doc->getElementsByTagName('img')->item(0)->getAttribute('referrerpolicy'));
+        /** @var \DOMElement */
+        $item = $doc->getElementsByTagName('img')->item(0);
+
+        $this->assertTrue($item->hasAttribute('referrerpolicy'));
+        $this->assertSame('no-referrer', $item->getAttribute('referrerpolicy'));
 
         $graby->toggleImgNoReferrer(false);
         $res = $graby->fetchContent('example.com');
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($res['html']);
 
-        $this->assertFalse($doc->getElementsByTagName('img')->item(0)->hasAttribute('referrerpolicy'));
+        /** @var \DOMElement */
+        $item = $doc->getElementsByTagName('img')->item(0);
+
+        $this->assertFalse($item->hasAttribute('referrerpolicy'));
     }
 
     /**
