@@ -1163,21 +1163,25 @@ class ContentExtractor
             // just in case datePublished isn't defined, we use the modified one at first
             if (isset($data['dateModified'])) {
                 $this->date = $data['dateModified'];
+                $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
             }
 
             if (isset($data['datePublished'])) {
                 $this->date = $data['datePublished'];
+                $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
             }
 
             // sometimes the date is an array
             if (\is_array($this->date)) {
                 $this->date = reset($this->date);
+                $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
             }
 
             // body should be a DOMNode
             if (isset($data['articlebody'])) {
                 $dom = new \DOMDocument('1.0', 'utf-8');
                 $this->body = $dom->createElement('p', htmlspecialchars(trim($data['articlebody'])));
+                $this->logger->info('body matched from JsonLd: {body}', ['body' => $this->body]);
             }
 
             if (isset($data['headline'])) {
@@ -1197,6 +1201,7 @@ class ContentExtractor
 
                 foreach ($authors as $author) {
                     $this->addAuthor($author);
+                    $this->logger->info('author matched from JsonLd: {author}', ['author' => $author]);
                 }
             }
         }
@@ -1205,6 +1210,7 @@ class ContentExtractor
             foreach ($candidateNames as $name) {
                 if (!\in_array($name, $ignoreNames, true)) {
                     $this->title = $name;
+                    $this->logger->info('title matched from JsonLd: {{title}}', ['title' => $name]);
                 }
             }
         }
