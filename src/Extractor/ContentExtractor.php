@@ -962,7 +962,7 @@ class ContentExtractor
             $this->body = $elems->item(0);
 
             // prune (clean up elements that may not be content)
-            if ($this->siteConfig->prune()) {
+            if ($this->siteConfig->prune() && null !== $this->readability) {
                 $this->logger->info('Pruning content');
                 $this->readability->prepArticle($this->body);
             }

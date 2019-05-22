@@ -11,8 +11,8 @@ Graby 1 was hardly tied to Guzzle 5.
 
 Graby 2 supports any [HTTP client implementation](https://packagist.org/providers/php-http/client-implementation). It is currently tested against:
 
-- Guzzle 6,
-- Guzzle 5 &
+- Guzzle 6
+- Guzzle 5
 - cURL
 
 Here is how to install Graby with Guzzle 6:
