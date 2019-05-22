@@ -10,7 +10,7 @@
 Graby helps you extract article content from web pages.
 
 - it's based on [php-readability](https://github.com/j0k3r/php-readability)
-- it uses [site_config](http://help.fivefilters.org/customer/portal/articles/223153-site-patterns) to extra content from websites
+- it uses [site_config](http://help.fivefilters.org/customer/portal/articles/223153-site-patterns) to extract content from websites
 - it's a fork of Full-Text RSS v3.3 from [@fivefilters](http://fivefilters.org/)
 
 ## Why this fork ?
