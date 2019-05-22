@@ -1,5 +1,6 @@
 tools:
     external_code_coverage: false
+
 filter:
     paths:
         - 'src/*'

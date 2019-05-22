@@ -3,16 +3,20 @@
 namespace Tests\Graby;
 
 use Graby\Graby;
-use GuzzleHttp\Client;
-use GuzzleHttp\Message\Response;
-use GuzzleHttp\Stream\Stream;
-use GuzzleHttp\Subscriber\Mock;
+use GuzzleHttp\Psr7\Response;
+use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\PhpUnit\DnsMock;
 
 class GrabyTest extends TestCase
 {
+    /**
+     * A human IPv4 corresponding to example.com.
+     */
+    const AN_IPV4 = '93.184.216.34';
+
     public function testConstructDefault()
     {
         $graby = new Graby(['debug' => true]);
@@ -65,9 +69,9 @@ class GrabyTest extends TestCase
                 continue;
             }
 
-            $test = file_get_contents($file->getRealpath());
+            $test = (string) file_get_contents($file->getRealpath());
 
-            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT_WITHOUT_TIDY-----\s*(.*)/sx', $test, $match);
+            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
 
             $tests[] = [
                 $match[1], // url
@@ -79,7 +83,6 @@ class GrabyTest extends TestCase
                 $match[7], // summary
                 $match[8], // raw content
                 $match[9], // parsed content
-                $match[10], // parsed content without tidy
             ];
         }
 
@@ -89,40 +92,11 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent, $parsedContentWithoutTidy)
+    public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn($urlEffective);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn($rawContent);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn($rawContent);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => $header]);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->with($url)
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
 
         $graby = new Graby([
             'xss_filter' => false,
@@ -133,11 +107,11 @@ class GrabyTest extends TestCase
                     ],
                 ],
             ],
-        ], $client);
+        ], $httpMockClient);
 
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         if ($language) {
             $this->assertSame($language, $res['language']);
@@ -155,30 +129,10 @@ class GrabyTest extends TestCase
         $this->assertSame($title, $res['title'], 'Same title');
         $this->assertSame($summary, $res['summary'], 'Same summary');
 
-        if (\function_exists('tidy_parse_string')) {
-            $this->assertSame($parsedContent, $res['html'], 'Same html');
-        } else {
-            $this->assertSame($parsedContentWithoutTidy, $res['html'], 'Same html');
-        }
+        $this->assertSame($parsedContent, $res['html'], 'Same html');
 
-        $this->assertSame('text/html', $res['content_type']);
-
-        // blogger doesn't have OG data, but lemonde has
-        if (empty($res['open_graph'])) {
-            $this->assertSame([], $res['open_graph']);
-            $this->assertFalse($res['native_ad']);
-        } else {
-            $this->assertArrayHasKey('og_site_name', $res['open_graph']);
-            $this->assertArrayHasKey('og_locale', $res['open_graph']);
-            $this->assertArrayHasKey('og_url', $res['open_graph']);
-            $this->assertArrayHasKey('og_title', $res['open_graph']);
-            $this->assertArrayHasKey('og_description', $res['open_graph']);
-            $this->assertArrayHasKey('og_image', $res['open_graph']);
-            $this->assertArrayHasKey('og_image_width', $res['open_graph']);
-            $this->assertArrayHasKey('og_image_height', $res['open_graph']);
-            $this->assertArrayHasKey('og_image_type', $res['open_graph']);
-            $this->assertArrayHasKey('og_type', $res['open_graph']);
-        }
+        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertFalse($res['native_ad']);
     }
 
     public function dataForAllowed()
@@ -194,28 +148,17 @@ class GrabyTest extends TestCase
      */
     public function testAllowedUrls($url, $urlChanged)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->with($urlChanged)
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(301, ['Location' => $urlChanged]));
+        $httpMockClient->addResponse(new Response(200));
 
         $graby = new Graby([
             'allowed_urls' => ['wikipedia.org', 'wikimedia.com'],
-        ], $client);
+        ], $httpMockClient);
 
-        $graby->fetchContent($url);
+        $res = $graby->fetchContent($url);
+
+        $this->assertSame($res['url'], $urlChanged);
     }
 
     public function dataForBlocked()
@@ -253,8 +196,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForNotValid
      *
-     * @expectedException \Exception
-     * @expectedExceptionMessage is not valid.
+     * @expectedException \InvalidArgumentException
      */
     public function testNotValidUrls($url)
     {
@@ -268,72 +210,33 @@ class GrabyTest extends TestCase
      */
     public function testBlockedUrlsAfterFetch()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('t411.io');
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200));
 
         $graby = new Graby([
             'blocked_urls' => ['t411.io'],
-        ], $client);
+        ], $httpMockClient);
 
-        $graby->fetchContent('lexpress.io');
+        $graby->fetchContent('t411.io');
     }
 
     public function testMimeTypeActionLink()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpeg']));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io/my awesome image.jpg');
+        $graby = new Graby(['xss_filter' => false], $httpMockClient);
 
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
+        $res = $graby->fetchContent('http://example.com/my%20awesome%20image.jpg');
 
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'image/jpeg']);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby(['xss_filter' => false], $client);
-
-        $res = $graby->fetchContent('lexpress.io');
-
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Image', $res['title']);
-        $this->assertSame('<a href="http://lexpress.io/my%20awesome%20image.jpg"><img src="http://lexpress.io/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
-        $this->assertSame('http://lexpress.io/my%20awesome%20image.jpg', $res['url']);
+        $this->assertSame('<a href="http://example.com/my%20awesome%20image.jpg"><img src="http://example.com/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
+        $this->assertSame('http://example.com/my%20awesome%20image.jpg', $res['url']);
         $this->assertEmpty($res['summary']);
-        $this->assertSame('image/jpeg', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertSame('image/jpeg', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -343,47 +246,33 @@ class GrabyTest extends TestCase
      */
     public function testMimeTypeActionExclude()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'application/x-msdownload']);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->exactly(2))
-            ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io/virus.exe');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('head')
-            ->willReturn($response);
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'application/x-msdownload']
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'application/x-msdownload']
+        ));
 
         $graby = new Graby([
             'content_type_exc' => [
                'application/x-msdownload' => ['action' => 'exclude', 'name' => 'we do not want virus'],
             ],
-        ], $client);
+        ], $httpMockClient);
 
-        $graby->fetchContent('http://lexpress.io/virus.exe');
+        $graby->fetchContent('http://example.com/virus.exe');
+
+        $this->assertCount(2, $httpMockClient->getRequests());
+        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
     }
 
     public function dataForExtension()
     {
         return [
-            ['http://lexpress.io/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://lexpress.io/test.jpg"><img src="http://lexpress.io/test.jpg" alt="Image" /></a>'],
+            ['http://example.com/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://example.com/test.jpg"><img src="http://example.com/test.jpg" alt="Image" /></a>'],
         ];
     }
 
@@ -392,595 +281,412 @@ class GrabyTest extends TestCase
      */
     public function testAssetExtension($url, $header, $title, $summary, $html)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => $header]
+        ));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn($url);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => $header]);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('head')
-            ->willReturn($response);
-
-        $graby = new Graby(['xss_filter' => false], $client);
+        $graby = new Graby(['xss_filter' => false], $httpMockClient);
 
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(12, $res);
+        $this->assertCount(1, $httpMockClient->getRequests());
+        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame($title, $res['title']);
         $this->assertSame($html, $res['html']);
         $this->assertSame($url, $res['url']);
         $this->assertSame($summary, $res['summary']);
-        $this->assertSame($header, $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame($header, $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function testAssetExtensionPDF()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'application/pdf'],
+            (string) file_get_contents(__DIR__ . '/fixtures/document1.pdf')
+        ));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io/test.pdf');
+        $graby = new Graby([], $httpMockClient);
 
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'application/pdf']);
+        $res = $graby->fetchContent('http://example.com/test.pdf');
 
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn(file_get_contents(__DIR__ . '/fixtures/document1.pdf'));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby([], $client);
-
-        $res = $graby->fetchContent('http://lexpress.io/test.pdf');
-
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Document1', $res['title']);
         $this->assertContains('Document title', $res['html']);
         $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
-        $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
+        $this->assertContains('http://example.com/test.pdf', $res['url']);
         $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
-        $this->assertSame('application/pdf', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame('application/pdf', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function testAssetExtensionZIP()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'application/zip']
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'application/zip']
+        ));
 
-        $response->expects($this->exactly(2))
-            ->method('getEffectiveUrl')
-            ->willReturn('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'application/zip']);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $client->expects($this->once())
-            ->method('head')
-            ->willReturn($response);
-
-        $graby = new Graby([], $client);
+        $graby = new Graby([], $httpMockClient);
 
         $res = $graby->fetchContent('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(2, $httpMockClient->getRequests());
+        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
+
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('ZIP', $res['title']);
         $this->assertContains('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
-        $this->assertSame('application/zip', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame('application/zip', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function testAssetExtensionPDFWithArrayDetails()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'application/pdf'],
+            (string) file_get_contents(__DIR__ . '/fixtures/Document1_pdfcreator.pdf')
+        ));
+        $graby = new Graby([], $httpMockClient);
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io/test.pdf');
+        $res = $graby->fetchContent('http://example.com/test.pdf');
 
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'application/pdf']);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn(file_get_contents(__DIR__ . '/fixtures/Document1_pdfcreator.pdf'));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby([], $client);
-
-        $res = $graby->fetchContent('http://lexpress.io/test.pdf');
-
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('2013-09-01T22:20:38+02:00', $res['date']);
         $this->assertSame(['Sebastien MALOT'], $res['authors']);
         $this->assertSame('Document1', $res['title']);
         $this->assertContains('orem ipsum dolor sit amet', $res['html']);
-        $this->assertContains('http://lexpress.io/test.pdf', $res['url']);
+        $this->assertContains('http://example.com/test.pdf', $res['url']);
         $this->assertContains('orem ipsum dolor sit amet', $res['summary']);
-        $this->assertSame('application/pdf', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame('application/pdf', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function testAssetExtensionTXT()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/plain'], 'plain text :)'));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io/test.txt');
+        $graby = new Graby([], $httpMockClient);
 
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
+        $res = $graby->fetchContent('http://example.com/test.txt');
 
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/plain']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('plain text :)');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby([], $client);
-
-        $res = $graby->fetchContent('http://lexpress.io/test.txt');
-
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Plain text', $res['title']);
         $this->assertSame('<pre>plain text :)</pre>', $res['html']);
-        $this->assertSame('http://lexpress.io/test.txt', $res['url']);
+        $this->assertSame('http://example.com/test.txt', $res['url']);
         $this->assertSame('plain text :)', $res['summary']);
-        $this->assertSame('text/plain', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame('text/plain', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function dataForSinglePage()
     {
         return [
-            // single_page_link will return a string
-            ['singlepage1.com'],
-            // single_page_link will return the a node
-            ['singlepage2.com'],
-            // single_page_link will return the href from a node
-            ['singlepage3.com'],
-            // single_page_link will return nothing useful
-            ['singlepage4.com'],
-            // single_page_link will return the href from a node BUT the single page url will be the same
-            ['singlepage3.com', 'http://singlepage3.com'],
+            'single_page_link will return a string (ie the text content of <a> node)' => ['singlepage1.com', 'http://singlepage1.com/printed view', 'http://moreintelligentlife.com/print/content'],
+            'single_page_link will return the a node' => ['singlepage2.com', 'http://singlepage2.com/print/content', 'http://singlepage2.com/print/content'],
+            'single_page_link will return the href from a node' => ['singlepage3.com', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
+            'single_page_link will return nothing useful' => ['singlepage4.com', 'http://singlepage4.com', 'http://singlepage4.com/print/content'],
+            'single_page_link will return the href from a node BUT the single page url will be the same' => ['singlepage3.com/print/content', 'http://singlepage3.com/print/content', 'http://singlepage3.com/print/content'],
         ];
     }
 
     /**
+     * @group dns-sensitive
      * @dataProvider dataForSinglePage
      */
-    public function testSinglePage($url, $singlePageUrl = 'http://moreintelligentlife.com/print/content')
+    public function testSinglePage($url, $expectedUrl, $singlePageUrl)
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        DnsMock::withMockedHosts([
+            'singlepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'singlepage2.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'singlepage3.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'singlepage4.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'moreintelligentlife.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
 
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://' . $url);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([
+        $httpMockClient = new HttpMockClient();
+        $response = new Response(
+            200,
+            [
                 'Content-Type' => 'text/html',
                 'Content-Language' => 'en',
-            ]);
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="' . $singlePageUrl . '" class="service-links-print">printed view</a></li></ul></html>');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+            ],
+            <<<"HTML"
+<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul>
+<li class="service-links-print">
+    <a href="$singlePageUrl" class="service-links-print">printed view</a>
+</li></ul></html>
+HTML
+        );
+        $httpMockClient->addResponse($response);
+        $httpMockClient->addResponse($response);
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $client);
+        ]]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('http://' . $url);
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertSame('en', $res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertSame('my content', $res['html']);
-        $this->assertSame('http://' . $url, $res['url']);
+        $this->assertSame($expectedUrl, $res['url']);
         $this->assertSame('my content', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testSinglePageMimeAction()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        DnsMock::withMockedHosts([
+            'singlepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
 
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://singlepage1.com/data.jpg');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->exactly(2))
-            ->method('getHeaders')
-            ->will($this->onConsecutiveCalls(
-                ['Content-Type' => 'text/html'],
-                ['Content-Type' => 'image/jpeg']
-            ));
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="http://moreintelligentlife.com/print/content" class="service-links-print">printed view</a></li></ul></html>');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="http://moreintelligentlife.com/print/content" class="service-links-print">printed view</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'image/jpeg'],
+            '<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="http://moreintelligentlife.com/print/content" class="service-links-print">printed view</a></li></ul></html>'
+        ));
 
         $graby = new Graby(['xss_filter' => false, 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $client);
+        ]]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('http://singlepage1.com/data.jpg');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Image', $res['title']);
         $this->assertSame('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res['html']);
         $this->assertSame('http://singlepage1.com/data.jpg', $res['url']);
         $this->assertSame('', $res['summary']);
-        $this->assertSame('image/jpeg', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame('image/jpeg', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageOk()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://multiplepage1.com');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
-            ));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
+        ));
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $client);
+        ]]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertSame('my content<div class="story">my content</div>', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content my content', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageMimeAction()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->exactly(2))
-            ->method('getEffectiveUrl')
-            ->willReturn('http://multiplepage1.com');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->exactly(2))
-            ->method('getHeaders')
-            ->will($this->onConsecutiveCalls(
-                ['Content-Type' => 'text/html'],
-                ['Content-Type' => 'application/pdf']
-            ));
-
-        $response->expects($this->exactly(2))
-            ->method('getBody')
-            ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com/data.pdf">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
-            ));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->exactly(2))
-            ->method('get')
-            ->willReturn($response);
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com/data.pdf">next page</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'application/pdf'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
+        ));
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $client);
+        ]]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertSame('application/pdf', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame('application/pdf', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageExtractFailed()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://multiplepage1.com');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>',
-                ''
-            ));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="multiplepage1.com">next page</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            ''
+        ));
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $client);
+        ]]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageBadAbsoluteUrl()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://multiplepage1.com');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="/:/">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
-            ));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="/:/">next page</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="/:/">next page</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
+        ));
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $client);
+        ]]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
+    /**
+     * @group dns-sensitive
+     */
     public function testMultiplePageSameUrl()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://multiplepage1.com');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->will($this->onConsecutiveCalls(
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>',
-                '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
-            ));
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
+        DnsMock::withMockedHosts([
+            'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
+        ));
 
         $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $client);
+        ]]], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
         $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -1050,7 +756,7 @@ class GrabyTest extends TestCase
             ['http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'src', 'http://example.org/path/to/image.jpg'],
             ['http://example.org', '<a href="/lol">test</a>', 'src', 'src', ''],
             ['http://example.org', '<iframe src="/lol" />', 'src', 'src', 'http://example.org/lol'],
-            ['http://example.org', '<a href="#fn-ref-23">1</a>', 'href', 'href', '#fn-ref-23'],
+            ['http://example.org', '<a href="#fn-ref-23">1</a>', 'href', 'href', 'http://example.org#fn-ref-23'],
         ];
     }
 
@@ -1061,10 +767,11 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($string);
 
-        $e = $doc->firstChild;
+        /** @var \DOMElement */
+        $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsoluteAttr');
@@ -1093,10 +800,11 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($string);
 
-        $e = $doc->firstChild;
+        /** @var \DOMElement */
+        $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
@@ -1114,10 +822,11 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML('<a href="/lol"><img src=" /path/to/image.jpg" /></a>');
 
-        $e = $doc->firstChild;
+        /** @var \DOMElement */
+        $e = $doc->documentElement;
 
         $reflection = new \ReflectionClass(\get_class($graby));
         $method = $reflection->getMethod('makeAbsolute');
@@ -1126,114 +835,51 @@ class GrabyTest extends TestCase
         $method->invokeArgs($graby, ['http://example.org', $e]);
 
         $this->assertSame('http://example.org/lol', $e->getAttribute('href'));
-        $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->getAttribute('src'));
-    }
-
-    public function testAvoidDataUriImageInOpenGraph()
-    {
-        $graby = new Graby();
-
-        $reflection = new \ReflectionClass(\get_class($graby));
-        $method = $reflection->getMethod('extractOpenGraph');
-        $method->setAccessible(true);
-
-        $ogData = $method->invokeArgs(
-            $graby,
-            [
-                '<html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
-                'http://www.io.lol',
-            ]
-        );
-
-        $this->assertCount(1, $ogData);
-        $this->assertArrayHasKey('og_url', $ogData);
-        $this->assertSame('http://www.io.lol', $ogData['og_url']);
-        $this->assertFalse(isset($ogData['og_image']), 'og_image key does not exist');
+        $this->assertNotNull($e->firstChild->attributes->getNamedItem('src'));
+        $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->attributes->getNamedItem('src')->nodeValue);
     }
 
     public function testContentLinksRemove()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' <a href="#links">links :)</a></p></article>'
+        ));
 
-        $response->expects($this->any())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://removelinks.io');
+        $graby = new Graby(['content_links' => 'remove'], $httpMockClient);
 
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
+        $res = $graby->fetchContent('http://example.com');
 
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('<article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' <a href="#links">links :)</a></p></article>');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby(['content_links' => 'remove'], $client);
-
-        $res = $graby->fetchContent('lexpress.io');
-
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertContains('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res['html']);
-        $this->assertSame('http://removelinks.io', $res['url']);
+        $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
     public function testMimeActionNotDefined()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'application/pdf']));
 
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io');
+        $graby = new Graby(['content_type_exc' => ['application/pdf' => ['action' => 'delete', 'name' => 'PDF']]], $httpMockClient);
 
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(200);
+        $res = $graby->fetchContent('example.com');
 
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn(['Content-Type' => 'application/pdf']);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby(['content_type_exc' => ['application/pdf' => ['action' => 'delete', 'name' => 'PDF']]], $client);
-
-        $res = $graby->fetchContent('lexpress.io');
-
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
-        $this->assertSame('http://lexpress.io', $res['url']);
+        $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertSame('application/pdf', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertSame('application/pdf', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -1259,58 +905,37 @@ class GrabyTest extends TestCase
         $graby = new Graby();
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
         $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertSame('', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertEmpty($res['headers']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
         $this->assertSame(500, $res['status']);
     }
 
     public function testErrorMessages()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $response->expects($this->once())
-            ->method('getEffectiveUrl')
-            ->willReturn('http://lexpress.io');
-
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->willReturn(400);
-
-        $response->expects($this->any())
-            ->method('getHeaders')
-            ->willReturn([]);
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn($response);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
         $graby = new Graby([
             'error_message' => 'Nothing found, hu?',
             'error_message_title' => 'No title detected',
-        ], $client);
+        ], $httpMockClient);
 
-        $res = $graby->fetchContent('lexpress.io');
+        $res = $graby->fetchContent('example.com');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title detected', $res['title']);
         $this->assertSame('Nothing found, hu?', $res['html']);
-        $this->assertSame('http://lexpress.io', $res['url']);
+        $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('Nothing found, hu?', $res['summary']);
-        $this->assertSame('', $res['content_type']);
-        $this->assertSame([], $res['open_graph']);
+        $this->assertEmpty($res['headers']);
+        $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
@@ -1338,28 +963,6 @@ class GrabyTest extends TestCase
         $res = $method->invokeArgs($graby, [$url]);
 
         $this->assertSame($urlExpected, $res);
-    }
-
-    public function testAbsolutePreviewInOgImage()
-    {
-        $graby = new Graby();
-
-        $reflection = new \ReflectionClass(\get_class($graby));
-        $method = $reflection->getMethod('extractOpenGraph');
-        $method->setAccessible(true);
-
-        $ogData = $method->invokeArgs(
-            $graby,
-            [
-                '<html><meta content="/assets/lol.jpg" property="og:image" /><meta content="http://www.io.lol" property="og:url"/></html>',
-                'http://www.io.lol',
-            ]
-        );
-
-        $this->assertCount(2, $ogData);
-        $this->assertArrayHasKey('og_url', $ogData);
-        $this->assertSame('http://www.io.lol', $ogData['og_url']);
-        $this->assertSame('http://www.io.lol/assets/lol.jpg', $ogData['og_image']);
     }
 
     public function dataForCleanupHtml()
@@ -1425,7 +1028,7 @@ class GrabyTest extends TestCase
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
 
         $this->assertArrayHasKey('html', $res);
-        $this->assertNotFalse(json_encode($res['html']), json_last_error_msg());
+        $this->assertTrue(false !== json_encode($res['html']), json_last_error_msg());
     }
 
     public function testEmptyNodesRemoved()
@@ -1455,7 +1058,7 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock('/fixtures/content/20minutes-jsonld.html');
         $res = $graby->fetchContent('http://www.20minutes.fr/sport/football/2155935-20171022-stade-rennais-portugais-paulo-fonseca-remplacer-christian-gourcuff');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -1464,11 +1067,10 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('date', $res);
         $this->assertArrayHasKey('authors', $res);
         $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
         $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('image', $res);
         $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
+        $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertSame('Stade Rennais: Le Portugais Paulo Fonseca pour remplacer Christian Gourcuff?', $res['title']);
@@ -1481,7 +1083,7 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock('/fixtures/content/timothysykes-keepol.html');
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -1490,11 +1092,10 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('date', $res);
         $this->assertArrayHasKey('authors', $res);
         $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
         $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('image', $res);
         $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
+        $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(200, $res['status']);
         $this->assertContains('<ol start="2">', $res['html']);
@@ -1515,7 +1116,7 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);
         $res = $graby->fetchContent('https://bjori.blogspot.com/201');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -1524,11 +1125,10 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('date', $res);
         $this->assertArrayHasKey('authors', $res);
         $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
         $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('image', $res);
         $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
+        $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(404, $res['status']);
         $this->assertEmpty($res['language']);
@@ -1536,8 +1136,8 @@ class GrabyTest extends TestCase
         $this->assertSame("bjori doesn't blog", $res['title']);
         $this->assertSame('[unable to retrieve full-text content]', $res['html']);
         $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertSame('text/html', $res['content_type']);
-        $this->assertNotEmpty($res['open_graph']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
+        $this->assertEmpty($res['image']);
     }
 
     public function dataDate()
@@ -1546,7 +1146,7 @@ class GrabyTest extends TestCase
             [
                 'https://www.lemonde.fr/economie/article/2011/07/05/moody-s-abaisse-la-note-du-portugal-de-quatre-crans_1545237_3234.html',
                 'lemonde-date.html',
-                '2011-07-05T22:09:18+0200',
+                '2011-07-05T22:09:59+02:00',
             ],
             [
                 'https://www.20minutes.fr/sport/football/2282359-20180601-video-france-italie-bleus-ambiancent-regalent-va-essayer-trop-enflammer',
@@ -1564,7 +1164,7 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock('/fixtures/content/' . $file);
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -1573,11 +1173,10 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('date', $res);
         $this->assertArrayHasKey('authors', $res);
         $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
         $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('image', $res);
         $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
+        $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame($expectedDate, $res['date']);
     }
@@ -1616,7 +1215,7 @@ class GrabyTest extends TestCase
         );
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -1625,11 +1224,10 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('date', $res);
         $this->assertArrayHasKey('authors', $res);
         $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
         $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('image', $res);
         $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
+        $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame($expectedAuthors, $res['authors']);
     }
@@ -1652,7 +1250,7 @@ class GrabyTest extends TestCase
         );
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -1661,11 +1259,10 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('date', $res);
         $this->assertArrayHasKey('authors', $res);
         $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
         $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('image', $res);
         $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
+        $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(200, $res['status']);
     }
@@ -1689,7 +1286,7 @@ class GrabyTest extends TestCase
         );
         $res = $graby->fetchContent('https://www.rollingstone.com/?redirurl=/politics/news/greed-and-debt-the-true-story-of-mitt-romney-and-bain-capital-20120829');
 
-        $this->assertCount(12, $res);
+        $this->assertCount(11, $res);
 
         $this->assertArrayHasKey('status', $res);
         $this->assertArrayHasKey('html', $res);
@@ -1698,63 +1295,52 @@ class GrabyTest extends TestCase
         $this->assertArrayHasKey('date', $res);
         $this->assertArrayHasKey('authors', $res);
         $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('content_type', $res);
         $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('open_graph', $res);
+        $this->assertArrayHasKey('image', $res);
         $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('all_headers', $res);
+        $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(200, $res['status']);
     }
 
     public function testImgNoReferrer()
     {
-        $response = $this->getMockBuilder('GuzzleHttp\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>'
+        ));
 
-        $response->expects($this->any())
-                ->method('getEffectiveUrl')
-                ->willReturn('http://example.com');
-
-        $response->expects($this->any())
-                ->method('getHeaders')
-                ->willReturn(['Content-Type' => 'text/html']);
-
-        $response->expects($this->any())
-                ->method('getStatusCode')
-                ->willReturn(200);
-
-        $response->expects($this->any())
-            ->method('getBody')
-            ->willReturn('<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>');
-
-        $client = $this->getMockBuilder('GuzzleHttp\Client')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client->expects($this->any())
-            ->method('get')
-            ->willReturn($response);
-
-        $graby = new Graby([], $client);
+        $graby = new Graby(['content_links' => 'remove'], $httpMockClient);
 
         $graby->toggleImgNoReferrer(true);
         $res = $graby->fetchContent('example.com');
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($res['html']);
 
-        $this->assertTrue($doc->getElementsByTagName('img')->item(0)->hasAttribute('referrerpolicy'));
-        $this->assertSame('no-referrer', $doc->getElementsByTagName('img')->item(0)->getAttribute('referrerpolicy'));
+        /** @var \DOMElement */
+        $item = $doc->getElementsByTagName('img')->item(0);
+
+        $this->assertTrue($item->hasAttribute('referrerpolicy'));
+        $this->assertSame('no-referrer', $item->getAttribute('referrerpolicy'));
 
         $graby->toggleImgNoReferrer(false);
         $res = $graby->fetchContent('example.com');
 
-        $doc = new \DomDocument();
+        $doc = new \DOMDocument();
         $doc->loadXML($res['html']);
 
-        $this->assertFalse($doc->getElementsByTagName('img')->item(0)->hasAttribute('referrerpolicy'));
+        /** @var \DOMElement */
+        $item = $doc->getElementsByTagName('img')->item(0);
+
+        $this->assertFalse($item->hasAttribute('referrerpolicy'));
     }
 
     /**
@@ -1765,11 +1351,11 @@ class GrabyTest extends TestCase
         $response = new Response(
             $status,
             ['content-type' => 'text/html'],
-            Stream::factory(file_get_contents(__DIR__ . $filePath))
+            (string) file_get_contents(__DIR__ . $filePath)
         );
 
-        $client = new Client();
-        $client->getEmitter()->attach(new Mock([$response]));
+        $client = new HttpMockClient();
+        $client->addResponse($response);
 
         return new Graby($grabyConfig, $client);
     }

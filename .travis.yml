@@ -1,10 +1,6 @@
 language: php
 
 php:
-    - 5.4
-    - 5.5
-    - 5.6
-    - 7.0
     - 7.1
     - 7.2
     - 7.3
@@ -14,12 +10,15 @@ php:
 matrix:
     fast_finish: true
     allow_failures:
-        - php: 7.3
         - php: nightly
     # only one build will send the coverage, this'll speed up other one
     include:
         - php: 7.2
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
+        - php: 7.2
+          env: GUZZLE5=run
+        - php: 7.2
+          env: CURL=run
 
 # cache vendor dirs
 cache:
@@ -30,6 +29,14 @@ cache:
 before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
 
+    # because php-coveralls require Guzzle 6
+    - if [ "$GUZZLE5" = "run" ]; then composer remove php-coveralls/php-coveralls php-http/guzzle6-adapter --dev -n ; fi;
+    - if [ "$GUZZLE5" = "run" ]; then composer require php-http/guzzle5-adapter '^2.0' --dev -n ; fi;
+
+    - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '2.x-dev' --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer require zendframework/zend-diactoros --dev -n ; fi;
+
 install:
     - composer install --no-interaction --prefer-dist -o
 
@@ -37,6 +44,10 @@ script:
     - mkdir -p build/logs
     - php vendor/bin/simple-phpunit -v $PHPUNIT_FLAGS
     - if [ "$CS_FIXER" = "run" ]; then php vendor/bin/php-cs-fixer fix --verbose --dry-run ; fi;
+    - if [ "$CS_FIXER" = "run" ]; then php vendor/bin/phpstan analyse src tests --no-progress --level 7 ; fi;
 
-after_script:
-    - if [[ "$PHPUNIT_FLAGS" != "" ]]; then php vendor/bin/coveralls -v; fi;
+after_success:
+    - |
+        if [[ "$PHPUNIT_FLAGS" != "" ]]; then
+            travis_retry php vendor/bin/php-coveralls -v -x build/logs/clover.xml
+        fi

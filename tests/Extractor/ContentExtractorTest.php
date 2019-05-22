@@ -28,6 +28,7 @@ class ContentExtractorTest extends TestCase
         $this->assertNull($contentExtractor->getTitle());
         $this->assertNull($contentExtractor->getLanguage());
         $this->assertNull($contentExtractor->getDate());
+        $this->assertNull($contentExtractor->getImage());
         $this->assertSame([], $contentExtractor->getAuthors());
         $this->assertNull($contentExtractor->getSiteConfig());
         $this->assertNull($contentExtractor->getNextPageUrl());
@@ -64,7 +65,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->findHostUsingFingerprints('');
 
-        $this->assertFalse($res, 'Nothing host found because empty html');
+        $this->assertNotSame($fingerprints, $res, 'Nothing host found because empty html');
 
         $res = $contentExtractor->findHostUsingFingerprints($html);
 
@@ -830,13 +831,13 @@ class ContentExtractorTest extends TestCase
         $this->assertGreaterThanOrEqual(6, $records);
         $this->assertSame('Attempting to parse HTML with {parser}', $records[0]['message']);
         $this->assertSame('libxml', $records[0]['context']['parser']);
-        $this->assertSame('Trying {pattern} for language', $records[2]['message']);
-        $this->assertSame('Using Readability', $records[4]['message']);
-        $this->assertSame('Detected title: {title}', $records[5]['message']);
-
-        if (\function_exists('tidy_parse_string')) {
-            $this->assertSame('Trying again without tidy', $records[7]['message']);
-        }
+        $this->assertSame('Opengraph "og:" data: {ogData}', $records[2]['message']);
+        $this->assertSame('Opengraph "article:" data: {ogData}', $records[3]['message']);
+        $this->assertSame('Trying {pattern} for language', $records[4]['message']);
+        $this->assertSame('Trying {pattern} for language', $records[5]['message']);
+        $this->assertSame('Using Readability', $records[6]['message']);
+        $this->assertSame('Date is bad (strtotime failed): {date}', $records[7]['message']);
+        $this->assertSame('Attempting to parse HTML with {parser}', $records[9]['message']);
     }
 
     public function testWithCustomFiltersForReadability()
@@ -941,6 +942,65 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('title !!', $contentExtractor->getTitle());
         $this->assertSame('2017-10-23T16:05:38+02:00', $contentExtractor->getDate());
         $this->assertContains('bob', $contentExtractor->getAuthors());
+        $this->assertSame('https://static.jsonld.io/medias.jpg', $contentExtractor->getImage());
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    public function testNoDefinedHtml()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process('', 'https://nativead.io/jsonld');
+
+        $this->assertFalse($res);
+
+        $this->assertEmpty($contentExtractor->getImage());
+    }
+
+    public function testOpenGraph()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <meta property="og:title" content="title !!"/>
+            <meta property="og:site_name" content="opengraph.io" />
+            <meta property="og:type" content="article"/>
+            <meta property="og:locale" content="fr_FR"/>
+            <meta property="og:url" content="//opengraph.io/1954872.html"/>
+            <meta property="article:published_time" content="2017-10-23T17:04:21Z-09:00"/>
+            <meta property="article:modified_time" content="2017-10-23T17:04:17Z-09:00"/>
+            <meta property="og:image" content="http://static.opengraph.io/medias_11570.jpg"/>
+            <meta property="og:image:url" content="http://static.opengraph.io/medias_11570.jpg"/>
+            <meta property="og:image:secure_url" content="https://static.opengraph.io/medias_11570.jpg"/>
+            <p>hihi</p>',
+            'https://nativead.io/opengraph'
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertSame('title !!', $contentExtractor->getTitle());
+        $this->assertSame('2017-10-23T17:04:21Z-09:00', $contentExtractor->getDate());
+        $this->assertSame('fr_FR', $contentExtractor->getLanguage());
+        $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $contentExtractor->getImage());
+        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+    }
+
+    public function testAvoidDataUriImageInOpenGraph()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/><p>hihi</p></html>',
+            'https://nativead.io/opengraph'
+        );
+
+        $this->assertTrue($res);
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertEmpty($contentExtractor->getImage());
         $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
@@ -1018,6 +1078,18 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         );
 
         $this->assertSame('05/29/2014', $contentExtractor->getDate());
+    }
+
+    public function testJsonLdImageUrlArray()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"], "image": { "@type": "ImageObject", "url": [ "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_4x3.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_16x9.png" ]} }</script><p>hihi</p>',
+            'https://nativead.io/jsonld'
+        );
+
+        $this->assertSame('https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png', $contentExtractor->getImage());
     }
 
     public function testUniqueAuthors()

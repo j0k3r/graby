@@ -1,0 +1,21 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+
+parameters:
+    # https://github.com/phpstan/phpstan/issues/694#issuecomment-350724288
+    autoload_files:
+        - vendor/bin/.phpunit/phpunit-6.5/vendor/autoload.php
+
+    ignoreErrors:
+        # because we check for some HTTP client to exist or not (Guzzle 5/6 & cURL)
+        -
+            message: '#Instantiated class (.*) not found.#'
+            path: %currentWorkingDirectory%/tests/Extractor/HttpClientTest.php
+        -
+            message: '#Http\\Adapter\\Guzzle5\\Client\\|Http\\Adapter\\Guzzle6\\Client\\|Http\\Client\\Curl\\Client given#'
+            path: %currentWorkingDirectory%/tests/Extractor/HttpClientTest.php
+        # because DOMXpath->query can return false
+        -
+            message: '#between false and DOMNodeList will always evaluate to false#'
+            path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php

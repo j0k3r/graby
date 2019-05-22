@@ -36,15 +36,24 @@ That's why I made this fork:
 
 ### Requirements
 
-By default, this lib will use the [Tidy extension](https://github.com/htacg/tidy-html5) if it's available. Tidy is only used to cleanup the given HTML and avoid problems with bad HTML structure, etc .. It'll be suggested by Composer.
+- PHP >= 7.1
+- [Tidy](https://github.com/htacg/tidy-html5) & cURL extensions enabled
 
-Also, if you got problem from parsing a content without Tidy installed, please install it and try again.
+### Installation
+
+Add the lib using [Composer](https://getcomposer.org/):
+
+    composer require j0k3r/graby php-http/guzzle6-adapter
+
+Why `php-http/guzzle6-adapter`? Because Graby is decoupled form any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
+
+Graby is tested & should work great with:
+
+- Guzzle 6 (using `php-http/guzzle6-adapter`)
+- Guzzle 5 (using `php-http/guzzle5-adapter`)
+- cURL (using `php-http/curl-client` and a PSR-17 response factory [from this list](https://packagist.org/providers/psr/http-factory-implementation))
 
 ### Retrieve content from an url
-
-Add the lib using composer:
-
-    composer require j0k3r/graby
 
 Use the class to retrieve content:
 
@@ -63,24 +72,15 @@ array (
   'html' => "Fetched and readable content"
   'title' => "Ben E King: R&B legend dies at 76"
   'language' => "en"
-  'date' => NULL
-  'authors' => array ()
-  'url' => "http://www.bbc.com/news/entertainment-arts-32547474"
-  'content_type' => "text/html"
-  'open_graph' => array (
-    'og_title' => 'Ben E King: R&B legend dies at 76 - BBC News'
-    'og_type' => 'article'
-    'og_description' => 'R&B and soul singer Ben E King, best known for the classic song Stand By Me, dies at the age of 76.'
-    'og_site_name' => 'BBC News'
-    'og_locale' => 'en_GB'
-    'og_article_author' => 'BBC News'
-    'og_article_section' => 'Entertainment & Arts'
-    'og_url' => 'http://www.bbc.com/news/entertainment-arts-32547474'
-    'og_image' => 'http://ichef-1.bbci.co.uk/news/1024/media/images/82695000/jpg/_82695869_kingap.jpg'
+  'date' => "2015-05-01T16:24:37+01:00"
+  'authors' => array(
+    "BBC News"
   )
+  'url' => "http://www.bbc.com/news/entertainment-arts-32547474"
+  'image' => "https://ichef-1.bbci.co.uk/news/720/media/images/82709000/jpg/_82709878_146366806.jpg"
   'summary' => "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
   'native_ad' => false
-  'all_headers' => array (
+  'headers' => array (
     'server' => 'Apache'
     'content-type' => 'text/html; charset=utf-8'
     'x-news-data-centre' => 'cwwtf'
@@ -108,15 +108,14 @@ array(
   'status' => 404
   'html' => "[unable to retrieve full-text content]"
   'title' => "No title found"
-  'language' => NULL
-  'date' => NULL
+  'language' => "en-GB"
+  'date' => "2009-06-16T10:30:00Z"
   'authors' => array()
-  'url' => "http://www.bbc.com/404"
-  'content_type' => "text/html"
-  'open_graph' => array()
+  'url' => "http://www.bbc.co.uk/404"
+  'image' => NULL
   'summary' => "[unable to retrieve full-text content]"
   'native_ad' => false
-  'all_headers' => array()
+  'headers' => array()
 )
 */
 ```
@@ -170,6 +169,39 @@ You can then retrieve logs from graby in your controller using:
 ```php
 $logs = $this->get('monolog.handler.graby')->getRecords();
 ```
+
+### Timeout configuration
+
+If you need to define a timeout, you must create the `Http\Client\HttpClient` manually,
+configure it and inject it to `Graby\Graby`.
+
+- For Guzzle 5:
+
+    ```php
+    use Graby\Graby;
+    use GuzzleHttp\Client as GuzzleClient;
+    use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
+    $guzzle = new GuzzleClient([
+        'defaults' => [
+            'timeout' => 2,
+        ]
+    ]);
+    $graby = new Graby([], new GuzzleAdapter($guzzle));
+    ```
+
+- For Guzzle 6:
+
+    ```php
+    use Graby\Graby;
+    use GuzzleHttp\Client as GuzzleClient;
+    use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
+
+    $guzzle = new GuzzleClient([
+        'timeout' => 2,
+    ]);
+    $graby = new Graby([], new GuzzleAdapter($guzzle));
+    ```
+
 
 ## Full configuration
 
@@ -265,8 +297,6 @@ $graby = new Graby(array(
             "<meta content='!' name='fragment'",
             '<meta content="!" name="fragment"',
         ),
-        // timeout of the request in seconds
-        'timeout' => 10,
         // number of redirection allowed until we assume request won't be complete
         'max_redirect' => 10,
     ),

@@ -26,6 +26,7 @@ class ContentExtractor
     private $language = null;
     private $authors = [];
     private $body = null;
+    private $image = null;
     private $nativeAd = false;
     private $date = null;
     private $success = false;
@@ -251,6 +252,9 @@ class ContentExtractor
             }
         }
 
+        // retrieve info from pre-defined source (OpenGraph / JSON-LD / etc.)
+        $this->extractDefinedInformation($html);
+
         // check if this is a native ad
         foreach ($this->siteConfig->native_ad_clue as $pattern) {
             $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
@@ -306,11 +310,6 @@ class ContentExtractor
                     break;
                 }
             }
-        }
-
-        // use JSON-LD to retrieve information
-        if (false === $this->siteConfig->skip_json_ld) {
-            $this->extractJsonLdInformation($html);
         }
 
         // strip elements (using xpath expressions)
@@ -533,7 +532,7 @@ class ContentExtractor
             $success = $this->readability->init();
         }
 
-        if ($detectTitle && $this->readability->getTitle()) {
+        if ($detectTitle && $this->readability->getTitle()->textContent) {
             $this->title = trim($this->readability->getTitle()->textContent);
             $this->logger->info('Detected title: {title}', ['title' => $this->title]);
         }
@@ -696,6 +695,11 @@ class ContentExtractor
         return $this->language;
     }
 
+    public function getImage()
+    {
+        return $this->image;
+    }
+
     public function getSiteConfig()
     {
         return $this->siteConfig;
@@ -723,7 +727,7 @@ class ContentExtractor
      */
     private function hasElements(\DOMNodeList $elems)
     {
-        return $elems && $elems->length > 0;
+        return $elems->length > 0;
     }
 
     /**
@@ -743,7 +747,7 @@ class ContentExtractor
         }
 
         for ($i = $elems->length - 1; $i >= 0; --$i) {
-            if ($elems->item($i)->parentNode) {
+            if (null !== $elems->item($i) && null !== $elems->item($i)->parentNode) {
                 $elems->item($i)->parentNode->removeChild($elems->item($i));
             }
         }
@@ -826,15 +830,19 @@ class ContentExtractor
     /**
      * Extract title for a given CSS class a node.
      *
-     * @param bool     $detectTitle Do we have to detect title ?
-     * @param string   $cssClass    CSS class to look for
-     * @param \DOMNode $node        DOMNode to look into
-     * @param string   $logMessage
+     * @param bool          $detectTitle Do we have to detect title ?
+     * @param string        $cssClass    CSS class to look for
+     * @param \DOMNode|null $node        DOMNode to look into
+     * @param string        $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
-    private function extractTitle($detectTitle, $cssClass, \DOMNode $node, $logMessage)
+    private function extractTitle($detectTitle, $cssClass, \DOMNode $node = null, $logMessage)
     {
+        if (null === $node) {
+            return true;
+        }
+
         return $this->extractEntityFromQuery(
             'title',
             $detectTitle,
@@ -847,15 +855,19 @@ class ContentExtractor
     /**
      * Extract date for a given CSS class a node.
      *
-     * @param bool     $detectDate Do we have to detect date ?
-     * @param string   $cssClass   CSS class to look for
-     * @param \DOMNode $node       DOMNode to look into
-     * @param string   $logMessage
+     * @param bool          $detectDate Do we have to detect date ?
+     * @param string        $cssClass   CSS class to look for
+     * @param \DOMNode|null $node       DOMNode to look into
+     * @param string        $logMessage
      *
      * @return bool Telling if we have to detect date again or not
      */
-    private function extractDate($detectDate, $cssClass, \DOMNode $node, $logMessage)
+    private function extractDate($detectDate, $cssClass, \DOMNode $node = null, $logMessage)
     {
+        if (null === $node) {
+            return true;
+        }
+
         return $this->extractEntityFromQuery(
             'date',
             $detectDate,
@@ -868,15 +880,19 @@ class ContentExtractor
     /**
      * Extract author.
      *
-     * @param bool     $detectAuthor Do we have to detect author ?
-     * @param \DOMNode $node         DOMNode to look into
+     * @param bool          $detectAuthor Do we have to detect author ?
+     * @param \DOMNode|null $node         DOMNode to look into
      *
      * @return bool Telling if we have to detect author again or not
      */
-    private function extractAuthor($detectAuthor, \DOMNode $node)
+    private function extractAuthor($detectAuthor, \DOMNode $node = null)
     {
         if (false === $detectAuthor) {
             return false;
+        }
+
+        if (null === $node) {
+            return true;
         }
 
         // check for time element with pubdate attribute
@@ -909,17 +925,21 @@ class ContentExtractor
     /**
      * Extract body from a given CSS for a node.
      *
-     * @param bool     $detectBody      Do we have to detect body ?
-     * @param string   $xpathExpression XPath expression to extract body
-     * @param \DOMNode $node            DOMNode to look into
-     * @param string   $type            Format type we are looking for, only used for log message
+     * @param bool          $detectBody      Do we have to detect body ?
+     * @param string        $xpathExpression XPath expression to extract body
+     * @param \DOMNode|null $node            DOMNode to look into
+     * @param string        $type            Format type we are looking for, only used for log message
      *
      * @return bool Telling if we have to detect body again or not
      */
-    private function extractBody($detectBody, $xpathExpression, \DOMNode $node, $type)
+    private function extractBody($detectBody, $xpathExpression, \DOMNode $node = null, $type)
     {
         if (false === $detectBody) {
             return false;
+        }
+
+        if (null === $node) {
+            return true;
         }
 
         // shut up operator as there is no pre-validation possible.
@@ -980,10 +1000,8 @@ class ContentExtractor
                     $this->readability->prepArticle($elem);
                 }
 
-                if ($elem) {
-                    ++$len;
-                    $this->body->appendChild($elem);
-                }
+                ++$len;
+                $this->body->appendChild($elem);
             }
         }
 
@@ -1055,6 +1073,10 @@ class ContentExtractor
             $this->logger->info("{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
             $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
         } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
+            if (null === $elems->item(0)) {
+                return false;
+            }
+
             $entityValue = $returnCallback($elems->item(0)->textContent);
 
             $this->logger->info("{$entity} matched: {{$entity}}", [$entity => $entityValue]);
@@ -1131,25 +1153,122 @@ class ContentExtractor
     }
 
     /**
+     * Extract information from defined source:
+     *     - OpenGraph
+     *     - JSON-LD.
+     *
+     * @param string $html Html from the page
+     */
+    private function extractDefinedInformation($html)
+    {
+        if ('' === trim($html)) {
+            return;
+        }
+
+        libxml_use_internal_errors(true);
+
+        $doc = new \DOMDocument();
+        $doc->loadHTML($html);
+
+        libxml_use_internal_errors(false);
+
+        $xpath = new \DOMXPath($doc);
+
+        $this->extractOpenGraph($xpath);
+        if (false === $this->siteConfig->skip_json_ld) {
+            $this->extractJsonLdInformation($xpath);
+        }
+    }
+
+    /**
+     * Extract OpenGraph data from the response.
+     *
+     * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
+     *
+     * @see http://stackoverflow.com/a/7454737/569101
+     */
+    private function extractOpenGraph(\DOMXPath $xpath)
+    {
+        // retrieve "og:" properties
+        $metas = $xpath->query('//*/meta[starts-with(@property, \'og:\')]');
+
+        $ogMetas = [];
+        foreach ($metas as $meta) {
+            $property = str_replace(':', '_', (string) $meta->getAttribute('property'));
+
+            if (\in_array($property, ['og_image', 'og_image_url', 'og_image_secure_url'], true)) {
+                // avoid image data:uri to avoid sending too much data
+                // also, take the first og:image which is usually the best one
+                if (0 === stripos($meta->getAttribute('content'), 'data:image') || !empty($ogMetas[$property])) {
+                    continue;
+                }
+
+                $ogMetas[$property] = $meta->getAttribute('content');
+
+                continue;
+            }
+
+            $ogMetas[$property] = $meta->getAttribute('content');
+        }
+
+        $this->logger->info('Opengraph "og:" data: {ogData}', ['ogData' => $ogMetas]);
+
+        if (!empty($ogMetas['og_title'])) {
+            $this->title = $ogMetas['og_title'];
+        }
+
+        // og:image by default, then og:image:url and finally og:image:secure_url
+        if (!empty($ogMetas['og_image'])) {
+            $this->image = $ogMetas['og_image'];
+        }
+
+        if (!empty($ogMetas['og_image_url'])) {
+            $this->image = $ogMetas['og_image_url'];
+        }
+
+        if (!empty($ogMetas['og_image_secure_url'])) {
+            $this->image = $ogMetas['og_image_secure_url'];
+        }
+
+        if (!empty($ogMetas['og_locale'])) {
+            $this->language = $ogMetas['og_locale'];
+        }
+
+        // retrieve "article:" properties
+        $metas = $xpath->query('//*/meta[starts-with(@property, \'article:\')]');
+
+        $articleMetas = [];
+        foreach ($metas as $meta) {
+            $articleMetas[str_replace(':', '_', (string) $meta->getAttribute('property'))] = $meta->getAttribute('content');
+        }
+
+        $this->logger->info('Opengraph "article:" data: {ogData}', ['ogData' => $articleMetas]);
+
+        if (!empty($articleMetas['article_modified_time'])) {
+            $this->date = $articleMetas['article_modified_time'];
+        }
+
+        if (!empty($articleMetas['article_published_time'])) {
+            $this->date = $articleMetas['article_published_time'];
+        }
+    }
+
+    /**
      * Extract data from JSON-LD information.
      *
-     * @param string $html Full page HTML
+     * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
      *
      * @see https://json-ld.org/spec/latest/json-ld/
      */
-    private function extractJsonLdInformation($html)
+    private function extractJsonLdInformation(\DOMXPath $xpath)
     {
-        preg_match_all('/<script type\=\"application\/ld\+json\"\>([\s\S]*?)<\/script>/i', $html, $matches);
-
-        if (!isset($matches[1])) {
-            return;
-        }
+        $scripts = $xpath->query('//*/script[@type="application/ld+json"]');
 
         $ignoreNames = [];
         $candidateNames = [];
 
-        foreach ($matches[1] as $matche) {
-            $data = json_decode(trim($matche), true);
+        foreach ($scripts as $script) {
+            $data = json_decode(trim($script->nodeValue), true);
 
             if (isset($data['@type']) && \in_array($data['@type'], ['Organization', 'WebSite', 'Person'], true)) {
                 if (isset($data['name'])) {
@@ -1161,12 +1280,12 @@ class ContentExtractor
             $this->logger->info('JSON-LD data: {JsonLdData}', ['JsonLdData' => $data]);
 
             // just in case datePublished isn't defined, we use the modified one at first
-            if (isset($data['dateModified'])) {
+            if (!empty($data['dateModified'])) {
                 $this->date = $data['dateModified'];
                 $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
             }
 
-            if (isset($data['datePublished'])) {
+            if (!empty($data['datePublished'])) {
                 $this->date = $data['datePublished'];
                 $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
             }
@@ -1178,21 +1297,21 @@ class ContentExtractor
             }
 
             // body should be a DOMNode
-            if (isset($data['articlebody'])) {
+            if (!empty($data['articlebody'])) {
                 $dom = new \DOMDocument('1.0', 'utf-8');
                 $this->body = $dom->createElement('p', htmlspecialchars(trim($data['articlebody'])));
                 $this->logger->info('body matched from JsonLd: {body}', ['body' => $this->body]);
             }
 
-            if (isset($data['headline'])) {
+            if (!empty($data['headline'])) {
                 $candidateNames[] = $data['headline'];
             }
 
-            if (isset($data['name'])) {
+            if (!empty($data['name'])) {
                 $candidateNames[] = $data['name'];
             }
 
-            if (isset($data['author']['name'])) {
+            if (!empty($data['author']['name'])) {
                 $authors = $data['author']['name'];
 
                 if (false === \is_array($authors)) {
@@ -1202,6 +1321,15 @@ class ContentExtractor
                 foreach ($authors as $author) {
                     $this->addAuthor($author);
                     $this->logger->info('author matched from JsonLd: {author}', ['author' => $author]);
+                }
+            }
+
+            if (!empty($data['image']['url'])) {
+                $this->image = $data['image']['url'];
+
+                // some people use ImageObject url field as an array instead of a string...
+                if (\is_array($data['image']['url'])) {
+                    $this->image = current($data['image']['url']);
                 }
             }
         }
