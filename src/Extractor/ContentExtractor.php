@@ -591,9 +591,15 @@ class ContentExtractor
             }
 
             // prevent self-closing iframes
-            foreach ($this->body->getElementsByTagName('iframe') as $e) {
-                if (!$e->hasChildNodes()) {
-                    $e->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
+            if ('iframe' === $this->body->tagName) {
+                if (!$this->body->hasChildNodes()) {
+                    $this->body->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
+                }
+            } else {
+                foreach ($this->body->getElementsByTagName('iframe') as $e) {
+                    if (!$e->hasChildNodes()) {
+                        $e->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
+                    }
                 }
             }
 
@@ -748,7 +754,11 @@ class ContentExtractor
 
         for ($i = $elems->length - 1; $i >= 0; --$i) {
             if (null !== $elems->item($i) && null !== $elems->item($i)->parentNode) {
-                $elems->item($i)->parentNode->removeChild($elems->item($i));
+                if ($elems->item($i) instanceof \DOMAttr) {
+                    $elems->item($i)->parentNode->removeAttributeNode($elems->item($i));
+                } else {
+                    $elems->item($i)->parentNode->removeChild($elems->item($i));
+                }
             }
         }
     }
