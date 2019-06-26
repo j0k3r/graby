@@ -514,13 +514,6 @@ class ContentExtractor
             'Date found (datetime marked time element): {date}'
         );
 
-        foreach ($this->siteConfig->strip_attr as $pattern) {
-            $this->logger->info('Trying {pattern} to strip attribute', ['pattern' => $pattern]);
-            $elems = $this->xpath->query($pattern, $this->readability->dom);
-
-            $this->removeAttributes($elems, 'Stripping {length} attributes (strip_attr)');
-        }
-
         // still missing title or body, so we detect using Readability
         $success = false;
         if ($detectTitle || $detectBody) {
@@ -753,31 +746,15 @@ class ContentExtractor
         }
 
         for ($i = $elems->length - 1; $i >= 0; --$i) {
-            if (null !== $elems->item($i) && null !== $elems->item($i)->parentNode) {
-                if ($elems->item($i) instanceof \DOMAttr) {
-                    $elems->item($i)->parentNode->removeAttributeNode($elems->item($i));
+            $item = $elems->item($i);
+
+            if (null !== $item && null !== $item->parentNode) {
+                if ($item instanceof \DOMAttr) {
+                    $item->ownerElement->removeAttributeNode($item);
                 } else {
-                    $elems->item($i)->parentNode->removeChild($elems->item($i));
+                    $item->parentNode->removeChild($item);
                 }
             }
-        }
-    }
-
-    /**
-     * Remove attribute from owners.
-     *
-     * @param \DOMNodeList $elems
-     * @param string       $logMessage
-     */
-    private function removeAttributes(\DOMNodeList $elems, $logMessage = null)
-    {
-        if (null !== $logMessage) {
-            $this->logger->info($logMessage, ['length' => $elems->length]);
-        }
-
-        foreach ($elems as $el) {
-            $owner = $el->ownerElement;
-            $owner->removeAttributeNode($el);
         }
     }
 

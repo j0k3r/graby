@@ -286,7 +286,7 @@ class ConfigBuilder
     public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
     {
         // check for commands where we accept multiple statements (no test_url)
-        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'date', 'author', 'strip_attr'] as $var) {
+        foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'date', 'author'] as $var) {
             // append array elements for this config variable from $newConfig to this config
             $currentConfig->$var = array_unique(array_merge($currentConfig->$var, $newConfig->$var));
         }

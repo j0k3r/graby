@@ -29,9 +29,6 @@ class SiteConfig
     // Strip elements matching these xpath expressions (0 or more)
     public $strip = [];
 
-    // Strip attributes matching these xpath expressions (0 or more)
-    public $strip_attr = [];
-
     // Attribute used to replace lazyload image (like `data-lazy-src`)
     public $src_lazy_load_attr = null;
 
