@@ -501,7 +501,7 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $config = new SiteConfig();
-        $config->strip_attr = $patterns;
+        $config->strip = $patterns;
 
         $res = $contentExtractor->process(
             $html,

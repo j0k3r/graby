@@ -60,7 +60,7 @@ class ConfigBuilderTest extends TestCase
             'cookie' => 'GDPR_consent=1',
         ];
         $configExpected->date = ['foo'];
-        $configExpected->strip_attr = ['@class', '@style'];
+        $configExpected->strip = ['@class', '@style'];
         $configExpected->single_page_link = ['//canonical'];
         $configExpected->if_page_contains = [
             'single_page_link' => [
