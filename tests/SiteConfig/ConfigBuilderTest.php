@@ -250,4 +250,28 @@ class ConfigBuilderTest extends TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
     }
+
+    /**
+     * Ensure merging config multiples times doesn't generate duplicate in replace_string / find_string.
+     */
+    public function testMergeConfigMultipleTimes()
+    {
+        $configBuilder = new ConfigBuilder([
+            'site_config' => [__DIR__ . '/../fixtures/site_config'],
+        ]);
+
+        $config1 = new SiteConfig();
+        $config1->find_string = ['toto'];
+        $config1->replace_string = ['titi'];
+
+        $config2 = new SiteConfig();
+        $config2->find_string = ['papa'];
+        $config2->replace_string = ['popo'];
+
+        $config3 = $configBuilder->mergeConfig($config1, $config2);
+        $config4 = $configBuilder->mergeConfig($config3, $config2);
+
+        $this->assertCount(2, $config4->find_string);
+        $this->assertCount(2, $config4->replace_string);
+    }
 }
