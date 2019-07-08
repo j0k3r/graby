@@ -31,13 +31,15 @@ class ContentExtractor
     private $date = null;
     private $success = false;
     private $nextPageUrl;
+    /** @var LoggerInterface */
     private $logger;
+    /** @var ConfigBuilder */
     private $configBuilder;
 
     /**
      * @param array                $config
      * @param LoggerInterface|null $logger
-     * @param ConfigBuilder        $configBuilder
+     * @param ConfigBuilder|null   $configBuilder
      */
     public function __construct($config = [], LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
     {
@@ -69,15 +71,8 @@ class ContentExtractor
 
         $this->config = $resolver->resolve($config);
 
-        $this->logger = $logger;
-        if (null === $logger) {
-            $this->logger = new NullLogger();
-        }
-
-        $this->configBuilder = $configBuilder;
-        if (null === $this->configBuilder) {
-            $this->configBuilder = new ConfigBuilder($this->config['config_builder'], $this->logger);
-        }
+        $this->logger = null === $logger ? new NullLogger() : $logger;
+        $this->configBuilder = null === $configBuilder ? new ConfigBuilder($this->config['config_builder'], $this->logger) : $configBuilder;
     }
 
     public function setLogger(LoggerInterface $logger)

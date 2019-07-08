@@ -19,3 +19,5 @@ parameters:
         -
             message: '#between false and DOMNodeList will always evaluate to false#'
             path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
+
+    inferPrivatePropertyTypeFromConstructor: true

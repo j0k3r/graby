@@ -28,6 +28,7 @@ use TrueBV\Punycode;
 class Graby
 {
     private $debug = false;
+    /** @var LoggerInterface */
     private $logger;
     private $logLevel = 'info';
 
@@ -43,9 +44,9 @@ class Graby
     private $imgNoReferrer = false;
 
     /**
-     * @param array         $config
-     * @param Client|null   $client        Http client
-     * @param ConfigBuilder $configBuilder
+     * @param array              $config
+     * @param Client|null        $client        Http client
+     * @param ConfigBuilder|null $configBuilder
      */
     public function __construct($config = [], Client $client = null, ConfigBuilder $configBuilder = null)
     {
