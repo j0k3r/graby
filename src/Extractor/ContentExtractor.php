@@ -66,6 +66,7 @@ class ContentExtractor
                 'data-original',
                 'data-sources',
                 'data-hi-res-src',
+                'data-srcset',
             ],
         ]);
 
