@@ -200,6 +200,13 @@ class SiteConfig
     public bool $skip_json_ld = false;
 
     /**
+     * Strip attributes matching these XPath expressions after content extraction.
+     *
+     * @var string[]
+     */
+    public array $post_strip_attr = [];
+
+    /**
      * Wrap elements matching these xpath expressions with the specified tag (associative array).
      *
      * @var array<string, string>
@@ -225,7 +232,6 @@ class SiteConfig
      * Used if undeclared.
      */
     protected string $default_parser = 'libxml';
-
     /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
      */
