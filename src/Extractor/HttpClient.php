@@ -28,19 +28,21 @@ class HttpClient
     private HttpMethodsClient $client;
     private LoggerInterface $logger;
     private History $responseHistory;
+    private ?ContentExtractor $extractor;
 
     /**
      * @param Client $client Http client
-     * @param array  $config
      */
-    public function __construct(Client $client, $config = [], LoggerInterface $logger = null)
+    public function __construct(Client $client, array $config = [], LoggerInterface $logger = null, ContentExtractor $extractor = null)
     {
         $this->config = new HttpClientConfig($config);
 
         if (null === $logger) {
             $logger = new NullLogger();
         }
+
         $this->logger = $logger;
+        $this->extractor = $extractor;
 
         $this->responseHistory = new History();
         $this->client = new HttpMethodsClient(
@@ -200,6 +202,10 @@ class HttpClient
             foreach ($matchesConditional as $conditionalComment) {
                 $body = str_replace($conditionalComment, '', $body);
             }
+        }
+
+        if (null !== $this->extractor) {
+            $body = $this->extractor->processStringReplacements($body, $effectiveUrl);
         }
 
         // check for <meta name='fragment' content='!'/>
