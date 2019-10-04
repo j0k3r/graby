@@ -298,7 +298,6 @@ class GrabyFunctionalTest extends TestCase
 
         $this->assertSame(200, $res['status']);
         $this->assertContains('Radeon HD 7750/7770', $res['title']);
-        $this->assertContains('Radeon HD 7750/7770', $res['summary']);
         // which should be on the page 6
         $this->assertContains('2560x1600', $res['html']);
         $this->assertContains('text/html', $res['headers']['content-type']);
