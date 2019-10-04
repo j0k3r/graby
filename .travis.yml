@@ -38,7 +38,7 @@ before_install:
     - if [ "$CURL" = "run" ]; then composer require zendframework/zend-diactoros --dev -n ; fi;
 
 install:
-    - composer install --no-interaction --prefer-dist -o
+    - composer up --no-interaction --prefer-dist -o
 
 script:
     - mkdir -p build/logs
