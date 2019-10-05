@@ -45,7 +45,7 @@ Add the lib using [Composer](https://getcomposer.org/):
 
     composer require j0k3r/graby php-http/guzzle6-adapter
 
-Why `php-http/guzzle6-adapter`? Because Graby is decoupled form any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
+Why `php-http/guzzle6-adapter`? Because Graby is decoupled from any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
 
 Graby is tested & should work great with:
 
