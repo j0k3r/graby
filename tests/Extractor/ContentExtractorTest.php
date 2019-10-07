@@ -316,13 +316,13 @@ class ContentExtractorTest extends TestCase
     {
         return [
             // good time format
-            ['//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'],
+            ['//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01T00:00:00+01:00'],
             // bad time format, null result
             ['//time[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">date</time></html>', null],
             // bad pattern but good @pubdate
-            ['//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'],
+            ['//date[@pubdate or @pubDate]', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01T00:00:00+01:00'],
             // good time format
-            ['string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01'],
+            ['string(//time[@pubdate or @pubDate])', '<html><time pubdate="2015-01-01">2015-01-01</time></html>', '2015-01-01T00:00:00+01:00'],
         ];
     }
 
@@ -572,7 +572,7 @@ class ContentExtractorTest extends TestCase
                 '<p class="entry-content">' . str_repeat('this is the best part of the show', 10) . '</p>',
                 [
                     'title' => 'hello !',
-                    'date' => '2015-01-01',
+                    'date' => '2015-01-01T00:00:00+01:00',
                     'authors' => ['hello !'],
                 ],
             ],
@@ -981,7 +981,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $content_block = $contentExtractor->getContent();
 
         $this->assertSame('title !!', $contentExtractor->getTitle());
-        $this->assertSame('2017-10-23T17:04:21Z-09:00', $contentExtractor->getDate());
+        $this->assertSame('2017-10-23T17:04:21+00:00', $contentExtractor->getDate());
         $this->assertSame('fr_FR', $contentExtractor->getLanguage());
         $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $contentExtractor->getImage());
         $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
@@ -1077,7 +1077,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             'https://nativead.io/jsonld'
         );
 
-        $this->assertSame('05/29/2014', $contentExtractor->getDate());
+        $this->assertSame('2014-05-29T00:00:00+02:00', $contentExtractor->getDate());
     }
 
     public function testJsonLdImageUrlArray()
