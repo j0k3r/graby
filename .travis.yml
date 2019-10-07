@@ -40,6 +40,9 @@ before_install:
 install:
     - composer up --no-interaction --prefer-dist -o
 
+before_script:
+    - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
 script:
     - mkdir -p build/logs
     - php vendor/bin/simple-phpunit -v $PHPUNIT_FLAGS

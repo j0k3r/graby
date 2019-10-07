@@ -716,7 +716,7 @@ class ContentExtractor
             return null;
         }
 
-        return (new \DateTime($date))->format(\DateTimeInterface::W3C);
+        return (new \DateTime($date))->format(\DateTime::W3C);
     }
 
     protected function addAuthor($authorDirty)
