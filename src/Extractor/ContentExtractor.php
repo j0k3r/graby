@@ -526,22 +526,7 @@ class ContentExtractor
             $this->logger->info('Detected title: {title}', ['title' => $this->title]);
         }
 
-        $parseDate = date_parse($this->date);
-
-        // If no year has been found during date_parse, we nuke the whole value
-        // because the date is invalid
-        if (null !== $this->date && false === $parseDate['year']) {
-            $this->logger->info('Date is bad (wrong year): {date}', ['date' => $this->date]);
-
-            $this->date = null;
-        }
-
-        // in case the date can't be converted we assume it's a wrong date
-        if (null !== $this->date && 0 > strtotime($this->date) || false === strtotime($this->date)) {
-            $this->logger->info('Date is bad (strtotime failed): {date}', ['date' => $this->date]);
-
-            $this->date = null;
-        }
+        $this->date = $this->validateDate($this->date);
 
         if ($this->date) {
             $this->logger->info('Detected date: {date}', ['date' => $this->date]);
@@ -703,6 +688,35 @@ class ContentExtractor
     public function getNextPageUrl()
     {
         return $this->nextPageUrl;
+    }
+
+    /**
+     * Validate and convert a date to the W3C format.
+     *
+     * @param string $date
+     *
+     * @return string|null Formatted date using the W3C format (Y-m-d\TH:i:sP) OR null if the date is badly formatted
+     */
+    public function validateDate($date)
+    {
+        $parseDate = date_parse($date);
+
+        // If no year has been found during date_parse, we nuke the whole value
+        // because the date is invalid
+        if (null !== $date && false === $parseDate['year']) {
+            $this->logger->info('Date is bad (wrong year): {date}', ['date' => $date]);
+
+            return null;
+        }
+
+        // in case the date can't be converted we assume it's a wrong date
+        if (null !== $date && 0 > strtotime($date) || false === strtotime($date)) {
+            $this->logger->info('Date is bad (strtotime failed): {date}', ['date' => $date]);
+
+            return null;
+        }
+
+        return (new \DateTime($date))->format(\DateTime::W3C);
     }
 
     protected function addAuthor($authorDirty)

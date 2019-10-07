@@ -654,9 +654,9 @@ class Graby
 
             if (isset($details['CreationDate'])) {
                 if (\is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
-                    $infos['date'] = $details['CreationDate'][0];
+                    $infos['date'] = $this->extractor->validateDate($details['CreationDate'][0]);
                 } elseif (\is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
-                    $infos['date'] = $details['CreationDate'];
+                    $infos['date'] = $this->extractor->validateDate($details['CreationDate']);
                 }
             }
         }
