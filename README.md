@@ -1,5 +1,5 @@
 <p align="center">
-    <img width="600" height="180" src="https://raw.githubusercontent.com/j0k3r/graby/master/art/logo.png" alt="Graby" />
+    <img width="400" height="144" src="/art/logo.png" alt="Graby logo" />
 </p>
 
 # Graby
