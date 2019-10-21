@@ -1,3 +1,7 @@
+<p align="center">
+    <img width="400" height="144" src="/art/logo.png" alt="Graby logo" />
+</p>
+
 # Graby
 
 [![Join the chat at https://gitter.im/j0k3r/graby](https://badges.gitter.im/j0k3r/graby.svg)](https://gitter.im/j0k3r/graby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -7,7 +11,7 @@
 [![License](https://poser.pugx.org/j0k3r/graby/license)](https://packagist.org/packages/j0k3r/graby)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/j0k3r/graby/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/j0k3r/graby/?branch=master)
 
-Graby helps you extract article content from web pages.
+Graby helps you extract article content from web pages – created by [Jérémy](https://twitter.com/j0k), logo by [Caneco](https://twitter.com/caneco)
 
 - it's based on [php-readability](https://github.com/j0k3r/php-readability)
 - it uses [site_config](http://help.fivefilters.org/customer/portal/articles/223153-site-patterns) to extract content from websites
