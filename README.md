@@ -1,17 +1,22 @@
-<p align="center">
-    <img width="400" height="144" src="/art/logo.png" alt="Graby logo" />
-</p>
+<div align="center">
+    <br>
+    <img width="400" height="144" src="https://user-images.githubusercontent.com/62333/67490348-5dfc5280-f673-11e9-9b3d-584e6cbeb9e2.png" alt="Graby logo" />
+    <br>
+    <br>
+    <br>
+    <br>
+</div>
 
-# Graby
+> **Graby** helps you extract article content from web pages
 
 [![Join the chat at https://gitter.im/j0k3r/graby](https://badges.gitter.im/j0k3r/graby.svg)](https://gitter.im/j0k3r/graby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/j0k3r/graby.svg?branch=master)](https://travis-ci.org/j0k3r/graby)
 [![Coverage Status](https://coveralls.io/repos/j0k3r/graby/badge.svg?branch=master&service=github)](https://coveralls.io/github/j0k3r/graby?branch=master)
-[![Total Downloads](https://poser.pugx.org/j0k3r/graby/downloads)](https://packagist.org/packages/j0k3r/graby)
+[![Total Downloads](https://img.shields.io/packagist/dt/j0k3r/graby.svg)](https://packagist.org/packages/j0k3r/graby)
 [![License](https://poser.pugx.org/j0k3r/graby/license)](https://packagist.org/packages/j0k3r/graby)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/j0k3r/graby/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/j0k3r/graby/?branch=master)
 
-Graby helps you extract article content from web pages – created by [Jérémy](https://twitter.com/j0k), logo by [Caneco](https://twitter.com/caneco)
+Graby helps you extract article content from web pages
 
 - it's based on [php-readability](https://github.com/j0k3r/php-readability)
 - it uses [site_config](http://help.fivefilters.org/customer/portal/articles/223153-site-patterns) to extract content from websites
@@ -336,3 +341,8 @@ $graby = new Graby(array(
     ),
 ));
 ```
+
+## Credits
+
+- [FiveFilters](https://github.com/fivefilters) for [Full-Text-RSS](https://fivefilters.org/content-only/)
+- [Caneco](https://twitter.com/caneco) for the awesome logo ✨
