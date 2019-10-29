@@ -1250,6 +1250,19 @@ class ContentExtractor
         }
     }
 
+    private function extractAuthorsFromJsonLdArray(array $authors) {
+        if(isset($authors['name'])) {
+            return $authors['name'];
+        }
+        $authorNames = array_map(function($author) {
+            if(isset($author['name']) && is_string($author['name'])) {
+                return $author['name'];
+            }
+            return false;
+        }, $authors);
+        return $authorNames;
+    }
+
     /**
      * Extract data from JSON-LD information.
      *
@@ -1308,8 +1321,9 @@ class ContentExtractor
                 $candidateNames[] = $data['name'];
             }
 
-            if (!empty($data['author']['name'])) {
-                $authors = $data['author']['name'];
+            if (!empty($data['author'])) {
+                $authors = is_array($data['author']) ?
+                    $this->extractAuthorsFromJsonLdArray($data['author']) : $data['author'];
 
                 if (false === \is_array($authors)) {
                     $authors = [$authors];
