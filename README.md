@@ -7,8 +7,6 @@
     <br>
 </div>
 
-> **Graby** helps you extract article content from web pages
-
 [![Join the chat at https://gitter.im/j0k3r/graby](https://badges.gitter.im/j0k3r/graby.svg)](https://gitter.im/j0k3r/graby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/j0k3r/graby.svg?branch=master)](https://travis-ci.org/j0k3r/graby)
 [![Coverage Status](https://coveralls.io/repos/j0k3r/graby/badge.svg?branch=master&service=github)](https://coveralls.io/github/j0k3r/graby?branch=master)
