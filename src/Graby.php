@@ -44,9 +44,8 @@ class Graby
     private $imgNoReferrer = false;
 
     /**
-     * @param array              $config
-     * @param Client|null        $client        Http client
-     * @param ConfigBuilder|null $configBuilder
+     * @param array       $config
+     * @param Client|null $client Http client
      */
     public function __construct($config = [], Client $client = null, ConfigBuilder $configBuilder = null)
     {
@@ -128,8 +127,6 @@ class Graby
 
     /**
      * Redefine all loggers.
-     *
-     * @param LoggerInterface $logger
      */
     public function setLogger(LoggerInterface $logger)
     {

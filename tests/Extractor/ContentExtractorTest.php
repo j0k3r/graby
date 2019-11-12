@@ -946,6 +946,23 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
+    public function testJsonLdWithMultipleAuthors()
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":[{"@type":"Person","name":"Elisa Thevenet"},{"@type":"Person","name":"Humphrey Bogart"}]}</script>',
+            'https://nativead.io/jsonld'
+        );
+
+        $content_block = $contentExtractor->getContent();
+
+        $this->assertSame([
+            'Elisa Thevenet',
+            'Humphrey Bogart',
+        ], $contentExtractor->getAuthors());
+    }
+
     public function testNoDefinedHtml()
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);

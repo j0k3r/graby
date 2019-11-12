@@ -1192,7 +1192,7 @@ HTML
             [
                 'https://www.liberation.fr/planete/2017/04/05/donald-trump-et-xi-jinping-tentative-de-flirt-en-floride_1560768',
                 'liberation-authors.html',
-                ['Raphaël Balenieri, correspondant à Pékin', 'Frédéric Autran, correspondant à New York'],
+                ['Raphaël Balenieri', 'Frédéric Autran'],
             ],
         ];
     }

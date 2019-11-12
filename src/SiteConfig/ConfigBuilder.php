@@ -16,8 +16,7 @@ class ConfigBuilder
     private $cache = [];
 
     /**
-     * @param array                $config
-     * @param LoggerInterface|null $logger
+     * @param array $config
      */
     public function __construct($config = [], LoggerInterface $logger = null)
     {
@@ -335,8 +334,6 @@ class ConfigBuilder
 
     /**
      * Parse line from the config file to build the config.
-     *
-     * @param array $lines
      *
      * @return SiteConfig
      */

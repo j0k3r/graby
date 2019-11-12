@@ -43,9 +43,8 @@ class HttpClient
     private $responseHistory;
 
     /**
-     * @param Client               $client Http client
-     * @param array                $config
-     * @param LoggerInterface|null $logger
+     * @param Client $client Http client
+     * @param array  $config
      */
     public function __construct(Client $client, $config = [], LoggerInterface $logger = null)
     {
@@ -566,8 +565,6 @@ class HttpClient
     /**
      * Format all headers to avoid unecessary array level.
      * Also lower the header name.
-     *
-     * @param ResponseInterface $response
      *
      * @return array
      */
