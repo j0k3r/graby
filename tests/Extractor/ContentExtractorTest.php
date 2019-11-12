@@ -958,8 +958,8 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $content_block = $contentExtractor->getContent();
 
         $this->assertSame([
-            "Elisa Thevenet",
-            "Humphrey Bogart"
+            'Elisa Thevenet',
+            'Humphrey Bogart',
         ], $contentExtractor->getAuthors());
     }
 

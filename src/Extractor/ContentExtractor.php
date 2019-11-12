@@ -37,9 +37,7 @@ class ContentExtractor
     private $configBuilder;
 
     /**
-     * @param array                $config
-     * @param LoggerInterface|null $logger
-     * @param ConfigBuilder|null   $configBuilder
+     * @param array $config
      */
     public function __construct($config = [], LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
     {
@@ -730,8 +728,6 @@ class ContentExtractor
     /**
      * Check if given node list exists and has length more than 0.
      *
-     * @param \DOMNodeList $elems
-     *
      * @return bool
      */
     private function hasElements(\DOMNodeList $elems)
@@ -742,8 +738,7 @@ class ContentExtractor
     /**
      * Remove elements.
      *
-     * @param \DOMNodeList $elems
-     * @param string       $logMessage
+     * @param string $logMessage
      */
     private function removeElements(\DOMNodeList $elems, $logMessage = null)
     {
@@ -1250,17 +1245,22 @@ class ContentExtractor
         }
     }
 
-    private function extractAuthorsFromJsonLdArray(array $authors) {
-        if(isset($authors['name'])) {
+    /**
+     * Clean extract of JSON-LD authors.
+     */
+    private function extractAuthorsFromJsonLdArray(array $authors)
+    {
+        if (isset($authors['name'])) {
             return $authors['name'];
         }
-        $authorNames = array_map(function($author) {
-            if(isset($author['name']) && is_string($author['name'])) {
+
+        return array_map(function ($author) {
+            if (isset($author['name']) && \is_string($author['name'])) {
                 return $author['name'];
             }
+
             return false;
         }, $authors);
-        return $authorNames;
     }
 
     /**
@@ -1322,8 +1322,7 @@ class ContentExtractor
             }
 
             if (!empty($data['author'])) {
-                $authors = is_array($data['author']) ?
-                    $this->extractAuthorsFromJsonLdArray($data['author']) : $data['author'];
+                $authors = \is_array($data['author']) ? $this->extractAuthorsFromJsonLdArray($data['author']) : $data['author'];
 
                 if (false === \is_array($authors)) {
                     $authors = [$authors];
