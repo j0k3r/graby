@@ -5,7 +5,7 @@ includes:
 parameters:
     # https://github.com/phpstan/phpstan/issues/694#issuecomment-350724288
     autoload_files:
-        - vendor/bin/.phpunit/phpunit-7.4/vendor/autoload.php
+        - vendor/bin/.phpunit/phpunit-7.4-0/vendor/autoload.php
 
     ignoreErrors:
         # because we check for some HTTP client to exist or not (Guzzle 5/6 & cURL)
