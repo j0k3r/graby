@@ -12,7 +12,7 @@ use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
-use Http\Client\Exception\RequestException;
+use Http\Client\Exception\TransferException;
 use Http\Client\HttpClient as Client;
 use Http\Discovery\MessageFactoryDiscovery;
 use Psr\Http\Message\ResponseInterface;
@@ -168,10 +168,14 @@ class HttpClient
                 // Too many Redirects
                 'status' => 310,
             ];
-        } catch (RequestException $e) {
+        } catch (TransferException $e) {
+            if (method_exists($e, 'getRequest')) {
+                $url = (string) $e->getRequest()->getUri();
+            }
+
             // no response attached to the exception, we won't be able to retrieve content from it
             $data = [
-                'effective_url' => (string) $e->getRequest()->getUri(),
+                'effective_url' => $url,
                 'body' => '',
                 'headers' => [],
                 'status' => 500,
@@ -184,7 +188,7 @@ class HttpClient
                 $headers = $this->formatHeaders($response);
 
                 $data = [
-                    'effective_url' => (string) $e->getRequest()->getUri(),
+                    'effective_url' => $url,
                     'body' => (string) $response->getBody(),
                     'headers' => $headers,
                     'status' => $response->getStatusCode(),
