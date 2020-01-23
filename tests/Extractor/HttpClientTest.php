@@ -137,6 +137,11 @@ class HttpClientTest extends TestCase
                 'http://www.bernama.com/bernama/v6/newsindex.php?id=943513',
             ],
             [
+                'https://www.google.com/url?sa=t&source=web&rct=j&url=https://databox.com/google-my-business-seo',
+                '<html><meta content="0;url=https://databox.com/google-my-business-seo" http-equiv="refresh"></html>',
+                'https://databox.com/google-my-business-seo',
+            ],
+            [
                 'http://www.example.com/wiki/Copyright',
                 '<html><meta HTTP-EQUIV="REFRESH" content="0; url=/bernama/v6/newsindex.php?id=943513"></html>',
                 'http://www.example.com/bernama/v6/newsindex.php?id=943513',

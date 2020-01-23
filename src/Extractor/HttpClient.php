@@ -515,7 +515,10 @@ class HttpClient
 
         // <meta HTTP-EQUIV="REFRESH" content="0; url=http://www.bernama.com/bernama/v6/newsindex.php?id=943513">
         if (!preg_match('!<meta http-equiv=["\']?refresh["\']? content=["\']?[0-9];\s*url=["\']?([^"\'>]+)["\']?!i', $html, $match)) {
-            return false;
+            // let's try in a reverse mode (switch content & http-equiv attributes)
+            if (!preg_match('!<meta content=["\']?[0-9];\s*url=["\']?([^"\'>]+)["\']? http-equiv=["\']?refresh["\']?!i', $html, $match)) {
+                return false;
+            }
         }
 
         $redirectUrl = str_replace('&amp;', '&', trim($match[1]));
