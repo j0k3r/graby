@@ -24,7 +24,6 @@
         "symfony/options-resolver": "~2.6|~3.0|~4.0",
         "monolog/monolog": "^1.13.1",
         "smalot/pdfparser": "~0.11",
-        "wallabag/tcpdf": "^6.2.26",
         "true/punycode": "~2.1",
         "psr/http-message": "^1.0",
         "php-http/httplug": "^2.0",
