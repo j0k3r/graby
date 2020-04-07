@@ -1344,6 +1344,25 @@ HTML
     }
 
     /**
+     * @see https://github.com/j0k3r/graby/issues/223
+     */
+    public function testWithTooLongHtmlJitFail()
+    {
+        $graby = $this->getGrabyWithMock(
+            '/fixtures/content/blog-oracle.html',
+            200,
+            [
+                'debug' => true,
+            ]
+        );
+        $res = $graby->fetchContent('https://blogs.oracle.com/dave/java-contended-annotation-to-help-reduce-false-sharing');
+
+        $this->assertCount(11, $res);
+        $this->assertNotSame('[unable to retrieve full-text content]', $res['summary']);
+        $this->assertNotSame('No title found', $res['title']);
+    }
+
+    /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
      */
     private function getGrabyWithMock($filePath, $status = 200, array $grabyConfig = [])
