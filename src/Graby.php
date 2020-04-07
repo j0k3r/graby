@@ -305,14 +305,19 @@ class Graby
 
         $this->logger->debug('Fetched HTML', ['html' => $html]);
 
-        // Remove empty lines to avoid runaway evaluation of following regex
-        // on badly coded websites
+        // Remove empty lines to avoid runaway evaluation of following regex on badly coded websites
         $re = '/^[ \t]*[\r\n]+/m';
-        $html = preg_replace($re, '', $html);
+        $htmlCleaned = preg_replace($re, '', $html);
 
         // Remove empty nodes (except iframe)
         $re = '/<(?!iframe)([^>\s]+)[^>]*>(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;|\s)*<\/\1>/m';
-        $html = preg_replace($re, '', (string) $html);
+        $html = preg_replace($re, '', (string) $htmlCleaned);
+
+        // in case html string is too long, keep the html uncleaned to avoid empty html
+        if (PREG_JIT_STACKLIMIT_ERROR === preg_last_error()) {
+            $html = $htmlCleaned;
+            $this->logger->debug('Failed to properly clean HTML from empty nodes');
+        }
 
         $this->logger->debug('HTML after regex empty nodes stripping', ['html' => $html]);
 
