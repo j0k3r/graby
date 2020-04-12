@@ -169,30 +169,9 @@ class ContentExtractor
     {
         $this->reset();
 
-        $this->siteConfig = $siteConfig;
-        if (null === $this->siteConfig) {
-            $this->siteConfig = $this->buildSiteConfig($url, $html);
-        }
+        $this->prepareSiteConfig($html, $url, $siteConfig);
 
-        // add lazyload information from siteconfig
-        if ($this->siteConfig->src_lazy_load_attr && !\in_array($this->siteConfig->src_lazy_load_attr, $this->config['src_lazy_load_attributes'], true)) {
-            $this->config['src_lazy_load_attributes'][] = $this->siteConfig->src_lazy_load_attr;
-        }
-
-        $this->logger->debug('Actual site config', ['siteConfig' => $this->siteConfig]);
-
-        // do string replacements
-        if (!empty($this->siteConfig->find_string)) {
-            if (\count($this->siteConfig->find_string) === \count($this->siteConfig->replace_string)) {
-                $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $count);
-                $this->logger->info('Strings replaced: {count} (find_string and/or replace_string)', ['count' => $count]);
-            } else {
-                $this->logger->info('Skipped string replacement - incorrect number of find-replace strings in site config');
-            }
-            unset($count);
-        }
-
-        $this->logger->debug('HTML after site config strings replacements', ['html' => $html]);
+        $html = $this->processStringReplacements($html, $url, $siteConfig);
 
         // load and parse html
         $parser = $this->siteConfig->parser();
@@ -643,6 +622,32 @@ class ContentExtractor
         return $this->success;
     }
 
+    /**
+     * Process string replacements in the $html body.
+     *
+     * @param SiteConfig $siteConfig Will avoid to recalculate the site config
+     *
+     * @return string $html with replacements performed
+     */
+    public function processStringReplacements(string $html, string $url, ?SiteConfig $siteConfig = null)
+    {
+        // We repeat this step from process(), so this method can be called on its own
+        $this->prepareSiteConfig($html, $url, $siteConfig);
+
+        if (!empty($this->siteConfig->find_string)) {
+            if (\count($this->siteConfig->find_string) === \count($this->siteConfig->replace_string)) {
+                $html = str_replace($this->siteConfig->find_string, $this->siteConfig->replace_string, $html, $count);
+                $this->logger->info('Strings replaced: {count} (find_string and/or replace_string)', ['count' => $count]);
+            } else {
+                $this->logger->info('Skipped string replacement - incorrect number of find-replace strings in site config');
+            }
+            unset($count);
+        }
+        $this->logger->debug('HTML after site config strings replacements', ['html' => $html]);
+
+        return $html;
+    }
+
     public function getContent()
     {
         return $this->body;
@@ -723,6 +728,32 @@ class ContentExtractor
         if (!\in_array($author, $this->authors, true)) {
             $this->authors[] = $author;
         }
+    }
+
+    /**
+     * Set and prepare the SiteConfig, or get a default.
+     * If a siteConfig is already set and no prepare site config is passed, this is a noop.
+     *
+     * @param string     $html
+     * @param string     $url
+     * @param SiteConfig $siteConfig Will avoid to recalculate the site config
+     */
+    private function prepareSiteConfig($html, $url, ?SiteConfig $siteConfig = null) : void
+    {
+        if (null !== $this->siteConfig && null === $siteConfig) {
+            return;
+        }
+        $this->siteConfig = $siteConfig;
+        if (null === $this->siteConfig) {
+            $this->siteConfig = $this->buildSiteConfig($url, $html);
+        }
+
+        // add lazyload information from siteconfig
+        if ($this->siteConfig->src_lazy_load_attr && !\in_array($this->siteConfig->src_lazy_load_attr, $this->config['src_lazy_load_attributes'], true)) {
+            $this->config['src_lazy_load_attributes'][] = $this->siteConfig->src_lazy_load_attr;
+        }
+
+        $this->logger->debug('Actual site config', ['siteConfig' => $this->siteConfig]);
     }
 
     /**

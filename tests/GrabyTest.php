@@ -71,7 +71,7 @@ class GrabyTest extends TestCase
 
             $test = (string) file_get_contents($file->getRealpath());
 
-            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*-----PARSED_CONTENT-----\s*(.*)/sx', $test, $match);
+            preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*(------RAW_CONTENT2-----\s*(.*?)\s*)?----PARSED_CONTENT-----\s*(.*)\s*/sx', $test, $match);
 
             $tests[] = [
                 $match[1], // url
@@ -82,7 +82,8 @@ class GrabyTest extends TestCase
                 $match[6], // title
                 $match[7], // summary
                 $match[8], // raw content
-                $match[9], // parsed content
+                $match[10], // raw content2
+                $match[11], // parsed content
             ];
         }
 
@@ -92,11 +93,28 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent)
-    {
+    public function testFetchContent($url,
+        $urlEffective,
+        $header,
+        $language,
+        $author,
+        $title,
+        $summary,
+        $rawContent,
+        $rawContent2,
+        $parsedContent
+    ) {
         $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
-        $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => $header],
+            $rawContent)
+        );
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => $header],
+            (!empty($rawContent2)) ? $rawContent2 : $rawContent)
+        );
 
         $graby = new Graby([
             'xss_filter' => false,
@@ -113,21 +131,27 @@ class GrabyTest extends TestCase
 
         $this->assertCount(11, $res);
 
+        $this->assertSame($urlEffective, $res['url'], 'Same url');
+        $this->assertSame($title, $res['title'], 'Same title');
+        $this->assertSame($summary, $res['summary'], 'Same summary');
+
         if ($language) {
             $this->assertSame($language, $res['language']);
         } else {
-            $this->assertEmpty($res['language']);
+            $this->assertEmpty(
+                $res['language'],
+                'language not empty; got ' . $res['language']
+            );
         }
 
         if ($author) {
             $this->assertSame([$author], $res['authors']);
         } else {
-            $this->assertEmpty($res['authors']);
+            $this->assertEmpty(
+                $res['authors'],
+                'authors not empty; got ' . $res['language']
+            );
         }
-
-        $this->assertSame($urlEffective, $res['url'], 'Same url');
-        $this->assertSame($title, $res['title'], 'Same title');
-        $this->assertSame($summary, $res['summary'], 'Same summary');
 
         $this->assertSame($parsedContent, $res['html'], 'Same html');
 

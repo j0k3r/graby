@@ -65,8 +65,8 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('Trying using method "{method}" on url "{url}"', $records[13]['message']);
         $this->assertSame('get', $records[13]['context']['method']);
         $this->assertSame('Use default referer "{referer}" for url "{url}"', $records[15]['message']);
-        $this->assertSame('Data fetched: {data}', $records[16]['message']);
-        $this->assertSame('Looking for site config files to see if single page link exists', $records[18]['message']);
+        $this->assertSame('Data fetched: {data}', $records[18]['message']);
+        $this->assertSame('Looking for site config files to see if single page link exists', $records[20]['message']);
     }
 
     public function testRealFetchContent2()
