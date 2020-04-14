@@ -1,20 +1,20 @@
+dist: xenial
+os: linux
 language: php
 
 php:
     - 7.1
-    - 7.2
-    - 7.3
     - 7.4
     - nightly
 
 # run build against nightly but allow them to fail
-matrix:
+jobs:
     fast_finish: true
     allow_failures:
         - php: nightly
     # only one build will send the coverage, this'll speed up other one
     include:
-        - php: 7.2
+        - php: 7.3
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
         - php: 7.2
           env: GUZZLE5=run
