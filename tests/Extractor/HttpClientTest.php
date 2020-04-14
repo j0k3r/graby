@@ -178,6 +178,21 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
+    public function testFetchGetWithHeaderRefresh()
+    {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html', 'refresh' => '0; url=http://example.com/my-new-map.html'], ''));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'data'));
+
+        $http = new HttpClient($httpMockClient);
+        $res = $http->fetch('http://example.com/my-map.html');
+
+        $this->assertSame('http://example.com/my-new-map.html', $res['effective_url']);
+        $this->assertSame('data', $res['body']);
+        $this->assertSame('text/html', $res['headers']['content-type']);
+        $this->assertSame(200, $res['status']);
+    }
+
     public function testWith404ResponseWithResponse()
     {
         $httpMockClient = new HttpMockClient();

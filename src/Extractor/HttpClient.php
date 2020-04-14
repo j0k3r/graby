@@ -209,6 +209,11 @@ class HttpClient
 
         $headers = $this->formatHeaders($response);
 
+        // if response give us a refresh header it means we need to follow the given url
+        if (!empty($headers['refresh']) && 1 === preg_match('![0-9];\s*url=["\']?([^"\'>]+)!i', $headers['refresh'], $match)) {
+            return $this->fetch($match[1], true, $httpHeader);
+        }
+
         // the response content-type did not match our 'header only' types,
         // but we'd issues a HEAD request because we assumed it would. So
         // let's queue a proper GET request for this item...
