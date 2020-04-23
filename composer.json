@@ -1,6 +1,7 @@
 {
     "name": "j0k3r/graby",
     "description": "Graby helps you extract article content from web pages",
+    "type": "library",
     "license": "MIT",
     "authors": [{
         "name": "Jeremy Benoist",
