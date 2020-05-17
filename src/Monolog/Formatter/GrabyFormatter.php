@@ -18,9 +18,9 @@ class GrabyFormatter extends HtmlFormatter
      *
      * @param array $record A record to format
      *
-     * @return mixed The formatted record
+     * @return string The formatted record
      */
-    public function format(array $record)
+    public function format(array $record): string
     {
         $output = '<table cellspacing="1" width="100%" class="monolog-output">';
 
@@ -47,7 +47,7 @@ class GrabyFormatter extends HtmlFormatter
         return $output . '</table>';
     }
 
-    protected function convertToString($data)
+    protected function convertToString($data): string
     {
         if (\is_bool($data)) {
             return $data ? '(bool) true' : '(bool) false';
