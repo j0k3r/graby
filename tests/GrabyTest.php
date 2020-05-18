@@ -17,7 +17,7 @@ class GrabyTest extends TestCase
      */
     const AN_IPV4 = '93.184.216.34';
 
-    public function testConstructDefault()
+    public function testConstructDefault(): void
     {
         $graby = new Graby(['debug' => true]);
 
@@ -25,18 +25,17 @@ class GrabyTest extends TestCase
         $this->assertSame('info', $graby->getConfig('log_level'));
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage No config found for key:
-     */
-    public function testGetBadConfig()
+    public function testGetBadConfig(): void
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No config found for key:');
+
         $graby = new Graby();
 
         $graby->getConfig('does_not_exists');
     }
 
-    public function dataForConfigOverride()
+    public function dataForConfigOverride(): array
     {
         return [
             ['http_client', ['http_client' => ['rewrite_url' => ['dummy.io' => ['/foo' => '/bar'], 'docs.google.com' => ['/foo' => '/bar']]]]],
@@ -46,7 +45,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForConfigOverride
      */
-    public function testConfigOverride($key, $config)
+    public function testConfigOverride(string $key, array $config): void
     {
         $graby = new Graby($config);
 
@@ -56,7 +55,7 @@ class GrabyTest extends TestCase
     /**
      * Parsing method inspired from Twig_Test_IntegrationTestCase.
      */
-    public function dataForFetchContent()
+    public function dataForFetchContent(): array
     {
         $tests = [];
 
@@ -92,7 +91,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForFetchContent
      */
-    public function testFetchContent($url, $urlEffective, $header, $language, $author, $title, $summary, $rawContent, $parsedContent)
+    public function testFetchContent(string $url, string $urlEffective, string $header, string $language, string $author, string $title, string $summary, string $rawContent, string $parsedContent): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
@@ -131,11 +130,11 @@ class GrabyTest extends TestCase
 
         $this->assertSame($parsedContent, $res['html'], 'Same html');
 
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
         $this->assertFalse($res['native_ad']);
     }
 
-    public function dataForAllowed()
+    public function dataForAllowed(): array
     {
         return [
             ['feed://wikipedia.org', 'http://wikipedia.org'],
@@ -146,7 +145,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForAllowed
      */
-    public function testAllowedUrls($url, $urlChanged)
+    public function testAllowedUrls(string $url, string $urlChanged): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(301, ['Location' => $urlChanged]));
@@ -161,7 +160,7 @@ class GrabyTest extends TestCase
         $this->assertSame($res['url'], $urlChanged);
     }
 
-    public function dataForBlocked()
+    public function dataForBlocked(): array
     {
         return [
             ['feed://lexpress.fr'],
@@ -171,12 +170,12 @@ class GrabyTest extends TestCase
 
     /**
      * @dataProvider dataForBlocked
-     *
-     * @expectedException \Exception
-     * @expectedExceptionMessage is not allowed to be parsed.
      */
-    public function testBlockedUrls($url)
+    public function testBlockedUrls(string $url): void
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('is not allowed to be parsed.');
+
         $graby = new Graby([
             'blocked_urls' => ['t411.io', 'lexpress.fr'],
         ]);
@@ -184,7 +183,7 @@ class GrabyTest extends TestCase
         $graby->fetchContent($url);
     }
 
-    public function dataForNotValid()
+    public function dataForNotValid(): array
     {
         return [
             ['http://lexpress devant.fr'],
@@ -195,21 +194,20 @@ class GrabyTest extends TestCase
 
     /**
      * @dataProvider dataForNotValid
-     *
-     * @expectedException \InvalidArgumentException
      */
-    public function testNotValidUrls($url)
+    public function testNotValidUrls(string $url): void
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $graby = new Graby();
         $graby->fetchContent($url);
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage is not allowed to be parsed.
-     */
-    public function testBlockedUrlsAfterFetch()
+    public function testBlockedUrlsAfterFetch(): void
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('is not allowed to be parsed.');
+
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200));
 
@@ -220,7 +218,7 @@ class GrabyTest extends TestCase
         $graby->fetchContent('t411.io');
     }
 
-    public function testMimeTypeActionLink()
+    public function testMimeTypeActionLink(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpeg']));
@@ -240,12 +238,11 @@ class GrabyTest extends TestCase
         $this->assertFalse($res['native_ad']);
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage is blocked by mime action.
-     */
-    public function testMimeTypeActionExclude()
+    public function testMimeTypeActionExclude(): void
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('is blocked by mime action.');
+
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(
             200,
@@ -269,7 +266,7 @@ class GrabyTest extends TestCase
         $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
     }
 
-    public function dataForExtension()
+    public function dataForExtension(): array
     {
         return [
             ['http://example.com/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://example.com/test.jpg"><img src="http://example.com/test.jpg" alt="Image" /></a>'],
@@ -279,7 +276,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForExtension
      */
-    public function testAssetExtension($url, $header, $title, $summary, $html)
+    public function testAssetExtension(string $url, string $header, string $title, string $summary, string $html): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(
@@ -304,7 +301,7 @@ class GrabyTest extends TestCase
         $this->assertFalse($res['native_ad']);
     }
 
-    public function testAssetExtensionPDF()
+    public function testAssetExtensionPDF(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(
@@ -320,16 +317,16 @@ class GrabyTest extends TestCase
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('Document1', $res['title']);
-        $this->assertContains('Document title', $res['html']);
-        $this->assertContains('Morbi vulputate tincidunt ve nenatis.', $res['html']);
-        $this->assertContains('http://example.com/test.pdf', $res['url']);
-        $this->assertContains('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
+        $this->assertStringContainsString('Document title', $res['html']);
+        $this->assertStringContainsString('Morbi vulputate tincidunt ve nenatis.', $res['html']);
+        $this->assertStringContainsString('http://example.com/test.pdf', $res['url']);
+        $this->assertStringContainsString('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
         $this->assertSame('application/pdf', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
-    public function testAssetExtensionZIP()
+    public function testAssetExtensionZIP(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(
@@ -352,13 +349,13 @@ class GrabyTest extends TestCase
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('ZIP', $res['title']);
-        $this->assertContains('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
+        $this->assertStringContainsString('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
         $this->assertSame('application/zip', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
-    public function testAssetExtensionPDFWithArrayDetails()
+    public function testAssetExtensionPDFWithArrayDetails(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(
@@ -375,15 +372,15 @@ class GrabyTest extends TestCase
         $this->assertSame('2013-09-01T22:20:38+02:00', $res['date']);
         $this->assertSame(['Sebastien MALOT'], $res['authors']);
         $this->assertSame('Document1', $res['title']);
-        $this->assertContains('orem ipsum dolor sit amet', $res['html']);
-        $this->assertContains('http://example.com/test.pdf', $res['url']);
-        $this->assertContains('orem ipsum dolor sit amet', $res['summary']);
+        $this->assertStringContainsString('orem ipsum dolor sit amet', $res['html']);
+        $this->assertStringContainsString('http://example.com/test.pdf', $res['url']);
+        $this->assertStringContainsString('orem ipsum dolor sit amet', $res['summary']);
         $this->assertSame('application/pdf', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
-    public function testAssetExtensionTXT()
+    public function testAssetExtensionTXT(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/plain'], 'plain text :)'));
@@ -403,7 +400,7 @@ class GrabyTest extends TestCase
         $this->assertFalse($res['native_ad']);
     }
 
-    public function dataForSinglePage()
+    public function dataForSinglePage(): array
     {
         return [
             'single_page_link will return a string (ie the text content of <a> node)' => ['singlepage1.com', 'http://singlepage1.com/printed view', 'http://moreintelligentlife.com/print/content'],
@@ -418,7 +415,7 @@ class GrabyTest extends TestCase
      * @group dns-sensitive
      * @dataProvider dataForSinglePage
      */
-    public function testSinglePage($url, $expectedUrl, $singlePageUrl)
+    public function testSinglePage(string $url, string $expectedUrl, string $singlePageUrl): void
     {
         DnsMock::withMockedHosts([
             'singlepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
@@ -457,7 +454,7 @@ HTML
         $this->assertSame('my content', $res['html']);
         $this->assertSame($expectedUrl, $res['url']);
         $this->assertSame('my content', $res['summary']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
@@ -465,7 +462,7 @@ HTML
     /**
      * @group dns-sensitive
      */
-    public function testSinglePageMimeAction()
+    public function testSinglePageMimeAction(): void
     {
         DnsMock::withMockedHosts([
             'singlepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
@@ -503,7 +500,7 @@ HTML
     /**
      * @group dns-sensitive
      */
-    public function testMultiplePageOk()
+    public function testMultiplePageOk(): void
     {
         DnsMock::withMockedHosts([
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
@@ -532,7 +529,7 @@ HTML
         $this->assertSame('my content<div class="story">my content</div>', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content my content', $res['summary']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
@@ -540,7 +537,7 @@ HTML
     /**
      * @group dns-sensitive
      */
-    public function testMultiplePageMimeAction()
+    public function testMultiplePageMimeAction(): void
     {
         DnsMock::withMockedHosts([
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
@@ -566,7 +563,7 @@ HTML
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
-        $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
         $this->assertSame('application/pdf', $res['headers']['content-type']);
@@ -577,7 +574,7 @@ HTML
     /**
      * @group dns-sensitive
      */
-    public function testMultiplePageExtractFailed()
+    public function testMultiplePageExtractFailed(): void
     {
         DnsMock::withMockedHosts([
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
@@ -603,10 +600,10 @@ HTML
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
-        $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
@@ -614,7 +611,7 @@ HTML
     /**
      * @group dns-sensitive
      */
-    public function testMultiplePageBadAbsoluteUrl()
+    public function testMultiplePageBadAbsoluteUrl(): void
     {
         DnsMock::withMockedHosts([
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
@@ -645,10 +642,10 @@ HTML
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
-        $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
@@ -656,7 +653,7 @@ HTML
     /**
      * @group dns-sensitive
      */
-    public function testMultiplePageSameUrl()
+    public function testMultiplePageSameUrl(): void
     {
         DnsMock::withMockedHosts([
             'multiplepage1.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
@@ -682,15 +679,15 @@ HTML
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('my title', $res['title']);
-        $this->assertContains('This article appears to continue on subsequent pages which we could not extract', $res['html']);
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
         $this->assertSame('http://multiplepage1.com', $res['url']);
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
-    public function dataForExcerpt()
+    public function dataForExcerpt(): array
     {
         return [
             ['hello you are fine', 35, null, 'hello you are fine'],
@@ -708,7 +705,7 @@ HTML
     /**
      * @dataProvider dataForExcerpt
      */
-    public function testGetExcerpt($text, $length, $separator, $expectedResult)
+    public function testGetExcerpt(string $text, int $length, ?string $separator, string $expectedResult): void
     {
         $graby = new Graby();
 
@@ -721,7 +718,7 @@ HTML
         $this->assertSame($expectedResult, $res);
     }
 
-    public function dataForMakeAbsoluteStr()
+    public function dataForMakeAbsoluteStr(): array
     {
         return [
             ['example.org', '/test', false],
@@ -734,8 +731,10 @@ HTML
 
     /**
      * @dataProvider dataForMakeAbsoluteStr
+     *
+     * @param string|false $expectedResult
      */
-    public function testMakeAbsoluteStr($base, $url, $expectedResult)
+    public function testMakeAbsoluteStr(string $base, string $url, $expectedResult): void
     {
         $graby = new Graby();
 
@@ -748,7 +747,7 @@ HTML
         $this->assertSame($expectedResult, $res);
     }
 
-    public function dataForMakeAbsoluteAttr()
+    public function dataForMakeAbsoluteAttr(): array
     {
         return [
             ['http://example.org', '<a href="/lol">test</a>', 'href', 'href', 'http://example.org/lol'],
@@ -763,7 +762,7 @@ HTML
     /**
      * @dataProvider dataForMakeAbsoluteAttr
      */
-    public function testMakeAbsoluteAttr($base, $string, $attr, $expectedAttr, $expectedResult)
+    public function testMakeAbsoluteAttr(string $base, string $string, string $attr, string $expectedAttr, string $expectedResult): void
     {
         $graby = new Graby();
 
@@ -782,7 +781,7 @@ HTML
         $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
 
-    public function dataForMakeAbsolute()
+    public function dataForMakeAbsolute(): array
     {
         return [
             ['http://example.org', '<a href="/lol">test</a>', 'href', 'http://example.org/lol'],
@@ -796,7 +795,7 @@ HTML
     /**
      * @dataProvider dataForMakeAbsolute
      */
-    public function testMakeAbsolute($base, $string, $expectedAttr, $expectedResult)
+    public function testMakeAbsolute(string $base, string $string, string $expectedAttr, string $expectedResult): void
     {
         $graby = new Graby();
 
@@ -818,7 +817,7 @@ HTML
     /**
      * Test on nested element: image inside a link.
      */
-    public function testMakeAbsoluteMultiple()
+    public function testMakeAbsoluteMultiple(): void
     {
         $graby = new Graby();
 
@@ -839,7 +838,7 @@ HTML
         $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->attributes->getNamedItem('src')->nodeValue);
     }
 
-    public function testContentLinksRemove()
+    public function testContentLinksRemove(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(
@@ -855,15 +854,15 @@ HTML
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame('No title found', $res['title']);
-        $this->assertContains('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res['html']);
+        $this->assertStringContainsString('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res['html']);
         $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }
 
-    public function testMimeActionNotDefined()
+    public function testMimeActionNotDefined(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'application/pdf']));
@@ -883,7 +882,7 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
-    public function dataForSafeCurl()
+    public function dataForSafeCurl(): array
     {
         return [
             ['http://0.0.0.0:123'],
@@ -900,7 +899,7 @@ HTML
     /**
      * @dataProvider dataForSafeCurl
      */
-    public function testBlockedUrlBySafeCurl($url)
+    public function testBlockedUrlBySafeCurl(string $url): void
     {
         $graby = new Graby();
         $res = $graby->fetchContent($url);
@@ -916,7 +915,7 @@ HTML
         $this->assertSame(500, $res['status']);
     }
 
-    public function testErrorMessages()
+    public function testErrorMessages(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], 'yay'));
@@ -939,7 +938,7 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
-    public function dataWithAccent()
+    public function dataWithAccent(): array
     {
         return [
             'host with accent' => ['http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien', 'http://xn--protin-bva.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'],
@@ -952,7 +951,7 @@ HTML
     /**
      * @dataProvider dataWithAccent
      */
-    public function testUrlWithAccent($url, $urlExpected)
+    public function testUrlWithAccent(string $url, string $urlExpected): void
     {
         $graby = new Graby();
 
@@ -965,7 +964,7 @@ HTML
         $this->assertSame($urlExpected, $res);
     }
 
-    public function dataForCleanupHtml()
+    public function dataForCleanupHtml(): array
     {
         return [
             'nothing' => [
@@ -1002,7 +1001,7 @@ HTML
     /**
      * @dataProvider dataForCleanupHtml
      */
-    public function testCleanupHtml($html, $expected, $withLog = false)
+    public function testCleanupHtml(string $html, string $expected, bool $withLog = false): void
     {
         $logger = new Logger('foo');
         $handler = new TestHandler();
@@ -1022,7 +1021,7 @@ HTML
         }
     }
 
-    public function testEncodingUtf8ForTextPlainPage()
+    public function testEncodingUtf8ForTextPlainPage(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/malformed_UTF8_characters.txt');
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
@@ -1031,17 +1030,17 @@ HTML
         $this->assertTrue(false !== json_encode($res['html']), json_last_error_msg());
     }
 
-    public function testEmptyNodesRemoved()
+    public function testEmptyNodesRemoved(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/framablog.html');
         $res = $graby->fetchContent('https://framablog.org/2017/12/02/avancer-ensemble-vers-la-contribution/');
 
         // The initial treatment was encapsulating the content into the empty node
         // So we don't want to see that again
-        $this->assertNotContains('<figure><p>Après un <em>icebreaker</em>', $res['html']);
+        $this->assertStringNotContainsString('<figure><p>Après un <em>icebreaker</em>', $res['html']);
     }
 
-    public function testMetaAuthor()
+    public function testMetaAuthor(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/keithjgrant.html');
         $res = $graby->fetchContent('https://keithjgrant.com/posts/2018/06/resilient-declarative-contextual/');
@@ -1053,7 +1052,7 @@ HTML
         $this->assertEquals('Keith J. Grant', $authors[0]);
     }
 
-    public function testJsonLd()
+    public function testJsonLd(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/20minutes-jsonld.html');
         $res = $graby->fetchContent('http://www.20minutes.fr/sport/football/2155935-20171022-stade-rennais-portugais-paulo-fonseca-remplacer-christian-gourcuff');
@@ -1078,7 +1077,7 @@ HTML
         $this->assertSame('Jeremy Goujon', $res['authors'][0]);
     }
 
-    public function testKeepOlStartAttribute()
+    public function testKeepOlStartAttribute(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/timothysykes-keepol.html');
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
@@ -1098,20 +1097,20 @@ HTML
         $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(200, $res['status']);
-        $this->assertContains('<ol start="2">', $res['html']);
-        $this->assertContains('<ol start="3">', $res['html']);
-        $this->assertContains('<ol start="4">', $res['html']);
+        $this->assertStringContainsString('<ol start="2">', $res['html']);
+        $this->assertStringContainsString('<ol start="3">', $res['html']);
+        $this->assertStringContainsString('<ol start="4">', $res['html']);
     }
 
-    public function testContentWithXSS()
+    public function testContentWithXSS(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/gist-xss.html');
         $res = $graby->fetchContent('https://gist.githubusercontent.com/nicosomb/94d1e08c42baff9184c313d638de1195/raw/d63b0bc99225604a9f4b57bfea1cd7a538c8ceeb/gistfile1.txt');
 
-        $this->assertNotContains('<script>', $res['html']);
+        $this->assertStringNotContainsString('<script>', $res['html']);
     }
 
-    public function testBadUrl()
+    public function testBadUrl(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);
         $res = $graby->fetchContent('https://bjori.blogspot.com/201');
@@ -1140,7 +1139,7 @@ HTML
         $this->assertEmpty($res['image']);
     }
 
-    public function dataDate()
+    public function dataDate(): array
     {
         return [
             [
@@ -1159,7 +1158,7 @@ HTML
     /**
      * @dataProvider dataDate
      */
-    public function testDate($url, $file, $expectedDate)
+    public function testDate(string $url, string $file, string $expectedDate): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/' . $file);
         $res = $graby->fetchContent($url);
@@ -1181,7 +1180,7 @@ HTML
         $this->assertSame($expectedDate, $res['date']);
     }
 
-    public function dataAuthors()
+    public function dataAuthors(): array
     {
         return [
             [
@@ -1200,7 +1199,7 @@ HTML
     /**
      * @dataProvider dataAuthors
      */
-    public function testAuthors($url, $file, $expectedAuthors)
+    public function testAuthors(string $url, string $file, array $expectedAuthors): void
     {
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/' . $file,
@@ -1235,7 +1234,7 @@ HTML
     /**
      * Validated using the site_config in "tests/fixtures".
      */
-    public function testIfPageContainsWithSinglePageLink()
+    public function testIfPageContainsWithSinglePageLink(): void
     {
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/timothysykes-keepol.html',
@@ -1270,7 +1269,7 @@ HTML
     /**
      * Validated using the site_config in "tests/fixtures".
      */
-    public function testIfPageContainsWithNextPageLink()
+    public function testIfPageContainsWithNextPageLink(): void
     {
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/rollingstone.html',
@@ -1303,7 +1302,7 @@ HTML
         $this->assertSame(200, $res['status']);
     }
 
-    public function testImgNoReferrer()
+    public function testImgNoReferrer(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(
@@ -1346,7 +1345,7 @@ HTML
     /**
      * @see https://github.com/j0k3r/graby/issues/223
      */
-    public function testWithTooLongHtmlJitFail()
+    public function testWithTooLongHtmlJitFail(): void
     {
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/blog-oracle.html',
@@ -1365,7 +1364,7 @@ HTML
     /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
      */
-    private function getGrabyWithMock($filePath, $status = 200, array $grabyConfig = [])
+    private function getGrabyWithMock(string $filePath, int $status = 200, array $grabyConfig = []): Graby
     {
         $response = new Response(
             $status,

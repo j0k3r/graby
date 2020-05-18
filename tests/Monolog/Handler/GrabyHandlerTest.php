@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class GrabyHandlerTest extends TestCase
 {
-    public function testFormat()
+    public function testFormat(): void
     {
         $handler = new GrabyHandler();
         $handler->handle([

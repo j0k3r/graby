@@ -7,12 +7,10 @@ php:
     - 7.4
     - nightly
 
-# run build against nightly but allow them to fail
 jobs:
     fast_finish: true
     allow_failures:
         - php: nightly
-    # only one build will send the coverage, this'll speed up other one
     include:
         - php: 7.3
           env: PHPUNIT_FLAGS="--coverage-clover build/logs/clover.xml" CS_FIXER=run
@@ -20,18 +18,18 @@ jobs:
           env: GUZZLE5=run
         - php: 7.2
           env: CURL=run
+        - php: 7.2
+          env: COMPOSER_FLAGS="--prefer-lowest"
 
-# cache vendor dirs
 cache:
     directories:
-        - vendor
-        - $HOME/.composer/cache
+        - $HOME/.composer/cache/files
 
 before_install:
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
 
     # because php-coveralls require Guzzle 6
-    - if [ "$GUZZLE5" = "run" ]; then composer remove php-coveralls/php-coveralls php-http/guzzle6-adapter --dev -n ; fi;
+    - if [ "$GUZZLE5" = "run" ]; then composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n ; fi;
     - if [ "$GUZZLE5" = "run" ]; then composer require php-http/guzzle5-adapter '^2.0' --dev -n ; fi;
 
     - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
@@ -39,7 +37,7 @@ before_install:
     - if [ "$CURL" = "run" ]; then composer require zendframework/zend-diactoros --dev -n ; fi;
 
 install:
-    - composer up --no-interaction --prefer-dist -o
+    - composer update --prefer-dist --no-progress --no-suggest -o $COMPOSER_FLAGS
 
 before_script:
     - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
@@ -53,5 +51,8 @@ script:
 after_success:
     - |
         if [[ "$PHPUNIT_FLAGS" != "" ]]; then
-            travis_retry php vendor/bin/php-coveralls -v -x build/logs/clover.xml
+            wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar
+            chmod +x php-coveralls.phar
+
+            php php-coveralls.phar -v -x build/logs/clover.xml
         fi

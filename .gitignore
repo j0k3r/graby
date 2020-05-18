@@ -4,3 +4,4 @@ log/graby.log
 log/html.log
 composer.lock
 .php_cs.cache
+.phpunit.result.cache
