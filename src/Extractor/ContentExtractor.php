@@ -623,6 +623,13 @@ class ContentExtractor
             $this->success = true;
         }
 
+        foreach ($this->siteConfig->post_strip_attr as $pattern) {
+            $this->logger->log('debug', 'Trying {pattern} to strip attribute', ['pattern' => $pattern]);
+            $elems = $this->xpath->query($pattern, $this->body);
+
+            $this->removeAttributes($elems, 'Stripping {length} attributes (post_strip_attr)');
+        }
+
         // if we've had no success and we've used tidy, there's a chance
         // that tidy has messed up. So let's try again without tidy...
         if (!$this->success && $tidied && $smartTidy) {

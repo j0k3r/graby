@@ -140,6 +140,9 @@ class SiteConfig
      */
     public $skip_json_ld = false;
 
+    // Strip attributes matching these xpath expressions (0 or more) after content extraction (post-processing)
+    public $post_strip_attr = [];
+
     protected $default_tidy = true; // used if undeclared
     protected $default_autodetect_on_failure = true; // used if undeclared
     protected $default_prune = true; // used if undeclared
