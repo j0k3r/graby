@@ -10,16 +10,17 @@ use PHPUnit\Framework\TestCase;
 
 class ContentExtractorTest extends TestCase
 {
+    /** @var array */
     protected static $contentExtractorConfig;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$contentExtractorConfig = ['config_builder' => [
             'site_config' => [__DIR__ . '/../fixtures/site_config'],
         ]];
     }
 
-    public function testConstructDefault()
+    public function testConstructDefault(): void
     {
         $contentExtractor = new ContentExtractor(['config_builder' => ['site_config' => [__DIR__]]]);
         $contentExtractor->reset();
@@ -34,7 +35,7 @@ class ContentExtractorTest extends TestCase
         $this->assertNull($contentExtractor->getNextPageUrl());
     }
 
-    public function dataFingerPrints()
+    public function dataFingerPrints(): array
     {
         return [
             'blogger double quote' => [
@@ -57,7 +58,7 @@ class ContentExtractorTest extends TestCase
      *
      * @dataProvider dataFingerPrints
      */
-    public function testFingerPrints($html, $fingerprints)
+    public function testFingerPrints(string $html, string $fingerprints): void
     {
         $contentExtractor = new ContentExtractor([
             'config_builder' => ['site_config' => [__DIR__]],
@@ -74,12 +75,12 @@ class ContentExtractorTest extends TestCase
 
     /**
      * With a non-existent config directory, it fails.
-     *
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage directory does not exist
      */
-    public function testBuildSiteConfigUnknownSite()
+    public function testBuildSiteConfigUnknownSite(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('directory does not exist');
+
         $contentExtractor = new ContentExtractor(['config_builder' => [
             'site_config' => [__DIR__ . '/../../wrong_site_config'],
         ]]);
@@ -89,7 +90,7 @@ class ContentExtractorTest extends TestCase
     /**
      * With a good configuration, SiteConfig must have some value defined.
      */
-    public function testBuildSiteConfig()
+    public function testBuildSiteConfig(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
         $res = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
@@ -112,7 +113,7 @@ class ContentExtractorTest extends TestCase
     /**
      * Multiple call to a same SiteConfig will use the cached version.
      */
-    public function testBuildSiteConfigCached()
+    public function testBuildSiteConfigCached(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
         $res = $contentExtractor->buildSiteConfig('https://nofailure.io/wiki/Metallica');
@@ -128,7 +129,7 @@ class ContentExtractorTest extends TestCase
     /**
      * Test both fingerprint and custom SiteConfig for wordpress.
      */
-    public function testWithFingerPrints()
+    public function testWithFingerPrints(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -145,7 +146,7 @@ class ContentExtractorTest extends TestCase
     /**
      * Test config find_string / replace_string.
      */
-    public function testProcessFindString()
+    public function testProcessFindString(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -164,7 +165,7 @@ class ContentExtractorTest extends TestCase
 
         $content_block = $contentExtractor->getContent();
 
-        $this->assertContains('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
         $this->assertCount(1, $contentExtractor->getAuthors());
         $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
     }
@@ -173,7 +174,7 @@ class ContentExtractorTest extends TestCase
      * Test config find_string / replace_string.
      * But with a count different between the two, so replacement will be skipped.
      */
-    public function testProcessFindStringBadCount()
+    public function testProcessFindStringBadCount(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -192,10 +193,10 @@ class ContentExtractorTest extends TestCase
 
         $content_block = $contentExtractor->getContent();
 
-        $this->assertContains('<iframe src="">[embedded content]</iframe>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<iframe src="">[embedded content]</iframe>', $content_block->ownerDocument->saveXML($content_block));
     }
 
-    public function dataForNextPage()
+    public function dataForNextPage(): array
     {
         return [
             // return the link as string
@@ -210,7 +211,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForNextPage
      */
-    public function testExtractNextPageLink($pattern, $html, $urlExpected)
+    public function testExtractNextPageLink(string $pattern, string $html, string $urlExpected): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -226,7 +227,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($urlExpected, $contentExtractor->getNextPageUrl());
     }
 
-    public function dataForTitle()
+    public function dataForTitle(): array
     {
         return [
             // return the link as string
@@ -239,7 +240,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForTitle
      */
-    public function testExtractTitle($pattern, $html, $titleExpected)
+    public function testExtractTitle(string $pattern, string $html, string $titleExpected): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -255,7 +256,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($titleExpected, $contentExtractor->getTitle());
     }
 
-    public function dataForAuthor()
+    public function dataForAuthor(): array
     {
         return [
             // return author node
@@ -270,7 +271,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForAuthor
      */
-    public function testExtractAuthor($pattern, $html, $authorExpected)
+    public function testExtractAuthor(string $pattern, string $html, array $authorExpected): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -286,7 +287,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($authorExpected, $contentExtractor->getAuthors());
     }
 
-    public function dataForLanguage()
+    public function dataForLanguage(): array
     {
         return [
             ['<html><meta name="DC.language" content="en" />from <a rel="author" href="/user8412228">CaTV</a></html>', 'en'],
@@ -297,7 +298,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForLanguage
      */
-    public function testExtractLanguage($html, $languageExpected)
+    public function testExtractLanguage(string $html, string $languageExpected): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -312,7 +313,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($languageExpected, $contentExtractor->getLanguage());
     }
 
-    public function dataForDate()
+    public function dataForDate(): array
     {
         return [
             // good time format
@@ -329,7 +330,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForDate
      */
-    public function testExtractDate($pattern, $html, $dateExpected)
+    public function testExtractDate(string $pattern, string $html, ?string $dateExpected): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -345,7 +346,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($dateExpected, $contentExtractor->getDate());
     }
 
-    public function dataForStrip()
+    public function dataForStrip(): array
     {
         return [
             // strip nav element and keep only the p
@@ -358,7 +359,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForStrip
      */
-    public function testApplyStrip($pattern, $html, $removedContent)
+    public function testApplyStrip(string $pattern, string $html, string $removedContent): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -374,10 +375,10 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertNotContains($removedContent, $content);
+        $this->assertStringNotContainsString($removedContent, $content);
     }
 
-    public function dataForStripIdOrClass()
+    public function dataForStripIdOrClass(): array
     {
         return [
             ['commentlist', '<html><body><nav id="commentlist">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
@@ -389,7 +390,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForStripIdOrClass
      */
-    public function testApplyStripIdOrClass($pattern, $html, $removedContent, $matchContent = null)
+    public function testApplyStripIdOrClass(string $pattern, string $html, ?string $removedContent, string $matchContent = null): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -406,13 +407,13 @@ class ContentExtractorTest extends TestCase
         $content = $domElement->ownerDocument->saveXML($domElement);
 
         if (null === $removedContent) {
-            $this->assertContains($matchContent, $content);
+            $this->assertStringContainsString((string) $matchContent, $content);
         } else {
-            $this->assertNotContains($removedContent, $content);
+            $this->assertStringNotContainsString($removedContent, $content);
         }
     }
 
-    public function dataForStripImageSrc()
+    public function dataForStripImageSrc(): array
     {
         return [
             ['doubleclick.net', '<html><body><img src="https://www.doubleclick.net/pub.jpg"/></nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'https://www.doubleclick.net/pub.jpg'],
@@ -423,7 +424,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForStripImageSrc
      */
-    public function testApplyStripImageSrc($pattern, $html, $removedContent)
+    public function testApplyStripImageSrc(string $pattern, string $html, string $removedContent): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -441,10 +442,10 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertNotContains($removedContent, $content);
+        $this->assertStringNotContainsString($removedContent, $content);
     }
 
-    public function dataForStripDisplayNoneAndInstapaper()
+    public function dataForStripDisplayNoneAndInstapaper(): array
     {
         return [
             // remove element with class "instapaper_ignore"
@@ -457,7 +458,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForStripDisplayNoneAndInstapaper
      */
-    public function testApplyStripDisplayNoneAndInstapaper($html, $removedContent)
+    public function testApplyStripDisplayNoneAndInstapaper(string $html, string $removedContent): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -474,10 +475,10 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertNotContains($removedContent, $content);
+        $this->assertStringNotContainsString($removedContent, $content);
     }
 
-    public function dataForStripAttr()
+    public function dataForStripAttr(): array
     {
         return [
             [['//*/@class'], '<html><body><div class="hello world"><i class="class">bar</i>class="foo"' . str_repeat('this is the best part of the show', 10) . ' <a class="hc" href="void">link</a></div></body></html>', [
@@ -496,7 +497,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForStripAttr
      */
-    public function testApplyStripAttr($patterns, $html, $assertions)
+    public function testApplyStripAttr(array $patterns, string $html, array $assertions): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -513,15 +514,15 @@ class ContentExtractorTest extends TestCase
         $content = $domElement->ownerDocument->saveXML($domElement);
 
         foreach ($assertions['removedContent'] as $removedContent) {
-            $this->assertNotContains($removedContent, $content);
+            $this->assertStringNotContainsString($removedContent, $content);
         }
 
         foreach ($assertions['keptContent'] as $keptContent) {
-            $this->assertContains($keptContent, $content);
+            $this->assertStringContainsString($keptContent, $content);
         }
     }
 
-    public function dataForExtractBody()
+    public function dataForExtractBody(): array
     {
         return [
             // extract one element
@@ -542,7 +543,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForExtractBody
      */
-    public function testExtractBody($pattern, $html, $expectedContent)
+    public function testExtractBody(string $pattern, string $html, string $expectedContent): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -563,7 +564,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($expectedContent, $content);
     }
 
-    public function dataForExtractHNews()
+    public function dataForExtractHNews(): array
     {
         return [
             // the all hNews tested
@@ -604,7 +605,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForExtractHNews
      */
-    public function testExtractHNews($html, $expectedContent, $expectedElements)
+    public function testExtractHNews(string $html, string $expectedContent, array $expectedElements): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -631,7 +632,7 @@ class ContentExtractorTest extends TestCase
     /**
      * Extract content from instapaper class.
      */
-    public function testExtractInstapaper()
+    public function testExtractInstapaper(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -652,7 +653,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($contentExtractor->getTitle(), 'hello !');
     }
 
-    public function dataForExtractSchemaOrg()
+    public function dataForExtractSchemaOrg(): array
     {
         return [
             // articleBody on one element
@@ -676,7 +677,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForExtractSchemaOrg
      */
-    public function testExtractSchemaOrg($html, $expectedContent)
+    public function testExtractSchemaOrg(string $html, string $expectedContent): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -699,7 +700,7 @@ class ContentExtractorTest extends TestCase
     /**
      * Test that if the first h* found in the body is the same as the extracted title, it'll be removed.
      */
-    public function testRemoveHFromBody()
+    public function testRemoveHFromBody(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -718,11 +719,11 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertNotContains('My Title', $content);
+        $this->assertStringNotContainsString('My Title', $content);
         $this->assertSame('My Title', $contentExtractor->getTitle());
     }
 
-    public function dataForlazyLoad()
+    public function dataForlazyLoad(): array
     {
         return [
             // test with img attribute data-src
@@ -763,7 +764,7 @@ class ContentExtractorTest extends TestCase
      *
      * @dataProvider dataForlazyLoad
      */
-    public function testConvertLazyLoadImages($html, $htmlExpected)
+    public function testConvertLazyLoadImages(string $html, string $htmlExpected): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -782,10 +783,10 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertContains($htmlExpected, $content);
+        $this->assertStringContainsString($htmlExpected, $content);
     }
 
-    public function testIframeEmbeddedContent()
+    public function testIframeEmbeddedContent(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -806,10 +807,10 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertContains('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $content);
+        $this->assertStringContainsString('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $content);
     }
 
-    public function testLogMessage()
+    public function testLogMessage(): void
     {
         $logger = new Logger('foo');
         $handler = new TestHandler($level = Logger::INFO);
@@ -840,7 +841,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Attempting to parse HTML with {parser}', $records[9]['message']);
     }
 
-    public function testWithCustomFiltersForReadability()
+    public function testWithCustomFiltersForReadability(): void
     {
         $contentExtractor = new ContentExtractor(
             self::$contentExtractorConfig
@@ -905,11 +906,11 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertNotContains('<head>', $content);
-        $this->assertNotContains('<base>', $content);
+        $this->assertStringNotContainsString('<head>', $content);
+        $this->assertStringNotContainsString('<base>', $content);
     }
 
-    public function testNativeAd()
+    public function testNativeAd(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -923,10 +924,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $content_block = $contentExtractor->getContent();
 
         $this->assertTrue($contentExtractor->isNativeAd());
-        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
-    public function testJsonLd()
+    public function testJsonLd(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -941,12 +942,12 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertSame('title !!', $contentExtractor->getTitle());
         $this->assertSame('2017-10-23T16:05:38+02:00', $contentExtractor->getDate());
-        $this->assertContains('bob', $contentExtractor->getAuthors());
+        $this->assertStringContainsString('bob', $contentExtractor->getAuthors()[0]);
         $this->assertSame('https://static.jsonld.io/medias.jpg', $contentExtractor->getImage());
-        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
-    public function testJsonLdWithMultipleAuthors()
+    public function testJsonLdWithMultipleAuthors(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -963,7 +964,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         ], $contentExtractor->getAuthors());
     }
 
-    public function testNoDefinedHtml()
+    public function testNoDefinedHtml(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -974,7 +975,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertEmpty($contentExtractor->getImage());
     }
 
-    public function testOpenGraph()
+    public function testOpenGraph(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1001,10 +1002,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('2017-10-23T17:04:21+00:00', $contentExtractor->getDate());
         $this->assertSame('fr_FR', $contentExtractor->getLanguage());
         $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $contentExtractor->getImage());
-        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
-    public function testAvoidDataUriImageInOpenGraph()
+    public function testAvoidDataUriImageInOpenGraph(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1018,10 +1019,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $content_block = $contentExtractor->getContent();
 
         $this->assertEmpty($contentExtractor->getImage());
-        $this->assertContains('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
     }
 
-    public function testJsonLdIgnoreList()
+    public function testJsonLdIgnoreList(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1033,10 +1034,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertTrue($res, 'Extraction went well');
 
         $this->assertSame('The Foobar Company is launching globally', $contentExtractor->getTitle());
-        $this->assertContains('Foobar CEO', $contentExtractor->getAuthors());
+        $this->assertStringContainsString('Foobar CEO', $contentExtractor->getAuthors()[0]);
     }
 
-    public function testJsonLdIgnoreListWithPeriodical()
+    public function testJsonLdIgnoreListWithPeriodical(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1050,7 +1051,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('Hello world, this is title', $contentExtractor->getTitle());
     }
 
-    public function testJsonLdSkipper()
+    public function testJsonLdSkipper(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1070,10 +1071,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertEmpty($contentExtractor->getTitle());
         $this->assertNull($contentExtractor->getDate());
         $this->assertEmpty($contentExtractor->getAuthors());
-        $this->assertContains('this is the best part of the show', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('this is the best part of the show', $content_block->ownerDocument->saveXML($content_block));
     }
 
-    public function testJsonLdName()
+    public function testJsonLdName(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1085,7 +1086,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('name !!', $contentExtractor->getTitle());
     }
 
-    public function testJsonLdDateArray()
+    public function testJsonLdDateArray(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1097,7 +1098,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('2014-05-29T00:00:00+02:00', $contentExtractor->getDate());
     }
 
-    public function testJsonLdImageUrlArray()
+    public function testJsonLdImageUrlArray(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1109,7 +1110,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png', $contentExtractor->getImage());
     }
 
-    public function testUniqueAuthors()
+    public function testUniqueAuthors(): void
     {
         $url = 'https://www.lemonde.fr/pixels/article/2018/05/30/bloodstained-curse-of-the-moon-delicieux-jeu-de-vampires-a-la-mode-des-annees-1980_5307173_4408996.html';
         $html = '<script type="application/ld+json">{"author":{"@type":"Person","name":"William Audureau"}}</script><a class="auteur" target="_blank" href="/journaliste/william-audureau/">William Audureau</a>';
@@ -1128,7 +1129,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
     }
 
-    public function testBodyAsDomAttribute()
+    public function testBodyAsDomAttribute(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
@@ -1145,7 +1146,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertFalse($res, 'Extraction failed');
     }
 
-    public function testBadDate()
+    public function testBadDate(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 

@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class GrabyFunctionalTest extends TestCase
 {
-    public function testRealFetchContent()
+    public function testRealFetchContent(): void
     {
         $logger = new Logger('foo');
         $handler = new TestHandler($level = Logger::INFO);
@@ -43,7 +43,7 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('fr', $res['language']);
         $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
         $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res['title']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
 
         $records = $handler->getRecords();
 
@@ -69,7 +69,7 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('Looking for site config files to see if single page link exists', $records[18]['message']);
     }
 
-    public function testRealFetchContent2()
+    public function testRealFetchContent2(): void
     {
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html');
@@ -93,11 +93,11 @@ class GrabyFunctionalTest extends TestCase
         $this->assertEmpty($res['language']);
         $this->assertSame('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html', $res['url']);
         $this->assertSame('Next Generation MongoDB Driver for PHP!', $res['title']);
-        $this->assertContains('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
     }
 
-    public function testPdfFile()
+    public function testPdfFile(): void
     {
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://img3.free.fr/im_tv/telesites/documentation.pdf');
@@ -122,13 +122,13 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('2008-03-05T17:56:07+01:00', $res['date']);
         $this->assertSame('http://img3.free.fr/im_tv/telesites/documentation.pdf', $res['url']);
         $this->assertSame('PDF', $res['title']);
-        $this->assertContains('Free 2008', $res['html']);
-        $this->assertContains('Free 2008', $res['summary']);
-        $this->assertContains('application/pdf', $res['headers']['content-type']);
+        $this->assertStringContainsString('Free 2008', $res['html']);
+        $this->assertStringContainsString('Free 2008', $res['summary']);
+        $this->assertStringContainsString('application/pdf', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
     }
 
-    public function testImageFile()
+    public function testImageFile(): void
     {
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('https://i.imgur.com/KQQ7D9z.jpg');
@@ -154,11 +154,11 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('Image', $res['title']);
         $this->assertSame('<a href="https://i.imgur.com/KQQ7D9z.jpg"><img src="https://i.imgur.com/KQQ7D9z.jpg" alt="image" /></a>', $res['html']);
         $this->assertEmpty($res['summary']);
-        $this->assertContains('image/jpeg', $res['headers']['content-type']);
+        $this->assertStringContainsString('image/jpeg', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
     }
 
-    public function dataWithAccent()
+    public function dataWithAccent(): array
     {
         return [
             // ['http://pérotin.com/post/2015/08/31/Le-cadran-solaire-amoureux'],
@@ -170,7 +170,7 @@ class GrabyFunctionalTest extends TestCase
     /**
      * @dataProvider dataWithAccent
      */
-    public function testAccentuedUrls($url)
+    public function testAccentuedUrls(string $url): void
     {
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent($url);
@@ -192,7 +192,7 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function testYoutubeOembed()
+    public function testYoutubeOembed(): void
     {
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
@@ -217,35 +217,35 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('[Review] The Matrix Falling (Rain) Source Code C++', $res['title']);
         $this->assertSame('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen">[embedded content]</iframe>', $res['html']);
         $this->assertSame('[embedded content]', $res['summary']);
-        $this->assertContains('text/xml', $res['headers']['content-type']);
+        $this->assertStringContainsString('text/xml', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
     }
 
-    public function testEncodedUrl()
+    public function testEncodedUrl(): void
     {
         $this->markTestSkipped('Still need to find a way to handle / in query string (https://github.com/j0k3r/graby/pull/45).');
 
-        $graby = new Graby(['debug' => true]);
-        $res = $graby->fetchContent('http://blog.niqnutn.com/index.php?article49/commandes-de-base');
+        // $graby = new Graby(['debug' => true]);
+        // $res = $graby->fetchContent('http://blog.niqnutn.com/index.php?article49/commandes-de-base');
 
-        $this->assertCount(11, $res);
+        // $this->assertCount(11, $res);
 
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
+        // $this->assertArrayHasKey('status', $res);
+        // $this->assertArrayHasKey('html', $res);
+        // $this->assertArrayHasKey('title', $res);
+        // $this->assertArrayHasKey('language', $res);
+        // $this->assertArrayHasKey('date', $res);
+        // $this->assertArrayHasKey('authors', $res);
+        // $this->assertArrayHasKey('url', $res);
+        // $this->assertArrayHasKey('summary', $res);
+        // $this->assertArrayHasKey('image', $res);
+        // $this->assertArrayHasKey('native_ad', $res);
+        // $this->assertArrayHasKey('headers', $res);
 
-        $this->assertSame(200, $res['status']);
+        // $this->assertSame(200, $res['status']);
     }
 
-    public function testKoreanPage()
+    public function testKoreanPage(): void
     {
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
@@ -265,12 +265,12 @@ class GrabyFunctionalTest extends TestCase
         $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(200, $res['status']);
-        $this->assertContains('에르보리앙', $res['title']);
-        $this->assertContains('프랑스 현대적 자연주의 브랜드', $res['summary']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('에르보리앙', $res['title']);
+        $this->assertStringContainsString('프랑스 현대적 자연주의 브랜드', $res['summary']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
     }
 
-    public function testMultipage()
+    public function testMultipage(): void
     {
         $graby = new Graby([
             'debug' => true,
@@ -297,13 +297,13 @@ class GrabyFunctionalTest extends TestCase
         $this->assertArrayHasKey('headers', $res);
 
         $this->assertSame(200, $res['status']);
-        $this->assertContains('Radeon HD 7750/7770', $res['title']);
+        $this->assertStringContainsString('Radeon HD 7750/7770', $res['title']);
         // which should be on the page 6
-        $this->assertContains('2560x1600', $res['html']);
-        $this->assertContains('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('2560x1600', $res['html']);
+        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
     }
 
-    public function testCookie()
+    public function testCookie(): void
     {
         $graby = new Graby([
             'debug' => true,

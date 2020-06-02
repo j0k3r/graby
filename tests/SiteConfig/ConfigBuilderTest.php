@@ -10,14 +10,14 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigBuilderTest extends TestCase
 {
-    public function testConstructDefault()
+    public function testConstructDefault(): void
     {
         $builder = new ConfigBuilder(['site_config' => [__DIR__]]);
 
         $this->assertInstanceOf('Graby\SiteConfig\ConfigBuilder', $builder);
     }
 
-    public function testBuildFromArrayNoLines()
+    public function testBuildFromArrayNoLines(): void
     {
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $configActual = $configBuilder->parseLines([]);
@@ -25,7 +25,7 @@ class ConfigBuilderTest extends TestCase
         $this->assertEquals($configBuilder->create(), $configActual);
     }
 
-    public function testBuildFromArray()
+    public function testBuildFromArray(): void
     {
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $configActual = $configBuilder->parseLines([
@@ -85,7 +85,7 @@ class ConfigBuilderTest extends TestCase
         $this->assertTrue(true === $configActual->autodetect_on_failure(true));
     }
 
-    public function dataForAddToCache()
+    public function dataForAddToCache(): array
     {
         return [
             ['mykey', '', 'mykey'],
@@ -97,7 +97,7 @@ class ConfigBuilderTest extends TestCase
     /**
      * @dataProvider dataForAddToCache
      */
-    public function testAddToCache($key, $cachedKey, $expectedKey)
+    public function testAddToCache(string $key, string $cachedKey, string $expectedKey): void
     {
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
 
@@ -112,7 +112,7 @@ class ConfigBuilderTest extends TestCase
         $this->assertEquals($config, $configBuilder->getCachedVersion($expectedKey));
     }
 
-    public function dataForCachedVersion()
+    public function dataForCachedVersion(): array
     {
         return [
             ['mykey', false],
@@ -124,7 +124,7 @@ class ConfigBuilderTest extends TestCase
     /**
      * @dataProvider dataForCachedVersion
      */
-    public function testCachedVersion($key, $cached)
+    public function testCachedVersion(string $key, bool $cached): void
     {
         $config = false;
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
@@ -139,7 +139,7 @@ class ConfigBuilderTest extends TestCase
         $this->assertEquals($config, $configBuilder->getCachedVersion($key));
     }
 
-    public function testBuildOnCachedVersion()
+    public function testBuildOnCachedVersion(): void
     {
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $config1 = $configBuilder->buildForHost('www.host.io');
@@ -155,7 +155,7 @@ class ConfigBuilderTest extends TestCase
         $this->assertEquals($config1, $config2);
     }
 
-    public function dataForBuild()
+    public function dataForBuild(): array
     {
         return [
             // bar hostname
@@ -181,7 +181,7 @@ class ConfigBuilderTest extends TestCase
     /**
      * @dataProvider dataForBuild
      */
-    public function testBuildSiteConfig($host, $expectedRes, $matchedHost = null)
+    public function testBuildSiteConfig(string $host, bool $expectedRes, ?string $matchedHost = null): void
     {
         $configBuilder = new ConfigBuilder([
             'site_config' => [__DIR__ . '/../fixtures/site_config'],
@@ -197,7 +197,7 @@ class ConfigBuilderTest extends TestCase
         }
     }
 
-    public function testBuildWithCachedVersion()
+    public function testBuildWithCachedVersion(): void
     {
         $configBuilder = new ConfigBuilder([
             'site_config' => [__DIR__ . '/../fixtures/site_config'],
@@ -207,7 +207,7 @@ class ConfigBuilderTest extends TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
-        $configBuilder->addToCache($res->cache_key, $res);
+        $configBuilder->addToCache((string) $res->cache_key, $res);
 
         $res2 = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
@@ -215,7 +215,7 @@ class ConfigBuilderTest extends TestCase
         $this->assertEquals($res, $res2, 'Config retrieve from cache');
     }
 
-    public function testLogMessage()
+    public function testLogMessage(): void
     {
         $logger = new Logger('foo');
         $handler = new TestHandler();
@@ -240,7 +240,7 @@ class ConfigBuilderTest extends TestCase
         $this->assertSame('Appending site config settings from global.txt', $records[2]['message']);
     }
 
-    public function testWithBadHost()
+    public function testWithBadHost(): void
     {
         $configBuilder = new ConfigBuilder([
             'site_config' => [__DIR__ . '/../fixtures/site_config'],
@@ -254,7 +254,7 @@ class ConfigBuilderTest extends TestCase
     /**
      * Ensure merging config multiples times doesn't generate duplicate in replace_string / find_string.
      */
-    public function testMergeConfigMultipleTimes()
+    public function testMergeConfigMultipleTimes(): void
     {
         $configBuilder = new ConfigBuilder([
             'site_config' => [__DIR__ . '/../fixtures/site_config'],

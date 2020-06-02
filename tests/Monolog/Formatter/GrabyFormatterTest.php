@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class GrabyFormatterTest extends TestCase
 {
-    public function testFormat()
+    public function testFormat(): void
     {
         $formatter = new GrabyFormatter();
         $res = $formatter->formatBatch([[
@@ -26,8 +26,8 @@ class GrabyFormatterTest extends TestCase
             ],
         ]]);
 
-        $this->assertContains('<pre>This is a log message</pre>', $res);
-        $this->assertContains('<pre>(bool) true</pre>', $res);
-        $this->assertContains('"interesting": "ok"', $res);
+        $this->assertStringContainsString('<pre>This is a log message</pre>', $res);
+        $this->assertStringContainsString('<pre>(bool) true</pre>', $res);
+        $this->assertStringContainsString('"interesting": "ok"', $res);
     }
 }

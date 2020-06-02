@@ -12,38 +12,20 @@ use Psr\Http\Message\RequestInterface;
 
 class HttpClientTest extends TestCase
 {
-    public function dataForFetchGet()
+    public function dataForFetchGet(): array
     {
         return [
             [
                 'http://fr.m.wikipedia.org/wiki/Copyright#bottom',
                 'http://fr.wikipedia.org/wiki/Copyright',
-                [
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.2',
-                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ],
-                ],
             ],
             [
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/#!test',
                 'http://bjori.blogspot.fr/2015/04/next-gen-mongodb-driver.html/?_escaped_fragment_=test',
-                [
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
-                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ],
-                ],
             ],
             [
                 'http://www.example.com/my-map.html',
                 'http://www.example.com/my-map.html',
-                [
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
-                        'Referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-                    ],
-                ],
             ],
         ];
     }
@@ -51,7 +33,7 @@ class HttpClientTest extends TestCase
     /**
      * @dataProvider dataForFetchGet
      */
-    public function testFetchGet($url, $urlEffective)
+    public function testFetchGet(string $url, string $urlEffective): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], 'yay'));
@@ -64,7 +46,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function testFetchHeadGoodContentType()
+    public function testFetchHeadGoodContentType(): void
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
 
@@ -86,7 +68,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function testFetchHeadBadContentType()
+    public function testFetchHeadBadContentType(): void
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
 
@@ -107,7 +89,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function testFetchHeadReallyBadContentType()
+    public function testFetchHeadReallyBadContentType(): void
     {
         $url = 'http://fr.wikipedia.org/wiki/Copyright.jpg';
 
@@ -128,7 +110,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function dataForMetaRefresh()
+    public function dataForMetaRefresh(): array
     {
         return [
             [
@@ -157,7 +139,7 @@ class HttpClientTest extends TestCase
     /**
      * @dataProvider dataForMetaRefresh
      */
-    public function testFetchGetWithMetaRefresh($url, $body, $metaUrl)
+    public function testFetchGetWithMetaRefresh(string $url, string $body, string $metaUrl): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $body));
@@ -178,7 +160,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function testFetchGetWithHeaderRefresh()
+    public function testFetchGetWithHeaderRefresh(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html', 'refresh' => '0; url=http://example.com/my-new-map.html'], ''));
@@ -193,7 +175,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function testWith404ResponseWithResponse()
+    public function testWith404ResponseWithResponse(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(404, ['Content-Type' => 'text/html'], 'test'));
@@ -207,7 +189,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(404, $res['status']);
     }
 
-    public function testWithUrlencodedContentType()
+    public function testWithUrlencodedContentType(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image%2Fjpeg'], 'test'));
@@ -221,7 +203,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res['status']);
     }
 
-    public function testWithUrlContainingPlusSymbol()
+    public function testWithUrlContainingPlusSymbol(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200));
@@ -232,7 +214,7 @@ class HttpClientTest extends TestCase
         $this->assertSame('https://example.com/foo/+bar/baz/+quuz/corge', $res['effective_url']);
     }
 
-    public function testWith404ResponseWithoutResponse()
+    public function testWith404ResponseWithoutResponse(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(404));
@@ -246,7 +228,7 @@ class HttpClientTest extends TestCase
         $this->assertSame(404, $res['status']);
     }
 
-    public function testLogMessage()
+    public function testLogMessage(): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], 'yay'));
@@ -280,7 +262,7 @@ class HttpClientTest extends TestCase
         ], $records[3]['context']['data']);
     }
 
-    public function testTimeout()
+    public function testTimeout(): void
     {
         $logger = new Logger('foo');
         $handler = new TestHandler();
@@ -324,13 +306,13 @@ class HttpClientTest extends TestCase
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
         // "cURL error 28: Connection timed out after"
         if ($isGuzzle) {
-            $this->assertContains('cURL error 28', $records[3]['formatted']);
+            $this->assertStringContainsString('cURL error 28', $records[3]['formatted']);
         } else {
-            $this->assertContains('Connection timed out after', $records[3]['formatted']);
+            $this->assertStringContainsString('Connection timed out after', $records[3]['formatted']);
         }
     }
 
-    public function testNbRedirectsReached()
+    public function testNbRedirectsReached(): void
     {
         $maxRedirect = 3;
         $httpMockClient = new HttpMockClient();
@@ -363,7 +345,7 @@ class HttpClientTest extends TestCase
         $this->assertSame('Endless redirect: 4 on "{url}"', $record['message']);
     }
 
-    public function dataForConditionalComments()
+    public function dataForConditionalComments(): array
     {
         return [
             [
@@ -431,7 +413,7 @@ class HttpClientTest extends TestCase
     /**
      * @dataProvider dataForConditionalComments
      */
-    public function testWithMetaRefreshInConditionalComments($url, $html, $removeData)
+    public function testWithMetaRefreshInConditionalComments(string $url, string $html, string $removeData): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $html));
@@ -440,14 +422,14 @@ class HttpClientTest extends TestCase
         $res = $http->fetch($url);
 
         $this->assertSame($url, $res['effective_url']);
-        $this->assertNotContains($removeData, $res['body']);
-        $this->assertNotContains('<!--[if ', $res['body']);
-        $this->assertNotContains('endif', $res['body']);
+        $this->assertStringNotContainsString($removeData, $res['body']);
+        $this->assertStringNotContainsString('<!--[if ', $res['body']);
+        $this->assertStringNotContainsString('endif', $res['body']);
         $this->assertSame('text/html', $res['headers']['content-type']);
         $this->assertSame(200, $res['status']);
     }
 
-    public function dataForUserAgent()
+    public function dataForUserAgent(): array
     {
         return [
             [
@@ -476,7 +458,7 @@ class HttpClientTest extends TestCase
     /**
      * @dataProvider dataForUserAgent
      */
-    public function testUserAgent($url, $httpHeader, $expectedUa)
+    public function testUserAgent(string $url, array $httpHeader, string $expectedUa): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], ''));
@@ -501,7 +483,7 @@ class HttpClientTest extends TestCase
         $this->assertSame($url, $records[1]['context']['url']);
     }
 
-    public function dataForReferer()
+    public function dataForReferer(): array
     {
         return [
             [
@@ -530,7 +512,7 @@ class HttpClientTest extends TestCase
     /**
      * @dataProvider dataForReferer
      */
-    public function testReferer($url, $httpHeader, $expectedReferer)
+    public function testReferer(string $url, array $httpHeader, string $expectedReferer): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], ''));
@@ -552,7 +534,7 @@ class HttpClientTest extends TestCase
         $this->assertSame($url, $records[2]['context']['url']);
     }
 
-    public function dataForCookie()
+    public function dataForCookie(): array
     {
         return [
             [
@@ -580,8 +562,10 @@ class HttpClientTest extends TestCase
 
     /**
      * @dataProvider dataForCookie
+     *
+     * @param string|false $expectedCookie
      */
-    public function testCookie($url, $httpHeader, $expectedCookie)
+    public function testCookie(string $url, array $httpHeader, $expectedCookie): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], ''));
@@ -606,7 +590,7 @@ class HttpClientTest extends TestCase
         }
     }
 
-    public function dataForAccept()
+    public function dataForAccept(): array
     {
         return [
             [
@@ -634,8 +618,10 @@ class HttpClientTest extends TestCase
 
     /**
      * @dataProvider dataForAccept
+     *
+     * @param string|false $expectedAccept
      */
-    public function testAccept($url, $httpHeader, $expectedAccept)
+    public function testAccept(string $url, array $httpHeader, $expectedAccept): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], ''));
