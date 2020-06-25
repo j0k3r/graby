@@ -9,3 +9,10 @@ filter:
         - 'log/*'
         - 'tests/*'
         - 'vendor/*'
+
+build:
+    nodes:
+        analysis:
+            tests:
+                override:
+                    - php-scrutinizer-run
