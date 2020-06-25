@@ -697,7 +697,7 @@ class ContentExtractor
      */
     public function validateDate($date)
     {
-        $parseDate = date_parse($date);
+        $parseDate = (array) date_parse($date);
 
         // If no year has been found during date_parse, we nuke the whole value
         // because the date is invalid
