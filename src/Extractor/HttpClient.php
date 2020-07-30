@@ -14,7 +14,7 @@ use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
 use Http\Client\HttpClient as Client;
-use Http\Discovery\MessageFactoryDiscovery;
+use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -105,7 +105,7 @@ class HttpClient
                     'max_restarts' => $this->config['max_redirect'],
                 ]
             ),
-            MessageFactoryDiscovery::find()
+            Psr17FactoryDiscovery::findRequestFactory()
         );
     }
 
