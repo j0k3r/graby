@@ -31,14 +31,17 @@ cache:
         - $HOME/.composer/cache/files
 
 before_install:
+    # install stuff before removing / adding new deps
+    - composer install --prefer-dist --no-progress --no-suggest -o
+
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
 
     # because php-coveralls require Guzzle 6
     - if [ "$GUZZLE5" = "run" ]; then composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n ; fi;
-    - if [ "$GUZZLE5" = "run" ]; then composer require php-http/guzzle5-adapter '^2.0' --dev -n ; fi;
+    - if [ "$GUZZLE5" = "run" ]; then composer require php-http/guzzle5-adapter --dev -n ; fi;
 
     - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
-    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client '2.x-dev' --dev -n ; fi;
+    - if [ "$CURL" = "run" ]; then composer require php-http/curl-client --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer require zendframework/zend-diactoros --dev -n ; fi;
 
 install:
@@ -51,12 +54,12 @@ script:
     - mkdir -p build/logs
     - php vendor/bin/simple-phpunit -v $PHPUNIT_FLAGS
     - if [ "$CS_FIXER" = "run" ]; then php vendor/bin/php-cs-fixer fix --verbose --dry-run ; fi;
-    - if [ "$CS_FIXER" = "run" ]; then php vendor/bin/phpstan analyse src tests --no-progress --level 7 ; fi;
+    - if [ "$CS_FIXER" = "run" ]; then php vendor/bin/phpstan analyse ; fi;
 
 after_success:
     - |
         if [[ "$PHPUNIT_FLAGS" != "" ]]; then
-            wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar
+            wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.4.2/php-coveralls.phar
             chmod +x php-coveralls.phar
 
             php php-coveralls.phar -v -x build/logs/clover.xml
