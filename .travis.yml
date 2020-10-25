@@ -22,6 +22,8 @@ jobs:
         - php: 7.2
           env: GUZZLE5=run
         - php: 7.2
+          env: GUZZLE7=run
+        - php: 7.2
           env: CURL=run
         - php: 7.2
           env: COMPOSER_FLAGS="--prefer-lowest"
@@ -36,9 +38,11 @@ before_install:
 
     - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
 
-    # because php-coveralls require Guzzle 6
     - if [ "$GUZZLE5" = "run" ]; then composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n ; fi;
     - if [ "$GUZZLE5" = "run" ]; then composer require php-http/guzzle5-adapter --dev -n ; fi;
+
+    - if [ "$GUZZLE7" = "run" ]; then composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n ; fi;
+    - if [ "$GUZZLE7" = "run" ]; then composer require php-http/guzzle7-adapter --dev -n ; fi;
 
     - if [ "$CURL" = "run" ]; then composer remove php-http/guzzle6-adapter --dev -n ; fi;
     - if [ "$CURL" = "run" ]; then composer require php-http/curl-client --dev -n ; fi;

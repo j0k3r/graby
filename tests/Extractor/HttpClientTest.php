@@ -272,7 +272,11 @@ class HttpClientTest extends TestCase
         $isGuzzle = false;
 
         // find with adapter is installed
-        if (class_exists('Http\Adapter\Guzzle6\Client')) {
+        if (class_exists('Http\Adapter\Guzzle7\Client')) {
+            $isGuzzle = true;
+            $guzzle = new \GuzzleHttp\Client(['timeout' => 2]);
+            $adapter = new \Http\Adapter\Guzzle7\Client($guzzle);
+        } elseif (class_exists('Http\Adapter\Guzzle6\Client')) {
             $isGuzzle = true;
             $guzzle = new \GuzzleHttp\Client(['timeout' => 2]);
             $adapter = new \Http\Adapter\Guzzle6\Client($guzzle);
