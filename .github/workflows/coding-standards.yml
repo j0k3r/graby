@@ -1,0 +1,56 @@
+name: "CS"
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  coding-standards:
+    name: "CS Fixer & PHPStan"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.3"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          coverage: "none"
+          php-version: "${{ matrix.php }}"
+          tools: cs2pr, composer:v1
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with Composer"
+        run: "composer install --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+
+      - name: "Run PHP CS Fixer"
+        run: "php vendor/bin/php-cs-fixer fix --verbose --dry-run --format=checkstyle | cs2pr"
+
+      - name: "Install PHPUnit for PHPStan"
+        run: "php vendor/bin/simple-phpunit install"
+
+      - name: "Run PHPStan"
+        run: "php vendor/bin/phpstan analyse --no-progress --error-format=checkstyle | cs2pr"
