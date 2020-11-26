@@ -1,0 +1,365 @@
+name: "CI"
+
+on:
+  pull_request:
+    branches:
+      - "master"
+  push:
+    branches:
+      - "master"
+
+env:
+  fail-fast: true
+
+jobs:
+  phpunit:
+    name: "PHPUnit (PHP ${{ matrix.php }})"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.1"
+          - "7.2"
+          - "7.3"
+          - "7.4"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php }}"
+          coverage: "none"
+          tools: composer:v1
+          extensions: tidy
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+
+      - name: "Setup logs"
+        run: "mkdir -p build/logs"
+
+      - name: "Run PHPUnit"
+        run: "php vendor/bin/simple-phpunit -v"
+
+  phpunit-coverage:
+    name: "PHPUnit coverage (PHP ${{ matrix.php }})"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.4"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP with PCOV"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php }}"
+          coverage: "pcov"
+          tools: composer:v1
+          extensions: tidy
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+
+      - name: "Setup logs"
+        run: "mkdir -p build/logs"
+
+      - name: "Run PHPUnit (with coverage)"
+        run: "php vendor/bin/simple-phpunit -v --coverage-clover build/logs/clover.xml"
+
+      - name: "Retrieve Coveralls phar"
+        run: "wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.4.2/php-coveralls.phar"
+
+      - name: "Enable Coveralls phar"
+        run: "chmod +x php-coveralls.phar"
+
+      - name: "Upload to Coveralls"
+        run: "php php-coveralls.phar -v -x build/logs/clover.xml"
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  phpunit-lowest:
+    name: "PHPUnit lowest deps (PHP ${{ matrix.php }})"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.2"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php }}"
+          coverage: "none"
+          tools: composer:v1
+          extensions: tidy
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer update --prefer-dist --no-progress --no-suggest -o --prefer-lowest"
+
+      - name: "Setup logs"
+        run: "mkdir -p build/logs"
+
+      - name: "Run PHPUnit"
+        run: "php vendor/bin/simple-phpunit -v"
+
+  phpunit-guzzle5:
+    name: "PHPUnit (PHP ${{ matrix.php }} and Guzzle 5)"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.4"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php }}"
+          coverage: "none"
+          tools: composer:v1
+          extensions: tidy
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+
+      - name: "Setup adapter: Guzzle 5"
+        run: |
+          composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n
+          composer require php-http/guzzle5-adapter --dev -n
+
+      - name: "Setup logs"
+        run: "mkdir -p build/logs"
+
+      - name: "Run PHPUnit"
+        run: "php vendor/bin/simple-phpunit -v"
+
+  phpunit-guzzle7:
+    name: "PHPUnit (PHP ${{ matrix.php }} and Guzzle 7)"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.4"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php }}"
+          coverage: "none"
+          tools: composer:v1
+          extensions: tidy
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+
+      - name: "Setup adapter: Guzzle 7"
+        run: |
+          composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n
+          composer require php-http/guzzle7-adapter --dev -n
+
+      - name: "Setup logs"
+        run: "mkdir -p build/logs"
+
+      - name: "Run PHPUnit"
+        run: "php vendor/bin/simple-phpunit -v"
+
+  phpunit-curl:
+    name: "PHPUnit (PHP ${{ matrix.php }} and cURL)"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.4"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php }}"
+          coverage: "none"
+          tools: composer:v1
+          extensions: tidy
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+
+      - name: "Setup adapter: cURL"
+        run: |
+          composer remove php-http/guzzle6-adapter --dev -n
+          composer require php-http/curl-client --dev -n
+          composer require zendframework/zend-diactoros --dev -n
+
+      - name: "Setup logs"
+        run: "mkdir -p build/logs"
+
+      - name: "Run PHPUnit"
+        run: "php vendor/bin/simple-phpunit -v"
+
+  phpunit-composerv2:
+    name: "PHPUnit Composer v2 (PHP ${{ matrix.php }})"
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        php:
+          - "7.4"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php }}"
+          coverage: "none"
+          tools: composer:v2
+          extensions: tidy
+          ini-values: "date.timezone=Europe/Paris"
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: "Cache dependencies installed with Composer"
+        uses: "actions/cache@v2"
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer update --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+
+      - name: "Setup logs"
+        run: "mkdir -p build/logs"
+
+      - name: "Run PHPUnit"
+        run: "php vendor/bin/simple-phpunit -v"
