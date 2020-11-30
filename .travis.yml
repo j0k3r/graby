@@ -8,11 +8,11 @@ if: |
     branch = master
 
 php:
-    - nightly
+    - 8.0
 
 jobs:
     allow_failures:
-        - php: nightly
+        - php: 8.0
 
 cache:
     directories:
@@ -22,6 +22,7 @@ before_install:
     - composer config github-oauth.github.com ${GH_TOKEN}
 
 install:
+    - composer remove friendsofphp/php-cs-fixer --dev --no-interaction
     - composer update --prefer-dist --no-progress -o
 
 before_script:
