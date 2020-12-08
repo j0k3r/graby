@@ -321,8 +321,8 @@ class ConfigBuilder
         $currentConfig->replace_string = [];
 
         foreach ($findReplaceMerged as $findString => $replaceString) {
-            array_push($currentConfig->find_string, $findString);
-            array_push($currentConfig->replace_string, $replaceString);
+            $currentConfig->find_string[] = $findString;
+            $currentConfig->replace_string[] = $replaceString;
         }
 
         // merge http_header array from currentConfig into newConfig
@@ -370,7 +370,7 @@ class ConfigBuilder
 
             // check for commands where we accept multiple statements
             if (\in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author'], true)) {
-                array_push($config->$command, $val);
+                $config->$command[] = $val;
             // check for single statement commands that evaluate to true or false
             } elseif (\in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'], true)) {
                 $config->$command = ('yes' === $val || 'true' === $val);
@@ -379,8 +379,8 @@ class ConfigBuilder
                 $config->$command = $val;
             // check for replace_string(find): replace
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
-                array_push($config->find_string, $match[2]);
-                array_push($config->replace_string, $val);
+                $config->find_string[] = $match[2];
+                $config->replace_string[] = $val;
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), ['user-agent', 'referer', 'cookie', 'accept'], true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
             // special treatment for if_page_contains
