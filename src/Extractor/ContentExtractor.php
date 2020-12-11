@@ -1334,7 +1334,7 @@ class ContentExtractor
                 continue;
             }
 
-            if (isset($data['@type']) && \in_array($data['@type'], ['Organization', 'WebSite', 'Person'], true)) {
+            if (isset($data['@type']) && \in_array($data['@type'], ['Organization', 'WebSite', 'Person', 'VideoGame'], true)) {
                 if (isset($data['name'])) {
                     $ignoreNames[] = $data['name'];
                 }
