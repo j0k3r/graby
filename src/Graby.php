@@ -745,7 +745,19 @@ class Graby
         // check it's not what we have already!
         if (false !== $singlePageUrl && $singlePageUrl !== $url) {
             // it's not, so let's try to fetch it...
-            $response = $this->httpClient->fetch($singlePageUrl, false, $siteConfig->http_header);
+            $headers = $siteConfig->http_header;
+
+            $sourceUrl = parse_url($url);
+            $targetUrl = parse_url($singlePageUrl);
+            if (\is_array($sourceUrl)
+                && \is_array($targetUrl)
+                && \array_key_exists('host', $sourceUrl)
+                && \array_key_exists('host', $targetUrl)
+                && $sourceUrl['host'] !== $targetUrl['host']) {
+                $targetSiteConfig = $this->configBuilder->buildForHost($targetUrl['host']);
+                $headers = $targetSiteConfig->http_header;
+            }
+            $response = $this->httpClient->fetch($singlePageUrl, false, $headers);
 
             if ($response['status'] < 300) {
                 $this->logger->info('Single page content found with url', ['url' => $singlePageUrl]);
