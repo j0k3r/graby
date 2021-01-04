@@ -353,31 +353,6 @@ class HttpClientTest extends TestCase
     {
         return [
             [
-                'url' => 'http://osqledaren.se/ol-gor-bangladesh/',
-                'html' => '<!DOCTYPE html>
-<!--[if IE 6]>
-<html id="ie6" >
-<![endif]-->
-<!--[if IE 7]>
-<html id="ie7" >
-<![endif]-->
-<!--[if IE 8]>
-<html id="ie8" >
-<![endif]-->
-<!--[if lte IE 8]>
-<meta http-equiv="refresh" content="0; url=/ie.html" />
-<![endif]-->
-<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
-<html lang="sv-SE">
-<!--<![endif]-->
-<head>
-<meta charset="UTF-8">
-<meta name="description" content="Osqledaren">
-<meta name="keywords" content="osqledaren, newspaper">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1, minimum-scale=1, maximum-scale=1">',
-                'removeData' => '<meta http-equiv="refresh" content="0; url=/ie.html" />',
-            ],
-            [
                 'url' => 'http://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html',
                 'html' => '<!doctype html>
 <!--[if lt IE 9]><html class="ie"><![endif]-->
