@@ -43,8 +43,6 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
-        with:
-          composer-options: "--optimize-autoloader --prefer-dist"
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"
@@ -80,8 +78,6 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
-        with:
-          composer-options: "--optimize-autoloader --prefer-dist"
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"
@@ -129,7 +125,6 @@ jobs:
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
         with:
-          composer-options: "--optimize-autoloader --prefer-dist"
           dependency-versions: "lowest"
 
       - name: "Setup logs"
@@ -166,8 +161,6 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
-        with:
-          composer-options: "--optimize-autoloader --prefer-dist"
 
       - name: "Setup adapter: Guzzle 5"
         run: |
@@ -208,8 +201,6 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
-        with:
-          composer-options: "--optimize-autoloader --prefer-dist"
 
       - name: "Setup adapter: Guzzle 7"
         run: |
@@ -250,8 +241,6 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
-        with:
-          composer-options: "--optimize-autoloader --prefer-dist"
 
       - name: "Setup adapter: cURL"
         run: |
