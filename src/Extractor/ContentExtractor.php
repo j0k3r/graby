@@ -607,16 +607,23 @@ class ContentExtractor
                     continue;
                 }
 
-                $src = null;
+                $attributes = [];
                 foreach ($this->config['src_lazy_load_attributes'] as $attribute) {
                     if ($e->hasAttribute($attribute)) {
-                        $src = $e->getAttribute($attribute);
+                        $key = 'src';
+                        if ('data-srcset' === $attribute) {
+                            $key = 'srcset';
+                        }
+                        $attributes[$key] = $e->getAttribute($attribute);
                         $e->removeAttribute($attribute);
                     }
                 }
 
-                if (null !== $src) {
-                    $e->setAttribute('src', $src);
+                foreach (['src', 'srcset'] as $attr) {
+                    if (\array_key_exists($attr, $attributes)
+                        && null !== $attributes[$attr]) {
+                        $e->setAttribute($attr, $attributes[$attr]);
+                    }
                 }
             }
 
