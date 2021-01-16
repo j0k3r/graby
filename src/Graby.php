@@ -823,21 +823,20 @@ class Graby
             return false;
         }
 
-        if (preg_match('!^https?://!i', $url)) {
-            // already absolute
-            return $url;
+        $url = new Uri($url);
+
+        if (Uri::isAbsolute($url)) {
+            return (string) $url;
         }
 
         $base = new Uri($base);
-        // ensure the base has no path at all (to avoid // between host & path)
-        $base = str_replace($base->getPath(), '', (string) $base);
 
-        // in case the url has no scheme & host
-        if (0 === \strlen($base)) {
+        // in case the url has no host
+        if (0 === \strlen($base->getAuthority())) {
             return false;
         }
 
-        return (string) UriResolver::resolve(new Uri($base), new Uri($url));
+        return (string) UriResolver::resolve($base, $url);
     }
 
     /**

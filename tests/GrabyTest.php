@@ -724,8 +724,12 @@ HTML
             ['example.org', '/test', false],
             ['http://example.org', '/test', 'http://example.org/test'],
             ['http://example.org', '', false],
-            ['http://example.org//test', 'super', 'http://example.org/super'],
+            ['http://example.org//test', 'super', 'http://example.org//super'],
             ['http://example.org//test', 'http://sample.com', 'http://sample.com'],
+            ['http://example.org/?d=2021/helloworld', 'img/foobar.jpg', 'http://example.org/img/foobar.jpg'],
+            ['http://example.org/folder/page.html', 'visual.jpg', 'http://example.org/folder/visual.jpg'],
+            ['http://example.org/page', 'visual.jpg', 'http://example.org/visual.jpg'],
+            ['http://example.org/folder/', '../visual.jpg', 'http://example.org/visual.jpg'],
         ];
     }
 
