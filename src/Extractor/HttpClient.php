@@ -298,14 +298,14 @@ class HttpClient
 
         // convert fragment to actual query parameters
         if ($fragmentPos = strpos($url, '#!')) {
-            $fragment = parse_url($url, PHP_URL_FRAGMENT);
+            $fragment = parse_url($url, \PHP_URL_FRAGMENT);
             // strip '!'
             $fragment = substr((string) $fragment, 1);
             $query = ['_escaped_fragment_' => $fragment];
 
             // url without fragment
             $url = substr($url, 0, $fragmentPos);
-            $url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';
+            $url .= parse_url($url, \PHP_URL_QUERY) ? '&' : '?';
             // needed for some sites
             $url .= str_replace('%2F', '/', http_build_query($query));
         }
@@ -328,7 +328,7 @@ class HttpClient
      */
     private function possibleUnsupportedType($url)
     {
-        $ext = strtolower(trim(pathinfo($url, PATHINFO_EXTENSION)));
+        $ext = strtolower(trim(pathinfo($url, \PATHINFO_EXTENSION)));
 
         if (!$ext) {
             return false;
@@ -357,7 +357,7 @@ class HttpClient
             return $httpHeader['user-agent'];
         }
 
-        $host = parse_url($url, PHP_URL_HOST);
+        $host = parse_url($url, \PHP_URL_HOST);
 
         if ('www.' === strtolower(substr((string) $host, 0, 4))) {
             $host = substr((string) $host, 4);
@@ -567,7 +567,7 @@ class HttpClient
         $query = ['_escaped_fragment_' => ''];
 
         // add fragment to url
-        $url .= parse_url($url, PHP_URL_QUERY) ? '&' : '?';
+        $url .= parse_url($url, \PHP_URL_QUERY) ? '&' : '?';
         // needed for some sites
         $url .= str_replace('%2F', '/', http_build_query($query));
 

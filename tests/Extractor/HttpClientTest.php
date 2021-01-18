@@ -290,7 +290,7 @@ class HttpClientTest extends TestCase
                 null,
                 null,
                 [
-                    CURLOPT_TIMEOUT => 2,
+                    \CURLOPT_TIMEOUT => 2,
                 ]
             );
         } else {

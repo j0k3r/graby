@@ -68,9 +68,9 @@ class GrabyFormatter extends HtmlFormatter
      */
     private function addRowWithLevel($level, $th, $td = ' ', $escapeTd = true)
     {
-        $th = htmlspecialchars($th, ENT_NOQUOTES, 'UTF-8');
+        $th = htmlspecialchars($th, \ENT_NOQUOTES, 'UTF-8');
         if ($escapeTd) {
-            $td = '<pre>' . htmlspecialchars($td, ENT_NOQUOTES, 'UTF-8') . '</pre>';
+            $td = '<pre>' . htmlspecialchars($td, \ENT_NOQUOTES, 'UTF-8') . '</pre>';
         }
 
         return "<tr style=\"padding: 4px;spacing: 0;text-align: left;\">\n<th style=\"background:" . $this->logLevels[$level] . "\" width=\"100px\">$th:</th>\n<td style=\"padding: 4px;spacing: 0;text-align: left;background: #eeeeee\">" . $td . "</td>\n</tr>";

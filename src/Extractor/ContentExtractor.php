@@ -534,7 +534,7 @@ class ContentExtractor
             $this->logger->info('Detecting body');
             $this->body = $this->readability->getContent();
 
-            if (1 === $this->body->childNodes->length && XML_ELEMENT_NODE === $this->body->firstChild->nodeType) {
+            if (1 === $this->body->childNodes->length && \XML_ELEMENT_NODE === $this->body->firstChild->nodeType) {
                 $this->body = $this->body->firstChild;
             }
 
@@ -551,11 +551,11 @@ class ContentExtractor
             if (isset($this->title) && '' !== $this->title && null !== $this->body->firstChild) {
                 $firstChild = $this->body->firstChild;
 
-                while (null !== $firstChild->nextSibling && $firstChild->nodeType && (XML_ELEMENT_NODE !== $firstChild->nodeType)) {
+                while (null !== $firstChild->nextSibling && $firstChild->nodeType && (\XML_ELEMENT_NODE !== $firstChild->nodeType)) {
                     $firstChild = $firstChild->nextSibling;
                 }
 
-                if (XML_ELEMENT_NODE === $firstChild->nodeType
+                if (\XML_ELEMENT_NODE === $firstChild->nodeType
                     && \in_array(strtolower($firstChild->tagName), ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)
                     && (strtolower(trim($firstChild->textContent)) === strtolower(trim($this->title)))) {
                     $this->body->removeChild($firstChild);
