@@ -229,13 +229,13 @@ class Graby
 
         // remove empty text nodes
         foreach ($contentBlock->childNodes as $n) {
-            if (XML_TEXT_NODE === $n->nodeType && '' === trim($n->textContent)) {
+            if (\XML_TEXT_NODE === $n->nodeType && '' === trim($n->textContent)) {
                 $contentBlock->removeChild($n);
             }
         }
 
         // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while (1 === $contentBlock->childNodes->length && XML_ELEMENT_NODE === $contentBlock->firstChild->nodeType) {
+        while (1 === $contentBlock->childNodes->length && \XML_ELEMENT_NODE === $contentBlock->firstChild->nodeType) {
             // only follow these tag names
             if (!\in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
                 break;
@@ -314,7 +314,7 @@ class Graby
         $html = preg_replace($re, '', (string) $htmlCleaned);
 
         // in case html string is too long, keep the html uncleaned to avoid empty html
-        if (PREG_JIT_STACKLIMIT_ERROR === preg_last_error()) {
+        if (\PREG_JIT_STACKLIMIT_ERROR === preg_last_error()) {
             $html = $htmlCleaned;
             $this->logger->debug('Failed to properly clean HTML from empty nodes');
         }
@@ -501,11 +501,11 @@ class Graby
         // everything should be converted, rebuild the final url
         $url = (string) $uri;
 
-        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
+        if (false === filter_var($url, \FILTER_VALIDATE_URL)) {
             throw new \InvalidArgumentException(sprintf('Url "%s" is not valid.', $url));
         }
 
-        $url = filter_var($url, FILTER_SANITIZE_URL);
+        $url = filter_var($url, \FILTER_SANITIZE_URL);
 
         if (false === $url) {
             throw new \InvalidArgumentException(sprintf('Sanitizing url "%s" failed.', $url));
@@ -897,7 +897,7 @@ class Graby
         // remove strange things
         $html = str_replace('</[>', '', $html);
 
-        if (empty($contentType) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, PREG_SET_ORDER)) {
+        if (empty($contentType) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, \PREG_SET_ORDER)) {
             // error parsing the response
             $this->logger->info('Could not find Content-Type header in HTTP response', ['headers' => $headers]);
         } else {

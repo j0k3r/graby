@@ -120,7 +120,7 @@ class ConfigBuilder
     public function buildFromUrl($url, $addToCache = true)
     {
         // extract host name
-        $host = parse_url($url, PHP_URL_HOST);
+        $host = parse_url($url, \PHP_URL_HOST);
 
         return $this->buildForHost((string) $host, $addToCache);
     }
@@ -247,7 +247,7 @@ class ConfigBuilder
             if (isset($this->configFiles[$host . '.txt'])) {
                 $this->logger->info('... found site config {host}', ['host' => $host . '.txt']);
 
-                $configLines = file($this->configFiles[$host . '.txt'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $configLines = file($this->configFiles[$host . '.txt'], \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
                 // no lines ? we don't found config then
                 if (empty($configLines) || !\is_array($configLines)) {
                     return false;
