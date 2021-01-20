@@ -756,6 +756,11 @@ class ContentExtractorTest extends TestCase
                 '<div>' . str_repeat('this is the best part of the show', 10) . '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-toto-src="http://0.0.0.0/big_image.jpg"/></div>',
                 '<img src="http://0.0.0.0/big_image.jpg"',
             ],
+            // test with img attribute data-srcset
+            [
+                '<div>' . str_repeat('this is the best part of the show', 10) . '<img data-src="http://0.0.0.0/src.jpg" data-srcset="http://0.0.0.0/srcset1 680w, http://0.0.0.0/srcset2 1536w"/></div>',
+                '<img src="http://0.0.0.0/src.jpg" srcset="http://0.0.0.0/srcset1 680w, http://0.0.0.0/srcset2 1536w"/>',
+            ],
         ];
     }
 
