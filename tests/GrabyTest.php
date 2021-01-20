@@ -497,6 +497,35 @@ HTML
         $this->assertFalse($res['native_ad']);
     }
 
+    public function testSinglePageReloadSiteConfig(): void
+    {
+        DnsMock::withMockedHosts([
+            'singlepage2.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+            'singlepage5.com' => [['type' => 'A', 'ip' => self::AN_IPV4]],
+        ]);
+
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h1 class="print-title">my title</h1><div class="print-submitted">my singlepage2</div><ul><li class="service-links-print"><a href="http://singlepage5.com/hello" class="service-links-print">printed view</a></li></ul></html>'
+        ));
+        $httpMockClient->addResponse(new Response(
+            200,
+            ['Content-Type' => 'text/html'],
+            '<html><h1 class="print-title">my title</h1><div class="main-article">my singlepage5</div></html>'
+        ));
+
+        $graby = new Graby(['debug' => true, 'xss_filter' => false, 'extractor' => ['config_builder' => [
+            'site_config' => [__DIR__ . '/fixtures/site_config'],
+        ]]], $httpMockClient);
+
+        $res = $graby->fetchContent('http://singlepage2.com/hello');
+
+        $this->assertStringContainsString('my singlepage5', $res['html']);
+        $this->assertSame('http://singlepage5.com/hello', $res['url']);
+    }
+
     /**
      * @group dns-sensitive
      */

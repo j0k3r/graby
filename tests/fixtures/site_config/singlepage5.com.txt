@@ -1,0 +1,3 @@
+title: //h1[@class='print-title']
+body: //div[@class='main-article']
+prune: no
