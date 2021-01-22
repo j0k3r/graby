@@ -263,7 +263,12 @@ class HttpClient
         }
 
         // remove utm parameters & fragment
-        $effectiveUrl = preg_replace('/((\?)?(&(amp;)?)?utm_(.*?)\=[^&]+)|(#(.*?)\=[^&]+)/', '', rawurldecode($effectiveUrl));
+        $uri = new Uri(str_replace('&amp;', '&', $effectiveUrl));
+        parse_str($uri->getQuery(), $query);
+        $queryParameters = array_filter($query, function ($k) {
+            return !(0 === stripos($k, 'utm_'));
+        }, \ARRAY_FILTER_USE_KEY);
+        $effectiveUrl = (string) Uri::withQueryValues(new Uri($uri->withFragment('')->withQuery('')), $queryParameters);
 
         $this->logger->info('Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
