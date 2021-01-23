@@ -31,7 +31,8 @@
         "simplepie/simplepie": "^1.5",
         "smalot/pdfparser": "^2.0",
         "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0",
-        "true/punycode": "^2.1"
+        "true/punycode": "^2.1",
+        "guzzlehttp/psr7": "^1.5.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
