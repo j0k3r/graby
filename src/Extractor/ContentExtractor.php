@@ -621,7 +621,8 @@ class ContentExtractor
 
                 foreach (['src', 'srcset'] as $attr) {
                     if (\array_key_exists($attr, $attributes)
-                        && null !== $attributes[$attr]) {
+                        && null !== $attributes[$attr]
+                        && !empty($attributes[$attr])) {
                         $e->setAttribute($attr, $attributes[$attr]);
                     }
                 }
