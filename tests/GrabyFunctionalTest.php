@@ -90,7 +90,7 @@ class GrabyFunctionalTest extends TestCase
 
         $this->assertSame(200, $res['status']);
         $this->assertSame(['bjori'], $res['authors']);
-        $this->assertEmpty($res['language']);
+        $this->assertSame('en', $res['language']);
         $this->assertSame('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html', $res['url']);
         $this->assertSame('Next Generation MongoDB Driver for PHP!', $res['title']);
         $this->assertStringContainsString('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
