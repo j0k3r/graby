@@ -815,7 +815,12 @@ class Graby
         $url = trim(str_replace('%20', ' ', $e->getAttribute($attr)));
         $url = str_replace(' ', '%20', $url);
 
-        $absolute = $this->makeAbsoluteStr($base, $url);
+        try {
+            $absolute = $this->makeAbsoluteStr($base, $url);
+        } catch (\Exception $exception) {
+            $this->logger->info('Wrong content url', ['url' => $url]);
+            $absolute = $url;
+        }
         if (false !== $absolute) {
             $e->setAttribute($attr, $absolute);
         }
