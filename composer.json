@@ -29,7 +29,7 @@
         "php-http/httplug": "^2.2",
         "php-http/message": "^1.9",
         "simplepie/simplepie": "^1.5",
-        "smalot/pdfparser": "~0.16",
+        "smalot/pdfparser": "^1.0",
         "symfony/options-resolver": "^3.4|^4.0|^5.0",
         "true/punycode": "^2.1"
     },
