@@ -23,6 +23,13 @@ class ConfigBuilder
         'accept',
     ];
 
+    // Array of accepted HTML tags for wrap_in()
+    private $acceptedWrapInTags = [
+        'blockquote',
+        'p',
+        'div',
+    ];
+
     /**
      * @param array $config
      */
@@ -394,6 +401,8 @@ class ConfigBuilder
             // special treatment for if_page_contains
             } elseif (\in_array($command, ['if_page_contains'], true)) {
                 $this->handleIfPageContainsCondition($config, $val);
+            } elseif ((')' === substr($command, -1)) && preg_match('!([a-z0-9_]+)\(([a-z]+)\)$!i', $command, $match) && 'wrap_in' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedWrapInTags, true)) {
+                $config->wrap_in[strtolower(trim($match[2]))] = $val;
             }
         }
 

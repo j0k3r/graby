@@ -222,6 +222,13 @@ class SiteConfig
     public $skip_json_ld = false;
 
     /**
+     * Wrap elements matching these xpath expressions with the specified tag (associative array).
+     *
+     * @var array
+     */
+    public $wrap_in = [];
+
+    /**
      * Used if undeclared.
      *
      * @var bool
