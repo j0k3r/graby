@@ -1396,6 +1396,23 @@ HTML
         $this->assertNotSame('No title found', $res['title']);
     }
 
+    public function testPrefetchedContent(): void
+    {
+        $httpMockClient = new HttpMockClient();
+        $graby = new Graby([
+            'debug' => true,
+        ], $httpMockClient);
+
+        $input = '<html><body><h1>This is my awesome article</h1><article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>';
+
+        $graby->setContentAsPrefetched($input);
+        $res = $graby->fetchContent('https://example.com/prefetched-content');
+
+        $this->assertSame('This is my awesome article', $res['title']);
+        $this->assertSame('https://example.com/prefetched-content', $res['url']);
+        $this->assertStringContainsString('here there are the awesome', $res['html']);
+    }
+
     /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
      */

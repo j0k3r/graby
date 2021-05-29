@@ -42,6 +42,7 @@ class Graby
     private $punycode;
 
     private $imgNoReferrer = false;
+    private $prefetchedContent = null;
 
     /**
      * @param array       $config
@@ -161,6 +162,11 @@ class Graby
         return $this->config[$key];
     }
 
+    public function setContentAsPrefetched(string $content): void
+    {
+        $this->prefetchedContent = $content;
+    }
+
     /**
      * Fetch content from the given url and return a readable content.
      *
@@ -272,6 +278,18 @@ class Graby
         return trim($this->cleanupXss((string) $html));
     }
 
+    private function getResponseForPrefetchedContent(string $url): array
+    {
+        return [
+            'body' => $this->prefetchedContent,
+            'effective_url' => $url,
+            'headers' => [
+                'content-type' => 'text/html',
+            ],
+            'status' => 200,
+        ];
+    }
+
     /**
      * Do fetch content from an url.
      *
@@ -284,9 +302,13 @@ class Graby
         $url = $this->validateUrl($url);
         $siteConfig = $this->configBuilder->buildFromUrl($url);
 
-        $this->logger->info('Fetching url: {url}', ['url' => $url]);
-
-        $response = $this->httpClient->fetch($url, false, $siteConfig->http_header);
+        if (null === $this->prefetchedContent) {
+            $this->logger->info('Fetching url: {url}', ['url' => $url]);
+            $response = $this->httpClient->fetch($url, false, $siteConfig->http_header);
+        } else {
+            $this->logger->info('Content provided as prefetched for url: {url}', ['url' => $url]);
+            $response = $this->getResponseForPrefetchedContent($url);
+        }
 
         $effectiveUrl = $response['effective_url'];
         $effectiveUrl = str_replace(' ', '%20', $effectiveUrl);
@@ -330,7 +352,7 @@ class Graby
 
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;
-        if ($this->config['singlepage'] && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
+        if ($this->config['singlepage'] && null === $this->prefetchedContent && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
             $isSinglePage = true;
             $effectiveUrl = $singlePageResponse['effective_url'];
 
@@ -370,7 +392,7 @@ class Graby
 
         // Deal with multi-page articles
         $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
-        if ($this->config['multipage'] && $isMultiPage) {
+        if ($this->config['multipage'] && null === $this->prefetchedContent && $isMultiPage) {
             $this->logger->info('Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
             $multiPageUrls = [$effectiveUrl];
