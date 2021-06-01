@@ -3,6 +3,5 @@
 log/graby.log
 log/html.log
 composer.lock
-/.php-cs-fixer.php
 /.php-cs-fixer.cache
 .phpunit.result.cache

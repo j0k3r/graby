@@ -27,13 +27,13 @@ jobs:
         with:
           coverage: "none"
           php-version: "${{ matrix.php }}"
-          tools: cs2pr, composer:v1
+          tools: cs2pr, composer:v2
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
 
       - name: "Run PHP CS Fixer"
         run: "php vendor/bin/php-cs-fixer fix --verbose --dry-run --format=checkstyle | cs2pr"
