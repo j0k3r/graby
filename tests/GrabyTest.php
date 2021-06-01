@@ -15,7 +15,7 @@ class GrabyTest extends TestCase
     /**
      * A human IPv4 corresponding to example.com.
      */
-    const AN_IPV4 = '93.184.216.34';
+    public const AN_IPV4 = '93.184.216.34';
 
     public function testConstructDefault(): void
     {
@@ -262,8 +262,8 @@ class GrabyTest extends TestCase
         $graby->fetchContent('http://example.com/virus.exe');
 
         $this->assertCount(2, $httpMockClient->getRequests());
-        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
-        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
+        $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod());
     }
 
     public function dataForExtension(): array
@@ -289,7 +289,7 @@ class GrabyTest extends TestCase
         $res = $graby->fetchContent($url);
 
         $this->assertCount(1, $httpMockClient->getRequests());
-        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod());
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
         $this->assertSame($title, $res['title']);
@@ -343,8 +343,8 @@ class GrabyTest extends TestCase
         $res = $graby->fetchContent('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
 
         $this->assertCount(2, $httpMockClient->getRequests());
-        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod());
-        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
+        $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod());
 
         $this->assertCount(11, $res);
         $this->assertEmpty($res['language']);
@@ -1082,8 +1082,8 @@ HTML
         // The initial treatment was encapsulating the content into the empty node
         // So we don't want to see that again
         $authors = $res['authors'];
-        $this->assertEquals(1, \count($authors));
-        $this->assertEquals('Keith J. Grant', $authors[0]);
+        $this->assertCount(1, $authors);
+        $this->assertSame('Keith J. Grant', $authors[0]);
     }
 
     public function testJsonLd(): void

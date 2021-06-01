@@ -167,7 +167,7 @@ class ContentExtractorTest extends TestCase
 
         $this->assertStringContainsString('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
         $this->assertCount(1, $contentExtractor->getAuthors());
-        $this->assertEquals('CaTV', $contentExtractor->getAuthors()[0]);
+        $this->assertSame('CaTV', $contentExtractor->getAuthors()[0]);
     }
 
     /**
