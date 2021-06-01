@@ -15,6 +15,21 @@ class ConfigBuilder
     private $configFiles = [];
     private $cache = [];
 
+    // Array for accepted headers for http_header()
+    private $acceptedHeaders = [
+        'user-agent',
+        'referer',
+        'cookie',
+        'accept',
+    ];
+
+    // Array of accepted HTML tags for wrap_in()
+    private $acceptedWrapInTags = [
+        'blockquote',
+        'p',
+        'div',
+    ];
+
     /**
      * @param array $config
      */
@@ -381,11 +396,13 @@ class ConfigBuilder
             } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
                 $config->find_string[] = $match[2];
                 $config->replace_string[] = $val;
-            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), ['user-agent', 'referer', 'cookie', 'accept'], true)) {
+            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedHeaders, true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
             // special treatment for if_page_contains
             } elseif (\in_array($command, ['if_page_contains'], true)) {
                 $this->handleIfPageContainsCondition($config, $val);
+            } elseif ((')' === substr($command, -1)) && preg_match('!([a-z0-9_]+)\(([a-z]+)\)$!i', $command, $match) && 'wrap_in' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedWrapInTags, true)) {
+                $config->wrap_in[strtolower(trim($match[2]))] = $val;
             }
         }
 

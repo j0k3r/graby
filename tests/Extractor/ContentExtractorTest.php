@@ -1168,4 +1168,53 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertTrue($res, 'Extraction went fine');
         $this->assertNull($contentExtractor->getDate(), 'Date got vanish because it was wrong');
     }
+
+    public function dataForProcessWrapIn(): array
+    {
+        return [
+            // blockquote with a nested div
+            [
+                [
+                    'blockquote' => "//div[@class='cond1']",
+                ],
+                "//blockquote/div[@class='cond1']/p",
+            ],
+            [
+                [
+                    'blockquote' => "//div[@class='cond1']/p",
+                ],
+                "//div[@class='cond1']/blockquote/p",
+            ],
+        ];
+    }
+
+    /**
+     * Test config wrap_in.
+     *
+     * @dataProvider dataForProcessWrapIn
+     */
+    public function testProcessWrapIn(array $wrapIn, string $xpathQuery): void
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $config = new SiteConfig();
+        $config->body = ['//article'];
+        $config->wrap_in = $wrapIn;
+
+        $res = $contentExtractor->process(
+            '<html><article><div class="cond1"><p>Hello world</p></div></article></html>',
+            'https://example.com/wrapin',
+            $config
+        );
+
+        $this->assertTrue($res, 'Extraction went well');
+
+        $content_block = $contentExtractor->getContent();
+        $doc = new \DOMDocument();
+        $doc->loadXML($content_block->innerHTML);
+        $xpath = new \DOMXPath($doc);
+
+        $el = $xpath->query($xpathQuery);
+        $this->assertCount(1, $el ?: []);
+    }
 }

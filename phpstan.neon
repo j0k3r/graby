@@ -17,6 +17,10 @@ parameters:
         -
             message: '#typehint specified.#'
             path: %currentWorkingDirectory%/src/
+        # phpstan does not seem to recognize the class override for JSLikeHTMLElement
+        -
+            message: '#Call to an undefined method DOMElement::setInnerHtml\(\)#'
+            path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
 
     inferPrivatePropertyTypeFromConstructor: true
     checkMissingIterableValueType: false

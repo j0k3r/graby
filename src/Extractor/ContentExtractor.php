@@ -306,6 +306,20 @@ class ContentExtractor
             }
         }
 
+        // wrapping matching elements with provided tag
+        foreach ($this->siteConfig->wrap_in as $tag => $pattern) {
+            $this->logger->info('Trying {pattern} to wrap element with {tag}', ['pattern' => $pattern, 'tag' => $tag]);
+            $elems = $this->xpath->query($pattern, $this->readability->dom);
+
+            if (false === $elems) {
+                $this->logger->info('Bad pattern');
+
+                continue;
+            }
+
+            $this->wrapElements($elems, $tag, 'Wrapping {length} elements (wrap_in)');
+        }
+
         // strip elements (using xpath expressions)
         foreach ($this->siteConfig->strip as $pattern) {
             $this->logger->info('Trying {pattern} to strip element', ['pattern' => $pattern]);
@@ -774,6 +788,34 @@ class ContentExtractor
                 } else {
                     $item->parentNode->removeChild($item);
                 }
+            }
+        }
+    }
+
+    /**
+     * Wrap elements with provided tag.
+     *
+     * @param \DOMNodeList|false $elems
+     * @param string             $tag
+     * @param string             $logMessage
+     */
+    private function wrapElements($elems = false, $tag = 'div', $logMessage = null)
+    {
+        if (false === $elems || false === $this->hasElements($elems)) {
+            return;
+        }
+
+        if (null !== $logMessage) {
+            $this->logger->info($logMessage, ['length' => $elems->length]);
+        }
+
+        $a = iterator_to_array($elems);
+        foreach ($a as $item) {
+            if (null !== $item && null !== $item->parentNode && $item instanceof \DOMElement) {
+                $newNode = $item->ownerDocument->createElement($tag);
+                $newNode->setInnerHtml($item->ownerDocument->saveXML($item));
+
+                $item->parentNode->replaceChild($newNode, $item);
             }
         }
     }
