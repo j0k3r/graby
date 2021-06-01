@@ -22,7 +22,7 @@ class ConfigBuilderTest extends TestCase
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $configActual = $configBuilder->parseLines([]);
 
-        $this->assertEquals($configBuilder->create(), $configActual);
+        $this->assertEqualsCanonicalizing($configBuilder->create(), $configActual);
     }
 
     public function testBuildFromArray(): void
@@ -68,7 +68,7 @@ class ConfigBuilderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($configExpected, $configActual);
+        $this->assertEqualsCanonicalizing($configExpected, $configActual);
 
         // without using default value
         $this->assertTrue(true === $configActual->tidy(false));
@@ -109,7 +109,7 @@ class ConfigBuilderTest extends TestCase
 
         $configBuilder->addToCache($key, $config);
 
-        $this->assertEquals($config, $configBuilder->getCachedVersion($expectedKey));
+        $this->assertSame($config, $configBuilder->getCachedVersion($expectedKey));
     }
 
     public function dataForCachedVersion(): array
@@ -136,7 +136,7 @@ class ConfigBuilderTest extends TestCase
             $configBuilder->addToCache($key, $config);
         }
 
-        $this->assertEquals($config, $configBuilder->getCachedVersion($key));
+        $this->assertSame($config, $configBuilder->getCachedVersion($key));
     }
 
     public function testBuildOnCachedVersion(): void
@@ -146,13 +146,13 @@ class ConfigBuilderTest extends TestCase
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config1);
 
-        $this->assertEquals($config1, $configBuilder->getCachedVersion('host.io'));
-        $this->assertEquals($config1, $configBuilder->getCachedVersion('host.io.merged'));
+        $this->assertSame($config1, $configBuilder->getCachedVersion('host.io'));
+        $this->assertSame($config1, $configBuilder->getCachedVersion('host.io.merged'));
 
         $config2 = $configBuilder->buildForHost('host.io');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config2);
-        $this->assertEquals($config1, $config2);
+        $this->assertSame($config1, $config2);
     }
 
     public function dataForBuild(): array
@@ -212,7 +212,7 @@ class ConfigBuilderTest extends TestCase
         $res2 = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
-        $this->assertEquals($res, $res2, 'Config retrieve from cache');
+        $this->assertSame($res, $res2, 'Config retrieve from cache');
     }
 
     public function testLogMessage(): void

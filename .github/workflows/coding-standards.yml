@@ -27,7 +27,7 @@ jobs:
         with:
           coverage: "none"
           php-version: "${{ matrix.php }}"
-          tools: cs2pr, composer:v1
+          tools: cs2pr, composer:v2
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}

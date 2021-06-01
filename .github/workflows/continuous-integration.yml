@@ -36,7 +36,7 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
@@ -71,7 +71,7 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "pcov"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
@@ -117,7 +117,7 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
@@ -154,7 +154,7 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
@@ -194,7 +194,7 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
@@ -234,7 +234,7 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
@@ -255,8 +255,8 @@ jobs:
       - name: "Run PHPUnit"
         run: "php vendor/bin/simple-phpunit -v"
 
-  phpunit-composerv2:
-    name: "PHPUnit Composer v2 (PHP ${{ matrix.php }})"
+  phpunit-composerv1:
+    name: "PHPUnit Composer v1 (PHP ${{ matrix.php }})"
     runs-on: "ubuntu-18.04"
 
     strategy:
@@ -275,25 +275,14 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v2
+          tools: composer:v1
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: "Cache dependencies installed with Composer"
-        uses: "actions/cache@v2"
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: "php-${{ matrix.php }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer update --no-interaction --optimize-autoloader --no-progress --prefer-dist"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"

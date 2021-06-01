@@ -60,8 +60,8 @@ class HttpClientTest extends TestCase
         /** @var RequestInterface $request */
         $request = $httpMockClient->getRequests()[0];
 
-        $this->assertEquals('Mozilla/5.2', $request->getHeaderLine('User-Agent'));
-        $this->assertEquals('http://www.google.co.uk/url?sa=t&source=web&cd=1', $request->getHeaderLine('Referer'));
+        $this->assertSame('Mozilla/5.2', $request->getHeaderLine('User-Agent'));
+        $this->assertSame('http://www.google.co.uk/url?sa=t&source=web&cd=1', $request->getHeaderLine('Referer'));
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
         $this->assertSame('image/jpg', $res['headers']['content-type']);
@@ -80,8 +80,8 @@ class HttpClientTest extends TestCase
         $res = $http->fetch($url);
 
         $this->assertCount(2, $httpMockClient->getRequests());
-        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request is head because of the extension');
-        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is get because the Content-Type wasn\'t a binary');
+        $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request is head because of the extension');
+        $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is get because the Content-Type wasn\'t a binary');
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
@@ -101,8 +101,8 @@ class HttpClientTest extends TestCase
         $res = $http->fetch($url);
 
         $this->assertCount(2, $httpMockClient->getRequests());
-        $this->assertEquals('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request should be HEAD because of the extension');
-        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is GET because the Content-Type wasn\'t a binary');
+        $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request should be HEAD because of the extension');
+        $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is GET because the Content-Type wasn\'t a binary');
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
@@ -149,10 +149,10 @@ class HttpClientTest extends TestCase
         $res = $http->fetch($url);
 
         $this->assertCount(2, $httpMockClient->getRequests());
-        $this->assertEquals('GET', $httpMockClient->getRequests()[0]->getMethod());
-        $this->assertEquals($url, (string) $httpMockClient->getRequests()[0]->getUri());
-        $this->assertEquals('GET', $httpMockClient->getRequests()[1]->getMethod());
-        $this->assertEquals($metaUrl, (string) $httpMockClient->getRequests()[1]->getUri());
+        $this->assertSame('GET', $httpMockClient->getRequests()[0]->getMethod());
+        $this->assertSame($url, (string) $httpMockClient->getRequests()[0]->getUri());
+        $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod());
+        $this->assertSame($metaUrl, (string) $httpMockClient->getRequests()[1]->getUri());
 
         $this->assertSame($metaUrl, $res['effective_url']);
         $this->assertEmpty($res['body']);
