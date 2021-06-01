@@ -36,14 +36,14 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"
@@ -71,14 +71,14 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "pcov"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"
@@ -117,14 +117,14 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v1"
         with:
           dependency-versions: "lowest"
 
@@ -154,14 +154,14 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Setup adapter: Guzzle 5"
         run: |
@@ -194,14 +194,14 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Setup adapter: Guzzle 7"
         run: |
@@ -234,14 +234,14 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v1
+          tools: composer:v2
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Setup adapter: cURL"
         run: |
@@ -275,7 +275,7 @@ jobs:
         with:
           php-version: "${{ matrix.php }}"
           coverage: "none"
-          tools: composer:v2
+          tools: composer:v1
           extensions: tidy
           ini-values: "date.timezone=Europe/Paris"
         env:
