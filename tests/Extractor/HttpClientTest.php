@@ -624,4 +624,36 @@ class HttpClientTest extends TestCase
             $this->assertArrayNotHasKey('accept', $records[3]['context']);
         }
     }
+
+    public function dataForWithUrlContainingQueryAndFragment(): array
+    {
+        return [
+            [
+                'url' => 'https://example.com/foo?utm_content=111315005&utm_medium=social&utm_source=twitter&hss_channel=tw-hello',
+                'expectedUrl' => 'https://example.com/foo?hss_channel=tw-hello',
+            ],
+            [
+                'url' => 'https://example.com/foo?hss_channel=tw-hello#fragment',
+                'expectedUrl' => 'https://example.com/foo?hss_channel=tw-hello',
+            ],
+            [
+                'url' => 'https://example.com/foo?utm_content=111315005',
+                'expectedUrl' => 'https://example.com/foo',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForWithUrlContainingQueryAndFragment
+     */
+    public function testWithUrlContainingQueryAndFragment(string $url, string $expectedUrl): void
+    {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200));
+
+        $http = new HttpClient($httpMockClient);
+        $res = $http->fetch($url);
+
+        $this->assertSame($expectedUrl, $res['effective_url']);
+    }
 }
