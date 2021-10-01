@@ -11,8 +11,10 @@ class GrabyFormatterTest extends TestCase
     {
         $formatter = new GrabyFormatter();
         $res = $formatter->formatBatch([[
+            'channel' => 'graby',
             'level' => 100,
-            'datetime' => new \DateTime(),
+            'level_name' => 'ALERT',
+            'datetime' => new \DateTimeImmutable(),
             'message' => 'This is a log message',
             'context' => [
                 'cursor' => 'here',
