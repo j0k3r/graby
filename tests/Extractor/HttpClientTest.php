@@ -310,9 +310,9 @@ class HttpClientTest extends TestCase
         // cURL error 28 is: CURLE_OPERATION_TIMEDOUT
         // "cURL error 28: Connection timed out after"
         if ($isGuzzle) {
-            $this->assertStringContainsString('cURL error 28', $records[3]['formatted']);
+            $this->assertStringContainsString('cURL error 28', $records[3]['context']['error_message']);
         } else {
-            $this->assertStringContainsString('Connection timed out after', $records[3]['formatted']);
+            $this->assertStringContainsString('Connection timed out after', $records[3]['context']['error_message']);
         }
     }
 
@@ -342,11 +342,7 @@ class HttpClientTest extends TestCase
 
         $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
         $this->assertSame(310, $res['status']);
-
-        $records = $handler->getRecords();
-        $record = end($records);
-
-        $this->assertSame('Endless redirect: 4 on "{url}"', $record['message']);
+        $this->assertSame('Endless redirect: 4 on "{url}"', $handler->getRecords()[3]['message']);
     }
 
     public function dataForConditionalComments(): array

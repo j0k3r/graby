@@ -12,9 +12,11 @@ class GrabyHandlerTest extends TestCase
     {
         $handler = new GrabyHandler();
         $handler->handle([
+            'channel' => 'graby',
             'level' => 100,
+            'level_name' => 'ALERT',
+            'datetime' => new \DateTimeImmutable(),
             'message' => 'message',
-            'datetime' => new \DateTime(),
             'context' => [],
             'extra' => [],
         ]);
