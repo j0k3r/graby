@@ -4,10 +4,10 @@ namespace Graby;
 
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
+use Graby\HttpClient\Plugin\CookiePlugin;
 use Graby\SiteConfig\ConfigBuilder;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
-use Http\Client\Common\Plugin\CookiePlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\HttpClient as Client;
 use Http\Discovery\HttpClientDiscovery;
