@@ -726,8 +726,8 @@ HTML
             ['hello "you" are fine', 15, '...', 'hello "you" are...'],
             ['hello <p>you</p> are fine', 13, '...', 'hello you are...'],
             ["hello you\n are fine", 13, '...', 'hello you are...'],
-            [\chr(0xc2) . \chr(0xa0) . 'hello you are fine', 13, '...', 'hello you are...'],
-            ['hello you are fine' . \chr(0xc2) . \chr(0xa0), 13, '...', 'hello you are...'],
+            [\chr(0xC2) . \chr(0xA0) . 'hello you are fine', 13, '...', 'hello you are...'],
+            ['hello you are fine' . \chr(0xC2) . \chr(0xA0), 13, '...', 'hello you are...'],
         ];
     }
 
