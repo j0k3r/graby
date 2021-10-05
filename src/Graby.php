@@ -849,7 +849,7 @@ class Graby
         $base = new Uri($base);
 
         // in case the url has no host
-        if (0 === \strlen($base->getAuthority())) {
+        if ('' === $base->getAuthority()) {
             return false;
         }
 
