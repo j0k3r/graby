@@ -779,8 +779,6 @@ class Graby
      */
     private function makeAbsolute($base, \DOMElement $elem)
     {
-        $base = trim($base, '/');
-
         foreach (['a' => 'href', 'img' => 'src', 'iframe' => 'src'] as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
 
