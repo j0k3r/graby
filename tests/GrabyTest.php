@@ -823,6 +823,7 @@ HTML
             ['http://example.org', '<img src="//domain.com/lol.jpg">test</img>', 'src', 'http://domain.com/lol.jpg'],
             ['http://example.org', '<img src=" /path/to/image.jpg" />', 'src', 'http://example.org/path/to/image.jpg'],
             ['http://example.org', '<a href="/lol">test</a>', 'src', ''],
+            ['http://example.org/folder/', '<img src="visual.jpg" />', 'src', 'http://example.org/folder/visual.jpg'],
         ];
     }
 
