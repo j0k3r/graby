@@ -16,6 +16,11 @@
         </testsuite>
     </testsuites>
 
+    <php>
+        <!-- until all deps are compatible with PHP 8.1 -->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+    </php>
+
     <filter>
         <whitelist>
             <directory>./src</directory>

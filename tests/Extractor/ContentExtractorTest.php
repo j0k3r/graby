@@ -163,10 +163,10 @@ class ContentExtractorTest extends TestCase
 
         $this->assertTrue($res, 'Extraction went well');
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
-        $this->assertStringContainsString('<iframe class="video"', $content_block->ownerDocument->saveXML($content_block));
-        $this->assertCount(1, $contentExtractor->getAuthors());
+        $this->assertStringContainsString('<iframe class="video"', (string) $contentBlock->ownerDocument->saveXML($contentBlock));
+        $this->assertCount(1, (array) $contentExtractor->getAuthors());
         $this->assertSame('CaTV', $contentExtractor->getAuthors()[0]);
     }
 
@@ -191,9 +191,9 @@ class ContentExtractorTest extends TestCase
 
         $this->assertTrue($res, 'Extraction went well');
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
-        $this->assertStringContainsString('<iframe src="">[embedded content]</iframe>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<iframe src="">[embedded content]</iframe>', (string) $contentBlock->ownerDocument->saveXML($contentBlock));
     }
 
     public function dataForNextPage(): array
@@ -375,7 +375,7 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertStringNotContainsString($removedContent, $content);
+        $this->assertStringNotContainsString($removedContent, (string) $content);
     }
 
     public function dataForStripIdOrClass(): array
@@ -407,9 +407,9 @@ class ContentExtractorTest extends TestCase
         $content = $domElement->ownerDocument->saveXML($domElement);
 
         if (null === $removedContent) {
-            $this->assertStringContainsString((string) $matchContent, $content);
+            $this->assertStringContainsString((string) $matchContent, (string) $content);
         } else {
-            $this->assertStringNotContainsString($removedContent, $content);
+            $this->assertStringNotContainsString($removedContent, (string) $content);
         }
     }
 
@@ -442,7 +442,7 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertStringNotContainsString($removedContent, $content);
+        $this->assertStringNotContainsString($removedContent, (string) $content);
     }
 
     public function dataForStripDisplayNoneAndInstapaper(): array
@@ -475,7 +475,7 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->readability->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertStringNotContainsString($removedContent, $content);
+        $this->assertStringNotContainsString($removedContent, (string) $content);
     }
 
     public function dataForStripAttr(): array
@@ -514,11 +514,11 @@ class ContentExtractorTest extends TestCase
         $content = $domElement->ownerDocument->saveXML($domElement);
 
         foreach ($assertions['removedContent'] as $removedContent) {
-            $this->assertStringNotContainsString($removedContent, $content);
+            $this->assertStringNotContainsString($removedContent, (string) $content);
         }
 
         foreach ($assertions['keptContent'] as $keptContent) {
-            $this->assertStringContainsString($keptContent, $content);
+            $this->assertStringContainsString($keptContent, (string) $content);
         }
     }
 
@@ -719,7 +719,7 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertStringNotContainsString('My Title', $content);
+        $this->assertStringNotContainsString('My Title', (string) $content);
         $this->assertSame('My Title', $contentExtractor->getTitle());
     }
 
@@ -793,7 +793,7 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertStringContainsString($htmlExpected, $content);
+        $this->assertStringContainsString($htmlExpected, (string) $content);
     }
 
     public function testIframeEmbeddedContent(): void
@@ -817,7 +817,7 @@ class ContentExtractorTest extends TestCase
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertStringContainsString('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $content);
+        $this->assertStringContainsString('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', (string) $content);
     }
 
     public function testLogMessage(): void
@@ -847,7 +847,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Trying {pattern} for language', $records[4]['message']);
         $this->assertSame('Trying {pattern} for language', $records[5]['message']);
         $this->assertSame('Using Readability', $records[6]['message']);
-        $this->assertSame('Date is bad (strtotime failed): {date}', $records[7]['message']);
+        $this->assertSame('Date is bad (wrong year): {date}', $records[7]['message']);
         $this->assertSame('Attempting to parse HTML with {parser}', $records[9]['message']);
     }
 
@@ -916,8 +916,8 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $domElement = $contentExtractor->getContent();
         $content = $domElement->ownerDocument->saveXML($domElement);
 
-        $this->assertStringNotContainsString('<head>', $content);
-        $this->assertStringNotContainsString('<base>', $content);
+        $this->assertStringNotContainsString('<head>', (string) $content);
+        $this->assertStringNotContainsString('<base>', (string) $content);
     }
 
     public function testNativeAd(): void
@@ -931,10 +931,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue($res, 'Extraction went well');
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
         $this->assertTrue($contentExtractor->isNativeAd());
-        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', (string) $contentBlock->ownerDocument->saveXML($contentBlock));
     }
 
     public function testJsonLd(): void
@@ -948,13 +948,13 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue($res, 'Extraction went well');
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
         $this->assertSame('title !!', $contentExtractor->getTitle());
         $this->assertSame('2017-10-23T16:05:38+02:00', $contentExtractor->getDate());
-        $this->assertStringContainsString('bob', $contentExtractor->getAuthors()[0]);
+        $this->assertStringContainsString('bob', (string) $contentExtractor->getAuthors()[0]);
         $this->assertSame('https://static.jsonld.io/medias.jpg', $contentExtractor->getImage());
-        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', (string) $contentBlock->ownerDocument->saveXML($contentBlock));
     }
 
     public function testJsonLdWithMultipleAuthors(): void
@@ -966,7 +966,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             'https://nativead.io/jsonld'
         );
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
         $this->assertSame([
             'Elisa Thevenet',
@@ -1006,13 +1006,13 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue($res);
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
         $this->assertSame('title !!', $contentExtractor->getTitle());
         $this->assertSame('2017-10-23T17:04:21+00:00', $contentExtractor->getDate());
         $this->assertSame('fr_FR', $contentExtractor->getLanguage());
         $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $contentExtractor->getImage());
-        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', (string) $contentBlock->ownerDocument->saveXML($contentBlock));
     }
 
     public function testAvoidDataUriImageInOpenGraph(): void
@@ -1026,10 +1026,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue($res);
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
         $this->assertEmpty($contentExtractor->getImage());
-        $this->assertStringContainsString('<p>hihi</p>', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('<p>hihi</p>', (string) $contentBlock->ownerDocument->saveXML($contentBlock));
     }
 
     public function testJsonLdIgnoreList(): void
@@ -1044,7 +1044,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertTrue($res, 'Extraction went well');
 
         $this->assertSame('The Foobar Company is launching globally', $contentExtractor->getTitle());
-        $this->assertStringContainsString('Foobar CEO', $contentExtractor->getAuthors()[0]);
+        $this->assertStringContainsString('Foobar CEO', (string) $contentExtractor->getAuthors()[0]);
     }
 
     public function testJsonLdIgnoreListWithPeriodical(): void
@@ -1076,12 +1076,12 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue($res, 'Extraction went well');
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
 
         $this->assertEmpty($contentExtractor->getTitle());
         $this->assertNull($contentExtractor->getDate());
         $this->assertEmpty($contentExtractor->getAuthors());
-        $this->assertStringContainsString('this is the best part of the show', $content_block->ownerDocument->saveXML($content_block));
+        $this->assertStringContainsString('this is the best part of the show', (string) $contentBlock->ownerDocument->saveXML($contentBlock));
     }
 
     public function testJsonLdName(): void
@@ -1133,7 +1133,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             $url,
             $siteConfig
         );
-        $authors = $contentExtractor->getAuthors();
+        $authors = (array) $contentExtractor->getAuthors();
         $authorsUnique = array_unique($authors);
 
         $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
@@ -1209,9 +1209,9 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue($res, 'Extraction went well');
 
-        $content_block = $contentExtractor->getContent();
+        $contentBlock = $contentExtractor->getContent();
         $doc = new \DOMDocument();
-        $doc->loadXML($content_block->innerHTML);
+        $doc->loadXML($contentBlock->innerHTML);
         $xpath = new \DOMXPath($doc);
 
         $el = $xpath->query($xpathQuery);

@@ -11,12 +11,12 @@ class ConfigBuilder
 {
     /** @var LoggerInterface */
     private $logger;
-    private $config = [];
-    private $configFiles = [];
-    private $cache = [];
+    private array $config = [];
+    private array $configFiles = [];
+    private array $cache = [];
 
     // Array for accepted headers for http_header()
-    private $acceptedHeaders = [
+    private array $acceptedHeaders = [
         'user-agent',
         'referer',
         'cookie',
@@ -24,7 +24,7 @@ class ConfigBuilder
     ];
 
     // Array of accepted HTML tags for wrap_in()
-    private $acceptedWrapInTags = [
+    private array $acceptedWrapInTags = [
         'blockquote',
         'p',
         'div',
@@ -52,7 +52,7 @@ class ConfigBuilder
         $this->loadConfigFiles();
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -64,7 +64,7 @@ class ConfigBuilder
      *     - If we add a new file after, it won't be loaded.
      *     - We'll need to manually reload config files.
      */
-    public function loadConfigFiles()
+    public function loadConfigFiles(): void
     {
         $this->configFiles = Files::getFiles($this->config['site_config']);
     }
@@ -75,7 +75,7 @@ class ConfigBuilder
      * @param string     $key    Key for the cache
      * @param SiteConfig $config Config to be cached
      */
-    public function addToCache($key, SiteConfig $config)
+    public function addToCache($key, SiteConfig $config): void
     {
         $key = strtolower($key);
         if ('www.' === substr($key, 0, 4)) {
@@ -419,20 +419,21 @@ class ConfigBuilder
      * @param SiteConfig $config    Current config
      * @param string     $condition XPath condition
      */
-    private function handleIfPageContainsCondition(SiteConfig $config, $condition)
+    private function handleIfPageContainsCondition(SiteConfig $config, string $condition): void
     {
+        $rule = false;
         if (!empty($config->single_page_link)) {
             $rule = 'single_page_link';
         } elseif (!empty($config->next_page_link)) {
             $rule = 'next_page_link';
-        } else {
-            // no link found, we can't apply "if_page_contains"
-            return;
         }
 
-        $key = end($config->$rule);
-        reset($config->$rule);
+        // no link found, we can't apply "if_page_contains"
+        if ($rule) {
+            $key = end($config->$rule);
+            reset($config->$rule);
 
-        $config->if_page_contains[$rule][$key] = (string) $condition;
+            $config->if_page_contains[$rule][$key] = (string) $condition;
+        }
     }
 }

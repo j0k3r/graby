@@ -18,29 +18,23 @@ class History implements Journal
      */
     private $lastResponse;
 
-    /**
-     * @return RequestInterface|null
-     */
-    public function getLastRequest()
+    public function getLastRequest(): ?RequestInterface
     {
         return $this->lastRequest;
     }
 
-    /**
-     * @return ResponseInterface|null
-     */
-    public function getLastResponse()
+    public function getLastResponse(): ?ResponseInterface
     {
         return $this->lastResponse;
     }
 
-    public function addSuccess(RequestInterface $request, ResponseInterface $response)
+    public function addSuccess(RequestInterface $request, ResponseInterface $response): void
     {
         $this->lastRequest = $request;
         $this->lastResponse = $response;
     }
 
-    public function addFailure(RequestInterface $request, ClientExceptionInterface $exception)
+    public function addFailure(RequestInterface $request, ClientExceptionInterface $exception): void
     {
     }
 }

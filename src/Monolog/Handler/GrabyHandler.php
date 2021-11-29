@@ -13,8 +13,8 @@ use Monolog\Processor\PsrLogMessageProcessor;
  */
 class GrabyHandler extends AbstractProcessingHandler
 {
-    protected $records = [];
-    protected $recordsByLevel = [];
+    protected array $records = [];
+    protected array $recordsByLevel = [];
 
     public function __construct($level = Logger::DEBUG, $bubble = true)
     {
@@ -24,18 +24,21 @@ class GrabyHandler extends AbstractProcessingHandler
         $this->pushProcessor(new PsrLogMessageProcessor());
     }
 
-    public function getRecords()
+    public function getRecords(): array
     {
         return $this->records;
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->records = [];
         $this->recordsByLevel = [];
     }
 
-    public function hasRecords($level)
+    /**
+     * @param string|int $level Logging level value or name
+     */
+    public function hasRecords($level): bool
     {
         return isset($this->recordsByLevel[$level]);
     }

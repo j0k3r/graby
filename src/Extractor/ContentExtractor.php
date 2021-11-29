@@ -17,20 +17,24 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ContentExtractor
 {
+    /** @var Readability|null */
     public $readability;
+    /** @var \DOMXPath|null */
     private $xpath;
-    private $html;
-    private $config;
+    private ?string $html = null;
+    private array $config;
+    /** @var SiteConfig|null */
     private $siteConfig = null;
-    private $title = null;
-    private $language = null;
-    private $authors = [];
+    private ?string $title = null;
+    private ?string $language = null;
+    private array $authors = [];
+    /** @var \DOMElement|\DOMNode|null */
     private $body = null;
-    private $image = null;
-    private $nativeAd = false;
-    private $date = null;
-    private $success = false;
-    private $nextPageUrl;
+    private ?string $image = null;
+    private bool $nativeAd = false;
+    private ?string $date = null;
+    private bool $success = false;
+    private ?string $nextPageUrl = null;
     /** @var LoggerInterface */
     private $logger;
     /** @var ConfigBuilder */
@@ -74,13 +78,13 @@ class ContentExtractor
         $this->configBuilder = null === $configBuilder ? new ConfigBuilder($this->config['config_builder'], $this->logger) : $configBuilder;
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
         $this->configBuilder->setLogger($logger);
     }
 
-    public function reset()
+    public function reset(): void
     {
         $this->xpath = null;
         $this->html = null;
@@ -100,11 +104,9 @@ class ContentExtractor
      * Try to find a host depending on a meta that can be in the html.
      * It allow to determine if a website is generated using Wordpress, Blogger, etc ..
      *
-     * @param string $html
-     *
      * @return string|false
      */
-    public function findHostUsingFingerprints($html)
+    public function findHostUsingFingerprints(string $html)
     {
         foreach ($this->config['fingerprints'] as $metaPattern => $host) {
             if (1 === preg_match($metaPattern, $html)) {
@@ -117,14 +119,8 @@ class ContentExtractor
 
     /**
      * Returns SiteConfig instance (joined in order: exact match, wildcard, fingerprint, global, default).
-     *
-     * @param string $url
-     * @param string $html
-     * @param bool   $addToCache
-     *
-     * @return SiteConfig
      */
-    public function buildSiteConfig($url, $html = '', $addToCache = true)
+    public function buildSiteConfig(string $url, string $html = '', bool $addToCache = true): SiteConfig
     {
         $config = $this->configBuilder->buildFromUrl($url, $addToCache);
 
@@ -158,14 +154,12 @@ class ContentExtractor
      * Tidy helps us deal with PHP's patchy HTML parsing most of the time
      * but it has problems of its own which we try to avoid with this option.
      *
-     * @param string     $html
-     * @param string     $url
      * @param SiteConfig $siteConfig Will avoid to recalculate the site config
      * @param bool       $smartTidy  Do we need to tidy the html ?
      *
      * @return bool true on success, false on failure
      */
-    public function process($html, $url, SiteConfig $siteConfig = null, $smartTidy = true)
+    public function process(string $html, string $url, SiteConfig $siteConfig = null, $smartTidy = true): bool
     {
         $this->reset();
 
@@ -665,47 +659,50 @@ class ContentExtractor
         return $this->success;
     }
 
+    /**
+     * @return \DOMElement|\DOMNode|null
+     */
     public function getContent()
     {
         return $this->body;
     }
 
-    public function isNativeAd()
+    public function isNativeAd(): bool
     {
         return $this->nativeAd;
     }
 
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function getDate()
+    public function getDate(): ?string
     {
         return $this->date;
     }
 
-    public function getAuthors()
+    public function getAuthors(): ?array
     {
         return $this->authors;
     }
 
-    public function getLanguage()
+    public function getLanguage(): ?string
     {
         return $this->language;
     }
 
-    public function getImage()
+    public function getImage(): ?string
     {
         return $this->image;
     }
 
-    public function getSiteConfig()
+    public function getSiteConfig(): ?SiteConfig
     {
         return $this->siteConfig;
     }
 
-    public function getNextPageUrl()
+    public function getNextPageUrl(): ?string
     {
         return $this->nextPageUrl;
     }
@@ -717,8 +714,9 @@ class ContentExtractor
      *
      * @return string|null Formatted date using the W3C format (Y-m-d\TH:i:sP) OR null if the date is badly formatted
      */
-    public function validateDate($date)
+    public function validateDate(?string $date): ?string
     {
+        $date = (string) $date;
         $parseDate = (array) date_parse($date);
 
         // If no year has been found during date_parse, we nuke the whole value
@@ -739,7 +737,7 @@ class ContentExtractor
         return (new \DateTime($date))->format(\DateTime::W3C);
     }
 
-    protected function addAuthor($authorDirty)
+    protected function addAuthor(string $authorDirty): void
     {
         $author = trim($authorDirty);
         if (!\in_array($author, $this->authors, true)) {
@@ -751,10 +749,8 @@ class ContentExtractor
      * Check if given node list exists and has length more than 0.
      *
      * @param \DOMNodeList|false $elems Not force typed because it can also be false
-     *
-     * @return bool
      */
-    private function hasElements($elems = false)
+    private function hasElements($elems = false): bool
     {
         if (false === $elems) {
             return false;
@@ -768,8 +764,10 @@ class ContentExtractor
      *
      * @param \DOMNodeList|false $elems      Not force typed because it can also be false
      * @param string             $logMessage
+     *
+     * @return void|null
      */
-    private function removeElements($elems = false, $logMessage = null)
+    private function removeElements($elems = false, string $logMessage = null)
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -796,10 +794,11 @@ class ContentExtractor
      * Wrap elements with provided tag.
      *
      * @param \DOMNodeList|false $elems
-     * @param string             $tag
      * @param string             $logMessage
+     *
+     * @return void|null
      */
-    private function wrapElements($elems = false, $tag = 'div', $logMessage = null)
+    private function wrapElements($elems = false, string $tag = 'div', string $logMessage = null)
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -882,11 +881,10 @@ class ContentExtractor
      * @param bool          $detectTitle Do we have to detect title ?
      * @param string        $cssClass    CSS class to look for
      * @param \DOMNode|null $node        DOMNode to look into
-     * @param string        $logMessage
      *
      * @return bool Telling if we have to detect title again or not
      */
-    private function extractTitle($detectTitle, $cssClass, \DOMNode $node = null, $logMessage)
+    private function extractTitle(bool $detectTitle, string $cssClass, \DOMNode $node = null, string $logMessage): bool
     {
         if (null === $node) {
             return true;
@@ -907,11 +905,10 @@ class ContentExtractor
      * @param bool          $detectDate Do we have to detect date ?
      * @param string        $cssClass   CSS class to look for
      * @param \DOMNode|null $node       DOMNode to look into
-     * @param string        $logMessage
      *
      * @return bool Telling if we have to detect date again or not
      */
-    private function extractDate($detectDate, $cssClass, \DOMNode $node = null, $logMessage)
+    private function extractDate(bool $detectDate, string $cssClass, \DOMNode $node = null, string $logMessage): bool
     {
         if (null === $node) {
             return true;
@@ -934,7 +931,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect author again or not
      */
-    private function extractAuthor($detectAuthor, \DOMNode $node = null)
+    private function extractAuthor(bool $detectAuthor, \DOMNode $node = null): bool
     {
         if (false === $detectAuthor) {
             return false;
@@ -981,7 +978,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect body again or not
      */
-    private function extractBody($detectBody, $xpathExpression, \DOMNode $node = null, $type)
+    private function extractBody(bool $detectBody, string $xpathExpression, \DOMNode $node = null, string $type): bool
     {
         if (false === $detectBody) {
             return false;
@@ -1066,10 +1063,8 @@ class ContentExtractor
      * @param string $url        URL of the content
      * @param string $parser     Parser to use
      * @param bool   $enableTidy Should it use tidy extension?
-     *
-     * @return Readability
      */
-    private function getReadability($html, $url, $parser, $enableTidy)
+    private function getReadability(string $html, string $url, string $parser, bool $enableTidy): Readability
     {
         $readability = new Readability($html, $url, $parser, $enableTidy);
 
@@ -1104,7 +1099,7 @@ class ContentExtractor
      *
      * @return bool Telling if the entity has been found
      */
-    private function extractEntityFromPattern($entity, $pattern, $returnCallback = null)
+    private function extractEntityFromPattern(string $entity, string $pattern, $returnCallback = null): bool
     {
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
@@ -1159,7 +1154,7 @@ class ContentExtractor
      *
      * @return bool Telling if the entity has been found
      */
-    private function extractMultipleEntityFromPattern($entity, $pattern, $returnCallback = null)
+    private function extractMultipleEntityFromPattern(string $entity, string $pattern, $returnCallback = null): bool
     {
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
@@ -1207,8 +1202,10 @@ class ContentExtractor
      *     - JSON-LD.
      *
      * @param string $html Html from the page
+     *
+     * @return void|null
      */
-    private function extractDefinedInformation($html)
+    private function extractDefinedInformation(string $html)
     {
         if ('' === trim($html)) {
             return;
@@ -1236,7 +1233,7 @@ class ContentExtractor
      *
      * @see http://stackoverflow.com/a/7454737/569101
      */
-    private function extractOpenGraph(\DOMXPath $xpath)
+    private function extractOpenGraph(\DOMXPath $xpath): void
     {
         // retrieve "og:" properties
         $metas = $xpath->query('//*/meta[starts-with(@property, \'og:\')]');
@@ -1316,6 +1313,8 @@ class ContentExtractor
 
     /**
      * Clean extract of JSON-LD authors.
+     *
+     * @return array|string
      */
     private function extractAuthorsFromJsonLdArray(array $authors)
     {
@@ -1338,13 +1337,15 @@ class ContentExtractor
      * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
      *
      * @see https://json-ld.org/spec/latest/json-ld/
+     *
+     * @return void|null
      */
     private function extractJsonLdInformation(\DOMXPath $xpath)
     {
         $scripts = $xpath->query('//*/script[@type="application/ld+json"]');
 
         if (false === $scripts) {
-            return null;
+            return;
         }
 
         $ignoreNames = [];
@@ -1364,18 +1365,12 @@ class ContentExtractor
 
             // just in case datePublished isn't defined, we use the modified one at first
             if (!empty($data['dateModified'])) {
-                $this->date = $data['dateModified'];
+                $this->date = \is_array($data['dateModified']) ? reset($data['dateModified']) : $data['dateModified'];
                 $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
             }
 
             if (!empty($data['datePublished'])) {
-                $this->date = $data['datePublished'];
-                $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
-            }
-
-            // sometimes the date is an array
-            if (\is_array($this->date)) {
-                $this->date = reset($this->date);
+                $this->date = \is_array($data['datePublished']) ? reset($data['datePublished']) : $data['datePublished'];
                 $this->logger->info('date matched from JsonLd: {date}', ['date' => $this->date]);
             }
 
@@ -1408,12 +1403,8 @@ class ContentExtractor
             }
 
             if (!empty($data['image']['url'])) {
-                $this->image = $data['image']['url'];
-
                 // some people use ImageObject url field as an array instead of a string...
-                if (\is_array($data['image']['url'])) {
-                    $this->image = current($data['image']['url']);
-                }
+                $this->image = \is_array($data['image']['url']) ? current($data['image']['url']) : $data['image']['url'];
             }
         }
 
