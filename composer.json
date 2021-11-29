@@ -44,11 +44,6 @@
         "phpstan/phpstan-phpunit": "^1.0",
         "symfony/phpunit-bridge": "^6.0"
     },
-    "extra": {
-        "branch-alias": {
-            "dev-2.0": "2.0-dev"
-        }
-    },
     "autoload": {
         "psr-4": {
             "Graby\\": "src/"
