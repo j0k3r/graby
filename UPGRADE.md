@@ -1,4 +1,15 @@
-# UPGRADE FROM 1.x to 2.0
+# FROM 2.x to 3.0
+
+It should be easy if you didn't override or extend Graby.
+I tried to typehint everything (method parameters, method return, variable, etc.).
+
+So you must update methods you overriden.
+
+### :warning: BC changes
+
+- Support for PHP < 7.4 has been dropped
+
+# FROM 1.x to 2.0
 
 ### :warning: BC changes
 
