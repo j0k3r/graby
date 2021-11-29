@@ -15,7 +15,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.1.3",
+        "php": ">=7.4",
         "ext-curl": "*",
         "ext-tidy": "*",
         "fossar/htmlawed": "^1.2.7",
@@ -42,7 +42,7 @@
         "phpstan/phpstan": "^1.2",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpstan/phpstan-phpunit": "^1.0",
-        "symfony/phpunit-bridge": "^5.4"
+        "symfony/phpunit-bridge": "^6.0"
     },
     "extra": {
         "branch-alias": {
