@@ -12,15 +12,27 @@ parameters:
         -
             message: '#Http\\Adapter\\Guzzle5\\Client\\|Http\\Adapter\\Guzzle6\\Client\\|Http\\Client\\Curl\\Client given#'
             path: %currentWorkingDirectory%/tests/Extractor/HttpClientTest.php
-        # we don't want to BC by defining typehint everywhere
-        # TODO: remove when jumping to 3.0
-        -
-            message: '#typehint specified.#'
-            path: %currentWorkingDirectory%/src/
         # phpstan does not seem to recognize the class override for JSLikeHTMLElement
         -
             message: '#Call to an undefined method DOMElement::setInnerHtml\(\)#'
             path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
+        -
+            message: '#\$innerHTML#'
+            path: %currentWorkingDirectory%
+        # can't find a way to cast or properly defined some return elements
+        -
+            message: '#DOMNode, object given#'
+            path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
+        # other stuff I might have fucked up with DOM* classes
+        -
+            message: '#DOMNode::\$tagName#'
+            path: %currentWorkingDirectory%/src/
+        -
+            message: '#DOMNode::getElementsByTagName#'
+            path: %currentWorkingDirectory%/src/
+        -
+            message: '#expects DOMElement, DOMNode given#'
+            path: %currentWorkingDirectory%/src/Graby.php
 
     inferPrivatePropertyTypeFromConstructor: true
     checkMissingIterableValueType: false

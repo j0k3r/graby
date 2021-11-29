@@ -109,7 +109,7 @@ class HttpClient
         );
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -282,12 +282,8 @@ class HttpClient
 
     /**
      * Cleanup URL and retrieve the final url to be called.
-     *
-     * @param string $url
-     *
-     * @return string
      */
-    private function cleanupUrl($url)
+    private function cleanupUrl(string $url): string
     {
         // rewrite part of urls to something more readable
         foreach ($this->config['rewrite_url'] as $find => $action) {
@@ -323,10 +319,8 @@ class HttpClient
      * by checking the extension.
      *
      * @param string $url Absolute url
-     *
-     * @return bool
      */
-    private function possibleUnsupportedType($url)
+    private function possibleUnsupportedType(string $url): bool
     {
         $ext = strtolower(trim(pathinfo($url, \PATHINFO_EXTENSION)));
 
@@ -344,10 +338,8 @@ class HttpClient
      *
      * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
-     *
-     * @return string
      */
-    private function getUserAgent($url, array $httpHeader = [])
+    private function getUserAgent(string $url, array $httpHeader = []): string
     {
         $ua = $this->config['ua_browser'];
 
@@ -392,10 +384,8 @@ class HttpClient
      *
      * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
-     *
-     * @return string
      */
-    private function getReferer($url, $httpHeader = [])
+    private function getReferer(string $url, array $httpHeader = []): string
     {
         $default_referer = $this->config['default_referer'];
 
@@ -418,10 +408,8 @@ class HttpClient
      *
      * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
-     *
-     * @return string|null
      */
-    private function getCookie($url, $httpHeader = [])
+    private function getCookie(string $url, array $httpHeader = []): ?string
     {
         if (!empty($httpHeader['cookie'])) {
             $this->logger->info('Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
@@ -463,7 +451,7 @@ class HttpClient
      *
      * @return string|false
      */
-    private function getAccept($url, $httpHeader = [])
+    private function getAccept(string $url, array $httpHeader = [])
     {
         if (!empty($httpHeader['accept'])) {
             $this->logger->info('Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
@@ -481,10 +469,8 @@ class HttpClient
      * Since the request is now done we directly check the Content-Type header
      *
      * @param array $headers All headers from the request
-     *
-     * @return bool
      */
-    private function headerOnlyType(array $headers)
+    private function headerOnlyType(array $headers): bool
     {
         $contentType = isset($headers['content-type']) ? $headers['content-type'] : '';
 
@@ -512,7 +498,7 @@ class HttpClient
      *
      * @return false|string
      */
-    private function getMetaRefreshURL($url, $html)
+    private function getMetaRefreshURL(string $url, string $html)
     {
         if ('' === $html) {
             return false;
@@ -548,7 +534,7 @@ class HttpClient
      *
      * @return false|string
      */
-    private function getUglyURL($url, $html)
+    private function getUglyURL(string $url, string $html)
     {
         $found = false;
         foreach ($this->config['ajax_triggers'] as $string) {
@@ -577,10 +563,8 @@ class HttpClient
     /**
      * Format all headers to avoid unecessary array level.
      * Also lower the header name.
-     *
-     * @return array
      */
-    private function formatHeaders(ResponseInterface $response)
+    private function formatHeaders(ResponseInterface $response): array
     {
         $headers = [];
         foreach ($response->getHeaders() as $name => $value) {

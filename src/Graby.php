@@ -27,21 +27,24 @@ use TrueBV\Punycode;
  */
 class Graby
 {
-    private $debug = false;
+    private bool $debug = false;
     /** @var LoggerInterface */
     private $logger;
-    private $logLevel = 'info';
+    private string $logLevel = 'info';
 
-    private $config = [];
+    private array $config = [];
 
+    /** @var HttpClient|null */
     private $httpClient = null;
+    /** @var ContentExtractor|null */
     private $extractor = null;
 
     /** @var ConfigBuilder */
     private $configBuilder;
+    /** @var Punycode */
     private $punycode;
 
-    private $imgNoReferrer = false;
+    private bool $imgNoReferrer = false;
 
     /**
      * @param array       $config
@@ -128,7 +131,7 @@ class Graby
     /**
      * Redefine all loggers.
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
         $this->extractor->setLogger($logger);
@@ -140,7 +143,7 @@ class Graby
      *
      * @see ConfigBuilder::loadConfigFiles
      */
-    public function reloadConfigFiles()
+    public function reloadConfigFiles(): void
     {
         $this->configBuilder->loadConfigFiles();
     }
@@ -148,11 +151,9 @@ class Graby
     /**
      * Return a config.
      *
-     * @param string $key
-     *
      * @return mixed
      */
-    public function getConfig($key)
+    public function getConfig(string $key)
     {
         if (!isset($this->config[$key])) {
             throw new \Exception(sprintf('No config found for key: "%s"', $key));
@@ -164,11 +165,9 @@ class Graby
     /**
      * Fetch content from the given url and return a readable content.
      *
-     * @param string $url
-     *
      * @return array With keys html, title, url & summary
      */
-    public function fetchContent($url)
+    public function fetchContent(string $url): array
     {
         $this->logger->info('Graby is ready to fetch');
 
@@ -180,27 +179,22 @@ class Graby
         return $infos;
     }
 
-    public function toggleImgNoReferrer($toggle)
+    public function toggleImgNoReferrer(bool $toggle = false): void
     {
-        if (\is_bool($toggle)) {
-            $this->imgNoReferrer = $toggle;
-        }
+        $this->imgNoReferrer = $toggle;
     }
 
     /**
      * Cleanup HTML from a DOMElement or a string.
      *
-     * @param string|\DOMElement $contentBlock
-     * @param string             $url
-     *
-     * @return string
+     * @param string|\DOMElement|\DOMNode $contentBlock
      */
-    public function cleanupHtml($contentBlock, $url)
+    public function cleanupHtml($contentBlock, string $url): string
     {
-        $originalContentBlock = $contentBlock instanceof \DOMElement ? $contentBlock->textContent : $contentBlock;
+        $originalContentBlock = \is_string($contentBlock) ? $contentBlock : $contentBlock->textContent;
 
         // if content is pure html, convert it
-        if (!$contentBlock instanceof \DOMElement) {
+        if (\is_string($contentBlock)) {
             $this->extractor->process($contentBlock, $url);
 
             $contentBlock = $this->extractor->getContent();
@@ -275,11 +269,9 @@ class Graby
     /**
      * Do fetch content from an url.
      *
-     * @param string $url
-     *
      * @return array With key status, html, title, language, date, authors, url, image, headers & native_ad
      */
-    private function doFetchContent($url)
+    private function doFetchContent(string $url): array
     {
         $url = $this->validateUrl($url);
         $siteConfig = $this->configBuilder->buildFromUrl($url);
@@ -466,12 +458,8 @@ class Graby
 
     /**
      * Validate & clean the given url.
-     *
-     * @param string $url
-     *
-     * @return string
      */
-    private function validateUrl($url)
+    private function validateUrl(string $url): string
     {
         // Check for feed URL
         $url = trim($url);
@@ -518,7 +506,7 @@ class Graby
         return $url;
     }
 
-    private function isUrlAllowed($url)
+    private function isUrlAllowed(string $url): bool
     {
         $allowedUrls = $this->getConfig('allowed_urls');
         $blockedUrls = $this->getConfig('blocked_urls');
@@ -543,12 +531,10 @@ class Graby
     /**
      * Based on content-type http header, decide what to do.
      *
-     * @param array $headers All headers from the response
-     *
      * @return array With keys: 'mime', 'type', 'subtype', 'action', 'name'
      *               e.g. array('mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image')
      */
-    private function getMimeActionInfo(array $headers)
+    private function getMimeActionInfo(array $headers): array
     {
         $contentType = isset($headers['content-type']) ? strtolower($headers['content-type']) : '';
 
@@ -586,10 +572,8 @@ class Graby
      * @param array  $mimeInfo     From getMimeActionInfo() function
      * @param string $effectiveUrl Current content url
      * @param array  $response     A response
-     *
-     * @return array|null
      */
-    private function handleMimeAction($mimeInfo, $effectiveUrl, $response = [])
+    private function handleMimeAction(array $mimeInfo, string $effectiveUrl, array $response = []): ?array
     {
         if (!isset($mimeInfo['action']) || !\in_array($mimeInfo['action'], ['link', 'exclude'], true)) {
             return null;
@@ -678,12 +662,9 @@ class Graby
     /**
      * returns single page response, or false if not found.
      *
-     * @param string $html
-     * @param string $url
-     *
      * @return false|array From httpClient fetch
      */
-    private function getSinglePage($html, $url)
+    private function getSinglePage(string $html, string $url)
     {
         $this->logger->info('Looking for site config files to see if single page link exists');
         $siteConfig = $this->configBuilder->buildFromUrl($url);
@@ -777,7 +758,7 @@ class Graby
      * @param string      $base The base url
      * @param \DOMElement $elem Element on which we'll retrieve the attribute
      */
-    private function makeAbsolute($base, \DOMElement $elem)
+    private function makeAbsolute(string $base, \DOMElement $elem): void
     {
         foreach (['a' => 'href', 'img' => 'src', 'iframe' => 'src'] as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
@@ -802,7 +783,7 @@ class Graby
      * @param \DOMNode $e    Element on which we'll retrieve the attribute
      * @param string   $attr Attribute that contains the url to absolutize
      */
-    private function makeAbsoluteAttr($base, \DOMNode $e, $attr)
+    private function makeAbsoluteAttr(string $base, \DOMNode $e, $attr): void
     {
         if (!$e->attributes->getNamedItem($attr) || !$e instanceof \DOMElement) {
             return;
@@ -832,7 +813,7 @@ class Graby
      *
      * @return false|string
      */
-    private function makeAbsoluteStr($base, $url)
+    private function makeAbsoluteStr(string $base, string $url)
     {
         if (!$url) {
             return false;
@@ -858,14 +839,8 @@ class Graby
      * Truncate text.
      *
      * @see https://github.com/twigphp/Twig-extensions/blob/449e3c8a9ffad7c2479c7864557275a32b037499/lib/Twig/Extensions/Extension/Text.php#L40
-     *
-     * @param string $text
-     * @param int    $length
-     * @param string $separator
-     *
-     * @return string
      */
-    private function getExcerpt($text, $length = 250, $separator = ' &hellip;')
+    private function getExcerpt(string $text, int $length = 250, ?string $separator = ' &hellip;'): string
     {
         // use regex instead of strip_tags to left some spaces when removing tags
         $text = preg_replace('#<[^>]+>#', ' ', (string) $text);
@@ -894,13 +869,8 @@ class Graby
      * (uses HTTP headers and HTML to find encoding).
      *
      * Adapted from http://stackoverflow.com/questions/910793/php-detect-encoding-and-make-everything-utf-8
-     *
-     * @param string $html
-     * @param array  $headers All headers from the response
-     *
-     * @return string
      */
-    private function convert2Utf8($html, array $headers = [])
+    private function convert2Utf8(string $html, array $headers = []): string
     {
         $contentType = isset($headers['content-type']) ? strtolower($headers['content-type']) : '';
 
@@ -912,7 +882,7 @@ class Graby
         // remove strange things
         $html = str_replace('</[>', '', $html);
 
-        if (empty($contentType) || !preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, \PREG_SET_ORDER)) {
+        if (!preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, \PREG_SET_ORDER)) {
             // error parsing the response
             $this->logger->info('Could not find Content-Type header in HTTP response', ['headers' => $headers]);
         } else {
@@ -1002,12 +972,8 @@ class Graby
 
     /**
      * Try to cleanup XSS using htmLawed.
-     *
-     * @param string $html
-     *
-     * @return string
      */
-    private function cleanupXss($html)
+    private function cleanupXss(string $html): string
     {
         if (false === $this->config['xss_filter']) {
             return $html;
