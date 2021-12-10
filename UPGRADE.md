@@ -3,7 +3,7 @@
 It should be easy if you didn't override or extend Graby.
 I tried to typehint everything (method parameters, method return, variable, etc.).
 
-So you must update methods you overriden.
+So you must update methods you overridden.
 
 ### :warning: BC changes
 
