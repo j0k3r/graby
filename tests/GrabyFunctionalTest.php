@@ -220,7 +220,7 @@ class GrabyFunctionalTest extends TestCase
 
         $this->assertSame(200, $res['status']);
         $this->assertEmpty($res['language']);
-        $this->assertSame('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml', $res['url']);
+        $this->assertSame('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v%3Dtd0P8qrS8iI&format=xml', $res['url']);
         $this->assertSame('[Review] The Matrix Falling (Rain) Source Code C++', $res['title']);
         // $this->assertSame('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen">[embedded content]</iframe>', $res['html']);
         $this->assertSame('[embedded content]', $res['summary']);
