@@ -50,15 +50,17 @@ That's why I made this fork:
 
 Add the lib using [Composer](https://getcomposer.org/):
 
-    composer require j0k3r/graby php-http/guzzle6-adapter
+    composer require j0k3r/graby php-http/guzzle7-adapter
 
-Why `php-http/guzzle6-adapter`? Because Graby is decoupled from any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
+Why `php-http/guzzle7-adapter`? Because Graby is decoupled from any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
 
 Graby is tested & should work great with:
 
-- Guzzle 6 (using `php-http/guzzle6-adapter`)
+- Guzzle 7 (using `php-http/guzzle7-adapter`)
 - Guzzle 5 (using `php-http/guzzle5-adapter`)
-- cURL (using `php-http/curl-client` and a PSR-17 response factory [from this list](https://packagist.org/providers/psr/http-factory-implementation))
+- cURL (using `php-http/curl-client`)
+
+Note: if you want to use Guzzle 6, use Graby 2 (support has dropped in v3 because of dependencies conflicts, which does not happen with Guzzle 5 :shrug:)
 
 ### Retrieve content from an url
 
@@ -196,12 +198,12 @@ configure it and inject it to `Graby\Graby`.
     $graby = new Graby([], new GuzzleAdapter($guzzle));
     ```
 
-- For Guzzle 6:
+- For Guzzle 7:
 
     ```php
     use Graby\Graby;
     use GuzzleHttp\Client as GuzzleClient;
-    use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
+    use Http\Adapter\Guzzle7\Client as GuzzleAdapter;
 
     $guzzle = new GuzzleClient([
         'timeout' => 2,
