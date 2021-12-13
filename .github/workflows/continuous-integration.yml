@@ -163,7 +163,7 @@ jobs:
 
       - name: "Setup adapter: Guzzle 5"
         run: |
-          composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n
+          composer remove guzzlehttp/guzzle php-http/guzzle7-adapter --dev -n
           composer require php-http/guzzle5-adapter --dev -n
 
       - name: "Setup logs"
@@ -172,8 +172,8 @@ jobs:
       - name: "Run PHPUnit"
         run: "php vendor/bin/simple-phpunit -v"
 
-  phpunit-guzzle7:
-    name: "PHPUnit (PHP ${{ matrix.php }} and Guzzle 7)"
+  phpunit-guzzle6:
+    name: "PHPUnit (PHP ${{ matrix.php }} and Guzzle 6)"
     runs-on: "ubuntu-20.04"
 
     strategy:
@@ -201,10 +201,10 @@ jobs:
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
 
-      - name: "Setup adapter: Guzzle 7"
+      - name: "Setup adapter: Guzzle 6"
         run: |
-          composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n
-          composer require php-http/guzzle7-adapter --dev -n
+          composer remove guzzlehttp/guzzle php-http/guzzle7-adapter --dev -n
+          composer require php-http/guzzle6-adapter --dev -n
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"
@@ -243,7 +243,7 @@ jobs:
 
       - name: "Setup adapter: cURL"
         run: |
-          composer remove php-http/guzzle6-adapter --dev -n
+          composer remove php-http/guzzle7-adapter --dev -n
           composer require php-http/curl-client --dev -n
           composer require zendframework/zend-diactoros --dev -n
 
