@@ -52,6 +52,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Maintenance\\Graby\\": "maintenance/",
             "Tests\\Graby\\": "tests/"
         }
     },
