@@ -320,6 +320,10 @@ class ConfigBuilder
             }
         }
 
+        // merge http_header array from currentConfig into newConfig
+        // because final values override former values in case of named keys
+        $currentConfig->http_header = array_merge($newConfig->http_header, $currentConfig->http_header);
+
         // Complex solution to ensure find_string & replace_string aren't duplicated when merging config multiple times
         // We can't perform an array_unique on these values mostly because replace_string can have same values, example:
         //      find_string: <amp-img
@@ -328,10 +332,7 @@ class ConfigBuilder
         //      replace_string: <img
         // To fix that issue, we combine find & replace as key & value in one array, we merge them and then rebuild find & replace string in the current config
 
-        // merge http_header array from currentConfig into newConfig
-        // because final values override former values in case of named keys
-        $currentConfig->http_header = array_merge($newConfig->http_header, $currentConfig->http_header);
-
+        // in case of bad configuration
         if (\count($currentConfig->find_string) !== \count($currentConfig->replace_string)) {
             return $currentConfig;
         }
@@ -378,7 +379,7 @@ class ConfigBuilder
 
             $val = trim($command[1]);
             $command = trim($command[0]);
-            if ('' === $command || '' === $val) {
+            if ('' === $command) {
                 continue;
             }
 

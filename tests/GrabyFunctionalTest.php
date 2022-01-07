@@ -340,4 +340,36 @@ class GrabyFunctionalTest extends TestCase
         // if the cookie wasn't taking into account, it'll be "NPR Choice page"
         $this->assertSame('Michael Flynn\'s Contradictory Line On Russia', $res['title']);
     }
+
+    public function testSaveXmlUnknownEncoding(): void
+    {
+        $graby = new Graby([
+            'debug' => true,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ],
+            ],
+        ]);
+        $res = $graby->fetchContent('http://motherjones.com/politics/2012/02/mac-mcclelland-free-online-shipping-warehouses-labor');
+
+        $this->assertCount(11, $res);
+        $this->assertSame(200, $res['status']);
+    }
+
+    public function testWithEmptyReplaceString(): void
+    {
+        $graby = new Graby([
+            'debug' => true,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ],
+            ],
+        ]);
+        $res = $graby->fetchContent('https://www.presseportal.de/pm/103258/2930232');
+
+        $this->assertCount(11, $res);
+        $this->assertSame(200, $res['status']);
+    }
 }
