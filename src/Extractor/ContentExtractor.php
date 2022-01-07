@@ -207,8 +207,8 @@ class ContentExtractor
         $this->readability = $this->getReadability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
         $tidied = $this->readability->tidied;
 
-        $this->logger->info('Body size after Readability: {length}', ['length' => \strlen((string) $this->readability->dom->saveXML())]);
-        $this->logger->debug('Body after Readability', ['dom_saveXML' => $this->readability->dom->saveXML()]);
+        $this->logger->info('Body size after Readability: {length}', ['length' => \strlen((string) $this->readability->dom->saveXML($this->readability->dom->documentElement))]);
+        $this->logger->debug('Body after Readability', ['dom_saveXML' => $this->readability->dom->saveXML($this->readability->dom->documentElement)]);
 
         // we use xpath to find elements in the given HTML document
         $this->xpath = new \DOMXPath($this->readability->dom);
@@ -379,11 +379,11 @@ class ContentExtractor
 
         $this->removeElements($elems, 'Stripping {length} empty a elements');
 
-        $this->logger->debug('DOM after site config stripping', ['dom_saveXML' => $this->readability->dom->saveXML()]);
+        $this->logger->debug('DOM after site config stripping', ['dom_saveXML' => $this->readability->dom->saveXML($this->readability->dom->documentElement)]);
 
         // try to get body
         foreach ($this->siteConfig->body as $pattern) {
-            $this->logger->info('Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => \strlen((string) $this->readability->dom->saveXML())]);
+            $this->logger->info('Trying {pattern} for body (content length: {content_length})', ['pattern' => $pattern, 'content_length' => \strlen((string) $this->readability->dom->saveXML($this->readability->dom->documentElement))]);
 
             $res = $this->extractBody(
                 true,

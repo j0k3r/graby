@@ -327,6 +327,15 @@ class ConfigBuilder
         //      find_string: <other-img
         //      replace_string: <img
         // To fix that issue, we combine find & replace as key & value in one array, we merge them and then rebuild find & replace string in the current config
+
+        // merge http_header array from currentConfig into newConfig
+        // because final values override former values in case of named keys
+        $currentConfig->http_header = array_merge($newConfig->http_header, $currentConfig->http_header);
+
+        if (\count($currentConfig->find_string) !== \count($currentConfig->replace_string)) {
+            return $currentConfig;
+        }
+
         $findReplaceCurrentConfig = array_combine($currentConfig->find_string, $currentConfig->replace_string);
         $findReplaceNewConfig = array_combine($newConfig->find_string, $newConfig->replace_string);
         $findReplaceMerged = array_merge((array) $findReplaceCurrentConfig, (array) $findReplaceNewConfig);
@@ -339,10 +348,6 @@ class ConfigBuilder
             $currentConfig->find_string[] = $findString;
             $currentConfig->replace_string[] = $replaceString;
         }
-
-        // merge http_header array from currentConfig into newConfig
-        // because final values override former values in case of named keys
-        $currentConfig->http_header = array_merge($newConfig->http_header, $currentConfig->http_header);
 
         return $currentConfig;
     }
