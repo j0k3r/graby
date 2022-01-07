@@ -332,11 +332,6 @@ class ConfigBuilder
         //      replace_string: <img
         // To fix that issue, we combine find & replace as key & value in one array, we merge them and then rebuild find & replace string in the current config
 
-        // in case of bad configuration
-        if (\count($currentConfig->find_string) !== \count($currentConfig->replace_string)) {
-            return $currentConfig;
-        }
-
         $findReplaceCurrentConfig = array_combine($currentConfig->find_string, $currentConfig->replace_string);
         $findReplaceNewConfig = array_combine($newConfig->find_string, $newConfig->replace_string);
         $findReplaceMerged = array_merge((array) $findReplaceCurrentConfig, (array) $findReplaceNewConfig);
@@ -410,6 +405,14 @@ class ConfigBuilder
             } elseif ((')' === substr($command, -1)) && preg_match('!([a-z0-9_]+)\(([a-z]+)\)$!i', $command, $match) && 'wrap_in' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedWrapInTags, true)) {
                 $config->wrap_in[strtolower(trim($match[2]))] = $val;
             }
+        }
+
+        // in case of bad configuration
+        if (\count($config->find_string) !== \count($config->replace_string)) {
+            $this->logger->warning('find_string & replace_string size mismatch, check the site config to fix it', ['find_string' => $config->find_string, 'replace_string' => $config->replace_string]);
+
+            $config->find_string = [];
+            $config->replace_string = [];
         }
 
         return $config;
