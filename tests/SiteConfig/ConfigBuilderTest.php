@@ -274,4 +274,26 @@ class ConfigBuilderTest extends TestCase
         $this->assertCount(2, $config4->find_string);
         $this->assertCount(2, $config4->replace_string);
     }
+
+    public function testCleanupFindReplaceString(): void
+    {
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $configBuilder->setLogger($logger);
+
+        $configActual = $configBuilder->parseLines([
+            'find_string: src="/assets/img/highlight_ph.png"',
+        ]);
+
+        $this->assertCount(0, $configActual->find_string);
+        $this->assertCount(0, $configActual->replace_string);
+
+        $records = $handler->getRecords();
+
+        $this->assertSame('find_string & replace_string size mismatch, check the site config to fix it', $records[0]['message']);
+        $this->assertCount(2, $records[0]['context']);
+    }
 }
