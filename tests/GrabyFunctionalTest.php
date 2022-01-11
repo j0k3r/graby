@@ -312,6 +312,7 @@ class GrabyFunctionalTest extends TestCase
 
     public function testCookie(): void
     {
+        // Rector: do not add mock client – we are testing if the cookie is set.
         $graby = new Graby([
             'debug' => true,
             'extractor' => [
@@ -320,7 +321,7 @@ class GrabyFunctionalTest extends TestCase
                 ],
             ],
         ]);
-        $res = $graby->fetchContent('http://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia');
+        $res = $graby->fetchContent('https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia');
 
         $this->assertCount(11, $res);
 
