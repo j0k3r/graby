@@ -3,6 +3,8 @@
 namespace Tests\Graby;
 
 use Graby\Graby;
+use GuzzleHttp\Psr7\Response;
+use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
@@ -19,8 +21,10 @@ class GrabyFunctionalTest extends TestCase
         $logger = new Logger('foo');
         $handler = new TestHandler($level = Logger::INFO);
         $logger->pushHandler($handler);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Connection' => ['keep-alive'], 'Content-Type' => ['text/html; charset=UTF-8'], 'X-Protected-By' => ['Sqreen'], 'Set-Cookie' => ['critical-article-free-desktop=f63cb50f6847971760d55dff34849007; expires=Thu, 10-Feb-2022 19:11:31 GMT; Max-Age=2592000; path=/; secure'], 'X-Frame-Options' => ['SAMEORIGIN'], 'X-XSS-Protection' => ['1; mode=block'], 'Via' => ['1.1 google, 1.1 varnish, 1.1 varnish'], 'Cache-Control' => ['private, max-age=0'], 'Accept-Ranges' => ['bytes'], 'Date' => ['Tue, 11 Jan 2022 19:11:31 GMT'], 'X-Served-By' => ['cache-cdg20730-CDG, cache-fra19144-FRA'], 'X-Cache' => ['MISS, MISS'], 'X-Cache-Hits' => ['0, 0'], 'X-Timer' => ['S1641928291.389187,VS0,VE95'], 'Vary' => ['Accept-Encoding'], 'Strict-Transport-Security' => ['max-age=31557600'], 'transfer-encoding' => ['chunked']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___www.lemonde.fr_actualite-medias_article_2015_04_12_radio-france-vers-une-sortie-du-conflit_4614610_3236.html')));
 
-        $graby = new Graby(['debug' => true]);
+        $graby = new Graby(['debug' => true], $httpMockClient);
         $graby->setLogger($logger);
 
         $res = $graby->fetchContent('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html');
@@ -71,7 +75,9 @@ class GrabyFunctionalTest extends TestCase
 
     public function testRealFetchContent2(): void
     {
-        $graby = new Graby(['debug' => true]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => ['text/html; charset=UTF-8'], 'Expires' => ['Tue, 11 Jan 2022 19:11:31 GMT'], 'Date' => ['Tue, 11 Jan 2022 19:11:31 GMT'], 'Cache-Control' => ['private, max-age=0'], 'Last-Modified' => ['Mon, 06 Dec 2021 04:36:10 GMT'], 'X-Content-Type-Options' => ['nosniff'], 'X-XSS-Protection' => ['1; mode=block'], 'Server' => ['GSE'], 'Alt-Svc' => ['h3=":443"; ma=2592000,h3-29=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"'], 'Accept-Ranges' => ['none'], 'Vary' => ['Accept-Encoding'], 'Transfer-Encoding' => ['chunked']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___bjori.blogspot.com_2015_04_next-gen-mongodb-driver.html')));
+        $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html');
 
         $this->assertCount(11, $res);
@@ -99,7 +105,9 @@ class GrabyFunctionalTest extends TestCase
 
     public function testPdfFile(): void
     {
-        $graby = new Graby(['debug' => true]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Server' => ['nginx/1.14.2'], 'Date' => ['Tue, 11 Jan 2022 19:11:32 GMT'], 'Content-Type' => ['application/pdf'], 'Content-Length' => ['414203'], 'Last-Modified' => ['Thu, 06 Mar 2008 11:04:29 GMT'], 'Connection' => ['keep-alive'], 'ETag' => ['"47cfcfbd-651fb"'], 'Accept-Ranges' => ['bytes']], (string) file_get_contents(__DIR__ . '/fixtures/content/http___img3.free.fr_im_tv_telesites_documentation.pdf')));
+        $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('http://img3.free.fr/im_tv/telesites/documentation.pdf');
 
         $this->assertCount(11, $res);
@@ -130,7 +138,9 @@ class GrabyFunctionalTest extends TestCase
 
     public function testImageFile(): void
     {
-        $graby = new Graby(['debug' => true]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Connection' => ['keep-alive'], 'Content-Length' => ['158175'], 'Last-Modified' => ['Thu, 17 May 2018 20:44:59 GMT'], 'ETag' => ['"c2fb1185cf396855391e593d56c135fb"'], 'x-amz-storage-class' => ['STANDARD_IA'], 'Content-Type' => ['image/jpeg'], 'cache-control' => ['public, max-age=31536000'], 'Accept-Ranges' => ['bytes'], 'Date' => ['Tue, 11 Jan 2022 19:11:32 GMT'], 'Age' => ['5057089'], 'X-Served-By' => ['cache-bwi5144-BWI, cache-iad-kcgs7200076-IAD, cache-fra19179-FRA'], 'X-Cache' => ['HIT, HIT, HIT'], 'X-Cache-Hits' => ['1, 1, 2'], 'X-Timer' => ['S1641928293.732848,VS0,VE1'], 'Strict-Transport-Security' => ['max-age=300'], 'Access-Control-Allow-Methods' => ['GET, OPTIONS'], 'Access-Control-Allow-Origin' => ['*'], 'Server' => ['cat factory 1.0'], 'X-Content-Type-Options' => ['nosniff']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___i.imgur.com_KQQ7D9z.jpg')));
+        $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('https://i.imgur.com/KQQ7D9z.jpg');
 
         $this->assertCount(11, $res);
@@ -200,7 +210,9 @@ class GrabyFunctionalTest extends TestCase
      */
     public function testYoutubeOembed(): void
     {
-        $graby = new Graby(['debug' => true]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => ['application/xml'], 'Vary' => ['X-Origin', 'Referer', 'Origin,Accept-Encoding'], 'Date' => ['Tue, 11 Jan 2022 19:11:32 GMT'], 'Server' => ['scaffolding on HTTPServer2'], 'Cache-Control' => ['private'], 'X-XSS-Protection' => ['0'], 'X-Frame-Options' => ['SAMEORIGIN'], 'X-Content-Type-Options' => ['nosniff'], 'Alt-Svc' => ['h3=":443"; ma=2592000,h3-29=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"'], 'Accept-Ranges' => ['none'], 'Transfer-Encoding' => ['chunked']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___www.youtube.com_oembed_url_https___www.youtube.com_watch_v_td0P8qrS8iI_format_xml.html')));
+        $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
 
         $this->assertCount(11, $res);
@@ -253,7 +265,9 @@ class GrabyFunctionalTest extends TestCase
 
     public function testKoreanPage(): void
     {
-        $graby = new Graby(['debug' => true]);
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Date' => ['Tue, 11 Jan 2022 19:11:33 GMT'], 'Server' => ['Apache/2.4.34 (Unix) OpenSSL/1.0.1e-fips PHP/5.6.30'], 'X-Powered-By' => ['PHP/5.6.30'], 'Set-Cookie' => ['PHPSESSID=ba04gseore7a1mdmsfrkek9gf6; path=/'], 'Vary' => ['Accept-Encoding'], 'Connection' => ['close'], 'Transfer-Encoding' => ['chunked'], 'Content-Type' => ['text/html; charset=UTF-8']], (string) file_get_contents(__DIR__ . '/fixtures/content/http___www.newstown.co.kr_news_articleView.html_idxno_243722.html')));
+        $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
 
         $this->assertCount(11, $res);
@@ -278,6 +292,8 @@ class GrabyFunctionalTest extends TestCase
 
     public function testMultipage(): void
     {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['content-type' => ['text/html; charset=UTF-8'], 'vary' => ['Accept-Encoding'], 'cache-control' => ['max-age=3600, public'], 'date' => ['Tue, 11 Jan 2022 18:55:00 GMT'], 'x-frame-options' => ['deny'], 'x-content-type-options' => ['nosniff'], 'referrer-policy' => ['origin'], 'etag' => ['W/"5b3a8365e4e2dedd7836d180efd99752"'], 'x-via-popn' => ['front02'], 'strict-transport-security' => ['max-age=63072000; includeSubDomains; preload'], 'x-cacheable' => ['yes'], 'x-varnish' => ['613638104 613760736'], 'age' => ['995'], 'x-via-popv' => ['front02'], 'x-cache' => ['HIT'], 'accept-ranges' => ['bytes'], 'content-length' => ['252617'], 'x-via-poph' => ['front03']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___www.clubic.com_carte-graphique_carte-graphique-amd_article-478936-1-radeon-hd-7750-7770.html')));
         $graby = new Graby([
             'debug' => true,
             'extractor' => [
@@ -285,7 +301,7 @@ class GrabyFunctionalTest extends TestCase
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
                 ],
             ],
-        ]);
+        ], $httpMockClient);
         $res = $graby->fetchContent('https://www.clubic.com/carte-graphique/carte-graphique-amd/article-478936-1-radeon-hd-7750-7770.html');
 
         $this->assertCount(11, $res);
