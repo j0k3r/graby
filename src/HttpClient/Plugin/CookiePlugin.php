@@ -21,10 +21,8 @@ class CookiePlugin implements Plugin
 {
     /**
      * Cookie storage.
-     *
-     * @var CookieJar
      */
-    private $cookieJar;
+    private CookieJar $cookieJar;
 
     public function __construct(CookieJar $cookieJar)
     {
@@ -99,7 +97,7 @@ class CookiePlugin implements Plugin
             return null;
         }
 
-        list($name, $cookieValue) = $this->createValueKey(array_shift($parts));
+        [$name, $cookieValue] = $this->createValueKey(array_shift($parts));
 
         $maxAge = null;
         $expires = null;
@@ -110,7 +108,7 @@ class CookiePlugin implements Plugin
 
         // Add the cookie pieces into the parsed data array
         foreach ($parts as $part) {
-            list($key, $value) = $this->createValueKey($part);
+            [$key, $value] = $this->createValueKey($part);
 
             switch (strtolower($key)) {
                 case 'expires':

@@ -9,8 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigBuilder
 {
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
     private array $config = [];
     private array $configFiles = [];
     private array $cache = [];
@@ -47,7 +46,7 @@ class ConfigBuilder
 
         $this->config = $resolver->resolve($config);
 
-        $this->logger = null === $logger ? new NullLogger() : $logger;
+        $this->logger = $logger ?? new NullLogger();
 
         $this->loadConfigFiles();
     }

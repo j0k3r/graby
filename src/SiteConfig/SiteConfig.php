@@ -266,7 +266,7 @@ class SiteConfig
     public function tidy($use_default = true)
     {
         if ($use_default) {
-            return isset($this->tidy) ? $this->tidy : $this->default_tidy;
+            return $this->tidy ?? $this->default_tidy;
         }
 
         return $this->tidy;
@@ -282,7 +282,7 @@ class SiteConfig
     public function prune($use_default = true)
     {
         if ($use_default) {
-            return isset($this->prune) ? $this->prune : $this->default_prune;
+            return $this->prune ?? $this->default_prune;
         }
 
         return $this->prune;
@@ -298,7 +298,7 @@ class SiteConfig
     public function parser($use_default = true)
     {
         if ($use_default) {
-            return isset($this->parser) ? $this->parser : $this->default_parser;
+            return $this->parser ?? $this->default_parser;
         }
 
         return $this->parser;
@@ -314,7 +314,7 @@ class SiteConfig
     public function autodetect_on_failure($use_default = true)
     {
         if ($use_default) {
-            return isset($this->autodetect_on_failure) ? $this->autodetect_on_failure : $this->default_autodetect_on_failure;
+            return $this->autodetect_on_failure ?? $this->default_autodetect_on_failure;
         }
 
         return $this->autodetect_on_failure;

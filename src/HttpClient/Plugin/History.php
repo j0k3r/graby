@@ -9,14 +9,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class History implements Journal
 {
-    /**
-     * @var RequestInterface
-     */
-    private $lastRequest;
-    /**
-     * @var ResponseInterface
-     */
-    private $lastResponse;
+    private RequestInterface $lastRequest;
+    private ResponseInterface $lastResponse;
 
     public function getLastRequest(): ?RequestInterface
     {

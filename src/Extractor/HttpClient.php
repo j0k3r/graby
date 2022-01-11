@@ -25,22 +25,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class HttpClient
 {
-    /**
-     * @var array
-     */
-    private $config;
-    /**
-     * @var HttpMethodsClient
-     */
-    private $client;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
-     * @var History
-     */
-    private $responseHistory;
+    private array $config;
+    private HttpMethodsClient $client;
+    private LoggerInterface $logger;
+    private History $responseHistory;
 
     /**
      * @param Client $client Http client
@@ -245,7 +233,7 @@ class HttpClient
         // (regex found here: https://stackoverflow.com/a/137831/569101)
         preg_match_all('/<!--\[if\s(?:[^<]+|<(?!!\[endif\]-->))*<!\[endif\]-->/mi', $body, $matchesConditional);
 
-        if (isset($matchesConditional[0]) && \count($matchesConditional[0]) > 1) {
+        if (isset($matchesConditional[0]) && (is_countable($matchesConditional[0]) ? \count($matchesConditional[0]) : 0) > 1) {
             foreach ($matchesConditional as $conditionalComment) {
                 $body = str_replace($conditionalComment, '', $body);
             }
@@ -265,9 +253,7 @@ class HttpClient
         // remove utm parameters & fragment
         $uri = new Uri(str_replace('&amp;', '&', $effectiveUrl));
         parse_str($uri->getQuery(), $query);
-        $queryParameters = array_filter($query, function ($k) {
-            return !(0 === stripos($k, 'utm_'));
-        }, \ARRAY_FILTER_USE_KEY);
+        $queryParameters = array_filter($query, fn ($k) => !(0 === stripos($k, 'utm_')), \ARRAY_FILTER_USE_KEY);
         $effectiveUrl = (string) Uri::withQueryValues(new Uri($uri->withFragment('')->withQuery('')), $queryParameters);
 
         $this->logger->info('Data fetched: {data}', ['data' => [
@@ -292,7 +278,7 @@ class HttpClient
     {
         // rewrite part of urls to something more readable
         foreach ($this->config['rewrite_url'] as $find => $action) {
-            if (false !== strpos($url, $find) && \is_array($action)) {
+            if (false !== strpos($url, (string) $find) && \is_array($action)) {
                 $url = strtr($url, $action);
             }
         }
@@ -438,9 +424,7 @@ class HttpClient
             }
 
             // see https://tools.ietf.org/html/rfc6265.html#section-4.2.1
-            return implode('; ', array_map(function ($name) use ($cookies) {
-                return $name . '=' . $cookies[$name];
-            }, array_keys($cookies)));
+            return implode('; ', array_map(fn ($name) => $name . '=' . $cookies[$name], array_keys($cookies)));
         }
 
         return null;
@@ -477,7 +461,7 @@ class HttpClient
      */
     private function headerOnlyType(array $headers): bool
     {
-        $contentType = isset($headers['content-type']) ? $headers['content-type'] : '';
+        $contentType = $headers['content-type'] ?? '';
 
         if (!preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($contentType), $match)) {
             return false;
@@ -543,7 +527,7 @@ class HttpClient
     {
         $found = false;
         foreach ($this->config['ajax_triggers'] as $string) {
-            if (stripos($html, $string)) {
+            if (stripos($html, (string) $string)) {
                 $found = true;
                 break;
             }
