@@ -325,9 +325,9 @@ class HttpClientTest extends TestCase
             $httpMockClient->addResponse(new Response(
                 308,
                 [
-                    'Location' => 'http://fr.wikipedia.org/wiki/Copyright?' . rand(),
+                    'Location' => 'http://fr.wikipedia.org/wiki/Copyright?' . random_int(0, mt_getrandmax()),
                 ],
-                '<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?' . rand() . '">'
+                '<meta HTTP-EQUIV="REFRESH" content="0; url=http://fr.wikipedia.org/wiki/Copyright?' . random_int(0, mt_getrandmax()) . '">'
             ));
         }
 

@@ -19,12 +19,10 @@ class ContentExtractor
 {
     /** @var Readability|null */
     public $readability;
-    /** @var \DOMXPath|null */
-    private $xpath;
+    private ?\DOMXPath $xpath = null;
     private ?string $html = null;
     private array $config;
-    /** @var SiteConfig|null */
-    private $siteConfig = null;
+    private ?SiteConfig $siteConfig = null;
     private ?string $title = null;
     private ?string $language = null;
     private array $authors = [];
@@ -35,10 +33,8 @@ class ContentExtractor
     private ?string $date = null;
     private bool $success = false;
     private ?string $nextPageUrl = null;
-    /** @var LoggerInterface */
-    private $logger;
-    /** @var ConfigBuilder */
-    private $configBuilder;
+    private LoggerInterface $logger;
+    private ConfigBuilder $configBuilder;
 
     /**
      * @param array $config
@@ -74,8 +70,8 @@ class ContentExtractor
 
         $this->config = $resolver->resolve($config);
 
-        $this->logger = null === $logger ? new NullLogger() : $logger;
-        $this->configBuilder = null === $configBuilder ? new ConfigBuilder($this->config['config_builder'], $this->logger) : $configBuilder;
+        $this->logger = $logger ?? new NullLogger();
+        $this->configBuilder = $configBuilder ?? new ConfigBuilder($this->config['config_builder'], $this->logger);
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -489,9 +485,7 @@ class ContentExtractor
             "//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]",
             $this->readability->dom,
             'Author found (rel="author"): {author}',
-            function ($element, $currentEntity) {
-                return $currentEntity + [trim($element)];
-            }
+            fn ($element, $currentEntity) => $currentEntity + [trim($element)]
         );
 
         $this->extractEntityFromQuery(
@@ -500,9 +494,7 @@ class ContentExtractor
             '//meta[@name="author"]/@content',
             $this->readability->dom,
             'Author found (meta name="author"): {author}',
-            function ($element, $currentEntity) {
-                return $currentEntity + [trim($element)];
-            }
+            fn ($element, $currentEntity) => $currentEntity + [trim($element)]
         );
 
         // Find date in pubdate marked time element
@@ -570,22 +562,25 @@ class ContentExtractor
                 }
             }
 
+            /** @var \DOMDocument */
+            $ownerDocument = $this->body->ownerDocument;
+
             // prevent self-closing iframes
             if ('iframe' === $this->body->tagName) {
                 if (!$this->body->hasChildNodes()) {
-                    $this->body->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
+                    $this->body->appendChild($ownerDocument->createTextNode('[embedded content]'));
                 }
             } else {
                 foreach ($this->body->getElementsByTagName('iframe') as $e) {
                     if (!$e->hasChildNodes()) {
-                        $e->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
+                        $e->appendChild($ownerDocument->createTextNode('[embedded content]'));
                     }
                 }
             }
 
             // prevent self-closing iframe when content is ONLY an iframe
             if ('iframe' === $this->body->nodeName && !$this->body->hasChildNodes()) {
-                $this->body->appendChild($this->body->ownerDocument->createTextNode('[embedded content]'));
+                $this->body->appendChild($ownerDocument->createTextNode('[embedded content]'));
             }
 
             // remove image lazy loading
@@ -811,8 +806,10 @@ class ContentExtractor
         $a = iterator_to_array($elems);
         foreach ($a as $item) {
             if (null !== $item && null !== $item->parentNode && $item instanceof \DOMElement) {
-                $newNode = $item->ownerDocument->createElement($tag);
-                $newNode->setInnerHtml($item->ownerDocument->saveXML($item));
+                /** @var \DOMDocument */
+                $ownerDocument = $item->ownerDocument;
+                $newNode = $ownerDocument->createElement($tag);
+                $newNode->setInnerHtml($ownerDocument->saveXML($item));
 
                 $item->parentNode->replaceChild($newNode, $item);
             }
@@ -846,9 +843,11 @@ class ContentExtractor
 
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
-            $returnCallback = function ($element) {
-                return trim($element);
-            };
+            $returnCallback = fn ($element) => trim($element);
+        }
+
+        if (!$this->xpath) {
+            return false;
         }
 
         // check for given css class
@@ -933,7 +932,7 @@ class ContentExtractor
      */
     private function extractAuthor(bool $detectAuthor, \DOMNode $node = null): bool
     {
-        if (false === $detectAuthor) {
+        if (false === $detectAuthor || !$this->xpath) {
             return false;
         }
 
@@ -945,6 +944,7 @@ class ContentExtractor
         $elems = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' vcard ') and (contains(concat(' ',normalize-space(@class),' '),' author ') or contains(concat(' ',normalize-space(@class),' '),' byline '))]", $node);
 
         if ($elems && $elems->length > 0) {
+            /** @var \DOMNode */
             $author = $elems->item(0);
             $fns = $this->xpath->query(".//*[contains(concat(' ',normalize-space(@class),' '),' fn ')]", $author);
 
@@ -980,7 +980,7 @@ class ContentExtractor
      */
     private function extractBody(bool $detectBody, string $xpathExpression, \DOMNode $node = null, string $type): bool
     {
-        if (false === $detectBody) {
+        if (false === $detectBody || !$this->xpath) {
             return false;
         }
 
@@ -1008,11 +1008,15 @@ class ContentExtractor
             $this->body = $elems->item(0);
 
             // prune (clean up elements that may not be content)
-            if ($this->siteConfig->prune() && null !== $this->readability) {
+            if ($this->siteConfig && $this->siteConfig->prune() && null !== $this->readability) {
                 $this->logger->info('Pruning content');
                 $this->readability->prepArticle($this->body);
             }
 
+            return false;
+        }
+
+        if (!$this->readability) {
             return false;
         }
 
@@ -1041,7 +1045,7 @@ class ContentExtractor
                 $this->logger->info('...element is child of another body element, skipping.');
             } else {
                 // prune (clean up elements that may not be content)
-                if ($this->siteConfig->prune()) {
+                if ($this->siteConfig && $this->siteConfig->prune()) {
                     $this->logger->info('...pruning content');
                     $this->readability->prepArticle($elem);
                 }
@@ -1103,9 +1107,11 @@ class ContentExtractor
     {
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
-            $returnCallback = function ($e) {
-                return trim($e);
-            };
+            $returnCallback = fn ($e) => trim($e);
+        }
+
+        if (!$this->xpath) {
+            return false;
         }
 
         $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
@@ -1158,9 +1164,11 @@ class ContentExtractor
     {
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
-            $returnCallback = function ($e) {
-                return trim($e);
-            };
+            $returnCallback = fn ($e) => trim($e);
+        }
+
+        if (!$this->xpath) {
+            return false;
         }
 
         $elems = $this->xpath->evaluate($pattern, $this->readability->dom);
@@ -1221,7 +1229,7 @@ class ContentExtractor
         $xpath = new \DOMXPath($doc);
 
         $this->extractOpenGraph($xpath);
-        if (false === $this->siteConfig->skip_json_ld) {
+        if ($this->siteConfig && false === $this->siteConfig->skip_json_ld) {
             $this->extractJsonLdInformation($xpath);
         }
     }
@@ -1352,7 +1360,11 @@ class ContentExtractor
         $candidateNames = [];
 
         foreach ($scripts as $script) {
-            $data = json_decode(trim($script->nodeValue), true);
+            try {
+                $data = (array) json_decode(trim($script->nodeValue), true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                continue;
+            }
 
             if (isset($data['@type']) && \in_array($data['@type'], ['Organization', 'WebSite', 'Person'], true)) {
                 if (isset($data['name'])) {

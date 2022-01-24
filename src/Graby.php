@@ -28,29 +28,20 @@ use TrueBV\Punycode;
 class Graby
 {
     private bool $debug = false;
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
     private string $logLevel = 'info';
 
     private array $config = [];
 
-    /** @var HttpClient|null */
-    private $httpClient = null;
-    /** @var ContentExtractor|null */
-    private $extractor = null;
+    private HttpClient $httpClient;
+    private ContentExtractor $extractor;
 
-    /** @var ConfigBuilder */
-    private $configBuilder;
-    /** @var Punycode */
-    private $punycode;
+    private ConfigBuilder $configBuilder;
+    private Punycode $punycode;
 
     private bool $imgNoReferrer = false;
 
-    /**
-     * @param array       $config
-     * @param Client|null $client Http client
-     */
-    public function __construct($config = [], Client $client = null, ConfigBuilder $configBuilder = null)
+    public function __construct(array $config = [], Client $client = null, ConfigBuilder $configBuilder = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -107,7 +98,7 @@ class Graby
 
         if (null === $configBuilder) {
             $configBuilder = new ConfigBuilder(
-                isset($this->config['extractor']['config_builder']) ? $this->config['extractor']['config_builder'] : [],
+                $this->config['extractor']['config_builder'] ?? [],
                 $this->logger
             );
         }
@@ -508,18 +499,18 @@ class Graby
 
     private function isUrlAllowed(string $url): bool
     {
-        $allowedUrls = $this->getConfig('allowed_urls');
-        $blockedUrls = $this->getConfig('blocked_urls');
+        $allowedUrls = (array) $this->getConfig('allowed_urls');
+        $blockedUrls = (array) $this->getConfig('blocked_urls');
 
         if (!empty($allowedUrls)) {
             foreach ($allowedUrls as $allowurl) {
-                if (false !== stristr($url, $allowurl)) {
+                if (false !== stristr($url, (string) $allowurl)) {
                     return true;
                 }
             }
         } else {
             foreach ($blockedUrls as $blockurl) {
-                if (false !== stristr($url, $blockurl)) {
+                if (false !== stristr($url, (string) $blockurl)) {
                     return false;
                 }
             }
@@ -579,7 +570,7 @@ class Graby
             return null;
         }
 
-        $body = isset($response['body']) ? $response['body'] : '';
+        $body = $response['body'] ?? '';
 
         $infos = [
             // at this point status will always be considered as 200
@@ -650,7 +641,7 @@ class Graby
         if ('text/plain' === $mimeInfo['mime']) {
             $infos['html'] = '<pre>' .
                 $this->cleanupXss(
-                    $this->convert2Utf8($body, isset($response['headers']) ? $response['headers'] : [])
+                    $this->convert2Utf8($body, $response['headers'] ?? [])
                 ) . '</pre>';
         }
 
