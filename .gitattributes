@@ -8,3 +8,4 @@
 /.travis.yml export-ignore
 /phpunit.xml export-ignore
 /phpstan.neon export-ignore
+/maintenance export-ignore

@@ -98,7 +98,8 @@ CODE_SAMPLE
 
         /** @var Node $parentNode */
         $parentNode = $new->getAttribute(AttributeKey::PARENT_NODE);
-        if (!($assignment = $parentNode) instanceof Assign) {
+        $assignment = $parentNode;
+        if (!$assignment instanceof Assign) {
             return null;
         }
 
@@ -120,7 +121,8 @@ CODE_SAMPLE
             return null;
         }
 
-        if (!($grabyVariable = $assignment->var) instanceof Variable) {
+        $grabyVariable = $assignment->var;
+        if (!$grabyVariable instanceof Variable) {
             return null;
         }
 
@@ -264,7 +266,8 @@ CODE_SAMPLE
      */
     private function getFetchUrl(Variable $grabyVariable, Node $node): ?string
     {
-        if (!($methodCall = $node) instanceof MethodCall) {
+        $methodCall = $node;
+        if (!$methodCall instanceof MethodCall) {
             return null;
         }
 
@@ -272,14 +275,15 @@ CODE_SAMPLE
             return null;
         }
 
-        if (!($methodName = $methodCall->name) instanceof Identifier || !$this->nodeNameResolver->isName($methodName, 'fetchContent')) {
+        if (!$methodCall->name instanceof Identifier || !$this->nodeNameResolver->isName($methodCall->name, 'fetchContent')) {
             return null;
         }
 
-        if (1 !== \count($args = $methodCall->args) || !$args[0] instanceof Arg || !($url = $args[0]->value) instanceof String_) {
+        $args = $methodCall->args;
+        if (1 !== \count($args) || !$args[0] instanceof Arg || !$args[0]->value instanceof String_) {
             return null;
         }
 
-        return $url->value;
+        return $args[0]->value->value;
     }
 }

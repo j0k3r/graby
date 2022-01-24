@@ -360,6 +360,8 @@ class GrabyFunctionalTest extends TestCase
 
     public function testSaveXmlUnknownEncoding(): void
     {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Server' => ['nginx'], 'Date' => ['Mon, 24 Jan 2022 14:01:07 GMT'], 'Content-Type' => ['text/html; charset=UTF-8'], 'Content-Length' => ['191168'], 'Connection' => ['keep-alive'], 'X-hacker' => ['If you\'re reading this, you should visit wpvip.com/careers and apply to join the fun, mention this header.'], 'X-Powered-By' => ['WordPress VIP <https://wpvip.com>'], 'Host-Header' => ['a9130478a60e5f9135f765b23f26593b'], 'Link' => ['<https://www.motherjones.com/wp-json/>; rel="https://api.w.org/"', '<https://www.motherjones.com/wp-json/wp/v2/posts/161491>; rel="alternate"; type="application/json"', '<https://www.motherjones.com/?p=161491>; rel=shortlink'], 'X-rq' => ['cdg1 0 4 9980'], 'Cache-Control' => ['max-age=300, must-revalidate'], 'Age' => ['1025'], 'X-Cache' => ['hit'], 'Vary' => ['Accept-Encoding'], 'Accept-Ranges' => ['bytes'], 'Strict-Transport-Security' => ['max-age=31536000;includeSubdomains']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___www.motherjones.com_politics_2012_02_mac-mcclelland-free-online-shipping-warehouses-labor_.html')));
         $graby = new Graby([
             'debug' => true,
             'extractor' => [
@@ -367,8 +369,8 @@ class GrabyFunctionalTest extends TestCase
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
                 ],
             ],
-        ]);
-        $res = $graby->fetchContent('http://motherjones.com/politics/2012/02/mac-mcclelland-free-online-shipping-warehouses-labor');
+        ], $httpMockClient);
+        $res = $graby->fetchContent('https://www.motherjones.com/politics/2012/02/mac-mcclelland-free-online-shipping-warehouses-labor/');
 
         $this->assertCount(11, $res);
         $this->assertSame(200, $res['status']);
@@ -376,6 +378,8 @@ class GrabyFunctionalTest extends TestCase
 
     public function testWithEmptyReplaceString(): void
     {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Date' => ['Mon, 24 Jan 2022 14:01:08 GMT'], 'Server' => ['Apache'], 'Cache-Control' => ['no-cache'], 'Vary' => ['User-Agent,Accept-Encoding'], 'Content-Type' => ['text/html; charset=utf-8'], 'Set-Cookie' => ['PortalPortalDeDst=216508608.20992.0000; path=/; Httponly; Secure']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___www.presseportal.de_pm_103258_2930232.html')));
         $graby = new Graby([
             'debug' => true,
             'extractor' => [
@@ -383,7 +387,7 @@ class GrabyFunctionalTest extends TestCase
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
                 ],
             ],
-        ]);
+        ], $httpMockClient);
         $res = $graby->fetchContent('https://www.presseportal.de/pm/103258/2930232');
 
         $this->assertCount(11, $res);
