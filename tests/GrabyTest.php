@@ -17,41 +17,6 @@ class GrabyTest extends TestCase
      */
     public const AN_IPV4 = '93.184.216.34';
 
-    public function testConstructDefault(): void
-    {
-        $graby = new Graby(['debug' => true]);
-
-        $this->assertTrue($graby->getConfig('debug'));
-        $this->assertSame('info', $graby->getConfig('log_level'));
-    }
-
-    public function testGetBadConfig(): void
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('No config found for key:');
-
-        $graby = new Graby();
-
-        $graby->getConfig('does_not_exists');
-    }
-
-    public function dataForConfigOverride(): array
-    {
-        return [
-            ['http_client', ['http_client' => ['rewrite_url' => ['dummy.io' => ['/foo' => '/bar'], 'docs.google.com' => ['/foo' => '/bar']]]]],
-        ];
-    }
-
-    /**
-     * @dataProvider dataForConfigOverride
-     */
-    public function testConfigOverride(string $key, array $config): void
-    {
-        $graby = new Graby($config);
-
-        $this->assertSame($config[$key], $graby->getConfig($key));
-    }
-
     /**
      * Parsing method inspired from Twig_Test_IntegrationTestCase.
      */
@@ -893,26 +858,6 @@ HTML
         $this->assertSame('http://example.com', $res['url']);
         $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
         $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
-    }
-
-    public function testMimeActionNotDefined(): void
-    {
-        $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'application/pdf']));
-
-        $graby = new Graby(['content_type_exc' => ['application/pdf' => ['action' => 'delete', 'name' => 'PDF']]], $httpMockClient);
-
-        $res = $graby->fetchContent('example.com');
-
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('No title found', $res['title']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['html']);
-        $this->assertSame('http://example.com', $res['url']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertSame('application/pdf', $res['headers']['content-type']);
         $this->assertEmpty($res['image']);
         $this->assertFalse($res['native_ad']);
     }

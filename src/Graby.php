@@ -18,7 +18,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
 use Smalot\PdfParser\Parser as PdfParser;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use TrueBV\Punycode;
 
 /**
@@ -27,63 +26,27 @@ use TrueBV\Punycode;
  */
 class Graby
 {
-    private bool $debug = false;
     private LoggerInterface $logger;
-    private string $logLevel = 'info';
-
-    private array $config = [];
-
+    private GrabyConfig $config;
     private HttpClient $httpClient;
     private ContentExtractor $extractor;
-
     private ConfigBuilder $configBuilder;
     private Punycode $punycode;
-
     private bool $imgNoReferrer = false;
 
     public function __construct(array $config = [], Client $client = null, ConfigBuilder $configBuilder = null)
     {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            'debug' => false,
-            'log_level' => 'info',
-            'rewrite_relative_urls' => true,
-            'singlepage' => true,
-            'multipage' => true,
-            'error_message' => '[unable to retrieve full-text content]',
-            'error_message_title' => 'No title found',
-            'allowed_urls' => [],
-            'blocked_urls' => [],
-            'xss_filter' => true,
-            'content_type_exc' => [
-                'application/zip' => ['action' => 'link', 'name' => 'ZIP'],
-                'application/pdf' => ['action' => 'link', 'name' => 'PDF'],
-                'image' => ['action' => 'link', 'name' => 'Image'],
-                'audio' => ['action' => 'link', 'name' => 'Audio'],
-                'video' => ['action' => 'link', 'name' => 'Video'],
-                'text/plain' => ['action' => 'link', 'name' => 'Plain text'],
-            ],
-            'content_links' => 'preserve',
-            'http_client' => [],
-            'extractor' => [],
-        ]);
+        $this->config = new GrabyConfig($config);
 
-        // @TODO: add more validation ? (setAllowedTypes)
-        $resolver->setAllowedValues('content_links', ['preserve', 'footnotes', 'remove']);
-
-        $this->config = $resolver->resolve($config);
-
-        $this->debug = (bool) $this->config['debug'];
-        $this->logLevel = $this->config['log_level'];
         $this->logger = new NullLogger();
 
         // Debug mode can be activated with 'debug' => true
         // More details on the retrieved code and its consequent modifications can be obtained using 'log_level' = 'debug'
-        if ($this->debug) {
+        if ($this->config->getDebug()) {
             $this->logger = new Logger('graby');
 
             // This statement has to be before Logger::INFO to catch all DEBUG messages
-            if ('debug' === $this->logLevel) {
+            if ('debug' === $this->config->getLogLevel()) {
                 $fp = fopen(__DIR__ . '/../log/html.log', 'w');
                 if (false !== $fp) {
                     // Emptying of the HTML logfile to avoid gigantic logs
@@ -98,21 +61,21 @@ class Graby
 
         if (null === $configBuilder) {
             $configBuilder = new ConfigBuilder(
-                $this->config['extractor']['config_builder'] ?? [],
+                $this->config->getExtractor()['config_builder'] ?? [],
                 $this->logger
             );
         }
         $this->configBuilder = $configBuilder;
 
         $this->extractor = new ContentExtractor(
-            $this->config['extractor'],
+            $this->config->getExtractor(),
             $this->logger,
             $this->configBuilder
         );
 
         $this->httpClient = new HttpClient(
             $client ?: new PluginClient(HttpClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
-            $this->config['http_client'],
+            $this->config->getHttpClient(),
             $this->logger
         );
 
@@ -137,20 +100,6 @@ class Graby
     public function reloadConfigFiles(): void
     {
         $this->configBuilder->loadConfigFiles();
-    }
-
-    /**
-     * Return a config.
-     *
-     * @return mixed
-     */
-    public function getConfig(string $key)
-    {
-        if (!isset($this->config[$key])) {
-            throw new \Exception(sprintf('No config found for key: "%s"', $key));
-        }
-
-        return $this->config[$key];
     }
 
     /**
@@ -200,12 +149,12 @@ class Graby
 
         $this->extractor->readability->clean($contentBlock, 'select');
 
-        if ($this->config['rewrite_relative_urls']) {
+        if ($this->config->getRewriteRelativeUrls()) {
             $this->makeAbsolute($url, $contentBlock);
         }
 
         // footnotes
-        if ('footnotes' === $this->config['content_links'] && false === strpos($url, 'wikipedia.org')) {
+        if ('footnotes' === $this->config->getContentLinks() && false === strpos($url, 'wikipedia.org')) {
             $this->extractor->readability->addFootnotes($contentBlock);
         }
 
@@ -248,7 +197,7 @@ class Graby
 
         // post-processing cleanup
         $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', (string) $html);
-        if ('remove' === $this->config['content_links']) {
+        if ('remove' === $this->config->getContentLinks()) {
             $html = preg_replace('!</?a[^>]*>!', '', (string) $html);
         }
 
@@ -313,7 +262,7 @@ class Graby
 
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;
-        if ($this->config['singlepage'] && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
+        if ($this->config->getSinglepage() && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
             $isSinglePage = true;
             $effectiveUrl = $singlePageResponse['effective_url'];
 
@@ -353,7 +302,7 @@ class Graby
 
         // Deal with multi-page articles
         $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
-        if ($this->config['multipage'] && $isMultiPage) {
+        if ($this->config->getMultipage() && $isMultiPage) {
             $this->logger->info('Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
             $multiPageUrls = [$effectiveUrl];
@@ -422,8 +371,8 @@ class Graby
 
         $res = [
             'status' => $response['status'],
-            'html' => $this->config['error_message'],
-            'title' => $extractedTitle ?: $this->config['error_message_title'],
+            'html' => $this->config->getErrorMessage(),
+            'title' => $extractedTitle ?: $this->config->getErrorMessageTitle(),
             'language' => $extractedLanguage,
             'date' => $extractedDate,
             'authors' => $extractedAuthors,
@@ -499,18 +448,15 @@ class Graby
 
     private function isUrlAllowed(string $url): bool
     {
-        $allowedUrls = (array) $this->getConfig('allowed_urls');
-        $blockedUrls = (array) $this->getConfig('blocked_urls');
-
-        if (!empty($allowedUrls)) {
-            foreach ($allowedUrls as $allowurl) {
-                if (false !== stristr($url, (string) $allowurl)) {
+        if (!empty($this->config->getAllowedUrls())) {
+            foreach ($this->config->getAllowedUrls() as $allowurl) {
+                if (false !== stristr($url, $allowurl)) {
                     return true;
                 }
             }
         } else {
-            foreach ($blockedUrls as $blockurl) {
-                if (false !== stristr($url, (string) $blockurl)) {
+            foreach ($this->config->getBlockedUrls() as $blockurl) {
+                if (false !== stristr($url, $blockurl)) {
                     return false;
                 }
             }
@@ -544,9 +490,9 @@ class Graby
             $info['subtype'] = trim($match[3]);
 
             foreach ([$info['mime'], $info['type']] as $mime) {
-                if (isset($this->config['content_type_exc'][$mime])) {
-                    $info['action'] = $this->config['content_type_exc'][$mime]['action'];
-                    $info['name'] = $this->config['content_type_exc'][$mime]['name'];
+                if (isset($this->config->getContentTypeExc()[$mime])) {
+                    $info['action'] = $this->config->getContentTypeExc()[$mime]['action'];
+                    $info['name'] = $this->config->getContentTypeExc()[$mime]['name'];
 
                     break;
                 }
@@ -566,7 +512,7 @@ class Graby
      */
     private function handleMimeAction(array $mimeInfo, string $effectiveUrl, array $response = []): ?array
     {
-        if (!isset($mimeInfo['action']) || !\in_array($mimeInfo['action'], ['link', 'exclude'], true)) {
+        if (!isset($mimeInfo['action'])) {
             return null;
         }
 
@@ -966,7 +912,7 @@ class Graby
      */
     private function cleanupXss(string $html): string
     {
-        if (false === $this->config['xss_filter']) {
+        if (false === $this->config->getXssFilter()) {
             return $html;
         }
 

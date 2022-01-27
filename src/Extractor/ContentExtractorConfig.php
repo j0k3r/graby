@@ -48,6 +48,7 @@ class ContentExtractorConfig
         ]);
 
         $resolver->setAllowedValues('default_parser', $this->allowed_parsers);
+
         $resolver->setAllowedTypes('default_parser', 'string');
         $resolver->setAllowedTypes('fingerprints', 'array');
         $resolver->setAllowedTypes('config_builder', 'array');
