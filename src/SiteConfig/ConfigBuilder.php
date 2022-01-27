@@ -29,10 +29,7 @@ class ConfigBuilder
         'div',
     ];
 
-    /**
-     * @param array $config
-     */
-    public function __construct($config = [], LoggerInterface $logger = null)
+    public function __construct(array $config = [], LoggerInterface $logger = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
