@@ -2,6 +2,8 @@
 
 namespace Graby\Extractor;
 
+use Graby\OptionsResolver\ArrayStringOptionsTrait;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -9,6 +11,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ContentExtractorConfig
 {
+    use ArrayStringOptionsTrait;
+
     private string $default_parser;
     /** @var array<string> */
     private array $allowed_parsers = ['libxml', 'html5lib'];
@@ -61,6 +65,18 @@ class ContentExtractorConfig
             ]);
             $readabilityResolver->setAllowedTypes('pre_filters', 'array');
             $readabilityResolver->setAllowedTypes('post_filters', 'array');
+        });
+
+        $resolver->setNormalizer('readability', function (Options $options, $value) {
+            $this->validateArray($value, 'readability[pre_filters]', 'pre_filters');
+            $this->validateArray($value, 'readability[post_filters]', 'post_filters');
+
+            return $value;
+        });
+        $resolver->setNormalizer('fingerprints', function (Options $options, $value) {
+            $this->validateArray($value, 'fingerprints');
+
+            return $value;
         });
 
         $config = $resolver->resolve($config);

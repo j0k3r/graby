@@ -25,7 +25,7 @@ class ConfigBuilderConfig
 
         $resolver->setRequired('site_config');
 
-        $resolver->setAllowedTypes('site_config', 'array');
+        $resolver->setAllowedTypes('site_config', 'string[]');
         $resolver->setAllowedTypes('hostname_regex', 'string');
 
         $resolver->setNormalizer('site_config', function (Options $options, $value) {

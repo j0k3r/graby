@@ -2,6 +2,9 @@
 
 namespace Graby\Extractor;
 
+use Graby\OptionsResolver\ArrayStringOptionsTrait;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -9,6 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class HttpClientConfig
 {
+    use ArrayStringOptionsTrait;
+
     private string $ua_browser;
     private string $default_referer;
     /** @var array<array<string, string>> */
@@ -68,6 +73,23 @@ class HttpClientConfig
         $resolver->setAllowedTypes('user_agents', 'array');
         $resolver->setAllowedTypes('ajax_triggers', 'string[]');
         $resolver->setAllowedTypes('max_redirect', 'int');
+
+        $resolver->setNormalizer('user_agents', function (Options $options, $value) {
+            $this->validateArray($value, 'user_agents');
+
+            return $value;
+        });
+        $resolver->setNormalizer('rewrite_url', function (Options $options, $value) {
+            foreach ($value as $url => $action) {
+                if (!\is_string($url)) {
+                    throw new InvalidOptionsException(sprintf('The option "rewrite_url" with key "%s" is expected to be of type "string", but is of type "%s".', $url, get_debug_type($url)));
+                }
+
+                $this->validateArray($action, 'rewrite_url[' . $url . ']');
+            }
+
+            return $value;
+        });
 
         $config = $resolver->resolve($config);
 

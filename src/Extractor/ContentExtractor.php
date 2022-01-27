@@ -1044,16 +1044,12 @@ class ContentExtractor
     {
         $readability = new Readability($html, $url, $parser, $enableTidy);
 
-        if (isset($this->config->getReadability()['pre_filters']) && \is_array($this->config->getReadability()['pre_filters'])) {
-            foreach ($this->config->getReadability()['pre_filters'] as $filter => $replacer) {
-                $readability->addPreFilter($filter, $replacer);
-            }
+        foreach ($this->config->getReadability()['pre_filters'] as $filter => $replacer) {
+            $readability->addPreFilter($filter, $replacer);
         }
 
-        if (isset($this->config->getReadability()['post_filters']) && \is_array($this->config->getReadability()['post_filters'])) {
-            foreach ($this->config->getReadability()['post_filters'] as $filter => $replacer) {
-                $readability->addPostFilter($filter, $replacer);
-            }
+        foreach ($this->config->getReadability()['post_filters'] as $filter => $replacer) {
+            $readability->addPostFilter($filter, $replacer);
         }
 
         return $readability;
