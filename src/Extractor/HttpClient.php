@@ -241,7 +241,7 @@ class HttpClient
     {
         // rewrite part of urls to something more readable
         foreach ($this->config->getRewriteUrl() as $find => $action) {
-            if (false !== strpos($url, $find) && \is_array($action)) {
+            if (false !== strpos($url, (string) $find) && \is_array($action)) {
                 $url = strtr($url, $action);
             }
         }

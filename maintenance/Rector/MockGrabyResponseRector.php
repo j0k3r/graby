@@ -144,7 +144,7 @@ CODE_SAMPLE
             return null;
         }
 
-        $url = $fetchUrls[0];
+        $url = (string) $fetchUrls[0];
 
         // Add imports.
         $this->useNodesToAddCollector->addUseImport(

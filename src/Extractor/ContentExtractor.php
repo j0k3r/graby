@@ -1082,7 +1082,7 @@ class ContentExtractor
             $returnCallback = fn ($e) => trim($e);
         }
 
-        if (!$this->xpath) {
+        if (!$this->xpath || !$this->readability) {
             return false;
         }
 
@@ -1139,7 +1139,7 @@ class ContentExtractor
             $returnCallback = fn ($e) => trim($e);
         }
 
-        if (!$this->xpath) {
+        if (!$this->xpath || !$this->readability) {
             return false;
         }
 

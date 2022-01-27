@@ -147,18 +147,19 @@ class Graby
             return trim($this->cleanupXss($originalContentBlock));
         }
 
-        $this->extractor->readability->clean($contentBlock, 'select');
+        if ($this->extractor->readability) {
+            $this->extractor->readability->clean($contentBlock, 'select');
+        }
 
         if ($this->config->getRewriteRelativeUrls()) {
             $this->makeAbsolute($url, $contentBlock);
         }
 
         // footnotes
-        if ('footnotes' === $this->config->getContentLinks() && false === strpos($url, 'wikipedia.org')) {
+        if ('footnotes' === $this->config->getContentLinks() && false === strpos($url, 'wikipedia.org') && $this->extractor->readability) {
             $this->extractor->readability->addFootnotes($contentBlock);
         }
 
-        // normalise
         $contentBlock->normalize();
 
         // remove empty text nodes
@@ -282,6 +283,7 @@ class Graby
         $this->logger->info('Attempting to extract content');
 
         $extractResult = $this->extractor->process($html, $effectiveUrl);
+        /** @var Readability */
         $readability = $this->extractor->readability;
         $contentBlock = $this->extractor->getContent();
         $extractedTitle = $this->extractor->getTitle();
