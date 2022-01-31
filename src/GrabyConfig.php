@@ -22,6 +22,7 @@ class GrabyConfig
     /** @var array<string> */
     private array $blocked_urls;
     private bool $xss_filter;
+    /** @var array<string, array{name: string, action: 'link'|'exclude'}> */
     private array $content_type_exc;
     private string $content_links;
     private array $http_client;

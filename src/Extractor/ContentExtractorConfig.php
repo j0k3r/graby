@@ -13,9 +13,9 @@ class ContentExtractorConfig
 {
     use ArrayStringOptionsTrait;
 
+    private const ALLOWED_PARSERS = ['libxml', 'html5lib'];
+
     private string $default_parser;
-    /** @var array<string> */
-    private array $allowed_parsers = ['libxml', 'html5lib'];
     /** @var array<string, string> */
     private array $fingerprints;
     private array $config_builder;
@@ -51,7 +51,7 @@ class ContentExtractorConfig
             ],
         ]);
 
-        $resolver->setAllowedValues('default_parser', $this->allowed_parsers);
+        $resolver->setAllowedValues('default_parser', self::ALLOWED_PARSERS);
 
         $resolver->setAllowedTypes('default_parser', 'string');
         $resolver->setAllowedTypes('fingerprints', 'array');
@@ -96,7 +96,7 @@ class ContentExtractorConfig
      */
     public function getAllowedParsers(): array
     {
-        return $this->allowed_parsers;
+        return self::ALLOWED_PARSERS;
     }
 
     /**
