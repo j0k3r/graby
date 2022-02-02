@@ -76,7 +76,8 @@ class Graby
         $this->httpClient = new HttpClient(
             $client ?: new PluginClient(HttpClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
             $this->config->getHttpClient(),
-            $this->logger
+            $this->logger,
+            $this->extractor
         );
 
         $this->punycode = new Punycode();
