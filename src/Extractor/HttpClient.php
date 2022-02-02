@@ -18,14 +18,13 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * HttpClient will make sure to retrieve the right content with the right url.
  */
 class HttpClient
 {
-    private array $config;
+    private HttpClientConfig $config;
     private HttpMethodsClient $client;
     private LoggerInterface $logger;
     private History $responseHistory;
@@ -36,43 +35,7 @@ class HttpClient
      */
     public function __construct(Client $client, $config = [], LoggerInterface $logger = null)
     {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
-            'default_referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
-            'rewrite_url' => [
-                'docs.google.com' => ['/Doc?' => '/View?'],
-                'tnr.com' => ['tnr.com/article/' => 'tnr.com/print/article/'],
-                '.m.wikipedia.org' => ['.m.wikipedia.org' => '.wikipedia.org'],
-                'm.vanityfair.com' => ['m.vanityfair.com' => 'www.vanityfair.com'],
-            ],
-            // Prevent certain file/mime types
-            // HTTP responses which match these content types will
-            // be returned without body.
-            'header_only_types' => [
-                'image',
-                'audio',
-                'video',
-            ],
-            // URLs ending with one of these extensions will
-            // prompt client to send a HEAD request first
-            // to see if returned content type matches $headerOnlyTypes.
-            'header_only_clues' => ['mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'],
-            // User Agent strings - mapping domain names
-            'user_agents' => [],
-            // AJAX triggers to search for.
-            // for AJAX sites, e.g. Blogger with its dynamic views templates.
-            'ajax_triggers' => [
-                "<meta name='fragment' content='!'",
-                '<meta name="fragment" content="!"',
-                "<meta content='!' name='fragment'",
-                '<meta content="!" name="fragment"',
-            ],
-            // number of redirection allowed until we assume request won't be complete
-            'max_redirect' => 10,
-        ]);
-
-        $this->config = $resolver->resolve($config);
+        $this->config = new HttpClientConfig($config);
 
         if (null === $logger) {
             $logger = new NullLogger();
@@ -90,7 +53,7 @@ class HttpClient
                     new ErrorPlugin(),
                 ],
                 [
-                    'max_restarts' => $this->config['max_redirect'],
+                    'max_restarts' => $this->config->getMaxRedirect(),
                 ]
             ),
             Psr17FactoryDiscovery::findRequestFactory()
@@ -119,7 +82,7 @@ class HttpClient
         $url = $this->cleanupUrl($url);
 
         $method = 'get';
-        if (!$skipTypeVerification && !empty($this->config['header_only_types']) && $this->possibleUnsupportedType($url)) {
+        if (!$skipTypeVerification && !empty($this->config->getHeaderOnlyTypes()) && $this->possibleUnsupportedType($url)) {
             $method = 'head';
         }
 
@@ -147,7 +110,7 @@ class HttpClient
             /** @var ResponseInterface $response */
             $response = $this->client->$method($url, $headers);
         } catch (LoopException $e) {
-            $this->logger->info('Endless redirect: ' . ($this->config['max_redirect'] + 1) . ' on "{url}"', ['url' => $url]);
+            $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => $url]);
 
             return [
                 'effective_url' => $url,
@@ -277,8 +240,8 @@ class HttpClient
     private function cleanupUrl(string $url): string
     {
         // rewrite part of urls to something more readable
-        foreach ($this->config['rewrite_url'] as $find => $action) {
-            if (false !== strpos($url, (string) $find) && \is_array($action)) {
+        foreach ($this->config->getRewriteUrl() as $find => $action) {
+            if (false !== strpos($url, (string) $find)) {
                 $url = strtr($url, $action);
             }
         }
@@ -319,7 +282,7 @@ class HttpClient
             return false;
         }
 
-        return \in_array($ext, $this->config['header_only_clues'], true);
+        return \in_array($ext, $this->config->getHeaderOnlyClues(), true);
     }
 
     /**
@@ -332,7 +295,7 @@ class HttpClient
      */
     private function getUserAgent(string $url, array $httpHeader = []): string
     {
-        $ua = $this->config['ua_browser'];
+        $ua = $this->config->getUaBrowser();
 
         if (!empty($httpHeader['user-agent'])) {
             $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => $url]);
@@ -356,10 +319,10 @@ class HttpClient
         }
 
         foreach ($try as $h) {
-            if (isset($this->config['user_agents'][$h])) {
-                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config['user_agents'][$h], 'url' => $url]);
+            if (isset($this->config->getUserAgents()[$h])) {
+                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config->getUserAgents()[$h], 'url' => $url]);
 
-                return $this->config['user_agents'][$h];
+                return $this->config->getUserAgents()[$h];
             }
         }
 
@@ -378,7 +341,7 @@ class HttpClient
      */
     private function getReferer(string $url, array $httpHeader = []): string
     {
-        $default_referer = $this->config['default_referer'];
+        $default_referer = $this->config->getDefaultReferer();
 
         if (!empty($httpHeader['referer'])) {
             $this->logger->info('Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => $url]);
@@ -471,7 +434,7 @@ class HttpClient
         $match[2] = strtolower(trim($match[2]));
 
         foreach ([$match[1], $match[2]] as $mime) {
-            if (\in_array($mime, $this->config['header_only_types'], true)) {
+            if (\in_array($mime, $this->config->getHeaderOnlyTypes(), true)) {
                 return true;
             }
         }
@@ -526,8 +489,8 @@ class HttpClient
     private function getUglyURL(string $url, string $html)
     {
         $found = false;
-        foreach ($this->config['ajax_triggers'] as $string) {
-            if (stripos($html, (string) $string)) {
+        foreach ($this->config->getAjaxTriggers() as $string) {
+            if (stripos($html, $string)) {
                 $found = true;
                 break;
             }

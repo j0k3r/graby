@@ -7,7 +7,6 @@ use Graby\SiteConfig\SiteConfig;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Content Extractor.
@@ -21,7 +20,7 @@ class ContentExtractor
     public $readability;
     private ?\DOMXPath $xpath = null;
     private ?string $html = null;
-    private array $config;
+    private ContentExtractorConfig $config;
     private ?SiteConfig $siteConfig = null;
     private ?string $title = null;
     private ?string $language = null;
@@ -41,37 +40,10 @@ class ContentExtractor
      */
     public function __construct($config = [], LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
     {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            'default_parser' => 'libxml',
-            'allowed_parsers' => ['libxml', 'html5lib'],
-            // key is fingerprint (fragment to find in HTML)
-            // value is host name to use for site config lookup if fingerprint matches
-            // \s* match anything INCLUDING new lines
-            'fingerprints' => [
-                '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
-                '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
-                '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
-            ],
-            'config_builder' => [],
-            'readability' => [
-                'pre_filters' => [],
-                'post_filters' => [],
-            ],
-            'src_lazy_load_attributes' => [
-                'data-src',
-                'data-lazy-src',
-                'data-original',
-                'data-sources',
-                'data-hi-res-src',
-                'data-srcset',
-            ],
-        ]);
-
-        $this->config = $resolver->resolve($config);
+        $this->config = new ContentExtractorConfig($config);
 
         $this->logger = $logger ?? new NullLogger();
-        $this->configBuilder = $configBuilder ?? new ConfigBuilder($this->config['config_builder'], $this->logger);
+        $this->configBuilder = $configBuilder ?? new ConfigBuilder($this->config->getConfigBuilder(), $this->logger);
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -104,7 +76,7 @@ class ContentExtractor
      */
     public function findHostUsingFingerprints(string $html)
     {
-        foreach ($this->config['fingerprints'] as $metaPattern => $host) {
+        foreach ($this->config->getFingerprints() as $metaPattern => $host) {
             if (1 === preg_match($metaPattern, $html)) {
                 return $host;
             }
@@ -133,7 +105,7 @@ class ContentExtractor
 
         $configFingerprint = $this->configBuilder->buildForHost($fingerprintHost);
 
-        if (!empty($this->config['fingerprints']) && false !== $configFingerprint) {
+        if (!empty($this->config->getFingerprints()) && false !== $configFingerprint) {
             $this->logger->info('Appending site config settings from {host} (fingerprint match)', ['host' => $fingerprintHost]);
             $this->configBuilder->mergeConfig($config, $configFingerprint);
 
@@ -165,8 +137,8 @@ class ContentExtractor
         }
 
         // add lazyload information from siteconfig
-        if ($this->siteConfig->src_lazy_load_attr && !\in_array($this->siteConfig->src_lazy_load_attr, $this->config['src_lazy_load_attributes'], true)) {
-            $this->config['src_lazy_load_attributes'][] = $this->siteConfig->src_lazy_load_attr;
+        if ($this->siteConfig->src_lazy_load_attr && !\in_array($this->siteConfig->src_lazy_load_attr, $this->config->getSrcLazyLoadAttributes(), true)) {
+            $this->config->addSrcLazyLoadAttributes($this->siteConfig->src_lazy_load_attr);
         }
 
         $this->logger->debug('Actual site config', ['siteConfig' => $this->siteConfig]);
@@ -187,9 +159,9 @@ class ContentExtractor
         // load and parse html
         $parser = $this->siteConfig->parser();
 
-        if (!\in_array($parser, $this->config['allowed_parsers'], true)) {
-            $this->logger->info('HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $parser, 'default_parser' => $this->config['default_parser']]);
-            $parser = $this->config['default_parser'];
+        if (!\in_array($parser, $this->config->getAllowedParsers(), true)) {
+            $this->logger->info('HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $parser, 'default_parser' => $this->config->getDefaultParser()]);
+            $parser = $this->config->getDefaultParser();
         }
 
         $this->logger->info('Attempting to parse HTML with {parser}', ['parser' => $parser]);
@@ -586,7 +558,7 @@ class ContentExtractor
             // remove image lazy loading
             foreach ($this->body->getElementsByTagName('img') as $e) {
                 $hasAttribute = false;
-                foreach ($this->config['src_lazy_load_attributes'] as $attribute) {
+                foreach ($this->config->getSrcLazyLoadAttributes() as $attribute) {
                     if ($e->hasAttribute($attribute)) {
                         $hasAttribute = true;
                     }
@@ -611,7 +583,7 @@ class ContentExtractor
                 }
 
                 $attributes = [];
-                foreach ($this->config['src_lazy_load_attributes'] as $attribute) {
+                foreach ($this->config->getSrcLazyLoadAttributes() as $attribute) {
                     if ($e->hasAttribute($attribute)) {
                         $key = 'src';
                         if ('data-srcset' === $attribute) {
@@ -1072,16 +1044,12 @@ class ContentExtractor
     {
         $readability = new Readability($html, $url, $parser, $enableTidy);
 
-        if (isset($this->config['readability']['pre_filters']) && \is_array($this->config['readability']['pre_filters'])) {
-            foreach ($this->config['readability']['pre_filters'] as $filter => $replacer) {
-                $readability->addPreFilter($filter, $replacer);
-            }
+        foreach ($this->config->getReadability()['pre_filters'] as $filter => $replacer) {
+            $readability->addPreFilter($filter, $replacer);
         }
 
-        if (isset($this->config['readability']['post_filters']) && \is_array($this->config['readability']['post_filters'])) {
-            foreach ($this->config['readability']['post_filters'] as $filter => $replacer) {
-                $readability->addPostFilter($filter, $replacer);
-            }
+        foreach ($this->config->getReadability()['post_filters'] as $filter => $replacer) {
+            $readability->addPostFilter($filter, $replacer);
         }
 
         return $readability;
@@ -1110,7 +1078,7 @@ class ContentExtractor
             $returnCallback = fn ($e) => trim($e);
         }
 
-        if (!$this->xpath) {
+        if (!$this->xpath || !$this->readability) {
             return false;
         }
 
@@ -1167,7 +1135,7 @@ class ContentExtractor
             $returnCallback = fn ($e) => trim($e);
         }
 
-        if (!$this->xpath) {
+        if (!$this->xpath || !$this->readability) {
             return false;
         }
 

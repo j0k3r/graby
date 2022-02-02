@@ -311,7 +311,6 @@ $graby = new Graby(array(
     ),
     'extractor' => array(
         'default_parser' => 'libxml',
-        'allowed_parsers' => array('libxml', 'html5lib'),
         // key is fingerprint (fragment to find in HTML)
         // value is host name to use for site config lookup if fingerprint matches
         // \s* match anything INCLUDING new lines

@@ -5,12 +5,11 @@ namespace Graby\SiteConfig;
 use GrabySiteConfig\SiteConfig\Files;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigBuilder
 {
     private LoggerInterface $logger;
-    private array $config = [];
+    private ConfigBuilderConfig $config;
     private array $configFiles = [];
     private array $cache = [];
 
@@ -29,22 +28,9 @@ class ConfigBuilder
         'div',
     ];
 
-    /**
-     * @param array $config
-     */
-    public function __construct($config = [], LoggerInterface $logger = null)
+    public function __construct(array $config = [], LoggerInterface $logger = null)
     {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            // Directory path to the site config folder WITHOUT trailing slash
-            'site_config' => [],
-            'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
-        ]);
-
-        $resolver->setRequired('site_config');
-        $resolver->setAllowedTypes('site_config', 'array');
-
-        $this->config = $resolver->resolve($config);
+        $this->config = new ConfigBuilderConfig($config);
 
         $this->logger = $logger ?? new NullLogger();
 
@@ -65,7 +51,7 @@ class ConfigBuilder
      */
     public function loadConfigFiles(): void
     {
-        $this->configFiles = Files::getFiles($this->config['site_config']);
+        $this->configFiles = Files::getFiles($this->config->getSiteConfig());
     }
 
     /**
@@ -228,7 +214,7 @@ class ConfigBuilder
             $host = substr($host, 4);
         }
 
-        if (!$host || (\strlen($host) > 200) || !preg_match($this->config['hostname_regex'], ltrim($host, '.'))) {
+        if (!$host || (\strlen($host) > 200) || !preg_match($this->config->getHostnameRegex(), ltrim($host, '.'))) {
             return false;
         }
 
