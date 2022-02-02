@@ -217,7 +217,7 @@ configure it and inject it to `Graby\Graby`.
 This is the full documented configuration and also the default one.
 
 ```php
-$graby = new Graby(array(
+$graby = new Graby([
     // Enable or disable debugging.
     // This will only generate log information in a file (log/graby.log)
     'debug' => false,
@@ -241,10 +241,10 @@ $graby = new Graby(array(
     // If the list is empty, all URLs (except those specified in the blocked list below)
     // will be permitted.
     // Example: array('example.com', 'anothersite.org');
-    'allowed_urls' => array(),
+    'allowed_urls' => [],
     // List of URLs (or parts of a URL) which will be not accept.
     // Note: this list is ignored if allowed_urls is not empty
-    'blocked_urls' => array(),
+    'blocked_urls' => [],
     // If enabled, we'll pass retrieved HTML content through htmLawed with
     // safe flag on and style attributes denied, see
     // http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed/htmLawed_README.htm#s3.6
@@ -255,21 +255,21 @@ $graby = new Graby(array(
     // Valid actions:
     // * 'exclude' - exclude this item from the result
     // * 'link' - create HTML link to the item
-    'content_type_exc' => array(
-       'application/zip' => array('action' => 'link', 'name' => 'ZIP'),
-       'application/pdf' => array('action' => 'link', 'name' => 'PDF'),
-       'image'           => array('action' => 'link', 'name' => 'Image'),
-       'audio'           => array('action' => 'link', 'name' => 'Audio'),
-       'video'           => array('action' => 'link', 'name' => 'Video'),
-       'text/plain'      => array('action' => 'link', 'name' => 'Plain text'),
-    ),
+    'content_type_exc' => [
+       'application/zip' => ['action' => 'link', 'name' => 'ZIP'],
+       'application/pdf' => ['action' => 'link', 'name' => 'PDF'],
+       'image' => ['action' => 'link', 'name' => 'Image'],
+       'audio' => ['action' => 'link', 'name' => 'Audio'],
+       'video' => ['action' => 'link', 'name' => 'Video'],
+       'text/plain' => ['action' => 'link', 'name' => 'Plain text'],
+    ],
     // How we handle link in content
     // Valid values :
     // * preserve: nothing is done
     // * footnotes: convert links as footnotes
     // * remove: remove all links
     'content_links' => 'preserve',
-    'http_client' => array(
+    'http_client' => [
         // User-Agent used to fetch content
         'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
         // default referer when fetching content
@@ -278,67 +278,69 @@ $graby = new Graby(array(
         // Useful for rewriting certain URLs to point to a single page or HTML view.
         // Although using the single_page_link site config instruction is the preferred way to do this, sometimes, as
         // with Google Docs URLs, it's not possible.
-        'rewrite_url' => array(
-            'docs.google.com'  => array('/Doc?' => '/View?'),
-            'tnr.com'          => array('tnr.com/article/' => 'tnr.com/print/article/'),
-            '.m.wikipedia.org' => array('.m.wikipedia.org' => '.wikipedia.org'),
-            'm.vanityfair.com' => array('m.vanityfair.com' => 'www.vanityfair.com'),
-        ),
+        'rewrite_url' => [
+            'docs.google.com' => ['/Doc?' => '/View?'],
+            'tnr.com' => ['tnr.com/article/' => 'tnr.com/print/article/'],
+            '.m.wikipedia.org' => ['.m.wikipedia.org' => '.wikipedia.org'],
+            'm.vanityfair.com' => ['m.vanityfair.com' => 'www.vanityfair.com'],
+        ],
         // Prevent certain file/mime types
         // HTTP responses which match these content types will
         // be returned without body.
-        'header_only_types' => array(
+        'header_only_types' => [
            'image',
            'audio',
            'video',
-        ),
+        ],
         // URLs ending with one of these extensions will
         // prompt Humble HTTP Agent to send a HEAD request first
         // to see if returned content type matches $headerOnlyTypes.
-        'header_only_clues' => array('mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'),
+        'header_only_clues' => ['mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'],
         // User Agent strings - mapping domain names
-        'user_agents' => array(),
+        'user_agents' => [],
         // AJAX triggers to search for.
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
-        'ajax_triggers' => array(
+        'ajax_triggers' => [
             "<meta name='fragment' content='!'",
             '<meta name="fragment" content="!"',
             "<meta content='!' name='fragment'",
             '<meta content="!" name="fragment"',
-        ),
+        ],
         // number of redirection allowed until we assume request won't be complete
         'max_redirect' => 10,
-    ),
-    'extractor' => array(
+    ],
+    'extractor' => [
         'default_parser' => 'libxml',
         // key is fingerprint (fragment to find in HTML)
         // value is host name to use for site config lookup if fingerprint matches
         // \s* match anything INCLUDING new lines
-        'fingerprints' => array(
+        'fingerprints' => [
             '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
-        ),
-        'config_builder' => array(
+        ],
+        'config_builder' => [
             // Directory path to the site config folder WITHOUT trailing slash
-            'site_config' => array(),
+            'site_config' => [],
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
-        ),
-        'readability' => array(
+        ],
+        'readability' => [
             // filters might be like array('regex' => 'replace with')
             // for example, to remove script content: array('!<script[^>]*>(.*?)</script>!is' => '')
-            'pre_filters' => array(),
-            'post_filters' => array(),
-        ),
-        'src_lazy_load_attributes' => array(
+            'pre_filters' => [],
+            'post_filters' => [],
+        ],
+        'src_lazy_load_attributes' => [
             'data-src',
             'data-lazy-src',
             'data-original',
             'data-sources',
             'data-hi-res-src',
-        ),
-    ),
-));
+        ],
+        // these JSON-LD types will be ignored
+        'json_ld_ignore_types' => ['Organization', 'WebSite', 'Person', 'VideoGame'],
+    ],
+]);
 ```
 
 ## Credits

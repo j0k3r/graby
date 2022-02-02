@@ -22,6 +22,8 @@ class ContentExtractorConfig
     private array $readability;
     /** @var array<string> */
     private array $src_lazy_load_attributes;
+    /** @var array<string> */
+    private array $json_ld_ignore_types;
 
     public function __construct(array $config)
     {
@@ -49,6 +51,7 @@ class ContentExtractorConfig
                 'data-hi-res-src',
                 'data-srcset',
             ],
+            'json_ld_ignore_types' => ['Organization', 'WebSite', 'Person', 'VideoGame'],
         ]);
 
         $resolver->setAllowedValues('default_parser', self::ALLOWED_PARSERS);
@@ -57,6 +60,7 @@ class ContentExtractorConfig
         $resolver->setAllowedTypes('fingerprints', 'array');
         $resolver->setAllowedTypes('config_builder', 'array');
         $resolver->setAllowedTypes('src_lazy_load_attributes', 'string[]');
+        $resolver->setAllowedTypes('json_ld_ignore_types', 'string[]');
 
         $resolver->setDefault('readability', function (OptionsResolver $readabilityResolver) {
             $readabilityResolver->setDefaults([
@@ -128,5 +132,13 @@ class ContentExtractorConfig
     public function addSrcLazyLoadAttributes(string $attribute): void
     {
         $this->src_lazy_load_attributes[] = $attribute;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getJsonLdIgnoreTypes(): array
+    {
+        return $this->json_ld_ignore_types;
     }
 }
