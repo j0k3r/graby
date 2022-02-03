@@ -131,6 +131,22 @@ array(
 
 The `date` result is the same as displayed in the content. If `date` is not `null` in the result, we recommend you to parse it using [`date_parse`](http://php.net/date_parse) (this is what we are using to validate that the date is correct).
 
+### Retrieve content from a prefetched page
+
+If you want to extract content from a page you fetched outside of Graby, you can call `setContentAsPrefetched()` before calling `fetchContent()`, e.g.:
+
+``` php
+use Graby\Graby;
+
+$article = 'http://www.bbc.com/news/entertainment-arts-32547474';
+
+$input = '<html>[...]</html>';
+
+$graby = new Graby();
+$graby->setContentAsPrefetched($input);
+$result = $graby->fetchContent($article);
+```
+
 ### Cleanup content
 
 Since the 1.9.0 version, you can also send html content to be cleanup in the same way graby clean content retrieved from an url. The url is still needed to convert links to absolute, etc.
