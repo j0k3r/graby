@@ -322,12 +322,6 @@ class ContentExtractor
 
         $this->removeElements($elems, 'Stripping {length} .entry-unrelated,.instapaper_ignore elements');
 
-        // strip elements that contain style 'display: none' or 'visibility:hidden'
-        // @todo: inline style are convert to <style> by tidy, so we can't remove hidden content ...
-        $elems = $this->xpath->query("//*[contains(@style,'display:none') or contains(@style,'visibility:hidden')]", $this->readability->dom);
-
-        $this->removeElements($elems, 'Stripping {length} elements with inline display:none or visibility:hidden style');
-
         // strip empty a elements
         $elems = $this->xpath->query("//a[not(./*) and normalize-space(.)='']", $this->readability->dom);
 
