@@ -158,6 +158,7 @@ class ContentExtractor
         $this->logger->info('Attempting to parse HTML with {parser}', ['parser' => $parser]);
 
         $this->readability = $this->getReadability($html, $url, $parser, $this->siteConfig->tidy() && $smartTidy);
+        $success = $this->readability->init();
         $tidied = $this->readability->tidied;
 
         $this->logger->info('Body size after Readability: {length}', ['length' => \strlen((string) $this->readability->dom->saveXML($this->readability->dom->documentElement))]);
@@ -470,17 +471,6 @@ class ContentExtractor
             $this->readability->dom,
             'Date found (datetime marked time element): {date}'
         );
-
-        // still missing title or body, so we detect using Readability
-        $success = false;
-        if ($detectTitle || $detectBody) {
-            $this->logger->info('Using Readability');
-            // clone body if we're only using Readability for title (otherwise it may interfere with body element)
-            if (isset($this->body)) {
-                $this->body = $this->body->cloneNode(true);
-            }
-            $success = $this->readability->init();
-        }
 
         if ($detectTitle && $this->readability->getTitle()->textContent) {
             $this->title = trim($this->readability->getTitle()->textContent);
