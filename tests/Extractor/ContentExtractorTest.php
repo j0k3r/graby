@@ -51,6 +51,10 @@ class ContentExtractorTest extends TestCase
                 '<html><head><meta name="generator" content="WordPress 4.4.2" /></head></html>',
                 'fingerprint.wordpress.com',
             ],
+            'ippen.media' => [
+                '<html><div class="id-SiteBEEPWrap"><span class="id-SitePosHelperWrap"><span id="id-SitePosHelper" class="id-SitePosHelper"></span></span><div class="id-SiteWrap idjs-SiteWrap" data-id-module="jumpToWithOffset"></div></html>',
+                'fingerprint.ippen.media',
+            ],
         ];
     }
 
