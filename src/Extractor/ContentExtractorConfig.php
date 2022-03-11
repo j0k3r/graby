@@ -37,6 +37,7 @@ class ContentExtractorConfig
                 '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
                 '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
                 '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
+                '/\<div\s*class=([\'"])id-SiteBEEPWrap([\'"])\>/i' => 'fingerprint.ippen.media',
             ],
             'config_builder' => [],
             'readability' => [
