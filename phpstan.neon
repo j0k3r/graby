@@ -1,7 +1,7 @@
 parameters:
     level: 7
     paths:
-        - maintenance/Rector
+        #- maintenance/Rector
         - src
         - tests
 
@@ -20,10 +20,6 @@ parameters:
         -
             message: '#\$innerHTML#'
             path: %currentWorkingDirectory%
-        # can't find a way to cast or properly defined some return elements
-        -
-            message: '#DOMNode, object given#'
-            path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
         # other stuff I might have fucked up with DOM* classes
         -
             message: '#DOMNode::\$tagName#'
