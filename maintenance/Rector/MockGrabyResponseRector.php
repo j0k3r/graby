@@ -24,6 +24,7 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use Psr\Http\Message\ResponseInterface;
+use Rector\Core\Application\FileSystem\RemovedAndAddedFilesCollector;
 use Rector\Core\Rector\AbstractRector;
 use Rector\FileSystemRector\ValueObject\AddedFileWithContent;
 use Rector\Naming\Naming\VariableNaming;
@@ -42,15 +43,18 @@ final class MockGrabyResponseRector extends AbstractRector
     private const MATCHING_ERROR_COMMENT = 'TODO: Rector was unable to evaluate this Graby config.';
     private const IGNORE_COMMENT = 'Rector: do not add mock client';
     private ParentScopeFinder $parentScopeFinder;
+    private RemovedAndAddedFilesCollector $removedAndAddedFilesCollector;
     private UseNodesToAddCollector $useNodesToAddCollector;
     private VariableNaming $variableNaming;
 
     public function __construct(
         ParentScopeFinder $parentScopeFinder,
+        RemovedAndAddedFilesCollector $removedAndAddedFilesCollector,
         UseNodesToAddCollector $useNodesToAddCollector,
         VariableNaming $variableNaming
     ) {
         $this->parentScopeFinder = $parentScopeFinder;
+        $this->removedAndAddedFilesCollector = $removedAndAddedFilesCollector;
         $this->useNodesToAddCollector = $useNodesToAddCollector;
         $this->variableNaming = $variableNaming;
     }
@@ -103,7 +107,7 @@ CODE_SAMPLE
             return null;
         }
 
-        $statement = $new->getAttribute(AttributeKey::CURRENT_STATEMENT);
+        $statement = $this->betterNodeFinder->resolveCurrentStatement($new);
         \assert(null !== $statement, 'Graby construction needs to be inside a statement.');
 
         $comments = $statement->getAttribute(AttributeKey::COMMENTS);
@@ -212,7 +216,7 @@ CODE_SAMPLE
      */
     private function createMockClientVariable(New_ $new): Variable
     {
-        $currentStmt = $new->getAttribute(AttributeKey::CURRENT_STATEMENT);
+        $currentStmt = $this->betterNodeFinder->resolveCurrentStatement($new);
         $scope = $currentStmt->getAttribute(AttributeKey::SCOPE);
 
         return new Variable($this->variableNaming->createCountedValueName('httpMockClient', $scope));

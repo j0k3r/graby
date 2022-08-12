@@ -57,7 +57,7 @@
         }
     },
     "scripts": {
-        "rector": "vendor/bin/rector process -c maintenance/rector.config.php"
+        "rector": "vendor/bin/rector process -c maintenance/rector.php"
     },
     "config": {
         "sort-packages": true,
