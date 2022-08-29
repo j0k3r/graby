@@ -19,7 +19,6 @@ use Psr\Log\NullLogger;
 use Readability\Readability;
 use Smalot\PdfParser\Parser as PdfParser;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use TrueBV\Punycode;
 
 /**
  * @todo add proxy
@@ -39,7 +38,6 @@ class Graby
 
     /** @var ConfigBuilder */
     private $configBuilder;
-    private $punycode;
 
     private $imgNoReferrer = false;
     private $prefetchedContent;
@@ -118,8 +116,6 @@ class Graby
             $this->config['http_client'],
             $this->logger
         );
-
-        $this->punycode = new Punycode();
     }
 
     /**
@@ -495,7 +491,13 @@ class Graby
         $uri = new Uri((string) $url);
 
         if (preg_match('/[\x80-\xff]/', $uri->getHost())) {
-            $uri = $uri->withHost($this->punycode->encode($uri->getHost()));
+            $uriIdnSafe = idn_to_ascii($uri->getHost());
+
+            if (false === $uriIdnSafe) {
+                throw new \InvalidArgumentException(\sprintf('Url "%s" is not valid IDN to ascii.', $url));
+            }
+
+            $uri = $uri->withHost($uriIdnSafe);
         }
 
         if (\strlen($uri->getPath()) && preg_match('/[\x80-\xff]/', $uri->getPath())) {
