@@ -18,7 +18,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
 use Smalot\PdfParser\Parser as PdfParser;
-use TrueBV\Punycode;
 
 /**
  * @todo add proxy
@@ -31,7 +30,6 @@ class Graby
     private HttpClient $httpClient;
     private ContentExtractor $extractor;
     private ConfigBuilder $configBuilder;
-    private Punycode $punycode;
     private bool $imgNoReferrer = false;
 
     private ?string $prefetchedContent = null;
@@ -81,8 +79,6 @@ class Graby
             $this->logger,
             $this->extractor
         );
-
-        $this->punycode = new Punycode();
     }
 
     /**
@@ -440,7 +436,13 @@ class Graby
         $uri = new Uri((string) $url);
 
         if (preg_match('/[\x80-\xff]/', $uri->getHost())) {
-            $uri = $uri->withHost($this->punycode->encode($uri->getHost()));
+            $uriIdnSafe = idn_to_ascii($uri->getHost());
+
+            if (false === $uriIdnSafe) {
+                throw new \InvalidArgumentException(sprintf('Url "%s" is not valid IDN to ascii.', $url));
+            }
+
+            $uri = $uri->withHost($uriIdnSafe);
         }
 
         if (\strlen($uri->getPath()) && preg_match('/[\x80-\xff]/', $uri->getPath())) {

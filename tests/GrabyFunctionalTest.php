@@ -173,7 +173,6 @@ class GrabyFunctionalTest extends TestCase
         return [
             // ['http://pérotin.com/post/2015/08/31/Le-cadran-solaire-amoureux'],
             ['https://en.wikipedia.org/wiki/Café'],
-            // ['http://www.atterres.org/article/budget-2016-les-10-méprises-libérales-du-gouvernement'],
         ];
     }
 
