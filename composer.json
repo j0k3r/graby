@@ -30,7 +30,7 @@
         "php-http/message": "^1.9",
         "simplepie/simplepie": "^1.5",
         "smalot/pdfparser": "^1.0",
-        "symfony/options-resolver": "^3.4|^4.4|^5.3",
+        "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0",
         "true/punycode": "^2.1",
         "guzzlehttp/psr7": "^1.5.0|^2.0"
     },
