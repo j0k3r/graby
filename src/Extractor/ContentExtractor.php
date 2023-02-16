@@ -713,12 +713,13 @@ class ContentExtractor
     /**
      * Validate and convert a date to the W3C format.
      *
-     * @param string $date
+     * @param string|null $date
      *
      * @return string|null Formatted date using the W3C format (Y-m-d\TH:i:sP) OR null if the date is badly formatted
      */
     public function validateDate($date)
     {
+        $date = (string) $date;
         $parseDate = (array) date_parse($date);
 
         // If no year has been found during date_parse, we nuke the whole value
