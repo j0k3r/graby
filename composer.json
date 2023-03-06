@@ -28,7 +28,7 @@
         "php-http/discovery": "^1.14",
         "php-http/httplug": "^2.2",
         "php-http/message": "^1.12",
-        "simplepie/simplepie": "^1.5",
+        "simplepie/simplepie": "^1.8",
         "smalot/pdfparser": "^2.0",
         "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0",
         "symfony/polyfill-intl-idn": "^1.26"
@@ -62,7 +62,8 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "php-http/discovery": true
         }
     }
 }

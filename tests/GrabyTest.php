@@ -91,7 +91,7 @@ class GrabyTest extends TestCase
         if ($author) {
             $this->assertSame([$author], $res['authors']);
         } else {
-            $this->assertEmpty($res['authors'], 'authors not empty; got ' . $res['language']);
+            $this->assertEmpty($res['authors'], 'authors not empty; got ' . var_export($res['authors'], true));
         }
 
         $this->assertSame($parsedContent, $res['html'], 'Same html');
@@ -379,6 +379,7 @@ class GrabyTest extends TestCase
 
     /**
      * @group dns-sensitive
+     *
      * @dataProvider dataForSinglePage
      */
     public function testSinglePage(string $url, string $expectedUrl, string $singlePageUrl): void

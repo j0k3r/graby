@@ -222,8 +222,8 @@ class HttpClient
         // remove utm parameters & fragment
         $uri = new Uri(str_replace('&amp;', '&', $effectiveUrl));
         parse_str($uri->getQuery(), $query);
-        $queryParameters = array_filter($query, fn ($k) => !(0 === stripos($k, 'utm_')), \ARRAY_FILTER_USE_KEY);
-        $effectiveUrl = (string) Uri::withQueryValues(new Uri($uri->withFragment('')->withQuery('')), $queryParameters);
+        $queryParameters = array_filter($query, fn ($k) => !(0 === stripos((string) $k, 'utm_')), \ARRAY_FILTER_USE_KEY);
+        $effectiveUrl = (string) new Uri($uri->withFragment('')->withQuery(http_build_query($queryParameters)));
 
         $this->logger->info('Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
