@@ -109,7 +109,7 @@ class Graby
     /**
      * Fetch content from the given url and return a readable content.
      *
-     * @return array With keys html, title, url & summary
+     * @return  array{status: int, html: string, title: string, language: ?string, date: ?string, authors: string[]|null, url: string, image: ?string, headers: array<string, string>, native_ad: bool, summary: string}
      */
     public function fetchContent(string $url): array
     {
@@ -226,7 +226,7 @@ class Graby
     /**
      * Do fetch content from an url.
      *
-     * @return array With key status, html, title, language, date, authors, url, image, headers & native_ad
+     * @return array{status: int, html: string, title: string, language: ?string, date: ?string, authors: string[]|null, url: string, image: ?string, headers: array<string, string>, native_ad: bool}
      */
     private function doFetchContent(string $url): array
     {
