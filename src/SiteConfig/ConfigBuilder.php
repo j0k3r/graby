@@ -191,6 +191,7 @@ class ConfigBuilder
      * @return false|SiteConfig
      *
      * @deprecated Use either buildForHost() / buildFromUrl() for the merged config or loadSiteConfig() to get the config for a site
+     *
      * @codeCoverageIgnore
      */
     public function build($host, $exactHostMatch = false)
