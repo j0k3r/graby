@@ -626,7 +626,7 @@ class HttpClientTest extends TestCase
         return [
             [
                 'url' => 'https://example.com/foo?utm_content=111315005&utm_medium=social&utm_source=twitter&hss_channel=tw-hello&foo[]=bar&foo[]=qux',
-                'expectedUrl' => 'https://example.com/foo?hss_channel=tw-hello&foo%5B0%5D=bar&foo%5B1%5D=qux',
+                'expectedUrl' => 'https://example.com/foo?hss_channel=tw-hello&foo%5B%5D=bar&foo%5B%5D=qux',
             ],
             [
                 'url' => 'https://example.com/foo?hss_channel=tw-hello#fragment',
