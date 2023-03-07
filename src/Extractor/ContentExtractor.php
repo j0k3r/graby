@@ -88,6 +88,7 @@ class ContentExtractor
         $this->siteConfig = null;
         $this->title = null;
         $this->body = null;
+        $this->image = null;
         $this->nativeAd = false;
         $this->date = null;
         $this->language = null;
