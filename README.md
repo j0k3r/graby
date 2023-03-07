@@ -12,7 +12,6 @@
 [![Coverage Status](https://coveralls.io/repos/j0k3r/graby/badge.svg?branch=master&service=github)](https://coveralls.io/github/j0k3r/graby?branch=master)
 [![Total Downloads](https://img.shields.io/packagist/dt/j0k3r/graby.svg)](https://packagist.org/packages/j0k3r/graby)
 [![License](https://poser.pugx.org/j0k3r/graby/license)](https://packagist.org/packages/j0k3r/graby)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/j0k3r/graby/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/j0k3r/graby/?branch=master)
 
 Graby helps you extract article content from web pages
 
