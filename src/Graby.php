@@ -871,11 +871,11 @@ class Graby
             $html_head = substr($html, 0, 50000);
             if (preg_match('/^<\?xml\s+version=(?:"[^"]*"|\'[^\']*\')\s+encoding=("[^"]*"|\'[^\']*\')/s', $html_head, $match)) {
                 $encoding = trim($match[1], '"\'');
-            } elseif (preg_match('/<meta\s+http-equiv=["\']?Content-Type["\']? content=["\'][^;]+;\s*charset=["\']?([^;"\'>]+)/i', $html_head, $match)) {
+            } elseif (preg_match('/<meta\s+http-equiv\s*=\s*["\']?Content-Type["\']? content\s*=\s*["\'][^;]+;\s*charset=["\']?([^;"\'>]+)/i', $html_head, $match)) {
                 $encoding = trim($match[1]);
             } elseif (preg_match_all('/<meta\s+([^>]+)>/i', $html_head, $match)) {
                 foreach ($match[1] as $_test) {
-                    if (preg_match('/charset=["\']?([^"\']+)/i', $_test, $_m)) {
+                    if (preg_match('/charset\s*=\s*["\']?([^"\']+)/i', $_test, $_m)) {
                         $encoding = trim($_m[1]);
                         break;
                     }
