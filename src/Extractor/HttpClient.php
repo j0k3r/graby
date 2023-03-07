@@ -220,10 +220,7 @@ class HttpClient
         }
 
         // remove utm parameters & fragment
-        $uri = new Uri(str_replace('&amp;', '&', $effectiveUrl));
-        parse_str($uri->getQuery(), $query);
-        $queryParameters = array_filter($query, fn ($k) => !(0 === stripos($k, 'utm_')), \ARRAY_FILTER_USE_KEY);
-        $effectiveUrl = (string) Uri::withQueryValues(new Uri($uri->withFragment('')->withQuery('')), $queryParameters);
+        $effectiveUrl = (string) $this->removeTrackersFromUrl(new Uri(str_replace('&amp;', '&', $effectiveUrl)));
 
         $this->logger->info('Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
@@ -531,5 +528,39 @@ class HttpClient
         }
 
         return $headers;
+    }
+
+    /**
+     * Remove trackers from url.
+     *
+     * @author Jean Baptiste Favre
+     *
+     * @see https://github.com/fossar/selfoss/blob/0d7bde56e502f7d79bfb38dcdd657c7da89cf1f1/src/spouts/rss/fulltextrss.php#L120
+     */
+    private function removeTrackersFromUrl(Uri $uri): Uri
+    {
+        // Query string
+        $query = $uri->getQuery();
+        if ('' !== $query) {
+            $q_array = explode('&', $query);
+            // Remove utm_* parameters
+            $clean_query = array_filter(
+                $q_array,
+                function (string $param): bool {
+                    return !str_starts_with($param, 'utm_');
+                }
+            );
+            $uri = $uri->withQuery(implode('&', $clean_query));
+        }
+        // Fragment
+        $fragment = $uri->getFragment();
+        if ('' !== $fragment) {
+            // Remove xtor=RSS anchor
+            if (str_contains($fragment, 'xtor=RSS')) {
+                $uri = $uri->withFragment('');
+            }
+        }
+
+        return $uri;
     }
 }

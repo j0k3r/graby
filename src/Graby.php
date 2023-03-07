@@ -17,6 +17,7 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
+use SimplePie\Misc;
 use Smalot\PdfParser\Parser as PdfParser;
 
 /**
@@ -925,7 +926,7 @@ class Graby
             $encoding = $encoding ?: 'iso-8859-1';
             $this->logger->info('Converting to UTF-8', ['encoding' => $encoding]);
 
-            $converted = \SimplePie_Misc::change_encoding($html, $encoding, 'utf-8');
+            $converted = Misc::change_encoding($html, $encoding, 'utf-8');
 
             return false === $converted ? $html : (string) $converted;
         }
