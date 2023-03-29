@@ -748,7 +748,7 @@ class ContentExtractor
     /**
      * Check if given node list exists and has length more than 0.
      *
-     * @param \DOMNodeList|false $elems Not force typed because it can also be false
+     * @param \DOMNodeList<\DOMNode>|false $elems Not force typed because it can also be false
      */
     private function hasElements($elems = false): bool
     {
@@ -762,8 +762,8 @@ class ContentExtractor
     /**
      * Remove elements.
      *
-     * @param \DOMNodeList|false $elems      Not force typed because it can also be false
-     * @param string             $logMessage
+     * @param \DOMNodeList<\DOMNode>|false $elems      Not force typed because it can also be false
+     * @param string                       $logMessage
      *
      * @return void|null
      */
@@ -793,8 +793,8 @@ class ContentExtractor
     /**
      * Wrap elements with provided tag.
      *
-     * @param \DOMNodeList|false $elems
-     * @param string             $logMessage
+     * @param \DOMNodeList<\DOMNode>|false $elems
+     * @param string                       $logMessage
      *
      * @return void|null
      */
