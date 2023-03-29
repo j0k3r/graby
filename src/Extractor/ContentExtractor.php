@@ -685,31 +685,39 @@ class ContentExtractor
     /**
      * Validate and convert a date to the W3C format.
      *
-     * @param string $date
-     *
      * @return string|null Formatted date using the W3C format (Y-m-d\TH:i:sP) OR null if the date is badly formatted
      */
     public function validateDate(?string $date): ?string
     {
-        $date = (string) $date;
+        if (null === $date) {
+            return null;
+        }
+
+        // Presumably, this can return false on older PHP versions?
         $parseDate = (array) date_parse($date);
 
         // If no year has been found during date_parse, we nuke the whole value
         // because the date is invalid
-        if (null !== $date && false === $parseDate['year']) {
+        $parsedYear = $parseDate['year'] ?? false;
+        if (false === $parsedYear) {
             $this->logger->info('Date is bad (wrong year): {date}', ['date' => $date]);
 
             return null;
         }
 
         // in case the date can't be converted we assume it's a wrong date
-        if (null !== $date && 0 > strtotime($date) || false === strtotime($date)) {
+        $time = strtotime($date);
+        if (false === $time || $time < 0) {
             $this->logger->info('Date is bad (strtotime failed): {date}', ['date' => $date]);
 
             return null;
         }
 
-        return (new \DateTime($date))->format(\DateTime::W3C);
+        try {
+            return (new \DateTime($date))->format(\DateTime::W3C);
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 
     protected function addAuthor(string $authorDirty): void
