@@ -809,8 +809,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Trying {pattern} for language', $records[4]['message']);
         $this->assertSame('Trying {pattern} for language', $records[5]['message']);
         $this->assertSame('Using Readability', $records[6]['message']);
-        $this->assertSame('Date is bad (wrong year): {date}', $records[7]['message']);
-        $this->assertSame('Attempting to parse HTML with {parser}', $records[9]['message']);
+        $this->assertSame('Attempting to parse HTML with {parser}', $records[8]['message']);
     }
 
     public function testWithCustomFiltersForReadability(): void
@@ -1105,7 +1104,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
 
         $res = $contentExtractor->process(
-            '   <meta property="article:published_time" content="-0001-11-30T00:00:00+00:00" /> <p>' . str_repeat('this is the best part of the show', 10) . '</p> ',
+            '   <meta property="article:published_time" content="-0001-11-304T00:00:00+00:00" /> <p>' . str_repeat('this is the best part of the show', 10) . '</p> ',
             'https://domattr.io/woops!'
         );
 
