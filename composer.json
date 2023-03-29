@@ -57,6 +57,7 @@
         }
     },
     "scripts": {
+        "phpstan": "phpstan analyse --memory-limit 512M",
         "rector": "vendor/bin/rector process -c maintenance/rector.php"
     },
     "config": {
