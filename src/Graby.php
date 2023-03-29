@@ -751,7 +751,7 @@ class Graby
      */
     private function makeAbsoluteAttr(string $base, \DOMNode $e, $attr): void
     {
-        if (!$e->attributes->getNamedItem($attr) || !$e instanceof \DOMElement) {
+        if (!$e instanceof \DOMElement || !$e->attributes->getNamedItem($attr)) {
             return;
         }
 
