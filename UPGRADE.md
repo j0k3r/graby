@@ -8,6 +8,7 @@ So you must update methods you overridden.
 ### :warning: BC changes
 
 - Support for PHP < 7.4 has been dropped
+- `Graby::fetchContent()` now returns a `Content` object rather than an array.
 
 # FROM 1.x to 2.0
 

@@ -29,25 +29,12 @@ class GrabyFunctionalTest extends TestCase
 
         $res = $graby->fetchContent('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertSame('fr', $res['language']);
-        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res['url']);
-        $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res['title']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertSame('fr', $res->getLanguage());
+        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res->getUrl());
+        $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res->getTitle());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
 
         $records = $handler->getRecords();
 
@@ -80,27 +67,14 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertSame(['bjori'], $res['authors']);
-        $this->assertSame('en', $res['language']);
-        $this->assertSame('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html', $res['url']);
-        $this->assertSame('Next Generation MongoDB Driver for PHP!', $res['title']);
-        $this->assertStringContainsString('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res['html']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(['bjori'], $res->getAuthors());
+        $this->assertSame('en', $res->getLanguage());
+        $this->assertSame('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html', $res->getUrl());
+        $this->assertSame('Next Generation MongoDB Driver for PHP!', $res->getTitle());
+        $this->assertStringContainsString('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res->getHtml());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
     }
 
     public function testPdfFile(): void
@@ -110,30 +84,17 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('http://img3.free.fr/im_tv/telesites/documentation.pdf');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertEmpty($res['language']);
-        $this->assertEmpty($res['authors']);
-        $this->assertSame('2008-03-05T17:56:07+01:00', $res['date']);
-        $this->assertSame('http://img3.free.fr/im_tv/telesites/documentation.pdf', $res['url']);
-        $this->assertSame('PDF', $res['title']);
-        $this->assertStringContainsString('Free 2008', $res['html']);
-        $this->assertStringContainsString('Free 2008', $res['summary']);
-        $this->assertStringContainsString('application/pdf', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertEmpty($res->getLanguage());
+        $this->assertEmpty($res->getAuthors());
+        $this->assertSame('2008-03-05T17:56:07+01:00', $res->getDate());
+        $this->assertSame('http://img3.free.fr/im_tv/telesites/documentation.pdf', $res->getUrl());
+        $this->assertSame('PDF', $res->getTitle());
+        $this->assertStringContainsString('Free 2008', $res->getHtml());
+        $this->assertStringContainsString('Free 2008', $res->getSummary());
+        $this->assertStringContainsString('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
     }
 
     public function testImageFile(): void
@@ -143,29 +104,16 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('https://i.imgur.com/KQQ7D9z.jpg');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertEmpty($res['language']);
-        $this->assertEmpty($res['authors']);
-        $this->assertSame('https://i.imgur.com/KQQ7D9z.jpg', $res['url']);
-        $this->assertSame('Image', $res['title']);
-        $this->assertSame('<a href="https://i.imgur.com/KQQ7D9z.jpg"><img src="https://i.imgur.com/KQQ7D9z.jpg" alt="image" /></a>', $res['html']);
-        $this->assertEmpty($res['summary']);
-        $this->assertStringContainsString('image/jpeg', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertEmpty($res->getLanguage());
+        $this->assertEmpty($res->getAuthors());
+        $this->assertSame('https://i.imgur.com/KQQ7D9z.jpg', $res->getUrl());
+        $this->assertSame('Image', $res->getTitle());
+        $this->assertSame('<a href="https://i.imgur.com/KQQ7D9z.jpg"><img src="https://i.imgur.com/KQQ7D9z.jpg" alt="image" /></a>', $res->getHtml());
+        $this->assertEmpty($res->getSummary());
+        $this->assertStringContainsString('image/jpeg', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
     }
 
     public function dataWithAccent(): array
@@ -184,21 +132,8 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(['debug' => true]);
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
     }
 
     /**
@@ -215,28 +150,15 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml', $res['url']);
-        $this->assertSame('[Review] The Matrix Falling (Rain) Source Code C++', $res['title']);
-        // $this->assertSame('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen">[embedded content]</iframe>', $res['html']);
-        $this->assertSame('[embedded content]', $res['summary']);
-        // $this->assertStringContainsString('text/xml', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml', $res->getUrl());
+        $this->assertSame('[Review] The Matrix Falling (Rain) Source Code C++', $res->getTitle());
+        // $this->assertSame('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen">[embedded content]</iframe>', $res->getHtml());
+        $this->assertSame('[embedded content]', $res->getSummary());
+        // $this->assertStringContainsString('text/xml', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
     }
 
     public function testEncodedUrl(): void
@@ -246,21 +168,8 @@ class GrabyFunctionalTest extends TestCase
         // $graby = new Graby(['debug' => true]);
         // $res = $graby->fetchContent('http://blog.niqnutn.com/index.php?article49/commandes-de-base');
 
-        // $this->assertCount(11, $res);
-
-        // $this->assertArrayHasKey('status', $res);
-        // $this->assertArrayHasKey('html', $res);
-        // $this->assertArrayHasKey('title', $res);
-        // $this->assertArrayHasKey('language', $res);
-        // $this->assertArrayHasKey('date', $res);
-        // $this->assertArrayHasKey('authors', $res);
-        // $this->assertArrayHasKey('url', $res);
-        // $this->assertArrayHasKey('summary', $res);
-        // $this->assertArrayHasKey('image', $res);
-        // $this->assertArrayHasKey('native_ad', $res);
-        // $this->assertArrayHasKey('headers', $res);
-
-        // $this->assertSame(200, $res['status']);
+        // $this->assertNotNull($res->getSummary());
+        // $this->assertSame(200, $res->getStatus());
     }
 
     public function testKoreanPage(): void
@@ -270,24 +179,11 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(['debug' => true], $httpMockClient);
         $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertStringContainsString('에르보리앙', $res['title']);
-        $this->assertStringContainsString('프랑스 현대적 자연주의 브랜드', $res['summary']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertStringContainsString('에르보리앙', $res->getTitle());
+        $this->assertStringContainsString('프랑스 현대적 자연주의 브랜드', $res->getSummary());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
     }
 
     public function testMultipage(): void
@@ -304,25 +200,12 @@ class GrabyFunctionalTest extends TestCase
         ], $httpMockClient);
         $res = $graby->fetchContent('https://www.clubic.com/carte-graphique/carte-graphique-amd/article-478936-1-radeon-hd-7750-7770.html');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertStringContainsString('Radeon HD 7750/7770', $res['title']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertStringContainsString('Radeon HD 7750/7770', $res->getTitle());
         // which should be on the page 6
-        $this->assertStringContainsString('2560x1600', $res['html']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
+        $this->assertStringContainsString('2560x1600', $res->getHtml());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
     }
 
     public function testCookie(): void
@@ -338,23 +221,10 @@ class GrabyFunctionalTest extends TestCase
         ]);
         $res = $graby->fetchContent('https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
         // if the cookie wasn't taking into account, it'll be "NPR Choice page"
-        $this->assertSame('Michael Flynn\'s Contradictory Line On Russia', $res['title']);
+        $this->assertSame('Michael Flynn\'s Contradictory Line On Russia', $res->getTitle());
     }
 
     public function testSaveXmlUnknownEncoding(): void
@@ -371,8 +241,8 @@ class GrabyFunctionalTest extends TestCase
         ], $httpMockClient);
         $res = $graby->fetchContent('https://www.motherjones.com/politics/2012/02/mac-mcclelland-free-online-shipping-warehouses-labor/');
 
-        $this->assertCount(11, $res);
-        $this->assertSame(200, $res['status']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
     }
 
     public function testWithEmptyReplaceString(): void
@@ -389,7 +259,7 @@ class GrabyFunctionalTest extends TestCase
         ], $httpMockClient);
         $res = $graby->fetchContent('https://www.presseportal.de/pm/103258/2930232');
 
-        $this->assertCount(11, $res);
-        $this->assertSame(200, $res['status']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
     }
 }
