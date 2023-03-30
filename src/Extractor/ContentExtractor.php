@@ -127,7 +127,7 @@ class ContentExtractor
      *
      * @return bool true on success, false on failure
      */
-    public function process(string $html, string $url, SiteConfig $siteConfig = null, $smartTidy = true): bool
+    public function process(string $html, string $url, SiteConfig $siteConfig = null, bool $smartTidy = true): bool
     {
         $this->reset();
 
@@ -758,10 +758,8 @@ class ContentExtractor
      *
      * @param \DOMNodeList<\DOMNode>|false $elems      Not force typed because it can also be false
      * @param string                       $logMessage
-     *
-     * @return void|null
      */
-    private function removeElements($elems = false, string $logMessage = null)
+    private function removeElements($elems = false, string $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -789,10 +787,8 @@ class ContentExtractor
      *
      * @param \DOMNodeList<\DOMNode>|false $elems
      * @param string                       $logMessage
-     *
-     * @return void|null
      */
-    private function wrapElements($elems = false, string $tag = 'div', string $logMessage = null)
+    private function wrapElements($elems = false, string $tag = 'div', string $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -825,23 +821,22 @@ class ContentExtractor
      * Example: extractEntityFromQuery('title', $detectEntity, $xpathExpression, $node, $log, $returnCallback)
      * will search for expression and set the found value in $this->title
      *
-     * @param string   $entity          Entity to look for ('title', 'date')
-     * @param bool     $detectEntity    Do we have to detect entity?
-     * @param string   $xpathExpression XPath query to look for
-     * @param \DOMNode $node            DOMNode to look into
-     * @param string   $logMessage
-     * @param \Closure $returnCallback  Function to cleanup the current value found
+     * @param string    $entity          Entity to look for ('title', 'date')
+     * @param bool      $detectEntity    Do we have to detect entity?
+     * @param string    $xpathExpression XPath query to look for
+     * @param \DOMNode  $node            DOMNode to look into
+     * @param ?callable $returnCallback  Function to cleanup the current value found
      *
      * @return bool Telling if we have to detect entity again or not
      */
-    private function extractEntityFromQuery($entity, $detectEntity, $xpathExpression, \DOMNode $node, $logMessage, $returnCallback = null)
+    private function extractEntityFromQuery(string $entity, bool $detectEntity, string $xpathExpression, \DOMNode $node, string $logMessage, callable $returnCallback = null): bool
     {
         if (false === $detectEntity) {
             return false;
         }
 
         // we define the default callback here
-        if (!\is_callable($returnCallback)) {
+        if (null === $returnCallback) {
             $returnCallback = fn ($element) => trim($element);
         }
 
@@ -1092,16 +1087,16 @@ class ContentExtractor
      * Example: extractEntityFromPattern('title', $pattern) will search
      * for pattern and set the found value in $this->title
      *
-     * @param string   $entity         Entity to look for ('title', 'date')
-     * @param string   $pattern        Pattern to look for
-     * @param callable $returnCallback Function to apply on the value
+     * @param string    $entity         Entity to look for ('title', 'date')
+     * @param string    $pattern        Pattern to look for
+     * @param ?callable $returnCallback Function to apply on the value
      *
      * @return bool Telling if the entity has been found
      */
-    private function extractEntityFromPattern(string $entity, string $pattern, $returnCallback = null): bool
+    private function extractEntityFromPattern(string $entity, string $pattern, ?callable $returnCallback = null): bool
     {
         // we define the default callback here
-        if (!\is_callable($returnCallback)) {
+        if (null === $returnCallback) {
             $returnCallback = fn ($e) => trim($e);
         }
 
@@ -1149,16 +1144,16 @@ class ContentExtractor
      *
      * @see extractEntityFromPattern
      *
-     * @param string   $entity         Entity to look for ('title', 'date')
-     * @param string   $pattern        Pattern to look for
-     * @param callable $returnCallback Function to apply on the value
+     * @param string    $entity         Entity to look for ('title', 'date')
+     * @param string    $pattern        Pattern to look for
+     * @param ?callable $returnCallback Function to apply on the value
      *
      * @return bool Telling if the entity has been found
      */
-    private function extractMultipleEntityFromPattern(string $entity, string $pattern, $returnCallback = null): bool
+    private function extractMultipleEntityFromPattern(string $entity, string $pattern, ?callable $returnCallback = null): bool
     {
         // we define the default callback here
-        if (!\is_callable($returnCallback)) {
+        if (null === $returnCallback) {
             $returnCallback = fn ($e) => trim($e);
         }
 
@@ -1205,10 +1200,8 @@ class ContentExtractor
      *     - JSON-LD.
      *
      * @param string $html Html from the page
-     *
-     * @return void|null
      */
-    private function extractDefinedInformation(string $html)
+    private function extractDefinedInformation(string $html): void
     {
         if ('' === trim($html)) {
             return;
@@ -1345,10 +1338,8 @@ class ContentExtractor
      * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
      *
      * @see https://json-ld.org/spec/latest/json-ld/
-     *
-     * @return void|null
      */
-    private function extractJsonLdInformation(\DOMXPath $xpath)
+    private function extractJsonLdInformation(\DOMXPath $xpath): void
     {
         $scripts = $xpath->query('//*/script[@type="application/ld+json"]');
 
