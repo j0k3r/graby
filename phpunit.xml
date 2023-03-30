@@ -40,6 +40,8 @@
 
     <php>
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=0" />
+
+        <ini name="date.timezone" value="Europe/Paris"/>
     </php>
 
     <!-- <logging>
