@@ -19,6 +19,8 @@
     <php>
         <!-- until all deps are compatible with PHP 8.1 -->
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+
+        <ini name="date.timezone" value="Europe/Paris"/>
     </php>
 
     <filter>
