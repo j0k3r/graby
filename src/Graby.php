@@ -314,7 +314,7 @@ class Graby
         $extractedImage = $this->extractor->getImage();
 
         // ensure image is absolute
-        if (!empty($extractedImage)) {
+        if (null !== $extractedImage) {
             $extractedImage = $this->makeAbsoluteStr($effectiveUrl, $extractedImage);
         }
 
@@ -335,7 +335,7 @@ class Graby
                 $this->logger->info('Processing next page: {url}', ['url' => $nextPageUrl]);
                 // If we've got URL, resolve against $url
                 $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
-                if (!$nextPageUrl) {
+                if (null !== $nextPageUrl) {
                     $this->logger->info('Failed to resolve against: {url}', ['url' => $effectiveUrl]);
                     $multiPageContent = [];
                     break;
@@ -690,7 +690,7 @@ class Graby
         $singlePageUrl = $this->makeAbsoluteStr($url, $singlePageUrl);
 
         // check it's not what we have already!
-        if (false !== $singlePageUrl && $singlePageUrl !== $url) {
+        if (null !== $singlePageUrl && $singlePageUrl !== $url) {
             // it's not, so let's try to fetch it...
             $headers = $siteConfig->http_header;
 
@@ -766,7 +766,7 @@ class Graby
             $this->logger->info('Wrong content url', ['url' => $url]);
             $absolute = $url;
         }
-        if (false !== $absolute) {
+        if (null !== $absolute) {
             $e->setAttribute($attr, $absolute);
         }
     }
@@ -776,13 +776,11 @@ class Graby
      *
      * @param string $base Base url
      * @param string $url  Url to make it absolute
-     *
-     * @return false|string
      */
-    private function makeAbsoluteStr(string $base, string $url)
+    private function makeAbsoluteStr(string $base, string $url): ?string
     {
         if (!$url) {
-            return false;
+            return null;
         }
 
         $url = new Uri($url);
@@ -795,7 +793,7 @@ class Graby
 
         // in case the url has no host
         if ('' === $base->getAuthority()) {
-            return false;
+            return null;
         }
 
         return (string) UriResolver::resolve($base, $url);

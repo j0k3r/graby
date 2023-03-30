@@ -717,9 +717,9 @@ HTML
     public function dataForMakeAbsoluteStr(): array
     {
         return [
-            ['example.org', '/test', false],
+            ['example.org', '/test', null],
             ['http://example.org', '/test', 'http://example.org/test'],
-            ['http://example.org', '', false],
+            ['http://example.org', '', null],
             ['http://example.org//test', 'super', 'http://example.org//super'],
             ['http://example.org//test', 'http://sample.com', 'http://sample.com'],
             ['http://example.org/?d=2021/helloworld', 'img/foobar.jpg', 'http://example.org/img/foobar.jpg'],
@@ -731,10 +731,8 @@ HTML
 
     /**
      * @dataProvider dataForMakeAbsoluteStr
-     *
-     * @param string|false $expectedResult
      */
-    public function testMakeAbsoluteStr(string $base, string $url, $expectedResult): void
+    public function testMakeAbsoluteStr(string $base, string $url, ?string $expectedResult): void
     {
         $graby = new Graby();
 
