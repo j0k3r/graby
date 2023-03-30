@@ -24,6 +24,7 @@ class ContentExtractor
     private ?SiteConfig $siteConfig = null;
     private ?string $title = null;
     private ?string $language = null;
+    /** @var string[] */
     private array $authors = [];
     /** @var \DOMElement|\DOMNode|null */
     private $body = null;
@@ -211,7 +212,7 @@ class ContentExtractor
         }
 
         // try to get author (if it hasn't already been set)
-        if (empty($this->authors)) {
+        if ([] === $this->authors) {
             foreach ($this->siteConfig->author as $pattern) {
                 $this->logger->info('Trying {pattern} for author', ['pattern' => $pattern]);
 
@@ -356,7 +357,7 @@ class ContentExtractor
             $detectDate = true;
         }
         // detect author?
-        if (empty($this->authors) && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
+        if ([] === $this->authors && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
             $detectAuthor = true;
         }
 
@@ -657,7 +658,10 @@ class ContentExtractor
         return $this->date;
     }
 
-    public function getAuthors(): ?array
+    /**
+     * @return string[]
+     */
+    public function getAuthors(): array
     {
         return $this->authors;
     }
@@ -959,7 +963,7 @@ class ContentExtractor
                 }
             }
 
-            return empty($this->authors);
+            return [] === $this->authors;
         }
 
         return true;
@@ -1315,21 +1319,26 @@ class ContentExtractor
     /**
      * Clean extract of JSON-LD authors.
      *
-     * @return array|string
+     * @return string[]
      */
-    private function extractAuthorsFromJsonLdArray(array $authors)
+    private function extractAuthorsFromJsonLdArray(array $authors): array
     {
         if (isset($authors['name'])) {
-            return $authors['name'];
-        }
-
-        return array_map(function ($author) {
-            if (isset($author['name']) && \is_string($author['name'])) {
-                return $author['name'];
+            if (\is_array($authors['name'])) {
+                return $authors['name'];
             }
 
-            return false;
-        }, $authors);
+            return [$authors['name']];
+        }
+
+        $ret = [];
+        foreach ($authors as $author) {
+            if (isset($author['name']) && \is_string($author['name'])) {
+                $ret[] = $author['name'];
+            }
+        }
+
+        return $ret;
     }
 
     /**
@@ -1395,11 +1404,7 @@ class ContentExtractor
             }
 
             if (!empty($data['author'])) {
-                $authors = \is_array($data['author']) ? $this->extractAuthorsFromJsonLdArray($data['author']) : $data['author'];
-
-                if (false === \is_array($authors)) {
-                    $authors = [$authors];
-                }
+                $authors = \is_array($data['author']) ? $this->extractAuthorsFromJsonLdArray($data['author']) : [$data['author']];
 
                 foreach ($authors as $author) {
                     $this->addAuthor($author);

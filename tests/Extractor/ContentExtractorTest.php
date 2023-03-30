@@ -926,6 +926,20 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         ], $contentExtractor->getAuthors());
     }
 
+    public function testJsonLdWithAuthorWithNameList(): void
+    {
+        $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
+
+        $res = $contentExtractor->process(
+            '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":{"@type":"Person","name":["Greg Myre"]}}</script>',
+            'https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia'
+        );
+
+        $this->assertSame([
+            'Greg Myre',
+        ], $contentExtractor->getAuthors());
+    }
+
     public function testNoDefinedHtml(): void
     {
         $contentExtractor = new ContentExtractor(self::$contentExtractorConfig);
