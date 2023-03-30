@@ -335,7 +335,7 @@ class Graby
                 $this->logger->info('Processing next page: {url}', ['url' => $nextPageUrl]);
                 // If we've got URL, resolve against $url
                 $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
-                if (null !== $nextPageUrl) {
+                if (null === $nextPageUrl) {
                     $this->logger->info('Failed to resolve against: {url}', ['url' => $effectiveUrl]);
                     $multiPageContent = [];
                     break;

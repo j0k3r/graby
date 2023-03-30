@@ -73,10 +73,8 @@ class ContentExtractor
     /**
      * Try to find a host depending on a meta that can be in the html.
      * It allow to determine if a website is generated using Wordpress, Blogger, etc ..
-     *
-     * @return string|false
      */
-    public function findHostUsingFingerprints(string $html)
+    public function findHostUsingFingerprints(string $html): ?string
     {
         foreach ($this->config->getFingerprints() as $metaPattern => $host) {
             if (1 === preg_match($metaPattern, $html)) {
@@ -84,7 +82,7 @@ class ContentExtractor
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -101,7 +99,7 @@ class ContentExtractor
 
         // check HTML for fingerprints
         $fingerprintHost = $this->findHostUsingFingerprints($html);
-        if (false === $fingerprintHost) {
+        if (null === $fingerprintHost) {
             return $config;
         }
 

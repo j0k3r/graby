@@ -104,7 +104,7 @@ class HttpClient
         }
 
         $accept = $this->getAccept($url, $httpHeader);
-        if ($accept) {
+        if (null !== $accept) {
             $headers['Accept'] = $accept;
         }
 
@@ -403,10 +403,8 @@ class HttpClient
      *
      * @param string $url        Absolute url
      * @param array  $httpHeader Custom HTTP Headers from SiteConfig
-     *
-     * @return string|false
      */
-    private function getAccept(string $url, array $httpHeader = [])
+    private function getAccept(string $url, array $httpHeader = []): ?string
     {
         if (!empty($httpHeader['accept'])) {
             $this->logger->info('Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
@@ -414,7 +412,7 @@ class HttpClient
             return $httpHeader['accept'];
         }
 
-        return false;
+        return null;
     }
 
     /**
