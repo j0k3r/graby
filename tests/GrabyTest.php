@@ -836,6 +836,7 @@ HTML
         $method->invokeArgs($graby, ['http://example.org', $e]);
 
         $this->assertSame('http://example.org/lol', $e->getAttribute('href'));
+        \assert($e->firstChild instanceof \DOMElement); // For PHPStan
         $this->assertNotNull($e->firstChild->attributes->getNamedItem('src'));
         $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->attributes->getNamedItem('src')->nodeValue);
     }

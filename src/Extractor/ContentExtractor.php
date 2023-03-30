@@ -725,6 +725,8 @@ class ContentExtractor
      * If a siteConfig is already set and no prepare site config is passed, this is a noop.
      *
      * @param SiteConfig $siteConfig Will avoid to recalculate the site config
+     *
+     * @phpstan-assert SiteConfig $this->siteConfig
      */
     private function prepareSiteConfig(string $html, string $url, ?SiteConfig $siteConfig = null): void
     {
@@ -748,7 +750,7 @@ class ContentExtractor
     /**
      * Check if given node list exists and has length more than 0.
      *
-     * @param \DOMNodeList|false $elems Not force typed because it can also be false
+     * @param \DOMNodeList<\DOMNode>|false $elems Not force typed because it can also be false
      */
     private function hasElements($elems = false): bool
     {
@@ -762,8 +764,8 @@ class ContentExtractor
     /**
      * Remove elements.
      *
-     * @param \DOMNodeList|false $elems      Not force typed because it can also be false
-     * @param string             $logMessage
+     * @param \DOMNodeList<\DOMNode>|false $elems      Not force typed because it can also be false
+     * @param string                       $logMessage
      *
      * @return void|null
      */
@@ -793,8 +795,8 @@ class ContentExtractor
     /**
      * Wrap elements with provided tag.
      *
-     * @param \DOMNodeList|false $elems
-     * @param string             $logMessage
+     * @param \DOMNodeList<\DOMNode>|false $elems
+     * @param string                       $logMessage
      *
      * @return void|null
      */
@@ -810,7 +812,7 @@ class ContentExtractor
 
         $a = iterator_to_array($elems);
         foreach ($a as $item) {
-            if (null !== $item && null !== $item->parentNode && $item instanceof \DOMElement) {
+            if ($item instanceof \DOMElement && null !== $item->parentNode) {
                 /** @var \DOMDocument */
                 $ownerDocument = $item->ownerDocument;
                 $newNode = $ownerDocument->createElement($tag);

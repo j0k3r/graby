@@ -218,6 +218,7 @@ CODE_SAMPLE
     {
         $currentStmt = $this->betterNodeFinder->resolveCurrentStatement($new);
         $scope = $currentStmt->getAttribute(AttributeKey::SCOPE);
+        \assert(null !== $scope); // For PHPStan.
 
         return new Variable($this->variableNaming->createCountedValueName('httpMockClient', $scope));
     }

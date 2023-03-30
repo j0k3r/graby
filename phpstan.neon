@@ -6,7 +6,7 @@ parameters:
         - tests
 
     bootstrapFiles:
-        - vendor/bin/.phpunit/phpunit-8.5-0/vendor/autoload.php
+        - vendor/bin/.phpunit/phpunit/vendor/autoload.php
 
     ignoreErrors:
         # because we check for some HTTP client to exist or not (Guzzle 5/6 & cURL)
@@ -33,4 +33,3 @@ parameters:
 
     inferPrivatePropertyTypeFromConstructor: true
     checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
