@@ -24,6 +24,7 @@ class ContentExtractor
     private ?SiteConfig $siteConfig = null;
     private ?string $title = null;
     private ?string $language = null;
+    /** @var string[] */
     private array $authors = [];
     /** @var \DOMElement|\DOMNode|null */
     private $body = null;
@@ -72,10 +73,8 @@ class ContentExtractor
     /**
      * Try to find a host depending on a meta that can be in the html.
      * It allow to determine if a website is generated using Wordpress, Blogger, etc ..
-     *
-     * @return string|false
      */
-    public function findHostUsingFingerprints(string $html)
+    public function findHostUsingFingerprints(string $html): ?string
     {
         foreach ($this->config->getFingerprints() as $metaPattern => $host) {
             if (1 === preg_match($metaPattern, $html)) {
@@ -83,7 +82,7 @@ class ContentExtractor
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -100,7 +99,7 @@ class ContentExtractor
 
         // check HTML for fingerprints
         $fingerprintHost = $this->findHostUsingFingerprints($html);
-        if (false === $fingerprintHost) {
+        if (null === $fingerprintHost) {
             return $config;
         }
 
@@ -128,7 +127,7 @@ class ContentExtractor
      *
      * @return bool true on success, false on failure
      */
-    public function process(string $html, string $url, SiteConfig $siteConfig = null, $smartTidy = true): bool
+    public function process(string $html, string $url, SiteConfig $siteConfig = null, bool $smartTidy = true): bool
     {
         $this->reset();
 
@@ -211,7 +210,7 @@ class ContentExtractor
         }
 
         // try to get author (if it hasn't already been set)
-        if (empty($this->authors)) {
+        if ([] === $this->authors) {
             foreach ($this->siteConfig->author as $pattern) {
                 $this->logger->info('Trying {pattern} for author', ['pattern' => $pattern]);
 
@@ -356,7 +355,7 @@ class ContentExtractor
             $detectDate = true;
         }
         // detect author?
-        if (empty($this->authors) && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
+        if ([] === $this->authors && (empty($this->siteConfig->author) || $this->siteConfig->autodetect_on_failure())) {
             $detectAuthor = true;
         }
 
@@ -657,7 +656,10 @@ class ContentExtractor
         return $this->date;
     }
 
-    public function getAuthors(): ?array
+    /**
+     * @return string[]
+     */
+    public function getAuthors(): array
     {
         return $this->authors;
     }
@@ -756,10 +758,8 @@ class ContentExtractor
      *
      * @param \DOMNodeList<\DOMNode>|false $elems      Not force typed because it can also be false
      * @param string                       $logMessage
-     *
-     * @return void|null
      */
-    private function removeElements($elems = false, string $logMessage = null)
+    private function removeElements($elems = false, string $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -787,10 +787,8 @@ class ContentExtractor
      *
      * @param \DOMNodeList<\DOMNode>|false $elems
      * @param string                       $logMessage
-     *
-     * @return void|null
      */
-    private function wrapElements($elems = false, string $tag = 'div', string $logMessage = null)
+    private function wrapElements($elems = false, string $tag = 'div', string $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -823,23 +821,22 @@ class ContentExtractor
      * Example: extractEntityFromQuery('title', $detectEntity, $xpathExpression, $node, $log, $returnCallback)
      * will search for expression and set the found value in $this->title
      *
-     * @param string   $entity          Entity to look for ('title', 'date')
-     * @param bool     $detectEntity    Do we have to detect entity?
-     * @param string   $xpathExpression XPath query to look for
-     * @param \DOMNode $node            DOMNode to look into
-     * @param string   $logMessage
-     * @param \Closure $returnCallback  Function to cleanup the current value found
+     * @param string    $entity          Entity to look for ('title', 'date')
+     * @param bool      $detectEntity    Do we have to detect entity?
+     * @param string    $xpathExpression XPath query to look for
+     * @param \DOMNode  $node            DOMNode to look into
+     * @param ?callable $returnCallback  Function to cleanup the current value found
      *
      * @return bool Telling if we have to detect entity again or not
      */
-    private function extractEntityFromQuery($entity, $detectEntity, $xpathExpression, \DOMNode $node, $logMessage, $returnCallback = null)
+    private function extractEntityFromQuery(string $entity, bool $detectEntity, string $xpathExpression, \DOMNode $node, string $logMessage, callable $returnCallback = null): bool
     {
         if (false === $detectEntity) {
             return false;
         }
 
         // we define the default callback here
-        if (!\is_callable($returnCallback)) {
+        if (null === $returnCallback) {
             $returnCallback = fn ($element) => trim($element);
         }
 
@@ -959,7 +956,7 @@ class ContentExtractor
                 }
             }
 
-            return empty($this->authors);
+            return [] === $this->authors;
         }
 
         return true;
@@ -1090,16 +1087,16 @@ class ContentExtractor
      * Example: extractEntityFromPattern('title', $pattern) will search
      * for pattern and set the found value in $this->title
      *
-     * @param string   $entity         Entity to look for ('title', 'date')
-     * @param string   $pattern        Pattern to look for
-     * @param callable $returnCallback Function to apply on the value
+     * @param string    $entity         Entity to look for ('title', 'date')
+     * @param string    $pattern        Pattern to look for
+     * @param ?callable $returnCallback Function to apply on the value
      *
      * @return bool Telling if the entity has been found
      */
-    private function extractEntityFromPattern(string $entity, string $pattern, $returnCallback = null): bool
+    private function extractEntityFromPattern(string $entity, string $pattern, ?callable $returnCallback = null): bool
     {
         // we define the default callback here
-        if (!\is_callable($returnCallback)) {
+        if (null === $returnCallback) {
             $returnCallback = fn ($e) => trim($e);
         }
 
@@ -1147,16 +1144,16 @@ class ContentExtractor
      *
      * @see extractEntityFromPattern
      *
-     * @param string   $entity         Entity to look for ('title', 'date')
-     * @param string   $pattern        Pattern to look for
-     * @param callable $returnCallback Function to apply on the value
+     * @param string    $entity         Entity to look for ('title', 'date')
+     * @param string    $pattern        Pattern to look for
+     * @param ?callable $returnCallback Function to apply on the value
      *
      * @return bool Telling if the entity has been found
      */
-    private function extractMultipleEntityFromPattern(string $entity, string $pattern, $returnCallback = null): bool
+    private function extractMultipleEntityFromPattern(string $entity, string $pattern, ?callable $returnCallback = null): bool
     {
         // we define the default callback here
-        if (!\is_callable($returnCallback)) {
+        if (null === $returnCallback) {
             $returnCallback = fn ($e) => trim($e);
         }
 
@@ -1203,10 +1200,8 @@ class ContentExtractor
      *     - JSON-LD.
      *
      * @param string $html Html from the page
-     *
-     * @return void|null
      */
-    private function extractDefinedInformation(string $html)
+    private function extractDefinedInformation(string $html): void
     {
         if ('' === trim($html)) {
             return;
@@ -1315,21 +1310,26 @@ class ContentExtractor
     /**
      * Clean extract of JSON-LD authors.
      *
-     * @return array|string
+     * @return string[]
      */
-    private function extractAuthorsFromJsonLdArray(array $authors)
+    private function extractAuthorsFromJsonLdArray(array $authors): array
     {
         if (isset($authors['name'])) {
-            return $authors['name'];
-        }
-
-        return array_map(function ($author) {
-            if (isset($author['name']) && \is_string($author['name'])) {
-                return $author['name'];
+            if (\is_array($authors['name'])) {
+                return $authors['name'];
             }
 
-            return false;
-        }, $authors);
+            return [$authors['name']];
+        }
+
+        $ret = [];
+        foreach ($authors as $author) {
+            if (isset($author['name']) && \is_string($author['name'])) {
+                $ret[] = $author['name'];
+            }
+        }
+
+        return $ret;
     }
 
     /**
@@ -1338,10 +1338,8 @@ class ContentExtractor
      * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
      *
      * @see https://json-ld.org/spec/latest/json-ld/
-     *
-     * @return void|null
      */
-    private function extractJsonLdInformation(\DOMXPath $xpath)
+    private function extractJsonLdInformation(\DOMXPath $xpath): void
     {
         $scripts = $xpath->query('//*/script[@type="application/ld+json"]');
 
@@ -1395,11 +1393,7 @@ class ContentExtractor
             }
 
             if (!empty($data['author'])) {
-                $authors = \is_array($data['author']) ? $this->extractAuthorsFromJsonLdArray($data['author']) : $data['author'];
-
-                if (false === \is_array($authors)) {
-                    $authors = [$authors];
-                }
+                $authors = \is_array($data['author']) ? $this->extractAuthorsFromJsonLdArray($data['author']) : [$data['author']];
 
                 foreach ($authors as $author) {
                     $this->addAuthor($author);

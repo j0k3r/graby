@@ -76,28 +76,26 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
-
-        $this->assertSame($urlEffective, $res['url'], 'Same url');
-        $this->assertSame($title, $res['title'], 'Same title');
-        $this->assertSame($summary, $res['summary'], 'Same summary');
+        $this->assertSame($urlEffective, $res->getUrl(), 'Same url');
+        $this->assertSame($title, $res->getTitle(), 'Same title');
+        $this->assertSame($summary, $res->getSummary(), 'Same summary');
 
         if ($language) {
-            $this->assertSame($language, $res['language']);
+            $this->assertSame($language, $res->getLanguage());
         } else {
-            $this->assertEmpty($res['language'], 'language not empty; got ' . $res['language']);
+            $this->assertEmpty($res->getLanguage(), 'language not empty; got ' . $res->getLanguage());
         }
 
         if ($author) {
-            $this->assertSame([$author], $res['authors']);
+            $this->assertSame([$author], $res->getAuthors());
         } else {
-            $this->assertEmpty($res['authors'], 'authors not empty; got ' . var_export($res['authors'], true));
+            $this->assertEmpty($res->getAuthors(), 'authors not empty; got ' . var_export($res->getAuthors(), true));
         }
 
-        $this->assertSame($parsedContent, $res['html'], 'Same html');
+        $this->assertSame($parsedContent, $res->getHtml(), 'Same html');
 
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function dataForAllowed(): array
@@ -123,7 +121,7 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertSame($res['url'], $urlChanged);
+        $this->assertSame($res->getUrl(), $urlChanged);
     }
 
     public function dataForBlocked(): array
@@ -193,15 +191,14 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent('http://example.com/my%20awesome%20image.jpg');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('Image', $res['title']);
-        $this->assertSame('<a href="http://example.com/my%20awesome%20image.jpg"><img src="http://example.com/my%20awesome%20image.jpg" alt="Image" /></a>', $res['html']);
-        $this->assertSame('http://example.com/my%20awesome%20image.jpg', $res['url']);
-        $this->assertEmpty($res['summary']);
-        $this->assertSame('image/jpeg', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('Image', $res->getTitle());
+        $this->assertSame('<a href="http://example.com/my%20awesome%20image.jpg"><img src="http://example.com/my%20awesome%20image.jpg" alt="Image" /></a>', $res->getHtml());
+        $this->assertSame('http://example.com/my%20awesome%20image.jpg', $res->getUrl());
+        $this->assertEmpty($res->getSummary());
+        $this->assertSame('image/jpeg', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function testMimeTypeActionExclude(): void
@@ -256,15 +253,14 @@ class GrabyTest extends TestCase
 
         $this->assertCount(1, $httpMockClient->getRequests());
         $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod());
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame($title, $res['title']);
-        $this->assertSame($html, $res['html']);
-        $this->assertSame($url, $res['url']);
-        $this->assertSame($summary, $res['summary']);
-        $this->assertSame($header, $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame($title, $res->getTitle());
+        $this->assertSame($html, $res->getHtml());
+        $this->assertSame($url, $res->getUrl());
+        $this->assertSame($summary, $res->getSummary());
+        $this->assertSame($header, $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function testAssetExtensionPDF(): void
@@ -280,16 +276,16 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent('http://example.com/test.pdf');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('Document1', $res['title']);
-        $this->assertStringContainsString('Document title', $res['html']);
-        $this->assertStringContainsString('Morbi vulputate tincidunt ve nenatis.', $res['html']);
-        $this->assertStringContainsString('http://example.com/test.pdf', $res['url']);
-        $this->assertStringContainsString('Document title Calibri : Lorem ipsum dolor sit amet', $res['summary']);
-        $this->assertSame('application/pdf', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('Document1', $res->getTitle());
+        $this->assertStringContainsString('Document title', $res->getHtml());
+        $this->assertStringContainsString('Morbi vulputate tincidunt ve nenatis.', $res->getHtml());
+        $this->assertStringContainsString('http://example.com/test.pdf', $res->getUrl());
+        $this->assertNotNull($res->getSummary());
+        $this->assertStringContainsString('Document title Calibri : Lorem ipsum dolor sit amet', $res->getSummary());
+        $this->assertSame('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function testAssetExtensionZIP(): void
@@ -312,13 +308,12 @@ class GrabyTest extends TestCase
         $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod());
         $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod());
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('ZIP', $res['title']);
-        $this->assertStringContainsString('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res['html']);
-        $this->assertSame('application/zip', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('ZIP', $res->getTitle());
+        $this->assertStringContainsString('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res->getHtml());
+        $this->assertSame('application/zip', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function testAssetExtensionPDFWithArrayDetails(): void
@@ -333,17 +328,17 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent('http://example.com/test.pdf');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('2013-09-01T22:20:38+02:00', $res['date']);
-        $this->assertSame(['Sebastien MALOT'], $res['authors']);
-        $this->assertSame('Document1', $res['title']);
-        $this->assertStringContainsString('orem ipsum dolor sit amet', $res['html']);
-        $this->assertStringContainsString('http://example.com/test.pdf', $res['url']);
-        $this->assertStringContainsString('orem ipsum dolor sit amet', $res['summary']);
-        $this->assertSame('application/pdf', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('2013-09-01T22:20:38+02:00', $res->getDate());
+        $this->assertSame(['Sebastien MALOT'], $res->getAuthors());
+        $this->assertSame('Document1', $res->getTitle());
+        $this->assertStringContainsString('orem ipsum dolor sit amet', $res->getHtml());
+        $this->assertStringContainsString('http://example.com/test.pdf', $res->getUrl());
+        $this->assertNotNull($res->getSummary());
+        $this->assertStringContainsString('orem ipsum dolor sit amet', $res->getSummary());
+        $this->assertSame('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function testAssetExtensionTXT(): void
@@ -355,15 +350,14 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent('http://example.com/test.txt');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('Plain text', $res['title']);
-        $this->assertSame('<pre>plain text :)</pre>', $res['html']);
-        $this->assertSame('http://example.com/test.txt', $res['url']);
-        $this->assertSame('plain text :)', $res['summary']);
-        $this->assertSame('text/plain', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('Plain text', $res->getTitle());
+        $this->assertSame('<pre>plain text :)</pre>', $res->getHtml());
+        $this->assertSame('http://example.com/test.txt', $res->getUrl());
+        $this->assertSame('plain text :)', $res->getSummary());
+        $this->assertSame('text/plain', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function dataForSinglePage(): array
@@ -415,15 +409,14 @@ HTML
 
         $res = $graby->fetchContent('http://' . $url);
 
-        $this->assertCount(11, $res);
-        $this->assertSame('en', $res['language']);
-        $this->assertSame('my title', $res['title']);
-        $this->assertSame('my content', $res['html']);
-        $this->assertSame($expectedUrl, $res['url']);
-        $this->assertSame('my content', $res['summary']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertSame('en', $res->getLanguage());
+        $this->assertSame('my title', $res->getTitle());
+        $this->assertSame('my content', $res->getHtml());
+        $this->assertSame($expectedUrl, $res->getUrl());
+        $this->assertSame('my content', $res->getSummary());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     /**
@@ -453,15 +446,14 @@ HTML
 
         $res = $graby->fetchContent('http://singlepage1.com/data.jpg');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('Image', $res['title']);
-        $this->assertSame('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res['html']);
-        $this->assertSame('http://singlepage1.com/data.jpg', $res['url']);
-        $this->assertSame('', $res['summary']);
-        $this->assertSame('image/jpeg', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('Image', $res->getTitle());
+        $this->assertSame('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res->getHtml());
+        $this->assertSame('http://singlepage1.com/data.jpg', $res->getUrl());
+        $this->assertSame('', $res->getSummary());
+        $this->assertSame('image/jpeg', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function testSinglePageReloadSiteConfig(): void
@@ -489,8 +481,8 @@ HTML
 
         $res = $graby->fetchContent('http://singlepage2.com/hello');
 
-        $this->assertStringContainsString('my singlepage5', $res['html']);
-        $this->assertSame('http://singlepage5.com/hello', $res['url']);
+        $this->assertStringContainsString('my singlepage5', $res->getHtml());
+        $this->assertSame('http://singlepage5.com/hello', $res->getUrl());
     }
 
     /**
@@ -519,15 +511,14 @@ HTML
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('my title', $res['title']);
-        $this->assertSame('my content<div class="story">my content</div>', $res['html']);
-        $this->assertSame('http://multiplepage1.com', $res['url']);
-        $this->assertSame('my content my content', $res['summary']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('my title', $res->getTitle());
+        $this->assertSame('my content<div class="story">my content</div>', $res->getHtml());
+        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('my content my content', $res->getSummary());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     /**
@@ -556,15 +547,14 @@ HTML
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('my title', $res['title']);
-        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertSame('http://multiplepage1.com', $res['url']);
-        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertSame('application/pdf', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('my title', $res->getTitle());
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
+        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
+        $this->assertSame('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     /**
@@ -593,15 +583,14 @@ HTML
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('my title', $res['title']);
-        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertSame('http://multiplepage1.com', $res['url']);
-        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('my title', $res->getTitle());
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
+        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     /**
@@ -635,15 +624,14 @@ HTML
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('my title', $res['title']);
-        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertSame('http://multiplepage1.com', $res['url']);
-        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('my title', $res->getTitle());
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
+        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     /**
@@ -672,15 +660,14 @@ HTML
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('my title', $res['title']);
-        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res['html']);
-        $this->assertSame('http://multiplepage1.com', $res['url']);
-        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res['summary']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('my title', $res->getTitle());
+        $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
+        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function dataForExcerpt(): array
@@ -717,9 +704,9 @@ HTML
     public function dataForMakeAbsoluteStr(): array
     {
         return [
-            ['example.org', '/test', false],
+            ['example.org', '/test', null],
             ['http://example.org', '/test', 'http://example.org/test'],
-            ['http://example.org', '', false],
+            ['http://example.org', '', null],
             ['http://example.org//test', 'super', 'http://example.org//super'],
             ['http://example.org//test', 'http://sample.com', 'http://sample.com'],
             ['http://example.org/?d=2021/helloworld', 'img/foobar.jpg', 'http://example.org/img/foobar.jpg'],
@@ -731,10 +718,8 @@ HTML
 
     /**
      * @dataProvider dataForMakeAbsoluteStr
-     *
-     * @param string|false $expectedResult
      */
-    public function testMakeAbsoluteStr(string $base, string $url, $expectedResult): void
+    public function testMakeAbsoluteStr(string $base, string $url, ?string $expectedResult): void
     {
         $graby = new Graby();
 
@@ -854,15 +839,14 @@ HTML
 
         $res = $graby->fetchContent('http://example.com');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('No title found', $res['title']);
-        $this->assertStringContainsString('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res['html']);
-        $this->assertSame('http://example.com', $res['url']);
-        $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res['summary']);
-        $this->assertStringContainsString('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('No title found', $res->getTitle());
+        $this->assertStringContainsString('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res->getHtml());
+        $this->assertSame('http://example.com', $res->getUrl());
+        $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res->getSummary());
+        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function dataForSafeCurl(): array
@@ -887,15 +871,14 @@ HTML
         $graby = new Graby();
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('No title found', $res['title']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['html']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertEmpty($res['headers']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
-        $this->assertSame(500, $res['status']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('No title found', $res->getTitle());
+        $this->assertSame('[unable to retrieve full-text content]', $res->getHtml());
+        $this->assertSame('[unable to retrieve full-text content]', $res->getSummary());
+        $this->assertEmpty($res->getHeaders());
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
+        $this->assertSame(500, $res->getStatus());
     }
 
     public function testErrorMessages(): void
@@ -910,15 +893,14 @@ HTML
 
         $res = $graby->fetchContent('example.com');
 
-        $this->assertCount(11, $res);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('No title detected', $res['title']);
-        $this->assertSame('Nothing found, hu?', $res['html']);
-        $this->assertSame('http://example.com', $res['url']);
-        $this->assertSame('Nothing found, hu?', $res['summary']);
-        $this->assertEmpty($res['headers']);
-        $this->assertEmpty($res['image']);
-        $this->assertFalse($res['native_ad']);
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('No title detected', $res->getTitle());
+        $this->assertSame('Nothing found, hu?', $res->getHtml());
+        $this->assertSame('http://example.com', $res->getUrl());
+        $this->assertSame('Nothing found, hu?', $res->getSummary());
+        $this->assertEmpty($res->getHeaders());
+        $this->assertEmpty($res->getImage());
+        $this->assertFalse($res->getIsNativeAd());
     }
 
     public function dataWithAccent(): array
@@ -1009,8 +991,7 @@ HTML
         $graby = $this->getGrabyWithMock('/fixtures/content/malformed_UTF8_characters.txt');
         $res = $graby->fetchContent('http://www.ais.org/~jrh/acn/text/ACN8-1.txt');
 
-        $this->assertArrayHasKey('html', $res);
-        $this->assertTrue(false !== json_encode($res['html']), json_last_error_msg());
+        $this->assertTrue(false !== json_encode($res->getHtml()), json_last_error_msg());
     }
 
     public function testEmptyNodesRemoved(): void
@@ -1020,7 +1001,7 @@ HTML
 
         // The initial treatment was encapsulating the content into the empty node
         // So we don't want to see that again
-        $this->assertStringNotContainsString('<figure><p>Après un <em>icebreaker</em>', $res['html']);
+        $this->assertStringNotContainsString('<figure><p>Après un <em>icebreaker</em>', $res->getHtml());
     }
 
     public function testMetaAuthor(): void
@@ -1030,7 +1011,7 @@ HTML
 
         // The initial treatment was encapsulating the content into the empty node
         // So we don't want to see that again
-        $authors = $res['authors'];
+        $authors = $res->getAuthors();
         $this->assertCount(1, $authors);
         $this->assertSame('Keith J. Grant', $authors[0]);
     }
@@ -1040,24 +1021,11 @@ HTML
         $graby = $this->getGrabyWithMock('/fixtures/content/20minutes-jsonld.html');
         $res = $graby->fetchContent('http://www.20minutes.fr/sport/football/2155935-20171022-stade-rennais-portugais-paulo-fonseca-remplacer-christian-gourcuff');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertSame('Stade Rennais: Le Portugais Paulo Fonseca pour remplacer Christian Gourcuff?', $res['title']);
-        $this->assertCount(1, $res['authors']);
-        $this->assertSame('Jeremy Goujon', $res['authors'][0]);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertSame('Stade Rennais: Le Portugais Paulo Fonseca pour remplacer Christian Gourcuff?', $res->getTitle());
+        $this->assertCount(1, $res->getAuthors());
+        $this->assertSame('Jeremy Goujon', $res->getAuthors()[0]);
     }
 
     public function testKeepOlStartAttribute(): void
@@ -1065,24 +1033,11 @@ HTML
         $graby = $this->getGrabyWithMock('/fixtures/content/timothysykes-keepol.html');
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
-        $this->assertStringContainsString('<ol start="2">', $res['html']);
-        $this->assertStringContainsString('<ol start="3">', $res['html']);
-        $this->assertStringContainsString('<ol start="4">', $res['html']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
+        $this->assertStringContainsString('<ol start="2">', $res->getHtml());
+        $this->assertStringContainsString('<ol start="3">', $res->getHtml());
+        $this->assertStringContainsString('<ol start="4">', $res->getHtml());
     }
 
     public function testContentWithXSS(): void
@@ -1090,7 +1045,7 @@ HTML
         $graby = $this->getGrabyWithMock('/fixtures/content/gist-xss.html');
         $res = $graby->fetchContent('https://gist.githubusercontent.com/nicosomb/94d1e08c42baff9184c313d638de1195/raw/d63b0bc99225604a9f4b57bfea1cd7a538c8ceeb/gistfile1.txt');
 
-        $this->assertStringNotContainsString('<script>', $res['html']);
+        $this->assertStringNotContainsString('<script>', $res->getHtml());
     }
 
     public function testBadUrl(): void
@@ -1098,28 +1053,15 @@ HTML
         $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);
         $res = $graby->fetchContent('https://bjori.blogspot.com/201');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(404, $res['status']);
-        $this->assertEmpty($res['language']);
-        $this->assertSame('https://bjori.blogspot.com/201', $res['url']);
-        $this->assertSame("bjori doesn't blog", $res['title']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['html']);
-        $this->assertSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertSame('text/html', $res['headers']['content-type']);
-        $this->assertEmpty($res['image']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(404, $res->getStatus());
+        $this->assertEmpty($res->getLanguage());
+        $this->assertSame('https://bjori.blogspot.com/201', $res->getUrl());
+        $this->assertSame("bjori doesn't blog", $res->getTitle());
+        $this->assertSame('[unable to retrieve full-text content]', $res->getHtml());
+        $this->assertSame('[unable to retrieve full-text content]', $res->getSummary());
+        $this->assertSame('text/html', $res->getHeaders()['content-type']);
+        $this->assertEmpty($res->getImage());
     }
 
     public function dataDate(): array
@@ -1146,21 +1088,8 @@ HTML
         $graby = $this->getGrabyWithMock('/fixtures/content/' . $file);
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame($expectedDate, $res['date']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame($expectedDate, $res->getDate());
     }
 
     public function dataAuthors(): array
@@ -1197,21 +1126,8 @@ HTML
         );
         $res = $graby->fetchContent($url);
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame($expectedAuthors, $res['authors']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame($expectedAuthors, $res->getAuthors());
     }
 
     /**
@@ -1232,21 +1148,8 @@ HTML
         );
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
     }
 
     /**
@@ -1268,21 +1171,8 @@ HTML
         );
         $res = $graby->fetchContent('https://www.rollingstone.com/?redirurl=/politics/news/greed-and-debt-the-true-story-of-mitt-romney-and-bain-capital-20120829');
 
-        $this->assertCount(11, $res);
-
-        $this->assertArrayHasKey('status', $res);
-        $this->assertArrayHasKey('html', $res);
-        $this->assertArrayHasKey('title', $res);
-        $this->assertArrayHasKey('language', $res);
-        $this->assertArrayHasKey('date', $res);
-        $this->assertArrayHasKey('authors', $res);
-        $this->assertArrayHasKey('url', $res);
-        $this->assertArrayHasKey('summary', $res);
-        $this->assertArrayHasKey('image', $res);
-        $this->assertArrayHasKey('native_ad', $res);
-        $this->assertArrayHasKey('headers', $res);
-
-        $this->assertSame(200, $res['status']);
+        $this->assertNotNull($res->getSummary());
+        $this->assertSame(200, $res->getStatus());
     }
 
     public function testImgNoReferrer(): void
@@ -1305,7 +1195,7 @@ HTML
         $res = $graby->fetchContent('example.com');
 
         $doc = new \DOMDocument();
-        $doc->loadXML($res['html']);
+        $doc->loadXML($res->getHtml());
 
         /** @var \DOMElement */
         $item = $doc->getElementsByTagName('img')->item(0);
@@ -1317,7 +1207,7 @@ HTML
         $res = $graby->fetchContent('example.com');
 
         $doc = new \DOMDocument();
-        $doc->loadXML($res['html']);
+        $doc->loadXML($res->getHtml());
 
         /** @var \DOMElement */
         $item = $doc->getElementsByTagName('img')->item(0);
@@ -1339,9 +1229,8 @@ HTML
         );
         $res = $graby->fetchContent('https://blogs.oracle.com/dave/java-contended-annotation-to-help-reduce-false-sharing');
 
-        $this->assertCount(11, $res);
-        $this->assertNotSame('[unable to retrieve full-text content]', $res['summary']);
-        $this->assertNotSame('No title found', $res['title']);
+        $this->assertNotSame('[unable to retrieve full-text content]', $res->getSummary());
+        $this->assertNotSame('No title found', $res->getTitle());
     }
 
     public function testPrefetchedContent(): void
@@ -1356,9 +1245,9 @@ HTML
         $graby->setContentAsPrefetched($input);
         $res = $graby->fetchContent('https://example.com/prefetched-content');
 
-        $this->assertSame('This is my awesome article', $res['title']);
-        $this->assertSame('https://example.com/prefetched-content', $res['url']);
-        $this->assertStringContainsString('here there are the awesome', $res['html']);
+        $this->assertSame('This is my awesome article', $res->getTitle());
+        $this->assertSame('https://example.com/prefetched-content', $res->getUrl());
+        $this->assertStringContainsString('here there are the awesome', $res->getHtml());
     }
 
     /**

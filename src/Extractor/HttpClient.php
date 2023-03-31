@@ -73,13 +73,12 @@ class HttpClient
      *     - raw content
      *     - content type header.
      *
-     * @param string $url
-     * @param bool   $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
-     * @param array  $httpHeader           Custom HTTP Headers from SiteConfig
+     * @param bool                  $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
+     * @param array<string, string> $httpHeader           Custom HTTP Headers from SiteConfig
      *
-     * @return array With keys effective_url, body & headers
+     * @return array{effective_url: string, body: string, headers: array<string, string>, status: int}
      */
-    public function fetch($url, $skipTypeVerification = false, $httpHeader = [])
+    public function fetch(string $url, bool $skipTypeVerification = false, array $httpHeader = []): array
     {
         $url = $this->cleanupUrl($url);
 
@@ -104,7 +103,7 @@ class HttpClient
         }
 
         $accept = $this->getAccept($url, $httpHeader);
-        if ($accept) {
+        if (null !== $accept) {
             $headers['Accept'] = $accept;
         }
 
@@ -293,8 +292,8 @@ class HttpClient
      * Based on the config, it will try to find a UserAgent from an host.
      * Otherwise it will use the default one.
      *
-     * @param string $url        Absolute url
-     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     * @param string                $url        Absolute url
+     * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
     private function getUserAgent(string $url, array $httpHeader = []): string
     {
@@ -339,8 +338,8 @@ class HttpClient
      * Based on the site config, it will return the Referer if any.
      * Otherwise it will use the default one.
      *
-     * @param string $url        Absolute url
-     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     * @param string                $url        Absolute url
+     * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
     private function getReferer(string $url, array $httpHeader = []): string
     {
@@ -363,8 +362,8 @@ class HttpClient
      * Based on the site config, it will return a string that can
      * be passed to Cookie request header, if any.
      *
-     * @param string $url        Absolute url
-     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
+     * @param string                $url        Absolute url
+     * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
     private function getCookie(string $url, array $httpHeader = []): ?string
     {
@@ -401,12 +400,10 @@ class HttpClient
      * Based on the site config, it will return the accept if any.
      * Otherwise it will return false.
      *
-     * @param string $url        Absolute url
-     * @param array  $httpHeader Custom HTTP Headers from SiteConfig
-     *
-     * @return string|false
+     * @param string                $url        Absolute url
+     * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
-    private function getAccept(string $url, array $httpHeader = [])
+    private function getAccept(string $url, array $httpHeader = []): ?string
     {
         if (!empty($httpHeader['accept'])) {
             $this->logger->info('Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
@@ -414,7 +411,7 @@ class HttpClient
             return $httpHeader['accept'];
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -423,7 +420,7 @@ class HttpClient
      *
      * Since the request is now done we directly check the Content-Type header
      *
-     * @param array $headers All headers from the request
+     * @param array<string, string> $headers All headers from the request
      */
     private function headerOnlyType(array $headers): bool
     {

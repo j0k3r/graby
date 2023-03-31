@@ -515,17 +515,17 @@ class HttpClientTest extends TestCase
             [
                 'url' => 'http://www.google.com',
                 'httpHeader' => [],
-                'expectedCookie' => false,
+                'expectedCookie' => null,
             ],
             [
                 'url' => 'http://www.mozilla.org',
                 'httpHeader' => ['cookie' => null],
-                'expectedCookie' => false,
+                'expectedCookie' => null,
             ],
             [
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
                 'httpHeader' => ['cookie' => ''],
-                'expectedCookie' => false,
+                'expectedCookie' => null,
             ],
             [
                 'url' => 'http://fr.wikipedia.org/wiki/Copyright',
@@ -537,10 +537,8 @@ class HttpClientTest extends TestCase
 
     /**
      * @dataProvider dataForCookie
-     *
-     * @param string|false $expectedCookie
      */
-    public function testCookie(string $url, array $httpHeader, $expectedCookie): void
+    public function testCookie(string $url, array $httpHeader, ?string $expectedCookie): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], ''));
@@ -557,7 +555,7 @@ class HttpClientTest extends TestCase
         $records = $handler->getRecords();
 
         // if cookie is enable, a log will be available, otherwise not
-        if ($expectedCookie) {
+        if (null !== $expectedCookie) {
             $this->assertSame($expectedCookie, $records[3]['context']['cookie']);
             $this->assertSame($url, $records[3]['context']['url']);
         } else {

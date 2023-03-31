@@ -109,19 +109,17 @@ class Graby
 
     /**
      * Fetch content from the given url and return a readable content.
-     *
-     * @return array With keys html, title, url & summary
      */
-    public function fetchContent(string $url): array
+    public function fetchContent(string $url): Content
     {
         $this->logger->info('Graby is ready to fetch');
 
         $infos = $this->doFetchContent($url);
 
         // generate summary
-        $infos['summary'] = $this->getExcerpt($infos['html']);
+        $summary = $this->getExcerpt($infos->getHtml());
 
-        return $infos;
+        return $infos->withSummary($summary);
     }
 
     public function toggleImgNoReferrer(bool $toggle = false): void
@@ -226,10 +224,8 @@ class Graby
 
     /**
      * Do fetch content from an url.
-     *
-     * @return array With key status, html, title, language, date, authors, url, image, headers & native_ad
      */
-    private function doFetchContent(string $url): array
+    private function doFetchContent(string $url): Content
     {
         $url = $this->validateUrl($url);
         $siteConfig = $this->configBuilder->buildFromUrl($url);
@@ -251,7 +247,7 @@ class Graby
         // check if action defined for returned Content-Type, like image, pdf, audio or video
         $mimeInfo = $this->getMimeActionInfo($response['headers']);
         $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response);
-        if (\is_array($infos)) {
+        if (null !== $infos) {
             return $infos;
         }
 
@@ -291,7 +287,7 @@ class Graby
             // check if action defined for returned Content-Type
             $mimeInfo = $this->getMimeActionInfo($singlePageResponse['headers']);
             $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse);
-            if (\is_array($infos)) {
+            if (null !== $infos) {
                 return $infos;
             }
 
@@ -314,7 +310,7 @@ class Graby
         $extractedImage = $this->extractor->getImage();
 
         // ensure image is absolute
-        if (!empty($extractedImage)) {
+        if (null !== $extractedImage) {
             $extractedImage = $this->makeAbsoluteStr($effectiveUrl, $extractedImage);
         }
 
@@ -335,7 +331,7 @@ class Graby
                 $this->logger->info('Processing next page: {url}', ['url' => $nextPageUrl]);
                 // If we've got URL, resolve against $url
                 $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
-                if (!$nextPageUrl) {
+                if (null === $nextPageUrl) {
                     $this->logger->info('Failed to resolve against: {url}', ['url' => $effectiveUrl]);
                     $multiPageContent = [];
                     break;
@@ -392,18 +388,18 @@ class Graby
             unset($multiPageUrls, $multiPageContent, $nextPageUrl, $page);
         }
 
-        $res = [
-            'status' => $response['status'],
-            'html' => $this->config->getErrorMessage(),
-            'title' => $extractedTitle ?: $this->config->getErrorMessageTitle(),
-            'language' => $extractedLanguage,
-            'date' => $extractedDate,
-            'authors' => $extractedAuthors,
-            'url' => $effectiveUrl,
-            'image' => $extractedImage,
-            'native_ad' => $this->extractor->isNativeAd(),
-            'headers' => $response['headers'],
-        ];
+        $res = new Content(
+            /* status: */ $response['status'],
+            /* html: */ $this->config->getErrorMessage(),
+            /* title: */ $extractedTitle ?: $this->config->getErrorMessageTitle(),
+            /* language: */ $extractedLanguage,
+            /* date: */ $extractedDate,
+            /* authors: */ $extractedAuthors,
+            /* url: */ $effectiveUrl,
+            /* image: */ $extractedImage,
+            /* headers: */ $response['headers'],
+            /* isNativeAd: */ $this->extractor->isNativeAd()
+        );
 
         // if we failed to extract content...
         if (!$extractResult || null === $contentBlock) {
@@ -412,9 +408,9 @@ class Graby
             return $res;
         }
 
-        $res['html'] = $this->cleanupHtml($contentBlock, $effectiveUrl);
+        $res = $res->withHtml($this->cleanupHtml($contentBlock, $effectiveUrl));
 
-        $this->logger->info('Returning data (most interesting ones): {data}', ['data' => ['html' => '(only length for debug): ' . \strlen($res['html'])] + $res]);
+        $this->logger->info('Returning data (most interesting ones): {data}', ['data' => $res->withHtml('(only length for debug): ' . \strlen($res->getHtml()))]);
 
         return $res;
     }
@@ -539,7 +535,7 @@ class Graby
      * @param string $effectiveUrl Current content url
      * @param array  $response     A response
      */
-    private function handleMimeAction(array $mimeInfo, string $effectiveUrl, array $response = []): ?array
+    private function handleMimeAction(array $mimeInfo, string $effectiveUrl, array $response = []): ?Content
     {
         if (!isset($mimeInfo['action'])) {
             return null;
@@ -547,28 +543,28 @@ class Graby
 
         $body = $response['body'] ?? '';
 
-        $infos = [
+        $infos = new Content(
             // at this point status will always be considered as 200
-            'status' => 200,
-            'title' => $mimeInfo['name'],
-            'language' => '',
-            'date' => null,
-            'authors' => [],
-            'html' => '',
-            'url' => $effectiveUrl,
-            'image' => '',
-            'native_ad' => false,
-            'headers' => $response['headers'],
-        ];
+            /* status: */ 200,
+            /* html: */ '',
+            /* title: */ $mimeInfo['name'],
+            /* language: */ '',
+            /* date: */ null,
+            /* authors: */ [],
+            /* url: */ $effectiveUrl,
+            /* image: */ '',
+            /* headers: */ $response['headers'],
+            /* isNativeAd: */ false
+        );
 
         if ('exclude' === $mimeInfo['action']) {
             throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
         }
 
-        $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';
+        $infos = $infos->withHtml('<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>');
 
         if ('image' === $mimeInfo['type']) {
-            $infos['html'] = '<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>';
+            $infos = $infos->withHtml('<a href="' . $effectiveUrl . '"><img src="' . $effectiveUrl . '" alt="' . $mimeInfo['name'] . '" /></a>');
         }
 
         if ('application/pdf' === $mimeInfo['mime']) {
@@ -581,8 +577,9 @@ class Graby
             // strip away unwanted chars (that usualy came from PDF extracted content)
             // @see http://www.phpwact.org/php/i18n/charsets#common_problem_areas_with_utf-8
             $html = preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $html);
+            \assert(null !== $html); // For PHPStan
 
-            $infos['html'] = $html;
+            $infos = $infos->withHtml($html);
 
             // update title in case of details are present
             $details = $pdf->getDetails();
@@ -590,39 +587,41 @@ class Graby
             // Title can be a string or an array with one key
             if (isset($details['Title'])) {
                 if (\is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
-                    $infos['title'] = $details['Title'][0];
+                    $infos = $infos->withTitle($details['Title'][0]);
                 } elseif (\is_string($details['Title']) && '' !== trim($details['Title'])) {
-                    $infos['title'] = $details['Title'];
+                    $infos = $infos->withTitle($details['Title']);
                 }
             }
 
             if (isset($details['Author'])) {
                 if (\is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
-                    $infos['authors'][] = $details['Author'][0];
+                    $infos = $infos->withAuthors([$details['Author'][0]]);
                 } elseif (\is_string($details['Author']) && '' !== trim($details['Author'])) {
-                    $infos['authors'][] = $details['Author'];
+                    $infos = $infos->withAuthors([$details['Author']]);
                 }
             }
 
             if (isset($details['CreationDate'])) {
                 if (\is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
-                    $infos['date'] = $this->extractor->validateDate($details['CreationDate'][0]);
+                    $infos = $infos->withDate($this->extractor->validateDate($details['CreationDate'][0]));
                 } elseif (\is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
-                    $infos['date'] = $this->extractor->validateDate($details['CreationDate']);
+                    $infos = $infos->withDate($this->extractor->validateDate($details['CreationDate']));
                 }
             }
         }
 
         if ('text/plain' === $mimeInfo['mime']) {
-            $infos['html'] = '<pre>' .
+            $infos = $infos->withHtml(
+                '<pre>' .
                 $this->cleanupXss(
                     $this->convert2Utf8($body, $response['headers'] ?? [])
-                ) . '</pre>';
+                ) . '</pre>'
+            );
         }
 
-        $infos['html'] = $this->cleanupXss((string) $infos['html']);
+        $cleanHtml = $this->cleanupXss((string) $infos->getHtml());
 
-        return $infos;
+        return $infos->withHtml($cleanHtml);
     }
 
     /**
@@ -690,7 +689,7 @@ class Graby
         $singlePageUrl = $this->makeAbsoluteStr($url, $singlePageUrl);
 
         // check it's not what we have already!
-        if (false !== $singlePageUrl && $singlePageUrl !== $url) {
+        if (null !== $singlePageUrl && $singlePageUrl !== $url) {
             // it's not, so let's try to fetch it...
             $headers = $siteConfig->http_header;
 
@@ -766,7 +765,7 @@ class Graby
             $this->logger->info('Wrong content url', ['url' => $url]);
             $absolute = $url;
         }
-        if (false !== $absolute) {
+        if (null !== $absolute) {
             $e->setAttribute($attr, $absolute);
         }
     }
@@ -776,13 +775,11 @@ class Graby
      *
      * @param string $base Base url
      * @param string $url  Url to make it absolute
-     *
-     * @return false|string
      */
-    private function makeAbsoluteStr(string $base, string $url)
+    private function makeAbsoluteStr(string $base, string $url): ?string
     {
         if (!$url) {
-            return false;
+            return null;
         }
 
         $url = new Uri($url);
@@ -795,7 +792,7 @@ class Graby
 
         // in case the url has no host
         if ('' === $base->getAuthority()) {
-            return false;
+            return null;
         }
 
         return (string) UriResolver::resolve($base, $url);
