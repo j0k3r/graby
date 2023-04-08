@@ -162,6 +162,8 @@ class ContentExtractor
         $tidied = $this->readability->tidied;
 
         $this->logger->info('Body size after Readability: {length}', ['length' => \strlen((string) $this->readability->dom->saveXML($this->readability->dom->documentElement))]);
+        // XXX Le body est incorrect ici, comparé à readability v1, ex avec testProcessFindString
+        // readability grabarticle detruit pas mal de contenu des tests
         $this->logger->debug('Body after Readability', ['dom_saveXML' => $this->readability->dom->saveXML($this->readability->dom->documentElement)]);
 
         // we use xpath to find elements in the given HTML document
