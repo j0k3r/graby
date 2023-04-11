@@ -40,6 +40,9 @@ That's why I made this fork:
 
 ## How to use it
 
+> **Note**
+> These instructions are for development version of Graby, which has an API incompatible with the stable version. Please check out the [README in the `2.x` branch](https://github.com/j0k3r/graby/blob/2.x/README.md#how-to-use-it) for usage instructions for the stable version.
+
 ### Requirements
 
 - PHP >= 7.4
@@ -49,7 +52,7 @@ That's why I made this fork:
 
 Add the lib using [Composer](https://getcomposer.org/):
 
-    composer require j0k3r/graby php-http/guzzle7-adapter
+    composer require 'j0k3r/graby dev-master' php-http/guzzle7-adapter
 
 Why `php-http/guzzle7-adapter`? Because Graby is decoupled from any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
 
