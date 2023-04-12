@@ -9,11 +9,11 @@ use Graby\SiteConfig\ConfigBuilder;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\PluginClient;
-use Http\Client\HttpClient as Client;
 use Http\Discovery\HttpClientDiscovery;
 use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
@@ -35,7 +35,7 @@ class Graby
 
     private ?string $prefetchedContent = null;
 
-    public function __construct(array $config = [], Client $client = null, ConfigBuilder $configBuilder = null)
+    public function __construct(array $config = [], ?ClientInterface $client = null, ConfigBuilder $configBuilder = null)
     {
         $this->config = new GrabyConfig($config);
 

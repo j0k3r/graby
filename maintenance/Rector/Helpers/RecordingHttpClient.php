@@ -2,21 +2,21 @@
 
 namespace Maintenance\Graby\Rector\Helpers;
 
-use Http\Client\HttpClient;
 use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class RecordingHttpClient implements HttpClient
+class RecordingHttpClient implements ClientInterface
 {
     /**
      * @var ResponseInterface[]
      */
     private array $responses;
 
-    private HttpClient $httpClient;
+    private ClientInterface $httpClient;
 
-    public function __construct(HttpClient $httpClient)
+    public function __construct(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
     }

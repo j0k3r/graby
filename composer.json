@@ -28,6 +28,7 @@
         "php-http/discovery": "^1.14",
         "php-http/httplug": "^2.2",
         "php-http/message": "^1.12",
+        "psr/http-client-implementation": "^1.0",
         "simplepie/simplepie": "^1.8",
         "smalot/pdfparser": "^2.0",
         "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0",
