@@ -25,6 +25,10 @@ return (new PhpCsFixer\Config())
         'no_useless_return' => true,
         // Enabled by Symfony and changes properties without type hints but we cannot use those yet because they require PHP 8.
         'no_null_property_initialization' => false,
+        // Enabled by Symfony but we need the `mixed`s for PHPStan.
+        'no_superfluous_phpdoc_tags' => [
+            'allow_mixed' => true,
+        ],
         // Enabled by @Symfony but is inconsistent.
         'nullable_type_declaration_for_default_null_value' => [
             'use_nullable_type_declaration' => true,
