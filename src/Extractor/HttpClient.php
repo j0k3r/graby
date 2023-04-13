@@ -14,8 +14,8 @@ use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
+use Http\Client\HttpAsyncClient as Client;
 use Http\Discovery\Psr17FactoryDiscovery;
-use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -41,9 +41,9 @@ class HttpClient
     private ?ContentExtractor $extractor;
 
     /**
-     * @param ClientInterface $client Http client
+     * @param Client $client Http client
      */
-    public function __construct(ClientInterface $client, array $config = [], ?LoggerInterface $logger = null, ?ContentExtractor $extractor = null)
+    public function __construct(Client $client, array $config = [], ?LoggerInterface $logger = null, ?ContentExtractor $extractor = null)
     {
         $this->config = new HttpClientConfig($config);
 

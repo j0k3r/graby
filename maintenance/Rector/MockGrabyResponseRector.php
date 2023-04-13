@@ -7,7 +7,7 @@ namespace Maintenance\Graby\Rector;
 use Graby\Graby;
 use Graby\HttpClient\Plugin\CookiePlugin;
 use Http\Client\Common\PluginClient;
-use Http\Discovery\Psr18ClientDiscovery;
+use Http\Discovery\HttpAsyncClientDiscovery;
 use Http\Message\CookieJar;
 use Maintenance\Graby\Rector\Helpers\RecordingHttpClient;
 use PhpParser\Comment;
@@ -258,7 +258,7 @@ final class MockGrabyResponseRector extends AbstractRector
     {
         // Wrap the same HTTP client internally created by Graby class with a proxy
         // that captures the returned responses.
-        $httpClient = new RecordingHttpClient(new PluginClient(Psr18ClientDiscovery::find(), [new CookiePlugin(new CookieJar())]));
+        $httpClient = new RecordingHttpClient(new PluginClient(HttpAsyncClientDiscovery::find(), [new CookiePlugin(new CookieJar())]));
         $graby = new Graby($config, $httpClient);
         $graby->fetchContent($url);
 

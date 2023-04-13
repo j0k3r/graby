@@ -12,12 +12,12 @@ use Graby\SiteConfig\ConfigBuilder;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\PluginClient;
+use Http\Client\HttpAsyncClient as Client;
+use Http\Discovery\HttpAsyncClientDiscovery;
 use Http\Discovery\Psr17FactoryDiscovery;
-use Http\Discovery\Psr18ClientDiscovery;
 use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -47,7 +47,7 @@ class Graby
 
     private ?string $prefetchedContent = null;
 
-    public function __construct(array $config = [], ?ClientInterface $client = null, ?ConfigBuilder $configBuilder = null)
+    public function __construct(array $config = [], ?Client $client = null, ?ConfigBuilder $configBuilder = null)
     {
         $this->config = new GrabyConfig($config);
 
@@ -87,7 +87,7 @@ class Graby
         );
 
         $this->httpClient = new HttpClient(
-            $client ?: new PluginClient(Psr18ClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
+            $client ?: new PluginClient(HttpAsyncClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
             $this->config->getHttpClient(),
             $this->logger,
             $this->extractor
