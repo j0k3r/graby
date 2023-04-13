@@ -9,7 +9,6 @@ use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\Exception\LoopException;
-use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
@@ -17,6 +16,7 @@ use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -31,8 +31,9 @@ use Psr\Log\NullLogger;
 class HttpClient
 {
     private HttpClientConfig $config;
-    private HttpMethodsClient $client;
+    private PluginClient $client;
     private LoggerInterface $logger;
+    private RequestFactoryInterface $requestFactory;
     private ResponseFactoryInterface $responseFactory;
     private StreamFactoryInterface $streamFactory;
     private UriFactoryInterface $uriFactory;
@@ -53,24 +54,22 @@ class HttpClient
         $this->logger = $logger;
         $this->extractor = $extractor;
 
+        $this->requestFactory = Psr17FactoryDiscovery::findRequestFactory();
         $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
         $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
 
         $this->responseHistory = new History();
-        $this->client = new HttpMethodsClient(
-            new PluginClient(
-                $client,
-                [
-                    new ServerSideRequestForgeryProtectionPlugin(),
-                    new RedirectPlugin(),
-                    new Plugin\HistoryPlugin($this->responseHistory),
-                    new ErrorPlugin(),
-                ],
-                [
-                    'max_restarts' => $this->config->getMaxRedirect(),
-                ]
-            ),
-            Psr17FactoryDiscovery::findRequestFactory()
+        $this->client = new PluginClient(
+            $client,
+            [
+                new ServerSideRequestForgeryProtectionPlugin(),
+                new RedirectPlugin(),
+                new Plugin\HistoryPlugin($this->responseHistory),
+                new ErrorPlugin(),
+            ],
+            [
+                'max_restarts' => $this->config->getMaxRedirect(),
+            ]
         );
 
         $this->uriFactory = Psr17FactoryDiscovery::findUriFactory();
@@ -119,9 +118,14 @@ class HttpClient
             $headers['Accept'] = $accept;
         }
 
+        $request = $this->requestFactory->createRequest($method, $url);
+        foreach ($headers as $name => $value) {
+            $request = $request->withHeader($name, $value);
+        }
+
         try {
             /** @var ResponseInterface $response */
-            $response = $this->client->$method($url, $headers);
+            $response = $this->client->sendRequest($request);
         } catch (LoopException $e) {
             $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
 
