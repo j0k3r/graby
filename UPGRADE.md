@@ -10,6 +10,7 @@ So you must update methods you overridden.
 - Support for PHP < 7.4 has been dropped
 - `Graby::fetchContent()` now returns a `Content` object rather than an array.
 - `ConfigBuilder::build()` has been removed. Use either `buildForHost()`/`buildFromUrl()` for the merged config or `loadSiteConfig()` to get the config for a site.
+- `ConfigBuilder::getCachedVersion()` and `ConfigBuilder::loadSiteConfig()` will now return `null` instead of `false` when `SiteConfig` cannot be loaded.
 
 # FROM 1.x to 2.0
 

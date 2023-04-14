@@ -107,11 +107,11 @@ class ContentExtractor
 
         $configFingerprint = $this->configBuilder->buildForHost($fingerprintHost);
 
-        if (!empty($this->config->getFingerprints()) && false !== $configFingerprint) {
+        if (!empty($this->config->getFingerprints())) {
             $this->logger->info('Appending site config settings from {host} (fingerprint match)', ['host' => $fingerprintHost]);
             $this->configBuilder->mergeConfig($config, $configFingerprint);
 
-            if ($addToCache && false === $this->configBuilder->getCachedVersion($fingerprintHost)) {
+            if ($addToCache && null === $this->configBuilder->getCachedVersion($fingerprintHost)) {
                 $this->configBuilder->addToCache($fingerprintHost, $configFingerprint);
             }
         }

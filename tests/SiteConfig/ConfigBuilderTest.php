@@ -128,7 +128,7 @@ class ConfigBuilderTest extends TestCase
      */
     public function testCachedVersion(string $key, bool $cached): void
     {
-        $config = false;
+        $config = null;
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
 
         if ($cached) {
@@ -192,7 +192,7 @@ class ConfigBuilderTest extends TestCase
         $res = $configBuilder->loadSiteConfig($host);
 
         if (false === $expectedRes) {
-            $this->assertTrue(false === $res, 'No site config generated');
+            $this->assertTrue(null === $res, 'No site config generated');
         } else {
             $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res, 'Site config generated');
             $this->assertSame($matchedHost, $res->cache_key);
