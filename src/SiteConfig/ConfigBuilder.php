@@ -183,25 +183,6 @@ class ConfigBuilder
     }
 
     /**
-     * Returns SiteConfig instance (joined in order: exact match, wildcard, fingerprint, global, default).
-     *
-     * Will add the merged result to cache if $addToCache is set to true
-     *
-     * @param string $host           Host, like en.wikipedia.org
-     * @param bool   $exactHostMatch if true, we will not look for wildcard config matches
-     *
-     * @return false|SiteConfig
-     *
-     * @deprecated Use either buildForHost() / buildFromUrl() for the merged config or loadSiteConfig() to get the config for a site
-     *
-     * @codeCoverageIgnore
-     */
-    public function build($host, $exactHostMatch = false)
-    {
-        return $this->loadSiteConfig($host, $exactHostMatch);
-    }
-
-    /**
      * Returns SiteConfig instance if an appropriate one is found, false otherwise.
      * by default if host is 'test.example.org' we will look for and load '.example.org.txt' if it exists.
      *
