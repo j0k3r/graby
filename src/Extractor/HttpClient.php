@@ -522,8 +522,7 @@ class HttpClient
     {
         $headers = [];
         foreach ($response->getHeaders() as $name => $value) {
-            // some Content-Type are urlencoded like: image%2Fjpeg
-            $headers[strtolower($name)] = urldecode(implode(', ', $value));
+            $headers[strtolower($name)] = implode(', ', $value);
         }
 
         return $headers;

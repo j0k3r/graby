@@ -191,20 +191,6 @@ class HttpClientTest extends TestCase
         $this->assertSame(404, $res['status']);
     }
 
-    public function testWithUrlencodedContentType(): void
-    {
-        $httpMockClient = new HttpMockClient();
-        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image%2Fjpeg'], 'test'));
-
-        $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('http://example.com/image.jpg');
-
-        $this->assertSame('http://example.com/image.jpg', $res['effective_url']);
-        $this->assertSame('test', $res['body']);
-        $this->assertSame('image/jpeg', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
-    }
-
     public function testWithUrlContainingPlusSymbol(): void
     {
         $httpMockClient = new HttpMockClient();
