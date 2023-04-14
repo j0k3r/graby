@@ -212,9 +212,9 @@ class HttpClient
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
         // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
         if (false === strpos($effectiveUrl, '_escaped_fragment_')) {
-            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?: $this->getUglyURL($effectiveUrl, $body);
+            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?? $this->getUglyURL($effectiveUrl, $body);
 
-            if (false !== $redirectURL) {
+            if (null !== $redirectURL) {
                 return $this->fetch($redirectURL, true, $httpHeader);
             }
         }
@@ -448,20 +448,18 @@ class HttpClient
      *
      * @param string $url  Absolute url
      * @param string $html First characters of the response (hopefully it'll be enough to find some meta)
-     *
-     * @return false|string
      */
-    private function getMetaRefreshURL(string $url, string $html)
+    private function getMetaRefreshURL(string $url, string $html): ?string
     {
         if ('' === $html) {
-            return false;
+            return null;
         }
 
         // <meta HTTP-EQUIV="REFRESH" content="0; url=http://www.bernama.com/bernama/v6/newsindex.php?id=943513">
         if (!preg_match('!<meta http-equiv=["\']?refresh["\']? content=["\']?[0-9];\s*url=["\']?([^"\'>]+)["\']?!i', $html, $match)) {
             // let's try in a reverse mode (switch content & http-equiv attributes)
             if (!preg_match('!<meta content=["\']?[0-9];\s*url=["\']?([^"\'>]+)["\']? http-equiv=["\']?refresh["\']?!i', $html, $match)) {
-                return false;
+                return null;
             }
         }
 
@@ -484,10 +482,8 @@ class HttpClient
      *
      * @param string $url  Absolute url
      * @param string $html First characters of the response (hopefully it'll be enough to find some meta)
-     *
-     * @return false|string
      */
-    private function getUglyURL(string $url, string $html)
+    private function getUglyURL(string $url, string $html): ?string
     {
         $found = false;
         foreach ($this->config->getAjaxTriggers() as $string) {
@@ -498,7 +494,7 @@ class HttpClient
         }
 
         if (!$found) {
-            return false;
+            return null;
         }
 
         $this->logger->info('Added escaped fragment to url');
