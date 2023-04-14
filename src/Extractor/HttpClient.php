@@ -161,17 +161,16 @@ class HttpClient
             $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
         }
 
-        $headers = $this->formatHeaders($response);
-
+        $refresh = $response->getHeaderLine('refresh');
         // if response give us a refresh header it means we need to follow the given url
-        if (!empty($headers['refresh']) && 1 === preg_match('![0-9];\s*url=["\']?([^"\'>]+)!i', $headers['refresh'], $match)) {
+        if (!empty($refresh) && 1 === preg_match('![0-9];\s*url=["\']?([^"\'>]+)!i', $refresh, $match)) {
             return $this->fetch($match[1], true, $httpHeader);
         }
 
         // the response content-type did not match our 'header only' types,
         // but we'd issues a HEAD request because we assumed it would. So
         // let's queue a proper GET request for this item...
-        if ('head' === $method && !$this->headerOnlyType($headers)) {
+        if ('head' === $method && !$this->headerOnlyType($response)) {
             return $this->fetch($effectiveUrl, true, $httpHeader);
         }
 
@@ -222,6 +221,8 @@ class HttpClient
 
         // remove utm parameters & fragment
         $effectiveUrl = (string) $this->removeTrackersFromUrl(new Uri(str_replace('&amp;', '&', $effectiveUrl)));
+
+        $headers = $this->formatHeaders($response);
 
         $this->logger->info('Data fetched: {data}', ['data' => [
             'effective_url' => $effectiveUrl,
@@ -421,12 +422,10 @@ class HttpClient
      * to determine if the request is a binary resource.
      *
      * Since the request is now done we directly check the Content-Type header
-     *
-     * @param array<string, string> $headers All headers from the request
      */
-    private function headerOnlyType(array $headers): bool
+    private function headerOnlyType(ResponseInterface $response): bool
     {
-        $contentType = $headers['content-type'] ?? '';
+        $contentType = $response->getHeaderLine('content-type');
 
         if (!preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($contentType), $match)) {
             return false;
