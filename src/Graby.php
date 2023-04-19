@@ -408,21 +408,13 @@ class Graby
         }
 
         $res = new Content(
-            /* status: */ $response->getResponse()->getStatusCode(),
+            /* response: */ $response->withEffectiveUri($effectiveUrl),
             /* html: */ $this->config->getErrorMessage(),
             /* title: */ $extractedTitle ?: $this->config->getErrorMessageTitle(),
             /* language: */ $extractedLanguage,
             /* date: */ $extractedDate,
             /* authors: */ $extractedAuthors,
-            /* url: */ (string) $effectiveUrl,
             /* image: */ (string) $extractedImage,
-            /* headers: */ array_map(
-                fn (array $values) => implode(', ', $values),
-                array_change_key_case(
-                    $response->getResponse()->getHeaders(),
-                    \CASE_LOWER
-                )
-            ),
             /* isNativeAd: */ $this->extractor->isNativeAd()
         );
 
@@ -575,21 +567,13 @@ class Graby
 
         $infos = new Content(
             // at this point status will always be considered as 200
-            /* status: */ 200,
+            /* response: */ $response,
             /* html: */ '',
             /* title: */ $mimeInfo['name'],
             /* language: */ '',
             /* date: */ null,
             /* authors: */ [],
-            /* url: */ (string) $effectiveUrl,
             /* image: */ '',
-            /* headers: */ array_map(
-                fn (array $values) => implode(', ', $values),
-                array_change_key_case(
-                    $response->getResponse()->getHeaders(),
-                    \CASE_LOWER
-                )
-            ),
             /* isNativeAd: */ false
         );
 

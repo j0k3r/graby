@@ -32,11 +32,11 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertSame('fr', $res->getLanguage());
-        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $res->getUrl());
+        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('Grève à Radio France : vers une sortie du conflit ?', $res->getTitle());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
 
         $records = $handler->getRecords();
 
@@ -54,7 +54,7 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('Cached site config with key: {key}', $records[10]['message']);
         $this->assertSame('Cached site config with key: {key}', $records[11]['message']);
         $this->assertSame('Fetching url: {url}', $records[12]['message']);
-        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', $records[12]['context']['url']);
+        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', (string) $records[12]['context']['url']);
         $this->assertSame('Trying using method "{method}" on url "{url}"', $records[13]['message']);
         $this->assertSame('get', $records[13]['context']['method']);
         $this->assertSame('Use default referer "{referer}" for url "{url}"', $records[15]['message']);
@@ -70,13 +70,13 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertSame(['bjori'], $res->getAuthors());
         $this->assertSame('en', $res->getLanguage());
-        $this->assertSame('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html', $res->getUrl());
+        $this->assertSame('https://bjori.blogspot.com/2015/04/next-gen-mongodb-driver.html', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('Next Generation MongoDB Driver for PHP!', $res->getTitle());
         $this->assertStringContainsString('For the past few months I\'ve been working on a "next-gen" MongoDB driver for PHP', $res->getHtml());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
     }
 
     public function testPdfFile(): void
@@ -87,15 +87,15 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('http://img3.free.fr/im_tv/telesites/documentation.pdf');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertEmpty($res->getLanguage());
         $this->assertEmpty($res->getAuthors());
         $this->assertSame('2008-03-05T17:56:07+01:00', $res->getDate());
-        $this->assertSame('http://img3.free.fr/im_tv/telesites/documentation.pdf', $res->getUrl());
+        $this->assertSame('http://img3.free.fr/im_tv/telesites/documentation.pdf', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('PDF', $res->getTitle());
         $this->assertStringContainsString('Free 2008', $res->getHtml());
         $this->assertStringContainsString('Free 2008', $res->getSummary());
-        $this->assertStringContainsString('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('application/pdf', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
     }
 
@@ -107,14 +107,14 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://i.imgur.com/KQQ7D9z.jpg');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertEmpty($res->getLanguage());
         $this->assertEmpty($res->getAuthors());
-        $this->assertSame('https://i.imgur.com/KQQ7D9z.jpg', $res->getUrl());
+        $this->assertSame('https://i.imgur.com/KQQ7D9z.jpg', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('Image', $res->getTitle());
         $this->assertSame('<a href="https://i.imgur.com/KQQ7D9z.jpg"><img src="https://i.imgur.com/KQQ7D9z.jpg" alt="image" /></a>', $res->getHtml());
         $this->assertEmpty($res->getSummary());
-        $this->assertStringContainsString('image/jpeg', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('image/jpeg', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
     }
 
@@ -135,7 +135,7 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent($url);
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
 
     /**
@@ -153,13 +153,13 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertEmpty($res->getLanguage());
-        $this->assertSame('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml', $res->getUrl());
+        $this->assertSame('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=td0P8qrS8iI&format=xml', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('[Review] The Matrix Falling (Rain) Source Code C++', $res->getTitle());
         // $this->assertSame('<iframe id="video" width="480" height="270" src="https://www.youtube.com/embed/td0P8qrS8iI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen">[embedded content]</iframe>', $res->getHtml());
         $this->assertSame('[embedded content]', $res->getSummary());
-        // $this->assertStringContainsString('text/xml', $res->getHeaders()['content-type']);
+        // $this->assertStringContainsString('text/xml', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
     }
 
@@ -171,7 +171,7 @@ class GrabyFunctionalTest extends TestCase
         // $res = $graby->fetchContent('http://blog.niqnutn.com/index.php?article49/commandes-de-base');
 
         // $this->assertNotNull($res->getSummary());
-        // $this->assertSame(200, $res->getStatus());
+        // $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
 
     public function testKoreanPage(): void
@@ -182,10 +182,10 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('http://www.newstown.co.kr/news/articleView.html?idxno=243722');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertStringContainsString('에르보리앙', $res->getTitle());
         $this->assertStringContainsString('프랑스 현대적 자연주의 브랜드', $res->getSummary());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
     }
 
     public function testMultipage(): void
@@ -203,11 +203,11 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://www.clubic.com/carte-graphique/carte-graphique-amd/article-478936-1-radeon-hd-7750-7770.html');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertStringContainsString('Radeon HD 7750/7770', $res->getTitle());
         // which should be on the page 6
         $this->assertStringContainsString('2560x1600', $res->getHtml());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
     }
 
     public function testCookie(): void
@@ -224,7 +224,7 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         // if the cookie wasn't taking into account, it'll be "NPR Choice page"
         $this->assertSame('Michael Flynn\'s Contradictory Line On Russia', $res->getTitle());
     }
@@ -244,7 +244,7 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://www.motherjones.com/politics/2012/02/mac-mcclelland-free-online-shipping-warehouses-labor/');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
 
     public function testWithEmptyReplaceString(): void
@@ -262,6 +262,6 @@ class GrabyFunctionalTest extends TestCase
         $res = $graby->fetchContent('https://www.presseportal.de/pm/103258/2930232');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
 }
