@@ -29,7 +29,7 @@ class GrabyTest extends TestCase
             \RecursiveIteratorIterator::LEAVES_ONLY
         );
         foreach ($fileFixtureIterator as $file) {
-            if (!preg_match('/\.test$/', $file)) {
+            if ('test' !== $file->getExtension()) {
                 continue;
             }
 
