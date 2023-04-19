@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Graby\Monolog\Handler;
 
 use Graby\Monolog\Handler\GrabyHandler;

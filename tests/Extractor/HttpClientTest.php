@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;

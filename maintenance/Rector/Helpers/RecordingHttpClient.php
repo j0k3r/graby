@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Maintenance\Graby\Rector\Helpers;
 
 use Psr\Http\Client\ClientExceptionInterface;
