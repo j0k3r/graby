@@ -6,7 +6,6 @@ namespace Graby\Extractor;
 
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
-use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\Exception\LoopException;
 use Http\Client\Common\HttpMethodsClient;
@@ -18,6 +17,8 @@ use Http\Client\Exception\TransferException;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriFactoryInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -29,6 +30,7 @@ class HttpClient
     private HttpClientConfig $config;
     private HttpMethodsClient $client;
     private LoggerInterface $logger;
+    private UriFactoryInterface $uriFactory;
     private History $responseHistory;
     private ?ContentExtractor $extractor;
 
@@ -62,6 +64,8 @@ class HttpClient
             ),
             Psr17FactoryDiscovery::findRequestFactory()
         );
+
+        $this->uriFactory = Psr17FactoryDiscovery::findUriFactory();
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -220,7 +224,7 @@ class HttpClient
         }
 
         // remove utm parameters & fragment
-        $effectiveUrl = (string) $this->removeTrackersFromUrl(new Uri(str_replace('&amp;', '&', $effectiveUrl)));
+        $effectiveUrl = (string) $this->removeTrackersFromUrl($this->uriFactory->createUri(str_replace('&amp;', '&', $effectiveUrl)));
 
         $headers = $this->formatHeaders($response);
 
@@ -471,7 +475,7 @@ class HttpClient
             return $redirectUrl;
         }
 
-        return (string) UriResolver::resolve(new Uri($url), new Uri($redirectUrl));
+        return (string) UriResolver::resolve($this->uriFactory->createUri($url), $this->uriFactory->createUri($redirectUrl));
     }
 
     /**
@@ -530,7 +534,7 @@ class HttpClient
      *
      * @see https://github.com/fossar/selfoss/blob/0d7bde56e502f7d79bfb38dcdd657c7da89cf1f1/src/spouts/rss/fulltextrss.php#L120
      */
-    private function removeTrackersFromUrl(Uri $uri): Uri
+    private function removeTrackersFromUrl(UriInterface $uri): UriInterface
     {
         // Query string
         $query = $uri->getQuery();

@@ -12,10 +12,12 @@ use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\PluginClient;
 use Http\Discovery\HttpClientDiscovery;
+use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\UriFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
@@ -33,6 +35,7 @@ class Graby
     private HttpClient $httpClient;
     private ContentExtractor $extractor;
     private ConfigBuilder $configBuilder;
+    private UriFactoryInterface $uriFactory;
     private bool $imgNoReferrer = false;
 
     private ?string $prefetchedContent = null;
@@ -82,6 +85,8 @@ class Graby
             $this->logger,
             $this->extractor
         );
+
+        $this->uriFactory = Psr17FactoryDiscovery::findUriFactory();
     }
 
     /**
@@ -432,7 +437,7 @@ class Graby
             $url = 'http://' . $url;
         }
 
-        $uri = new Uri((string) $url);
+        $uri = $this->uriFactory->createUri((string) $url);
 
         if (preg_match('/[\x80-\xff]/', $uri->getHost())) {
             $uriIdnSafe = idn_to_ascii($uri->getHost());
@@ -784,13 +789,13 @@ class Graby
             return null;
         }
 
-        $url = new Uri($url);
+        $url = $this->uriFactory->createUri($url);
 
         if (Uri::isAbsolute($url)) {
             return (string) $url;
         }
 
-        $base = new Uri($base);
+        $base = $this->uriFactory->createUri($base);
 
         // in case the url has no host
         if ('' === $base->getAuthority()) {
