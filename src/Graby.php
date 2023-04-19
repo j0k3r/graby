@@ -239,7 +239,7 @@ class Graby
 
         if (null === $this->prefetchedContent) {
             $this->logger->info('Fetching url: {url}', ['url' => $url]);
-            $response = $this->httpClient->fetch($url, false, $siteConfig->http_header);
+            $response = $this->httpClient->fetch($this->uriFactory->createUri($url), false, $siteConfig->http_header);
         } else {
             $this->logger->info('Content provided as prefetched for url: {url}', ['url' => $url]);
             $response = $this->getResponseForPrefetchedContent($url);
@@ -354,7 +354,7 @@ class Graby
                 // it's not, store it for later check & so let's attempt to fetch it
                 $multiPageUrls[] = $nextPageUrl;
 
-                $response = $this->httpClient->fetch($nextPageUrl, false, $siteConfig->http_header);
+                $response = $this->httpClient->fetch($this->uriFactory->createUri($nextPageUrl), false, $siteConfig->http_header);
 
                 // make sure mime type is not something with a different action associated
                 $mimeInfo = $this->getMimeActionInfo($response['headers']);
@@ -710,7 +710,7 @@ class Graby
                 $targetSiteConfig = $this->configBuilder->buildForHost($targetUrl['host']);
                 $headers = $targetSiteConfig->http_header;
             }
-            $response = $this->httpClient->fetch($singlePageUrl, false, $headers);
+            $response = $this->httpClient->fetch($this->uriFactory->createUri($singlePageUrl), false, $headers);
 
             if ($response['status'] < 300) {
                 $this->logger->info('Single page content found with url', ['url' => $singlePageUrl]);

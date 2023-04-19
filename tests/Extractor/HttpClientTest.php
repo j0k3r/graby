@@ -6,6 +6,7 @@ namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -41,7 +42,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
-        $res = $http->fetch($url);
+        $res = $http->fetch(new Uri($url));
 
         $this->assertSame($urlEffective, $res['effective_url']);
         $this->assertSame('yay', $res['body']);
@@ -56,7 +57,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpg'], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
-        $res = $http->fetch($url);
+        $res = $http->fetch(new Uri($url));
 
         $this->assertCount(1, $httpMockClient->getRequests());
         /** @var RequestInterface $request */
@@ -79,7 +80,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
-        $res = $http->fetch($url);
+        $res = $http->fetch(new Uri($url));
 
         $this->assertCount(2, $httpMockClient->getRequests());
         $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request is head because of the extension');
@@ -100,7 +101,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'fucked'], 'yay'));
 
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
-        $res = $http->fetch($url);
+        $res = $http->fetch(new Uri($url));
 
         $this->assertCount(2, $httpMockClient->getRequests());
         $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request should be HEAD because of the extension');
@@ -148,7 +149,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], ''));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch($url);
+        $res = $http->fetch(new Uri($url));
 
         $this->assertCount(2, $httpMockClient->getRequests());
         $this->assertSame('GET', $httpMockClient->getRequests()[0]->getMethod());
@@ -169,7 +170,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'data'));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('http://example.com/my-map.html');
+        $res = $http->fetch(new Uri('http://example.com/my-map.html'));
 
         $this->assertSame('http://example.com/my-new-map.html', $res['effective_url']);
         $this->assertSame('data', $res['body']);
@@ -183,7 +184,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(404, ['Content-Type' => 'text/html'], 'test'));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('http://example.com/my-map.html');
+        $res = $http->fetch(new Uri('http://example.com/my-map.html'));
 
         $this->assertSame('http://example.com/my-map.html', $res['effective_url']);
         $this->assertSame('test', $res['body']);
@@ -197,7 +198,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('https://example.com/foo/+bar/baz/+quuz/corge');
+        $res = $http->fetch(new Uri('https://example.com/foo/+bar/baz/+quuz/corge'));
 
         $this->assertSame('https://example.com/foo/+bar/baz/+quuz/corge', $res['effective_url']);
     }
@@ -208,7 +209,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(404));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch('http://example.com');
+        $res = $http->fetch(new Uri('http://example.com'));
 
         $this->assertSame('http://example.com', $res['effective_url']);
         $this->assertSame('', $res['body']);
@@ -228,7 +229,7 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $http->setLogger($logger);
 
-        $res = $http->fetch('http://fr.m.wikipedia.org/wiki/Copyright#bottom');
+        $res = $http->fetch(new Uri('http://fr.m.wikipedia.org/wiki/Copyright#bottom'));
 
         $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
         $this->assertSame('yay', $res['body']);
@@ -287,7 +288,7 @@ class HttpClientTest extends TestCase
 
         $http = new HttpClient($adapter, [], $logger);
 
-        $res = $http->fetch('http://blackhole.webpagetest.org/');
+        $res = $http->fetch(new Uri('http://blackhole.webpagetest.org/'));
 
         $this->assertSame('http://blackhole.webpagetest.org/', $res['effective_url']);
         $this->assertSame(500, $res['status']);
@@ -326,7 +327,7 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient, ['max_redirect' => 3]);
         $http->setLogger($logger);
 
-        $res = $http->fetch('http://fr.wikipedia.org/wiki/Copyright');
+        $res = $http->fetch(new Uri('http://fr.wikipedia.org/wiki/Copyright'));
 
         $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', $res['effective_url']);
         $this->assertSame(310, $res['status']);
@@ -382,7 +383,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $html));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch($url);
+        $res = $http->fetch(new Uri($url));
 
         $this->assertSame($url, $res['effective_url']);
         $this->assertStringNotContainsString($removeData, $res['body']);
@@ -438,7 +439,7 @@ class HttpClientTest extends TestCase
         ]);
         $http->setLogger($logger);
 
-        $http->fetch($url, false, $httpHeader);
+        $http->fetch(new Uri($url), false, $httpHeader);
 
         $records = $handler->getRecords();
 
@@ -489,7 +490,7 @@ class HttpClientTest extends TestCase
         ]);
         $http->setLogger($logger);
 
-        $http->fetch($url, false, $httpHeader);
+        $http->fetch(new Uri($url), false, $httpHeader);
 
         $records = $handler->getRecords();
 
@@ -538,7 +539,7 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $http->setLogger($logger);
 
-        $http->fetch($url, false, $httpHeader);
+        $http->fetch(new Uri($url), false, $httpHeader);
 
         $records = $handler->getRecords();
 
@@ -594,7 +595,7 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $http->setLogger($logger);
 
-        $http->fetch($url, false, $httpHeader);
+        $http->fetch(new Uri($url), false, $httpHeader);
 
         $records = $handler->getRecords();
 
@@ -634,7 +635,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200));
 
         $http = new HttpClient($httpMockClient);
-        $res = $http->fetch($url);
+        $res = $http->fetch(new Uri($url));
 
         $this->assertSame($expectedUrl, $res['effective_url']);
     }
