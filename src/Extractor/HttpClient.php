@@ -401,7 +401,7 @@ class HttpClient
     /**
      * Find an accept header for this url.
      * Based on the site config, it will return the accept if any.
-     * Otherwise it will return false.
+     * Otherwise it will return null.
      *
      * @param string                $url        Absolute url
      * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig

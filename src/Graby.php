@@ -282,7 +282,7 @@ class Graby
 
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;
-        if ($this->config->getSinglepage() && null === $this->prefetchedContent && ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
+        if ($this->config->getSinglepage() && null === $this->prefetchedContent && null !== ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
             $isSinglePage = true;
             $effectiveUrl = $singlePageResponse['effective_url'];
 
@@ -627,11 +627,11 @@ class Graby
     }
 
     /**
-     * returns single page response, or false if not found.
+     * returns single page response, or null if not found.
      *
-     * @return false|array From httpClient fetch
+     * @return ?array From httpClient fetch
      */
-    private function getSinglePage(string $html, string $url)
+    private function getSinglePage(string $html, string $url): ?array
     {
         $this->logger->info('Looking for site config files to see if single page link exists');
         $siteConfig = $this->configBuilder->buildFromUrl($url);
@@ -640,7 +640,7 @@ class Graby
         if (empty($siteConfig->single_page_link)) {
             $this->logger->info('No "single_page_link" config found');
 
-            return false;
+            return null;
         }
 
         // Build DOM tree from HTML
@@ -684,7 +684,7 @@ class Graby
         if (!$singlePageUrl) {
             $this->logger->info('No single page url found');
 
-            return false;
+            return null;
         }
 
         // try to resolve against $url
@@ -716,7 +716,7 @@ class Graby
 
         $this->logger->info('No content found with url', ['url' => $singlePageUrl]);
 
-        return false;
+        return null;
     }
 
     /**
