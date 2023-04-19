@@ -396,11 +396,11 @@ class GrabyTest extends TestCase
                 'Content-Language' => 'en',
             ],
             <<<"HTML"
-<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul>
-<li class="service-links-print">
-    <a href="$singlePageUrl" class="service-links-print">printed view</a>
-</li></ul></html>
-HTML
+                <html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul>
+                <li class="service-links-print">
+                    <a href="$singlePageUrl" class="service-links-print">printed view</a>
+                </li></ul></html>
+                HTML
         );
         $httpMockClient->addResponse($response);
         $httpMockClient->addResponse($response);

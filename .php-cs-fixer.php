@@ -10,7 +10,10 @@ return (new PhpCsFixer\Config())
     ->setRules([
         '@Symfony' => true,
         '@Symfony:risky' => true,
-        'declare_strict_types' => true,
+        '@PHP74Migration' => true,
+        '@PHP74Migration:risky' => true,
+        // Breaks spacing around faux named arguments (in a comment).
+        'method_argument_space' => false,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_unsets' => true,
         'heredoc_to_nowdoc' => true,

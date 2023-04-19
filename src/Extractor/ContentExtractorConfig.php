@@ -65,7 +65,7 @@ class ContentExtractorConfig
         $resolver->setAllowedTypes('src_lazy_load_attributes', 'string[]');
         $resolver->setAllowedTypes('json_ld_ignore_types', 'string[]');
 
-        $resolver->setDefault('readability', function (OptionsResolver $readabilityResolver) {
+        $resolver->setDefault('readability', function (OptionsResolver $readabilityResolver): void {
             $readabilityResolver->setDefaults([
                 'pre_filters' => [],
                 'post_filters' => [],

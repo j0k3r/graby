@@ -545,9 +545,7 @@ class HttpClient
             // Remove utm_* parameters
             $clean_query = array_filter(
                 $q_array,
-                function (string $param): bool {
-                    return !str_starts_with($param, 'utm_');
-                }
+                fn (string $param): bool => !str_starts_with($param, 'utm_')
             );
             $uri = $uri->withQuery(implode('&', $clean_query));
         }
