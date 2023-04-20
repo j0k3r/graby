@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Graby\Extractor;
 
+use Graby\HttpClient\EffectiveResponse;
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
 use GuzzleHttp\Psr7\UriResolver;
@@ -16,7 +17,9 @@ use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
@@ -30,6 +33,8 @@ class HttpClient
     private HttpClientConfig $config;
     private HttpMethodsClient $client;
     private LoggerInterface $logger;
+    private ResponseFactoryInterface $responseFactory;
+    private StreamFactoryInterface $streamFactory;
     private UriFactoryInterface $uriFactory;
     private History $responseHistory;
     private ?ContentExtractor $extractor;
@@ -47,6 +52,9 @@ class HttpClient
 
         $this->logger = $logger;
         $this->extractor = $extractor;
+
+        $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
+        $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
 
         $this->responseHistory = new History();
         $this->client = new HttpMethodsClient(
@@ -81,10 +89,8 @@ class HttpClient
      *
      * @param bool                  $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
      * @param array<string, string> $httpHeader           Custom HTTP Headers from SiteConfig
-     *
-     * @return array{effective_url: UriInterface, body: string, headers: array<string, string>, status: int}
      */
-    public function fetch(UriInterface $url, bool $skipTypeVerification = false, array $httpHeader = []): array
+    public function fetch(UriInterface $url, bool $skipTypeVerification = false, array $httpHeader = []): EffectiveResponse
     {
         $url = $this->cleanupUrl($url);
 
@@ -119,38 +125,31 @@ class HttpClient
         } catch (LoopException $e) {
             $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
 
-            return [
-                'effective_url' => $url,
-                'body' => '',
-                'headers' => [],
+            return new EffectiveResponse(
+                $url,
                 // Too many Redirects
-                'status' => 310,
-            ];
+                $this->responseFactory->createResponse(310)
+            );
         } catch (TransferException $e) {
             if (method_exists($e, 'getRequest')) {
                 $url = $e->getRequest()->getUri();
             }
 
             // no response attached to the exception, we won't be able to retrieve content from it
-            $data = [
-                'effective_url' => $url,
-                'body' => '',
-                'headers' => [],
-                'status' => 500,
-            ];
+            $data = new EffectiveResponse(
+                $url,
+                $this->responseFactory->createResponse(500)
+            );
             $message = 'Request throw exception (with no response): {error_message}';
 
             if (method_exists($e, 'getResponse')) {
                 // exception has a response which means we might be able to retrieve content from it, log it and continue
                 $response = $e->getResponse();
-                $headers = $this->formatHeaders($response);
 
-                $data = [
-                    'effective_url' => $url,
-                    'body' => (string) $response->getBody(),
-                    'headers' => $headers,
-                    'status' => $response->getStatusCode(),
-                ];
+                $data = new EffectiveResponse(
+                    $url,
+                    $response
+                );
                 $message = 'Request throw exception (with a response): {error_message}';
             }
 
@@ -226,21 +225,17 @@ class HttpClient
         // remove utm parameters & fragment
         $effectiveUrl = $this->removeTrackersFromUrl($this->uriFactory->createUri(str_replace('&amp;', '&', (string) $effectiveUrl)));
 
-        $headers = $this->formatHeaders($response);
-
         $this->logger->info('Data fetched: {data}', ['data' => [
             'effective_url' => (string) $effectiveUrl,
             'body' => '(only length for debug): ' . \strlen($body),
-            'headers' => $headers,
+            'headers' => $response->getHeaders(),
             'status' => $response->getStatusCode(),
         ]]);
 
-        return [
-            'effective_url' => $effectiveUrl,
-            'body' => $body,
-            'headers' => $headers,
-            'status' => $response->getStatusCode(),
-        ];
+        return new EffectiveResponse(
+            $effectiveUrl,
+            $response->withBody($this->streamFactory->createStream($body))
+        );
     }
 
     /**
@@ -508,20 +503,6 @@ class HttpClient
         $qs .= str_replace('%2F', '/', http_build_query($query));
 
         return $url->withQuery($qs);
-    }
-
-    /**
-     * Format all headers to avoid unecessary array level.
-     * Also lower the header name.
-     */
-    private function formatHeaders(ResponseInterface $response): array
-    {
-        $headers = [];
-        foreach ($response->getHeaders() as $name => $value) {
-            $headers[strtolower($name)] = implode(', ', $value);
-        }
-
-        return $headers;
     }
 
     /**

@@ -44,9 +44,9 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
         $res = $http->fetch(new Uri($url));
 
-        $this->assertSame($urlEffective, (string) $res['effective_url']);
-        $this->assertSame('yay', $res['body']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame($urlEffective, (string) $res->getEffectiveUri());
+        $this->assertSame('yay', (string) $res->getResponse()->getBody());
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
     public function testFetchHeadGoodContentType(): void
@@ -65,10 +65,10 @@ class HttpClientTest extends TestCase
 
         $this->assertSame('Mozilla/5.2', $request->getHeaderLine('User-Agent'));
         $this->assertSame('http://www.google.co.uk/url?sa=t&source=web&cd=1', $request->getHeaderLine('Referer'));
-        $this->assertSame($url, (string) $res['effective_url']);
-        $this->assertSame('yay', $res['body']);
-        $this->assertSame('image/jpg', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame($url, (string) $res->getEffectiveUri());
+        $this->assertSame('yay', (string) $res->getResponse()->getBody());
+        $this->assertSame('image/jpg', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
     public function testFetchHeadBadContentType(): void
@@ -86,10 +86,10 @@ class HttpClientTest extends TestCase
         $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request is head because of the extension');
         $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is get because the Content-Type wasn\'t a binary');
 
-        $this->assertSame($url, (string) $res['effective_url']);
-        $this->assertSame('yay', $res['body']);
-        $this->assertSame('text/html', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame($url, (string) $res->getEffectiveUri());
+        $this->assertSame('yay', (string) $res->getResponse()->getBody());
+        $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
     public function testFetchHeadReallyBadContentType(): void
@@ -107,10 +107,10 @@ class HttpClientTest extends TestCase
         $this->assertSame('HEAD', $httpMockClient->getRequests()[0]->getMethod(), 'first request should be HEAD because of the extension');
         $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod(), 'second request is GET because the Content-Type wasn\'t a binary');
 
-        $this->assertSame($url, (string) $res['effective_url']);
-        $this->assertSame('yay', $res['body']);
-        $this->assertSame('fucked', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame($url, (string) $res->getEffectiveUri());
+        $this->assertSame('yay', (string) $res->getResponse()->getBody());
+        $this->assertSame('fucked', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
     public function dataForMetaRefresh(): array
@@ -157,10 +157,10 @@ class HttpClientTest extends TestCase
         $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod());
         $this->assertSame($metaUrl, (string) $httpMockClient->getRequests()[1]->getUri());
 
-        $this->assertSame($metaUrl, (string) $res['effective_url']);
-        $this->assertEmpty($res['body']);
-        $this->assertSame('text/html', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame($metaUrl, (string) $res->getEffectiveUri());
+        $this->assertEmpty((string) $res->getResponse()->getBody());
+        $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
     public function testFetchGetWithHeaderRefresh(): void
@@ -172,10 +172,10 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch(new Uri('http://example.com/my-map.html'));
 
-        $this->assertSame('http://example.com/my-new-map.html', (string) $res['effective_url']);
-        $this->assertSame('data', $res['body']);
-        $this->assertSame('text/html', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame('http://example.com/my-new-map.html', (string) $res->getEffectiveUri());
+        $this->assertSame('data', (string) $res->getResponse()->getBody());
+        $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
     public function testWith404ResponseWithResponse(): void
@@ -186,10 +186,10 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch(new Uri('http://example.com/my-map.html'));
 
-        $this->assertSame('http://example.com/my-map.html', (string) $res['effective_url']);
-        $this->assertSame('test', $res['body']);
-        $this->assertSame('text/html', $res['headers']['content-type']);
-        $this->assertSame(404, $res['status']);
+        $this->assertSame('http://example.com/my-map.html', (string) $res->getEffectiveUri());
+        $this->assertSame('test', (string) $res->getResponse()->getBody());
+        $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertSame(404, $res->getResponse()->getStatusCode());
     }
 
     public function testWithUrlContainingPlusSymbol(): void
@@ -200,7 +200,7 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch(new Uri('https://example.com/foo/+bar/baz/+quuz/corge'));
 
-        $this->assertSame('https://example.com/foo/+bar/baz/+quuz/corge', (string) $res['effective_url']);
+        $this->assertSame('https://example.com/foo/+bar/baz/+quuz/corge', (string) $res->getEffectiveUri());
     }
 
     public function testWith404ResponseWithoutResponse(): void
@@ -211,10 +211,10 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch(new Uri('http://example.com'));
 
-        $this->assertSame('http://example.com', (string) $res['effective_url']);
-        $this->assertSame('', $res['body']);
-        $this->assertEmpty($res['headers']);
-        $this->assertSame(404, $res['status']);
+        $this->assertSame('http://example.com', (string) $res->getEffectiveUri());
+        $this->assertSame('', (string) $res->getResponse()->getBody());
+        $this->assertEmpty($res->getResponse()->getHeaders());
+        $this->assertSame(404, $res->getResponse()->getStatusCode());
     }
 
     public function testLogMessage(): void
@@ -231,9 +231,9 @@ class HttpClientTest extends TestCase
 
         $res = $http->fetch(new Uri('http://fr.m.wikipedia.org/wiki/Copyright#bottom'));
 
-        $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', (string) $res['effective_url']);
-        $this->assertSame('yay', $res['body']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', (string) $res->getEffectiveUri());
+        $this->assertSame('yay', (string) $res->getResponse()->getBody());
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
 
         $records = $handler->getRecords();
 
@@ -290,8 +290,8 @@ class HttpClientTest extends TestCase
 
         $res = $http->fetch(new Uri('http://blackhole.webpagetest.org/'));
 
-        $this->assertSame('http://blackhole.webpagetest.org/', (string) $res['effective_url']);
-        $this->assertSame(500, $res['status']);
+        $this->assertSame('http://blackhole.webpagetest.org/', (string) $res->getEffectiveUri());
+        $this->assertSame(500, $res->getResponse()->getStatusCode());
 
         $records = $handler->getRecords();
 
@@ -329,8 +329,8 @@ class HttpClientTest extends TestCase
 
         $res = $http->fetch(new Uri('http://fr.wikipedia.org/wiki/Copyright'));
 
-        $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', (string) $res['effective_url']);
-        $this->assertSame(310, $res['status']);
+        $this->assertSame('http://fr.wikipedia.org/wiki/Copyright', (string) $res->getEffectiveUri());
+        $this->assertSame(310, $res->getResponse()->getStatusCode());
         $this->assertSame('Endless redirect: 4 on "{url}"', $handler->getRecords()[3]['message']);
     }
 
@@ -385,12 +385,12 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch(new Uri($url));
 
-        $this->assertSame($url, (string) $res['effective_url']);
-        $this->assertStringNotContainsString($removeData, $res['body']);
-        $this->assertStringNotContainsString('<!--[if ', $res['body']);
-        $this->assertStringNotContainsString('endif', $res['body']);
-        $this->assertSame('text/html', $res['headers']['content-type']);
-        $this->assertSame(200, $res['status']);
+        $this->assertSame($url, (string) $res->getEffectiveUri());
+        $this->assertStringNotContainsString($removeData, (string) $res->getResponse()->getBody());
+        $this->assertStringNotContainsString('<!--[if ', (string) $res->getResponse()->getBody());
+        $this->assertStringNotContainsString('endif', (string) $res->getResponse()->getBody());
+        $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
     public function dataForUserAgent(): array
@@ -637,6 +637,6 @@ class HttpClientTest extends TestCase
         $http = new HttpClient($httpMockClient);
         $res = $http->fetch(new Uri($url));
 
-        $this->assertSame($expectedUrl, (string) $res['effective_url']);
+        $this->assertSame($expectedUrl, (string) $res->getEffectiveUri());
     }
 }

@@ -6,6 +6,7 @@ namespace Graby;
 
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
+use Graby\HttpClient\EffectiveResponse;
 use Graby\HttpClient\Plugin\CookiePlugin;
 use Graby\SiteConfig\ConfigBuilder;
 use GuzzleHttp\Psr7\Uri;
@@ -17,6 +18,9 @@ use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
@@ -38,6 +42,8 @@ class Graby
     private ConfigBuilder $configBuilder;
     private UriFactoryInterface $uriFactory;
     private bool $imgNoReferrer = false;
+    private ResponseFactoryInterface $responseFactory;
+    private StreamFactoryInterface $streamFactory;
 
     private ?string $prefetchedContent = null;
 
@@ -87,6 +93,8 @@ class Graby
             $this->extractor
         );
 
+        $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
+        $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
         $this->uriFactory = Psr17FactoryDiscovery::findUriFactory();
     }
 
@@ -221,16 +229,12 @@ class Graby
         return trim($this->cleanupXss((string) $html));
     }
 
-    private function getResponseForPrefetchedContent(UriInterface $url): array
+    private function getResponseForPrefetchedContent(UriInterface $url): EffectiveResponse
     {
-        return [
-            'body' => $this->prefetchedContent,
-            'effective_url' => $url,
-            'headers' => [
-                'content-type' => 'text/html',
-            ],
-            'status' => 200,
-        ];
+        return new EffectiveResponse(
+            $url,
+            $this->responseFactory->createResponse(200)->withHeader('content-type', 'text/html')->withBody($this->streamFactory->createStream($this->prefetchedContent))
+        );
     }
 
     /**
@@ -248,20 +252,21 @@ class Graby
             $response = $this->getResponseForPrefetchedContent($url);
         }
 
-        $effectiveUrl = $response['effective_url'];
+        $effectiveUrl = $response->getEffectiveUri();
         $effectiveUrl = $effectiveUrl->withPath(str_replace(' ', '%20', $effectiveUrl->getPath()));
+        $response = $response->withEffectiveUri($effectiveUrl);
         if (!$this->isUrlAllowed((string) $effectiveUrl)) {
             throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
         }
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
-        $mimeInfo = $this->getMimeActionInfo($response['headers']);
-        $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $response);
+        $mimeInfo = $this->getMimeActionInfo($response->getResponse());
+        $infos = $this->handleMimeAction($mimeInfo, $response);
         if (null !== $infos) {
             return $infos;
         }
 
-        $html = $this->convert2Utf8($response['body'], $response['headers']);
+        $html = $this->convert2Utf8($response->getResponse());
 
         $this->logger->debug('Fetched HTML', ['html' => $html]);
 
@@ -284,24 +289,25 @@ class Graby
         // some non utf8 enconding might be breaking after converting to utf8
         // when it happen the string (usually) starts with this character
         // in that case, we'll take the default response instead of the utf8 forced one
-        if (0 === strpos(utf8_encode($response['body']), 'ÿþ')) {
-            $html = $response['body'];
+        $body = (string) $response->getResponse()->getBody();
+        if (0 === strpos(utf8_encode($body), 'ÿþ')) {
+            $html = $body;
         }
 
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;
         if ($this->config->getSinglepage() && null === $this->prefetchedContent && null !== ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
             $isSinglePage = true;
-            $effectiveUrl = $singlePageResponse['effective_url'];
+            $effectiveUrl = $singlePageResponse->getEffectiveUri();
 
             // check if action defined for returned Content-Type
-            $mimeInfo = $this->getMimeActionInfo($singlePageResponse['headers']);
-            $infos = $this->handleMimeAction($mimeInfo, $effectiveUrl, $singlePageResponse);
+            $mimeInfo = $this->getMimeActionInfo($singlePageResponse->getResponse());
+            $infos = $this->handleMimeAction($mimeInfo, $singlePageResponse);
             if (null !== $infos) {
                 return $infos;
             }
 
-            $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['headers']);
+            $html = $this->convert2Utf8($singlePageResponse->getResponse());
             $this->logger->info('Retrieved single-page view from "{url}"', ['url' => (string) $effectiveUrl]);
 
             unset($singlePageResponse);
@@ -325,8 +331,9 @@ class Graby
         }
 
         // in case of no language were found, try using headers Content-Language
-        if (empty($extractedLanguage) && !empty($response['headers']['content-language'])) {
-            $extractedLanguage = $response['headers']['content-language'];
+        $contentLanguage = $response->getResponse()->getHeaderLine('content-language');
+        if (empty($extractedLanguage) && !empty($contentLanguage)) {
+            $extractedLanguage = $contentLanguage;
         }
 
         // Deal with multi-page articles
@@ -362,7 +369,7 @@ class Graby
                 $response = $this->httpClient->fetch($nextPageUrl, false, $siteConfig->http_header);
 
                 // make sure mime type is not something with a different action associated
-                $mimeInfo = $this->getMimeActionInfo($response['headers']);
+                $mimeInfo = $this->getMimeActionInfo($response->getResponse());
 
                 if (isset($mimeInfo['action'])) {
                     $this->logger->info('MIME type requires different action');
@@ -371,7 +378,7 @@ class Graby
                 }
 
                 $extracSuccess = $this->extractor->process(
-                    $this->convert2Utf8($response['body'], $response['headers']),
+                    $this->convert2Utf8($response->getResponse()),
                     $nextPageUrl
                 );
 
@@ -401,7 +408,7 @@ class Graby
         }
 
         $res = new Content(
-            /* status: */ $response['status'],
+            /* status: */ $response->getResponse()->getStatusCode(),
             /* html: */ $this->config->getErrorMessage(),
             /* title: */ $extractedTitle ?: $this->config->getErrorMessageTitle(),
             /* language: */ $extractedLanguage,
@@ -409,7 +416,13 @@ class Graby
             /* authors: */ $extractedAuthors,
             /* url: */ (string) $effectiveUrl,
             /* image: */ (string) $extractedImage,
-            /* headers: */ $response['headers'],
+            /* headers: */ array_map(
+                fn (array $values) => implode(', ', $values),
+                array_change_key_case(
+                    $response->getResponse()->getHeaders(),
+                    \CASE_LOWER
+                )
+            ),
             /* isNativeAd: */ $this->extractor->isNativeAd()
         );
 
@@ -514,9 +527,9 @@ class Graby
      * @return array With keys: 'mime', 'type', 'subtype', 'action', 'name'
      *               e.g. array('mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image')
      */
-    private function getMimeActionInfo(array $headers): array
+    private function getMimeActionInfo(ResponseInterface $response): array
     {
-        $contentType = isset($headers['content-type']) ? strtolower($headers['content-type']) : '';
+        $contentType = $response->getHeaderLine('content-type');
 
         // check if action defined for returned Content-Type
         $info = [
@@ -549,17 +562,16 @@ class Graby
      * Handle action related to mime type detection.
      * These action can be exclude or link to handle custom content (like image, video, pdf, etc ..).
      *
-     * @param array        $mimeInfo     From getMimeActionInfo() function
-     * @param UriInterface $effectiveUrl Current content url
-     * @param array        $response     A response
+     * @param array $mimeInfo From getMimeActionInfo() function
      */
-    private function handleMimeAction(array $mimeInfo, UriInterface $effectiveUrl, array $response = []): ?Content
+    private function handleMimeAction(array $mimeInfo, EffectiveResponse $response): ?Content
     {
         if (!isset($mimeInfo['action'])) {
             return null;
         }
 
-        $body = $response['body'] ?? '';
+        $effectiveUrl = $response->getEffectiveUri();
+        $body = (string) $response->getResponse()->getBody();
 
         $infos = new Content(
             // at this point status will always be considered as 200
@@ -571,7 +583,13 @@ class Graby
             /* authors: */ [],
             /* url: */ (string) $effectiveUrl,
             /* image: */ '',
-            /* headers: */ $response['headers'],
+            /* headers: */ array_map(
+                fn (array $values) => implode(', ', $values),
+                array_change_key_case(
+                    $response->getResponse()->getHeaders(),
+                    \CASE_LOWER
+                )
+            ),
             /* isNativeAd: */ false
         );
 
@@ -632,7 +650,7 @@ class Graby
             $infos = $infos->withHtml(
                 '<pre>' .
                 $this->cleanupXss(
-                    $this->convert2Utf8($body, $response['headers'] ?? [])
+                    $this->convert2Utf8($response->getResponse()->withBody($this->streamFactory->createStream($body)))
                 ) . '</pre>'
             );
         }
@@ -644,10 +662,8 @@ class Graby
 
     /**
      * returns single page response, or null if not found.
-     *
-     * @return ?array From httpClient fetch
      */
-    private function getSinglePage(string $html, UriInterface $url): ?array
+    private function getSinglePage(string $html, UriInterface $url): ?EffectiveResponse
     {
         $this->logger->info('Looking for site config files to see if single page link exists');
         $siteConfig = $this->configBuilder->buildFromUrl($url);
@@ -717,7 +733,7 @@ class Graby
             }
             $response = $this->httpClient->fetch($singlePageUrl, false, $headers);
 
-            if ($response['status'] < 300) {
+            if ($response->getResponse()->getStatusCode() < 300) {
                 $this->logger->info('Single page content found with url', ['url' => (string) $singlePageUrl]);
 
                 return $response;
@@ -840,9 +856,10 @@ class Graby
      *
      * Adapted from http://stackoverflow.com/questions/910793/php-detect-encoding-and-make-everything-utf-8
      */
-    private function convert2Utf8(string $html, array $headers = []): string
+    private function convert2Utf8(ResponseInterface $response): string
     {
-        $contentType = isset($headers['content-type']) ? strtolower($headers['content-type']) : '';
+        $contentType = $response->getHeaderLine('content-type');
+        $html = (string) $response->getBody();
 
         if (empty($html) || empty($contentType)) {
             return $html;
@@ -854,7 +871,7 @@ class Graby
 
         if (!preg_match_all('/([^;]+)(?:;\s*charset=["\']?([^;"\'\n]*))?/im', $contentType, $match, \PREG_SET_ORDER)) {
             // error parsing the response
-            $this->logger->info('Could not find Content-Type header in HTTP response', ['headers' => $headers]);
+            $this->logger->info('Could not find Content-Type header in HTTP response', ['headers' => $response->getHeaders()]);
         } else {
             // get last matched element (in case of redirects)
             $match = end($match);
