@@ -60,6 +60,11 @@
             "Tests\\Graby\\": "tests/"
         }
     },
+    "scripts": {
+        "fix": "php-cs-fixer fix --verbose --diff",
+        "phpstan": "phpstan analyse --memory-limit 512M",
+        "test": "simple-phpunit -v"
+    },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
