@@ -19,35 +19,35 @@ class SiteConfig
     /**
      * Use first matching element as title (0 or more xpath expressions).
      *
-     * @var array
+     * @var string[]
      */
     public $title = [];
 
     /**
      * Use first matching element as body (0 or more xpath expressions).
      *
-     * @var array
+     * @var string[]
      */
     public $body = [];
 
     /**
      * Use first matching element as author (0 or more xpath expressions).
      *
-     * @var array
+     * @var string[]
      */
     public $author = [];
 
     /**
      * Use first matching element as date (0 or more xpath expressions).
      *
-     * @var array
+     * @var string[]
      */
     public $date = [];
 
     /**
      * Strip elements matching these xpath expressions (0 or more).
      *
-     * @var array
+     * @var string[]
      */
     public $strip = [];
 
@@ -61,28 +61,28 @@ class SiteConfig
     /**
      * Strip elements which contain these strings (0 or more) in the id or class attribute.
      *
-     * @var array
+     * @var string[]
      */
     public $strip_id_or_class = [];
 
     /**
      * Strip images which contain these strings (0 or more) in the src attribute.
      *
-     * @var array
+     * @var string[]
      */
     public $strip_image_src = [];
 
     /**
      * Mark article as a native ad if any of these expressions match (0 or more xpath expressions).
      *
-     * @var array
+     * @var string[]
      */
     public $native_ad_clue = [];
 
     /**
      * Additional HTTP headers to send (associative array).
      *
-     * @var array
+     * @var array<string, string>
      */
     public $http_header = [];
 
@@ -117,7 +117,7 @@ class SiteConfig
     /**
      * Test URL - if present, can be used to test the config above.
      *
-     * @var array
+     * @var string[]
      */
     public $test_url = [];
 
@@ -125,7 +125,7 @@ class SiteConfig
      * If page contains - XPath expression. Used to determine if the preceding rule gets evaluated or not.
      * Currently only works with single_page_link & next_page_link (first one has priority over the second one).
      *
-     * @var array
+     * @var array{single_page_link: array<string,string>}|array{next_page_link: array<string,string>}|array{}
      */
     public $if_page_contains = [];
 
@@ -137,12 +137,12 @@ class SiteConfig
      * This should be an XPath expression identifying the link to that page. If present and we find a match,
      * we will retrieve that page and the rest of the options in this config will be applied to the new page.
      *
-     * @var array
+     * @var string[]
      */
     public $single_page_link = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     public $next_page_link = [];
 
@@ -156,14 +156,14 @@ class SiteConfig
     /**
      * Strings to search for in HTML before processing begins (used with $replace_string).
      *
-     * @var array
+     * @var string[]
      */
     public $find_string = [];
 
     /**
      * Strings to replace those found in $find_string before HTML processing begins.
      *
-     * @var array
+     * @var string[]
      */
     public $replace_string = [];
 
@@ -212,7 +212,7 @@ class SiteConfig
     /**
      * Extra fields to POST to the site's login form.
      *
-     * @var array hash of form field name => value
+     * @var array<string, string> hash of form field name => value
      */
     public $login_extra_fields = [];
 
@@ -226,7 +226,7 @@ class SiteConfig
     /**
      * Wrap elements matching these xpath expressions with the specified tag (associative array).
      *
-     * @var array
+     * @var array<string, string>
      */
     public $wrap_in = [];
 

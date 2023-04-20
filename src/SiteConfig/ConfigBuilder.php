@@ -293,7 +293,7 @@ class ConfigBuilder
 
         $findReplaceCurrentConfig = array_combine($currentConfig->find_string, $currentConfig->replace_string);
         $findReplaceNewConfig = array_combine($newConfig->find_string, $newConfig->replace_string);
-        $findReplaceMerged = array_merge((array) $findReplaceCurrentConfig, (array) $findReplaceNewConfig);
+        $findReplaceMerged = array_merge($findReplaceCurrentConfig ?: [], $findReplaceNewConfig ?: []);
 
         // start from scratch
         $currentConfig->find_string = [];
