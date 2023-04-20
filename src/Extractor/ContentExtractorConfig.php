@@ -27,6 +27,19 @@ class ContentExtractorConfig
     /** @var array<string> */
     private array $json_ld_ignore_types;
 
+    /**
+     * @param array{
+     *   default_parser?: string,
+     *   fingerprints?: array<string, string>,
+     *   config_builder?: array,
+     *   readability?: array{
+     *     pre_filters?: array<string, string>,
+     *     post_filters?: array<string, string>,
+     *   },
+     *   src_lazy_load_attributes?: string[],
+     *   json_ld_ignore_types?: string[],
+     * } $config
+     */
     public function __construct(array $config)
     {
         $resolver = new OptionsResolver();

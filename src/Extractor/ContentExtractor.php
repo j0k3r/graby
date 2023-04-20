@@ -39,7 +39,17 @@ class ContentExtractor
     private ConfigBuilder $configBuilder;
 
     /**
-     * @param array $config
+     * @param array{
+     *   default_parser?: string,
+     *   fingerprints?: array<string, string>,
+     *   config_builder?: array,
+     *   readability?: array{
+     *     pre_filters?: array<string, string>,
+     *     post_filters?: array<string, string>,
+     *   },
+     *   src_lazy_load_attributes?: string[],
+     *   json_ld_ignore_types?: string[],
+     * } $config
      */
     public function __construct($config = [], LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
     {
