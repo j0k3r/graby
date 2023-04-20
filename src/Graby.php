@@ -145,7 +145,7 @@ class Graby
 
         // if content is pure html, convert it
         if (\is_string($contentBlock)) {
-            $this->extractor->process($contentBlock, $url);
+            $this->extractor->process($contentBlock, $this->uriFactory->createUri($url));
 
             $contentBlock = $this->extractor->getContent();
         }
@@ -235,7 +235,7 @@ class Graby
     private function doFetchContent(string $url): Content
     {
         $url = $this->validateUrl($url);
-        $siteConfig = $this->configBuilder->buildFromUrl($url);
+        $siteConfig = $this->configBuilder->buildFromUrl($this->uriFactory->createUri($url));
 
         if (null === $this->prefetchedContent) {
             $this->logger->info('Fetching url: {url}', ['url' => $url]);
@@ -306,7 +306,7 @@ class Graby
 
         $this->logger->info('Attempting to extract content');
 
-        $extractResult = $this->extractor->process($html, $effectiveUrl);
+        $extractResult = $this->extractor->process($html, $this->uriFactory->createUri($effectiveUrl));
         /** @var Readability */
         $readability = $this->extractor->readability;
         $contentBlock = $this->extractor->getContent();
@@ -367,7 +367,7 @@ class Graby
 
                 $extracSuccess = $this->extractor->process(
                     $this->convert2Utf8($response['body'], $response['headers']),
-                    $nextPageUrl
+                    $this->uriFactory->createUri($nextPageUrl)
                 );
 
                 if (!$extracSuccess) {
@@ -639,7 +639,7 @@ class Graby
     private function getSinglePage(string $html, string $url): ?array
     {
         $this->logger->info('Looking for site config files to see if single page link exists');
-        $siteConfig = $this->configBuilder->buildFromUrl($url);
+        $siteConfig = $this->configBuilder->buildFromUrl($this->uriFactory->createUri($url));
 
         // no single page found?
         if (empty($siteConfig->single_page_link)) {

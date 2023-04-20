@@ -209,7 +209,7 @@ class HttpClient
         }
 
         if (null !== $this->extractor) {
-            $body = $this->extractor->processStringReplacements($body, (string) $effectiveUrl);
+            $body = $this->extractor->processStringReplacements($body, $effectiveUrl);
         }
 
         // check for <meta name='fragment' content='!'/>

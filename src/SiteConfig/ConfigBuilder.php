@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Graby\SiteConfig;
 
 use GrabySiteConfig\SiteConfig\Files;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -110,12 +111,9 @@ class ConfigBuilder
      * Build a config file from an url.
      * Use `buildForHost` if you already have the host.
      */
-    public function buildFromUrl(string $url, bool $addToCache = true): SiteConfig
+    public function buildFromUrl(UriInterface $url, bool $addToCache = true): SiteConfig
     {
-        // extract host name
-        $host = parse_url($url, \PHP_URL_HOST);
-
-        return $this->buildForHost((string) $host, $addToCache);
+        return $this->buildForHost($url->getHost(), $addToCache);
     }
 
     /**

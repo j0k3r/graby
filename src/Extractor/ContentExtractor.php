@@ -6,6 +6,7 @@ namespace Graby\Extractor;
 
 use Graby\SiteConfig\ConfigBuilder;
 use Graby\SiteConfig\SiteConfig;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
@@ -99,7 +100,7 @@ class ContentExtractor
     /**
      * Returns SiteConfig instance (joined in order: exact match, wildcard, fingerprint, global, default).
      */
-    public function buildSiteConfig(string $url, string $html = '', bool $addToCache = true): SiteConfig
+    public function buildSiteConfig(UriInterface $url, string $html = '', bool $addToCache = true): SiteConfig
     {
         $config = $this->configBuilder->buildFromUrl($url, $addToCache);
 
@@ -138,7 +139,7 @@ class ContentExtractor
      *
      * @return bool true on success, false on failure
      */
-    public function process(string $html, string $url, SiteConfig $siteConfig = null, bool $smartTidy = true): bool
+    public function process(string $html, UriInterface $url, SiteConfig $siteConfig = null, bool $smartTidy = true): bool
     {
         $this->reset();
 
@@ -623,7 +624,7 @@ class ContentExtractor
      *
      * @return string $html with replacements performed
      */
-    public function processStringReplacements(string $html, string $url, ?SiteConfig $siteConfig = null): string
+    public function processStringReplacements(string $html, UriInterface $url, ?SiteConfig $siteConfig = null): string
     {
         // We repeat this step from process(), so this method can be called on its own
         $this->prepareSiteConfig($html, $url, $siteConfig);
@@ -731,7 +732,7 @@ class ContentExtractor
      *
      * @phpstan-assert SiteConfig $this->siteConfig
      */
-    private function prepareSiteConfig(string $html, string $url, ?SiteConfig $siteConfig = null): void
+    private function prepareSiteConfig(string $html, UriInterface $url, ?SiteConfig $siteConfig = null): void
     {
         if (null !== $this->siteConfig && null === $siteConfig) {
             return;
@@ -1069,13 +1070,12 @@ class ContentExtractor
      * Return an instance of Readability with pre & post filters added.
      *
      * @param string $html       HTML to make readable from Readability lib
-     * @param string $url        URL of the content
      * @param string $parser     Parser to use
      * @param bool   $enableTidy Should it use tidy extension?
      */
-    private function getReadability(string $html, string $url, string $parser, bool $enableTidy): Readability
+    private function getReadability(string $html, UriInterface $url, string $parser, bool $enableTidy): Readability
     {
-        $readability = new Readability($html, $url, $parser, $enableTidy);
+        $readability = new Readability($html, (string) $url, $parser, $enableTidy);
 
         foreach ($this->config->getReadability()['pre_filters'] as $filter => $replacer) {
             $readability->addPreFilter($filter, $replacer);

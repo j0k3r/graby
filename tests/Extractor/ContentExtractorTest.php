@@ -6,6 +6,7 @@ namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\ContentExtractor;
 use Graby\SiteConfig\SiteConfig;
+use GuzzleHttp\Psr7\Uri;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
@@ -87,7 +88,7 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(['config_builder' => [
             'site_config' => [__DIR__ . '/../../wrong_site_config'],
         ]]);
-        $contentExtractor->buildSiteConfig('http://0.0.0.0');
+        $contentExtractor->buildSiteConfig(new Uri('http://0.0.0.0'));
     }
 
     /**
@@ -96,7 +97,7 @@ class ContentExtractorTest extends TestCase
     public function testBuildSiteConfig(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
-        $res = $contentExtractor->buildSiteConfig('https://www.en.wikipedia.org/wiki/Metallica');
+        $res = $contentExtractor->buildSiteConfig(new Uri('https://www.en.wikipedia.org/wiki/Metallica'));
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
@@ -119,11 +120,11 @@ class ContentExtractorTest extends TestCase
     public function testBuildSiteConfigCached(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
-        $res = $contentExtractor->buildSiteConfig('https://nofailure.io/wiki/Metallica');
+        $res = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
 
-        $res2 = $contentExtractor->buildSiteConfig('https://nofailure.io/wiki/Metallica');
+        $res2 = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
 
         $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res2);
         $this->assertSame($res, $res2);
@@ -137,7 +138,7 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
         $res = $contentExtractor->buildSiteConfig(
-            'https://en.blog.wordpress.com/2015/03/23/writing-101-registration/',
+            new Uri('https://en.blog.wordpress.com/2015/03/23/writing-101-registration/'),
             '<html><meta name="generator" content="WordPress.com" /></html>'
         );
 
@@ -160,7 +161,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             '<html>&lt;iframe src=""&gt;&lt;/iframe&gt;</html> <a rel="author" href="/user8412228">CaTV</a>',
-            'https://vimeo.com/35941909',
+            new Uri('https://vimeo.com/35941909'),
             $config
         );
 
@@ -186,7 +187,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             '<html><iframe src=""></iframe></html>',
-            'https://vimeo.com/35941909',
+            new Uri('https://vimeo.com/35941909'),
             $config
         );
 
@@ -219,7 +220,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -248,7 +249,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -279,7 +280,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -305,7 +306,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -338,7 +339,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -367,7 +368,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -395,7 +396,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -428,7 +429,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -457,7 +458,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -493,7 +494,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -538,7 +539,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -596,7 +597,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -620,7 +621,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             '<html><body><div><p class="instapaper_title">hello !</p>hello !hello !hello !hello !hello !hello !hello !<p class="instapaper_body">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -661,7 +662,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -682,7 +683,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             '<html><head><title>My Title</title></head><body><div><h3>My Title</h3>' . str_repeat('this is the best part of the show', 10) . '</div></body></html>',
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -752,7 +753,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             $html,
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -772,7 +773,7 @@ class ContentExtractorTest extends TestCase
 
         $res = $contentExtractor->process(
             '<div>' . str_repeat('this is the best part of the show', 10) . '</div><div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>',
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -793,7 +794,7 @@ class ContentExtractorTest extends TestCase
 
         $contentExtractor->process(
             '<html>&lt;iframe &gt;&lt;/iframe&gt;</html>',
-            'https://vimeo.com/35941909',
+            new Uri('https://vimeo.com/35941909'),
             $config
         );
 
@@ -866,7 +867,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 <meta property="fb:admins" content="thomas.diluccio,proyoledegieux"/>
 </head>
 <body class="rouge "><p>' . str_repeat('This is important. ', 20) . '</p></body></html>',
-            'https://lemonde.io/35941909',
+            new Uri('https://lemonde.io/35941909'),
             $config
         );
 
@@ -881,7 +882,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p>hihi</p>',
-            'https://nativead.io/woops!'
+            new Uri('https://nativead.io/woops!')
         );
 
         $this->assertTrue($res, 'Extraction went well');
@@ -895,7 +896,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
-            'https://nativead.io/jsonld'
+            new Uri('https://nativead.io/jsonld')
         );
 
         $this->assertTrue($res, 'Extraction went well');
@@ -912,7 +913,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":[{"@type":"Person","name":"Elisa Thevenet"},{"@type":"Person","name":"Humphrey Bogart"}]}</script>',
-            'https://nativead.io/jsonld'
+            new Uri('https://nativead.io/jsonld')
         );
 
         /** @var \DOMNode */
@@ -930,7 +931,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":{"@type":"Person","name":["Greg Myre"]}}</script>',
-            'https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia'
+            new Uri('https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia')
         );
 
         $this->assertSame([
@@ -942,7 +943,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process('', 'https://nativead.io/jsonld');
+        $res = $contentExtractor->process('', new Uri('https://nativead.io/jsonld'));
 
         $this->assertFalse($res);
 
@@ -965,7 +966,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             <meta property="og:image:url" content="http://static.opengraph.io/medias_11570.jpg"/>
             <meta property="og:image:secure_url" content="https://static.opengraph.io/medias_11570.jpg"/>
             <p>hihi</p>',
-            'https://nativead.io/opengraph'
+            new Uri('https://nativead.io/opengraph')
         );
 
         $this->assertTrue($res);
@@ -982,7 +983,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             ' <html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/><p>hihi</p></html>',
-            'https://nativead.io/opengraph'
+            new Uri('https://nativead.io/opengraph')
         );
 
         $this->assertTrue($res);
@@ -996,7 +997,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "NewsArticle", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "headline": "The Foobar Company is launching globally", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
-            'https://example.com/jsonld'
+            new Uri('https://example.com/jsonld')
         );
 
         $this->assertTrue($res, 'Extraction went well');
@@ -1011,7 +1012,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Periodical", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "name": "Foobar Company", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><h1>Hello world, this is title</h1><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
-            'https://example.com/jsonld'
+            new Uri('https://example.com/jsonld')
         );
 
         $this->assertTrue($res, 'Extraction went well');
@@ -1028,7 +1029,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '<html><script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><body><div>hello !hello !hello !hello !hello !hello !hello !<p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
-            'https://skipjsonld.io/jsonld',
+            new Uri('https://skipjsonld.io/jsonld'),
             $config
         );
 
@@ -1045,7 +1046,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "name": "name !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
-            'https://nativead.io/jsonld'
+            new Uri('https://nativead.io/jsonld')
         );
 
         $this->assertSame('name !!', $contentExtractor->getTitle());
@@ -1057,7 +1058,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"] }</script><p>hihi</p>',
-            'https://nativead.io/jsonld'
+            new Uri('https://nativead.io/jsonld')
         );
 
         $this->assertSame('2014-05-29T00:00:00+02:00', $contentExtractor->getDate());
@@ -1069,7 +1070,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"], "image": { "@type": "ImageObject", "url": [ "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_4x3.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_16x9.png" ]} }</script><p>hihi</p>',
-            'https://nativead.io/jsonld'
+            new Uri('https://nativead.io/jsonld')
         );
 
         $this->assertSame('https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png', $contentExtractor->getImage());
@@ -1077,7 +1078,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testUniqueAuthors(): void
     {
-        $url = 'https://www.lemonde.fr/pixels/article/2018/05/30/bloodstained-curse-of-the-moon-delicieux-jeu-de-vampires-a-la-mode-des-annees-1980_5307173_4408996.html';
+        $url = new Uri('https://www.lemonde.fr/pixels/article/2018/05/30/bloodstained-curse-of-the-moon-delicieux-jeu-de-vampires-a-la-mode-des-annees-1980_5307173_4408996.html');
         $html = '<script type="application/ld+json">{"author":{"@type":"Person","name":"William Audureau"}}</script><a class="auteur" target="_blank" href="/journaliste/william-audureau/">William Audureau</a>';
 
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
@@ -1104,7 +1105,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '   <iframe src="blog_0x34.md.html" frameborder="0" style="overflow:hidden; display:block; position: absolute; height: 80%; width:100%;"></iframe>',
-            'https://domattr.io/woops!',
+            new Uri('https://domattr.io/woops!'),
             $config
         );
 
@@ -1117,7 +1118,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '   <meta property="article:published_time" content="-0001-11-304T00:00:00+00:00" /> <p>' . str_repeat('this is the best part of the show', 10) . '</p> ',
-            'https://domattr.io/woops!'
+            new Uri('https://domattr.io/woops!')
         );
 
         $this->assertTrue($res, 'Extraction went fine');
@@ -1158,7 +1159,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $res = $contentExtractor->process(
             '<html><article><div class="cond1"><p>Hello world</p></div></article></html>',
-            'https://example.com/wrapin',
+            new Uri('https://example.com/wrapin'),
             $config
         );
 
