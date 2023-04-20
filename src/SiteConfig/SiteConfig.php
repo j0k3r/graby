@@ -21,35 +21,35 @@ class SiteConfig
      *
      * @var string[]
      */
-    public $title = [];
+    public array $title = [];
 
     /**
      * Use first matching element as body (0 or more xpath expressions).
      *
      * @var string[]
      */
-    public $body = [];
+    public array $body = [];
 
     /**
      * Use first matching element as author (0 or more xpath expressions).
      *
      * @var string[]
      */
-    public $author = [];
+    public array $author = [];
 
     /**
      * Use first matching element as date (0 or more xpath expressions).
      *
      * @var string[]
      */
-    public $date = [];
+    public array $date = [];
 
     /**
      * Strip elements matching these xpath expressions (0 or more).
      *
      * @var string[]
      */
-    public $strip = [];
+    public array $strip = [];
 
     /**
      * Attribute used to replace lazyload image (like `data-lazy-src`).
@@ -63,28 +63,28 @@ class SiteConfig
      *
      * @var string[]
      */
-    public $strip_id_or_class = [];
+    public array $strip_id_or_class = [];
 
     /**
      * Strip images which contain these strings (0 or more) in the src attribute.
      *
      * @var string[]
      */
-    public $strip_image_src = [];
+    public array $strip_image_src = [];
 
     /**
      * Mark article as a native ad if any of these expressions match (0 or more xpath expressions).
      *
      * @var string[]
      */
-    public $native_ad_clue = [];
+    public array $native_ad_clue = [];
 
     /**
      * Additional HTTP headers to send (associative array).
      *
      * @var array<string, string>
      */
-    public $http_header = [];
+    public array $http_header = [];
 
     /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
@@ -119,7 +119,7 @@ class SiteConfig
      *
      * @var string[]
      */
-    public $test_url = [];
+    public array $test_url = [];
 
     /**
      * If page contains - XPath expression. Used to determine if the preceding rule gets evaluated or not.
@@ -127,7 +127,7 @@ class SiteConfig
      *
      * @var array{single_page_link: array<string,string>}|array{next_page_link: array<string,string>}|array{}
      */
-    public $if_page_contains = [];
+    public array $if_page_contains = [];
 
     /**
      * Single-page link - should identify a link element or URL pointing to the page holding the entire article
@@ -139,12 +139,12 @@ class SiteConfig
      *
      * @var string[]
      */
-    public $single_page_link = [];
+    public array $single_page_link = [];
 
     /**
      * @var string[]
      */
-    public $next_page_link = [];
+    public array $next_page_link = [];
 
     /**
      * Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib').
@@ -158,14 +158,14 @@ class SiteConfig
      *
      * @var string[]
      */
-    public $find_string = [];
+    public array $find_string = [];
 
     /**
      * Strings to replace those found in $find_string before HTML processing begins.
      *
      * @var string[]
      */
-    public $replace_string = [];
+    public array $replace_string = [];
 
     /**
      * the options below cannot be set in the config files which this class represents.
@@ -176,96 +176,72 @@ class SiteConfig
 
     /**
      * If fetching the site's content requires to authentify.
-     *
-     * @var bool
      */
-    public $requires_login = false;
+    public bool $requires_login = false;
 
     /**
      * XPath query to detect if login is requested in a page from the site.
-     *
-     * @var string
      */
-    public $not_logged_in_xpath;
+    public string $not_logged_in_xpath;
 
     /**
      * Site's login form URI, if applicable.
-     *
-     * @var string
      */
-    public $login_uri;
+    public string $login_uri;
 
     /**
      * Name of the site's login form username field. Example: username.
-     *
-     * @var string
      */
-    public $login_username_field;
+    public string $login_username_field;
 
     /**
      * Name of the site's login form password field. Example: password.
-     *
-     * @var string
      */
-    public $login_password_field;
+    public string $login_password_field;
 
     /**
      * Extra fields to POST to the site's login form.
      *
      * @var array<string, string> hash of form field name => value
      */
-    public $login_extra_fields = [];
+    public array $login_extra_fields = [];
 
     /**
      * Explicitly skip getting data from JSON-LD.
-     *
-     * @var bool
      */
-    public $skip_json_ld = false;
+    public bool $skip_json_ld = false;
 
     /**
      * Wrap elements matching these xpath expressions with the specified tag (associative array).
      *
      * @var array<string, string>
      */
-    public $wrap_in = [];
+    public array $wrap_in = [];
 
     /**
      * Used if undeclared.
-     *
-     * @var bool
      */
-    protected $default_tidy = true;
+    protected bool $default_tidy = true;
 
     /**
      * Used if undeclared.
-     *
-     * @var bool
      */
-    protected $default_autodetect_on_failure = true;
+    protected bool $default_autodetect_on_failure = true;
 
     /**
      * Used if undeclared.
-     *
-     * @var bool
      */
-    protected $default_prune = true;
+    protected bool $default_prune = true;
 
     /**
      * Used if undeclared.
-     *
-     * @var string
      */
-    protected $default_parser = 'libxml';
+    protected string $default_parser = 'libxml';
 
     /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
-     *
-     * @param bool $use_default
-     *
-     * @return bool|null
      */
-    public function tidy($use_default = true)
+    public function tidy(bool $use_default = true): ?bool
     {
         if ($use_default) {
             return $this->tidy ?? $this->default_tidy;
@@ -276,12 +252,8 @@ class SiteConfig
 
     /**
      * Clean up content block - attempt to remove elements that appear to be superfluous.
-     *
-     * @param bool $use_default
-     *
-     * @return bool|null
      */
-    public function prune($use_default = true)
+    public function prune(bool $use_default = true): ?bool
     {
         if ($use_default) {
             return $this->prune ?? $this->default_prune;
@@ -292,12 +264,8 @@ class SiteConfig
 
     /**
      * Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib').
-     *
-     * @param bool $use_default
-     *
-     * @return string|null
      */
-    public function parser($use_default = true)
+    public function parser(bool $use_default = true): ?string
     {
         if ($use_default) {
             return $this->parser ?? $this->default_parser;
@@ -308,12 +276,8 @@ class SiteConfig
 
     /**
      * Autodetect title/body if xpath expressions fail to produce results.
-     *
-     * @param bool $use_default
-     *
-     * @return bool|null
      */
-    public function autodetect_on_failure($use_default = true)
+    public function autodetect_on_failure(bool $use_default = true): ?bool
     {
         if ($use_default) {
             return $this->autodetect_on_failure ?? $this->default_autodetect_on_failure;
@@ -327,10 +291,8 @@ class SiteConfig
      *
      * @param string $name  Rule name (only single_page_link & next_page_link is supported for now)
      * @param string $value Value of the rule (currently only an url)
-     *
-     * @return string|null
      */
-    public function getIfPageContainsCondition($name, $value)
+    public function getIfPageContainsCondition(string $name, string $value): ?string
     {
         if (isset($this->if_page_contains[$name]) && isset($this->if_page_contains[$name][$value])) {
             return $this->if_page_contains[$name][$value];

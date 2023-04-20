@@ -750,7 +750,7 @@ class Graby
      * @param \DOMNode $e    Element on which we'll retrieve the attribute
      * @param string   $attr Attribute that contains the url to absolutize
      */
-    private function makeAbsoluteAttr(string $base, \DOMNode $e, $attr): void
+    private function makeAbsoluteAttr(string $base, \DOMNode $e, string $attr): void
     {
         if (!$e instanceof \DOMElement || !$e->attributes->getNamedItem($attr)) {
             return;

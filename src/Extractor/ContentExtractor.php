@@ -18,8 +18,7 @@ use Readability\Readability;
  */
 class ContentExtractor
 {
-    /** @var Readability|null */
-    public $readability;
+    public ?Readability $readability;
     private ?\DOMXPath $xpath = null;
     private ?string $html = null;
     private ContentExtractorConfig $config;
@@ -51,7 +50,7 @@ class ContentExtractor
      *   json_ld_ignore_types?: string[],
      * } $config
      */
-    public function __construct($config = [], LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
+    public function __construct(array $config = [], LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
     {
         $this->config = new ContentExtractorConfig($config);
 

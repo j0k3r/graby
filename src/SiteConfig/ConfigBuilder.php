@@ -62,7 +62,7 @@ class ConfigBuilder
      * @param string     $key    Key for the cache
      * @param SiteConfig $config Config to be cached
      */
-    public function addToCache($key, SiteConfig $config): void
+    public function addToCache(string $key, SiteConfig $config): void
     {
         $key = strtolower($key);
         if ('www.' === substr($key, 0, 4)) {
@@ -84,7 +84,7 @@ class ConfigBuilder
      *
      * @param string $key Key for the cache
      */
-    public function getCachedVersion($key): ?SiteConfig
+    public function getCachedVersion(string $key): ?SiteConfig
     {
         $key = strtolower($key);
         if ('www.' === substr($key, 0, 4)) {
@@ -109,11 +109,8 @@ class ConfigBuilder
     /**
      * Build a config file from an url.
      * Use `buildForHost` if you already have the host.
-     *
-     * @param string $url
-     * @param bool   $addToCache
      */
-    public function buildFromUrl($url, $addToCache = true): SiteConfig
+    public function buildFromUrl(string $url, bool $addToCache = true): SiteConfig
     {
         // extract host name
         $host = parse_url($url, \PHP_URL_HOST);
@@ -125,10 +122,9 @@ class ConfigBuilder
      * Build a config file from a host.
      * Use `buildFromUrl` if you have an url.
      *
-     * @param string $host       Host, like en.wikipedia.org
-     * @param bool   $addToCache
+     * @param string $host Host, like en.wikipedia.org
      */
-    public function buildForHost($host, $addToCache = true): SiteConfig
+    public function buildForHost(string $host, bool $addToCache = true): SiteConfig
     {
         $host = strtolower($host);
         if ('www.' === substr($host, 0, 4)) {
@@ -181,7 +177,7 @@ class ConfigBuilder
      * @param string $host           Host, like en.wikipedia.org
      * @param bool   $exactHostMatch if true, we will not look for wildcard config matches
      */
-    public function loadSiteConfig($host, $exactHostMatch = false): ?SiteConfig
+    public function loadSiteConfig(string $host, bool $exactHostMatch = false): ?SiteConfig
     {
         $host = strtolower($host);
         if ('www.' === substr($host, 0, 4)) {
