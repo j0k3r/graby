@@ -18,6 +18,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
@@ -116,11 +117,14 @@ class Graby
 
     /**
      * Fetch content from the given url and return a readable content.
+     *
+     * @param string|UriInterface $url
      */
-    public function fetchContent(string $url): Content
+    public function fetchContent($url): Content
     {
         $this->logger->info('Graby is ready to fetch');
 
+        $url = $this->validateUrl($url);
         $infos = $this->doFetchContent($url);
 
         // generate summary
@@ -139,13 +143,13 @@ class Graby
      *
      * @param string|\DOMElement|\DOMNode $contentBlock
      */
-    public function cleanupHtml($contentBlock, string $url): string
+    public function cleanupHtml($contentBlock, UriInterface $url): string
     {
         $originalContentBlock = \is_string($contentBlock) ? $contentBlock : $contentBlock->textContent;
 
         // if content is pure html, convert it
         if (\is_string($contentBlock)) {
-            $this->extractor->process($contentBlock, $this->uriFactory->createUri($url));
+            $this->extractor->process($contentBlock, $url);
 
             $contentBlock = $this->extractor->getContent();
         }
@@ -166,7 +170,7 @@ class Graby
         }
 
         // footnotes
-        if ('footnotes' === $this->config->getContentLinks() && false === strpos($url, 'wikipedia.org') && $this->extractor->readability) {
+        if ('footnotes' === $this->config->getContentLinks() && false === strpos($url->getHost(), 'wikipedia.org') && $this->extractor->readability) {
             $this->extractor->readability->addFootnotes($contentBlock);
         }
 
@@ -217,7 +221,7 @@ class Graby
         return trim($this->cleanupXss((string) $html));
     }
 
-    private function getResponseForPrefetchedContent(string $url): array
+    private function getResponseForPrefetchedContent(UriInterface $url): array
     {
         return [
             'body' => $this->prefetchedContent,
@@ -232,22 +236,21 @@ class Graby
     /**
      * Do fetch content from an url.
      */
-    private function doFetchContent(string $url): Content
+    private function doFetchContent(UriInterface $url): Content
     {
-        $url = $this->validateUrl($url);
-        $siteConfig = $this->configBuilder->buildFromUrl($this->uriFactory->createUri($url));
+        $siteConfig = $this->configBuilder->buildFromUrl($url);
 
         if (null === $this->prefetchedContent) {
-            $this->logger->info('Fetching url: {url}', ['url' => $url]);
-            $response = $this->httpClient->fetch($this->uriFactory->createUri($url), false, $siteConfig->http_header);
+            $this->logger->info('Fetching url: {url}', ['url' => (string) $url]);
+            $response = $this->httpClient->fetch($url, false, $siteConfig->http_header);
         } else {
-            $this->logger->info('Content provided as prefetched for url: {url}', ['url' => $url]);
+            $this->logger->info('Content provided as prefetched for url: {url}', ['url' => (string) $url]);
             $response = $this->getResponseForPrefetchedContent($url);
         }
 
         $effectiveUrl = $response['effective_url'];
-        $effectiveUrl = str_replace(' ', '%20', $effectiveUrl);
-        if (!$this->isUrlAllowed($effectiveUrl)) {
+        $effectiveUrl = $effectiveUrl->withPath(str_replace(' ', '%20', $effectiveUrl->getPath()));
+        if (!$this->isUrlAllowed((string) $effectiveUrl)) {
             throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
         }
 
@@ -299,14 +302,14 @@ class Graby
             }
 
             $html = $this->convert2Utf8($singlePageResponse['body'], $singlePageResponse['headers']);
-            $this->logger->info('Retrieved single-page view from "{url}"', ['url' => $effectiveUrl]);
+            $this->logger->info('Retrieved single-page view from "{url}"', ['url' => (string) $effectiveUrl]);
 
             unset($singlePageResponse);
         }
 
         $this->logger->info('Attempting to extract content');
 
-        $extractResult = $this->extractor->process($html, $this->uriFactory->createUri($effectiveUrl));
+        $extractResult = $this->extractor->process($html, $effectiveUrl);
         /** @var Readability */
         $readability = $this->extractor->readability;
         $contentBlock = $this->extractor->getContent();
@@ -331,30 +334,32 @@ class Graby
         if ($this->config->getMultipage() && null === $this->prefetchedContent && $isMultiPage) {
             $this->logger->info('Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
-            $multiPageUrls = [$effectiveUrl];
+            $multiPageUrls = [
+                (string) $effectiveUrl,
+            ];
             $multiPageContent = [];
 
             while ($nextPageUrl = $this->extractor->getNextPageUrl()) {
-                $this->logger->info('Processing next page: {url}', ['url' => $nextPageUrl]);
+                $this->logger->info('Processing next page: {url}', ['url' => (string) $nextPageUrl]);
                 // If we've got URL, resolve against $url
                 $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
                 if (null === $nextPageUrl) {
-                    $this->logger->info('Failed to resolve against: {url}', ['url' => $effectiveUrl]);
+                    $this->logger->info('Failed to resolve against: {url}', ['url' => (string) $effectiveUrl]);
                     $multiPageContent = [];
                     break;
                 }
 
                 // check it's not what we have already!
-                if (\in_array($nextPageUrl, $multiPageUrls, true)) {
+                if (\in_array((string) $nextPageUrl, $multiPageUrls, true)) {
                     $this->logger->info('URL already processed');
                     $multiPageContent = [];
                     break;
                 }
 
                 // it's not, store it for later check & so let's attempt to fetch it
-                $multiPageUrls[] = $nextPageUrl;
+                $multiPageUrls[] = (string) $nextPageUrl;
 
-                $response = $this->httpClient->fetch($this->uriFactory->createUri($nextPageUrl), false, $siteConfig->http_header);
+                $response = $this->httpClient->fetch($nextPageUrl, false, $siteConfig->http_header);
 
                 // make sure mime type is not something with a different action associated
                 $mimeInfo = $this->getMimeActionInfo($response['headers']);
@@ -367,7 +372,7 @@ class Graby
 
                 $extracSuccess = $this->extractor->process(
                     $this->convert2Utf8($response['body'], $response['headers']),
-                    $this->uriFactory->createUri($nextPageUrl)
+                    $nextPageUrl
                 );
 
                 if (!$extracSuccess) {
@@ -402,8 +407,8 @@ class Graby
             /* language: */ $extractedLanguage,
             /* date: */ $extractedDate,
             /* authors: */ $extractedAuthors,
-            /* url: */ $effectiveUrl,
-            /* image: */ $extractedImage,
+            /* url: */ (string) $effectiveUrl,
+            /* image: */ (string) $extractedImage,
             /* headers: */ $response['headers'],
             /* isNativeAd: */ $this->extractor->isNativeAd()
         );
@@ -424,26 +429,32 @@ class Graby
 
     /**
      * Validate & clean the given url.
+     *
+     * @param string|UriInterface $uri
      */
-    private function validateUrl(string $url): string
+    private function validateUrl($uri): UriInterface
     {
-        // Check for feed URL
-        $url = trim($url);
-        if ('feed://' === strtolower(substr($url, 0, 7))) {
-            $url = 'http://' . substr($url, 7);
+        if (\is_string($uri)) {
+            $uri = trim($uri);
+
+            // Human-entered protocol-less URLs.
+            if (0 === preg_match('(^(https?|feed)://.+)i', $uri)) {
+                $uri = 'http://' . $uri;
+            }
+
+            $uri = $this->uriFactory->createUri($uri);
         }
 
-        if (!preg_match('!^https?://.+!i', $url)) {
-            $url = 'http://' . $url;
+        if ('feed' === $uri->getScheme()) {
+            // Check for feed URL
+            $uri = $uri->withScheme('http');
         }
-
-        $uri = $this->uriFactory->createUri((string) $url);
 
         if (preg_match('/[\x80-\xff]/', $uri->getHost())) {
             $uriIdnSafe = idn_to_ascii($uri->getHost());
 
             if (false === $uriIdnSafe) {
-                throw new \InvalidArgumentException(sprintf('Url "%s" is not valid IDN to ascii.', $url));
+                throw new \InvalidArgumentException(sprintf('Url "%s" is not valid IDN to ascii.', (string) $uri));
             }
 
             $uri = $uri->withHost($uriIdnSafe);
@@ -475,7 +486,7 @@ class Graby
             throw new \InvalidArgumentException(sprintf('Url "%s" is not allowed to be parsed.', $url));
         }
 
-        return $url;
+        return $this->uriFactory->createUri($url);
     }
 
     private function isUrlAllowed(string $url): bool
@@ -538,11 +549,11 @@ class Graby
      * Handle action related to mime type detection.
      * These action can be exclude or link to handle custom content (like image, video, pdf, etc ..).
      *
-     * @param array  $mimeInfo     From getMimeActionInfo() function
-     * @param string $effectiveUrl Current content url
-     * @param array  $response     A response
+     * @param array        $mimeInfo     From getMimeActionInfo() function
+     * @param UriInterface $effectiveUrl Current content url
+     * @param array        $response     A response
      */
-    private function handleMimeAction(array $mimeInfo, string $effectiveUrl, array $response = []): ?Content
+    private function handleMimeAction(array $mimeInfo, UriInterface $effectiveUrl, array $response = []): ?Content
     {
         if (!isset($mimeInfo['action'])) {
             return null;
@@ -558,7 +569,7 @@ class Graby
             /* language: */ '',
             /* date: */ null,
             /* authors: */ [],
-            /* url: */ $effectiveUrl,
+            /* url: */ (string) $effectiveUrl,
             /* image: */ '',
             /* headers: */ $response['headers'],
             /* isNativeAd: */ false
@@ -636,10 +647,10 @@ class Graby
      *
      * @return ?array From httpClient fetch
      */
-    private function getSinglePage(string $html, string $url): ?array
+    private function getSinglePage(string $html, UriInterface $url): ?array
     {
         $this->logger->info('Looking for site config files to see if single page link exists');
-        $siteConfig = $this->configBuilder->buildFromUrl($this->uriFactory->createUri($url));
+        $siteConfig = $this->configBuilder->buildFromUrl($url);
 
         // no single page found?
         if (empty($siteConfig->single_page_link)) {
@@ -649,7 +660,7 @@ class Graby
         }
 
         // Build DOM tree from HTML
-        $readability = new Readability($html, $url);
+        $readability = new Readability($html, (string) $url);
         $xpath = new \DOMXPath($readability->dom);
 
         // Loop through single_page_link xpath expressions
@@ -700,26 +711,20 @@ class Graby
             // it's not, so let's try to fetch it...
             $headers = $siteConfig->http_header;
 
-            $sourceUrl = parse_url($url);
-            $targetUrl = parse_url($singlePageUrl);
-            if (\is_array($sourceUrl)
-                && \is_array($targetUrl)
-                && \array_key_exists('host', $sourceUrl)
-                && \array_key_exists('host', $targetUrl)
-                && $sourceUrl['host'] !== $targetUrl['host']) {
-                $targetSiteConfig = $this->configBuilder->buildForHost($targetUrl['host']);
+            if ($url->getHost() !== $singlePageUrl->getHost()) {
+                $targetSiteConfig = $this->configBuilder->buildForHost($singlePageUrl->getHost());
                 $headers = $targetSiteConfig->http_header;
             }
-            $response = $this->httpClient->fetch($this->uriFactory->createUri($singlePageUrl), false, $headers);
+            $response = $this->httpClient->fetch($singlePageUrl, false, $headers);
 
             if ($response['status'] < 300) {
-                $this->logger->info('Single page content found with url', ['url' => $singlePageUrl]);
+                $this->logger->info('Single page content found with url', ['url' => (string) $singlePageUrl]);
 
                 return $response;
             }
         }
 
-        $this->logger->info('No content found with url', ['url' => $singlePageUrl]);
+        $this->logger->info('No content found with url', ['url' => (string) $singlePageUrl]);
 
         return null;
     }
@@ -727,10 +732,9 @@ class Graby
     /**
      * Make an absolute url from an element.
      *
-     * @param string      $base The base url
      * @param \DOMElement $elem Element on which we'll retrieve the attribute
      */
-    private function makeAbsolute(string $base, \DOMElement $elem): void
+    private function makeAbsolute(UriInterface $base, \DOMElement $elem): void
     {
         foreach (['a' => 'href', 'img' => 'src', 'iframe' => 'src'] as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
@@ -751,11 +755,10 @@ class Graby
     /**
      * Make an attribute absolute (href or src).
      *
-     * @param string   $base The base url
      * @param \DOMNode $e    Element on which we'll retrieve the attribute
      * @param string   $attr Attribute that contains the url to absolutize
      */
-    private function makeAbsoluteAttr(string $base, \DOMNode $e, string $attr): void
+    private function makeAbsoluteAttr(UriInterface $base, \DOMNode $e, string $attr): void
     {
         if (!$e instanceof \DOMElement || !$e->attributes->getNamedItem($attr)) {
             return;
@@ -769,21 +772,20 @@ class Graby
         try {
             $absolute = $this->makeAbsoluteStr($base, $url);
         } catch (\Exception $exception) {
-            $this->logger->info('Wrong content url', ['url' => $url]);
+            $this->logger->info('Wrong content url', ['url' => (string) $url]);
             $absolute = $url;
         }
         if (null !== $absolute) {
-            $e->setAttribute($attr, $absolute);
+            $e->setAttribute($attr, (string) $absolute);
         }
     }
 
     /**
      * Make an $url absolute based on the $base.
      *
-     * @param string $base Base url
-     * @param string $url  Url to make it absolute
+     * @param string $url Url to make it absolute
      */
-    private function makeAbsoluteStr(string $base, string $url): ?string
+    private function makeAbsoluteStr(UriInterface $base, string $url): ?UriInterface
     {
         if (!$url) {
             return null;
@@ -792,17 +794,15 @@ class Graby
         $url = $this->uriFactory->createUri($url);
 
         if (Uri::isAbsolute($url)) {
-            return (string) $url;
+            return $url;
         }
-
-        $base = $this->uriFactory->createUri($base);
 
         // in case the url has no host
         if ('' === $base->getAuthority()) {
             return null;
         }
 
-        return (string) UriResolver::resolve($base, $url);
+        return UriResolver::resolve($base, $url);
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Tests\Graby;
 
 use Graby\Graby;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -729,9 +730,9 @@ class GrabyTest extends TestCase
         $method = $reflection->getMethod('makeAbsoluteStr');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($graby, [$base, $url]);
+        $res = $method->invokeArgs($graby, [new Uri($base), $url]);
 
-        $this->assertSame($expectedResult, $res);
+        $this->assertSame($expectedResult, null === $res ? $res : (string) $res);
     }
 
     public function dataForMakeAbsoluteAttr(): array
@@ -764,7 +765,7 @@ class GrabyTest extends TestCase
         $method = $reflection->getMethod('makeAbsoluteAttr');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, [$base, $e, $attr]);
+        $method->invokeArgs($graby, [new Uri($base), $e, $attr]);
 
         $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
@@ -798,7 +799,7 @@ class GrabyTest extends TestCase
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, [$base, $e]);
+        $method->invokeArgs($graby, [new Uri($base), $e]);
 
         $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
@@ -820,7 +821,7 @@ class GrabyTest extends TestCase
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, ['http://example.org', $e]);
+        $method->invokeArgs($graby, [new Uri('http://example.org'), $e]);
 
         $this->assertSame('http://example.org/lol', $e->getAttribute('href'));
         \assert($e->firstChild instanceof \DOMElement); // For PHPStan
@@ -928,7 +929,7 @@ class GrabyTest extends TestCase
 
         $res = $method->invokeArgs($graby, [$url]);
 
-        $this->assertSame($urlExpected, $res);
+        $this->assertSame($urlExpected, (string) $res);
     }
 
     public function dataForCleanupHtml(): array
@@ -977,7 +978,7 @@ class GrabyTest extends TestCase
         $graby = new Graby(['debug' => true]);
         $graby->setLogger($logger);
 
-        $cleanedHtml = $graby->cleanupHtml($html, 'http://0.0.0.0');
+        $cleanedHtml = $graby->cleanupHtml($html, new Uri('http://0.0.0.0'));
 
         $this->assertSame($expected, $cleanedHtml);
 

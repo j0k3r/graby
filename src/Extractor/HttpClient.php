@@ -82,7 +82,7 @@ class HttpClient
      * @param bool                  $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
      * @param array<string, string> $httpHeader           Custom HTTP Headers from SiteConfig
      *
-     * @return array{effective_url: string, body: string, headers: array<string, string>, status: int}
+     * @return array{effective_url: UriInterface, body: string, headers: array<string, string>, status: int}
      */
     public function fetch(UriInterface $url, bool $skipTypeVerification = false, array $httpHeader = []): array
     {
@@ -120,7 +120,7 @@ class HttpClient
             $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
 
             return [
-                'effective_url' => (string) $url,
+                'effective_url' => $url,
                 'body' => '',
                 'headers' => [],
                 // Too many Redirects
@@ -133,7 +133,7 @@ class HttpClient
 
             // no response attached to the exception, we won't be able to retrieve content from it
             $data = [
-                'effective_url' => (string) $url,
+                'effective_url' => $url,
                 'body' => '',
                 'headers' => [],
                 'status' => 500,
@@ -146,7 +146,7 @@ class HttpClient
                 $headers = $this->formatHeaders($response);
 
                 $data = [
-                    'effective_url' => (string) $url,
+                    'effective_url' => $url,
                     'body' => (string) $response->getBody(),
                     'headers' => $headers,
                     'status' => $response->getStatusCode(),
@@ -236,7 +236,7 @@ class HttpClient
         ]]);
 
         return [
-            'effective_url' => (string) $effectiveUrl,
+            'effective_url' => $effectiveUrl,
             'body' => $body,
             'headers' => $headers,
             'status' => $response->getStatusCode(),
