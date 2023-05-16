@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Graby\Monolog\Formatter;
 
 use Graby\Monolog\Formatter\GrabyFormatter;

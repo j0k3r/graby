@@ -66,17 +66,16 @@ final class MockGrabyResponseRector extends AbstractRector
             [
                 new CodeSample(
                     <<<'CODE_SAMPLE'
-$graby = new Graby($config);
-$res = $graby->fetchContent('http://example.com/foo');
-CODE_SAMPLE
-                    ,
+                        $graby = new Graby($config);
+                        $res = $graby->fetchContent('http://example.com/foo');
+                        CODE_SAMPLE,
                     <<<'CODE_SAMPLE'
-$httpMockClient = new HttpMockClient();
-$httpMockClient->addResponse(new Response(301, ['Location' => 'https://example.com/'], (string) file_get_contents('/fixtures/content/http___example.com_foo.html')));
-$httpMockClient->addResponse(new Response(200, [...], (string) file_get_contents('/fixtures/content/http___example.com_foo.html')));
-$graby = new Graby($config, $httpMockClient);
-$res = $graby->fetchContent('http://example.com/');
-CODE_SAMPLE
+                        $httpMockClient = new HttpMockClient();
+                        $httpMockClient->addResponse(new Response(301, ['Location' => 'https://example.com/'], (string) file_get_contents('/fixtures/content/http___example.com_foo.html')));
+                        $httpMockClient->addResponse(new Response(200, [...], (string) file_get_contents('/fixtures/content/http___example.com_foo.html')));
+                        $graby = new Graby($config, $httpMockClient);
+                        $res = $graby->fetchContent('http://example.com/');
+                        CODE_SAMPLE
                 ),
             ]
         );

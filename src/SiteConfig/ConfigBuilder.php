@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Graby\SiteConfig;
 
 use GrabySiteConfig\SiteConfig\Files;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -60,7 +63,7 @@ class ConfigBuilder
      * @param string     $key    Key for the cache
      * @param SiteConfig $config Config to be cached
      */
-    public function addToCache($key, SiteConfig $config): void
+    public function addToCache(string $key, SiteConfig $config): void
     {
         $key = strtolower($key);
         if ('www.' === substr($key, 0, 4)) {
@@ -78,13 +81,11 @@ class ConfigBuilder
 
     /**
      * Determine if a Config is already cached.
-     * If so, return it otherwise return false.
+     * If so, return it otherwise return null.
      *
      * @param string $key Key for the cache
-     *
-     * @return false|SiteConfig
      */
-    public function getCachedVersion($key)
+    public function getCachedVersion(string $key): ?SiteConfig
     {
         $key = strtolower($key);
         if ('www.' === substr($key, 0, 4)) {
@@ -95,15 +96,13 @@ class ConfigBuilder
             return $this->cache[$key];
         }
 
-        return false;
+        return null;
     }
 
     /**
      * Create a new config.
-     *
-     * @return SiteConfig
      */
-    public function create()
+    public function create(): SiteConfig
     {
         return new SiteConfig();
     }
@@ -111,30 +110,19 @@ class ConfigBuilder
     /**
      * Build a config file from an url.
      * Use `buildForHost` if you already have the host.
-     *
-     * @param string $url
-     * @param bool   $addToCache
-     *
-     * @return SiteConfig
      */
-    public function buildFromUrl($url, $addToCache = true)
+    public function buildFromUrl(UriInterface $url, bool $addToCache = true): SiteConfig
     {
-        // extract host name
-        $host = parse_url($url, \PHP_URL_HOST);
-
-        return $this->buildForHost((string) $host, $addToCache);
+        return $this->buildForHost($url->getHost(), $addToCache);
     }
 
     /**
      * Build a config file from a host.
      * Use `buildFromUrl` if you have an url.
      *
-     * @param string $host       Host, like en.wikipedia.org
-     * @param bool   $addToCache
-     *
-     * @return SiteConfig
+     * @param string $host Host, like en.wikipedia.org
      */
-    public function buildForHost($host, $addToCache = true)
+    public function buildForHost(string $host, bool $addToCache = true): SiteConfig
     {
         $host = strtolower($host);
         if ('www.' === substr($host, 0, 4)) {
@@ -143,7 +131,7 @@ class ConfigBuilder
 
         // is merged version already cached?
         $cachedSiteConfig = $this->getCachedVersion($host . '.merged');
-        if (false !== $cachedSiteConfig) {
+        if (null !== $cachedSiteConfig) {
             $this->logger->info('Returning cached and merged site config for {host}', ['host' => $host]);
 
             return $cachedSiteConfig;
@@ -151,22 +139,22 @@ class ConfigBuilder
 
         // let's build it
         $config = $this->loadSiteConfig($host);
-        if ($addToCache && false !== $config && false === $this->getCachedVersion($host)) {
+        if ($addToCache && null !== $config && null === $this->getCachedVersion($host)) {
             $this->addToCache($host, $config);
         }
 
         // if no match, use defaults
-        if (false === $config) {
+        if (null === $config) {
             $config = $this->create();
         }
 
         // load global config?
         $configGlobal = $this->loadSiteConfig('global', true);
-        if ($config->autodetect_on_failure() && false !== $configGlobal) {
+        if ($config->autodetect_on_failure() && null !== $configGlobal) {
             $this->logger->info('Appending site config settings from global.txt');
             $this->mergeConfig($config, $configGlobal);
 
-            if ($addToCache && false === $this->getCachedVersion('global')) {
+            if ($addToCache && null === $this->getCachedVersion('global')) {
                 $this->addToCache('global', $configGlobal);
             }
         }
@@ -181,34 +169,13 @@ class ConfigBuilder
     }
 
     /**
-     * Returns SiteConfig instance (joined in order: exact match, wildcard, fingerprint, global, default).
-     *
-     * Will add the merged result to cache if $addToCache is set to true
-     *
-     * @param string $host           Host, like en.wikipedia.org
-     * @param bool   $exactHostMatch if true, we will not look for wildcard config matches
-     *
-     * @return false|SiteConfig
-     *
-     * @deprecated Use either buildForHost() / buildFromUrl() for the merged config or loadSiteConfig() to get the config for a site
-     *
-     * @codeCoverageIgnore
-     */
-    public function build($host, $exactHostMatch = false)
-    {
-        return $this->loadSiteConfig($host, $exactHostMatch);
-    }
-
-    /**
-     * Returns SiteConfig instance if an appropriate one is found, false otherwise.
+     * Returns SiteConfig instance if an appropriate one is found, null otherwise.
      * by default if host is 'test.example.org' we will look for and load '.example.org.txt' if it exists.
      *
      * @param string $host           Host, like en.wikipedia.org
      * @param bool   $exactHostMatch if true, we will not look for wildcard config matches
-     *
-     * @return false|SiteConfig
      */
-    public function loadSiteConfig($host, $exactHostMatch = false)
+    public function loadSiteConfig(string $host, bool $exactHostMatch = false): ?SiteConfig
     {
         $host = strtolower($host);
         if ('www.' === substr($host, 0, 4)) {
@@ -216,7 +183,7 @@ class ConfigBuilder
         }
 
         if (!$host || (\strlen($host) > 200) || !preg_match($this->config->getHostnameRegex(), ltrim($host, '.'))) {
-            return false;
+            return null;
         }
 
         $try = [$host];
@@ -251,7 +218,7 @@ class ConfigBuilder
                 $configLines = file($this->configFiles[$host . '.txt'], \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
                 // no lines ? we don't found config then
                 if (empty($configLines) || !\is_array($configLines)) {
-                    return false;
+                    return null;
                 }
 
                 $config = $this->parseLines($configLines);
@@ -265,7 +232,7 @@ class ConfigBuilder
             $this->logger->info('Appending site config settings from global.txt');
 
             $configGlobal = $this->loadSiteConfig('global', true);
-            if (false !== $configGlobal) {
+            if (null !== $configGlobal) {
                 $config = $this->mergeConfig($config, $configGlobal);
             }
         }
@@ -281,7 +248,7 @@ class ConfigBuilder
      *
      * @return SiteConfig Merged config
      */
-    public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig)
+    public function mergeConfig(SiteConfig $currentConfig, SiteConfig $newConfig): SiteConfig
     {
         // check for commands where we accept multiple statements (no test_url)
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'date', 'author'] as $var) {
@@ -320,7 +287,7 @@ class ConfigBuilder
 
         $findReplaceCurrentConfig = array_combine($currentConfig->find_string, $currentConfig->replace_string);
         $findReplaceNewConfig = array_combine($newConfig->find_string, $newConfig->replace_string);
-        $findReplaceMerged = array_merge((array) $findReplaceCurrentConfig, (array) $findReplaceNewConfig);
+        $findReplaceMerged = array_merge($findReplaceCurrentConfig ?: [], $findReplaceNewConfig ?: []);
 
         // start from scratch
         $currentConfig->find_string = [];
@@ -336,10 +303,8 @@ class ConfigBuilder
 
     /**
      * Parse line from the config file to build the config.
-     *
-     * @return SiteConfig
      */
-    public function parseLines(array $lines)
+    public function parseLines(array $lines): SiteConfig
     {
         $config = new SiteConfig();
 

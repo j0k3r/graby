@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Graby\Monolog\Formatter;
 
 use Monolog\Formatter\HtmlFormatter;
@@ -63,10 +65,8 @@ class GrabyFormatter extends HtmlFormatter
      * @param string $th       Row header content
      * @param string $td       Row standard cell content
      * @param bool   $escapeTd false if td content must not be html escaped
-     *
-     * @return string
      */
-    private function addRowWithLevel($level, $th, $td = ' ', $escapeTd = true)
+    private function addRowWithLevel(int $level, string $th, string $td = ' ', bool $escapeTd = true): string
     {
         $th = htmlspecialchars($th, \ENT_NOQUOTES, 'UTF-8');
         if ($escapeTd) {

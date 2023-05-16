@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Graby\OptionsResolver;
 
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;

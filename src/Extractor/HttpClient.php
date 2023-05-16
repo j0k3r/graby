@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Graby\Extractor;
 
+use Graby\HttpClient\EffectiveResponse;
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
-use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\Exception\LoopException;
 use Http\Client\Common\HttpMethodsClient;
@@ -15,7 +17,11 @@ use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\UriFactoryInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -27,6 +33,9 @@ class HttpClient
     private HttpClientConfig $config;
     private HttpMethodsClient $client;
     private LoggerInterface $logger;
+    private ResponseFactoryInterface $responseFactory;
+    private StreamFactoryInterface $streamFactory;
+    private UriFactoryInterface $uriFactory;
     private History $responseHistory;
     private ?ContentExtractor $extractor;
 
@@ -44,6 +53,9 @@ class HttpClient
         $this->logger = $logger;
         $this->extractor = $extractor;
 
+        $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
+        $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
+
         $this->responseHistory = new History();
         $this->client = new HttpMethodsClient(
             new PluginClient(
@@ -60,6 +72,8 @@ class HttpClient
             ),
             Psr17FactoryDiscovery::findRequestFactory()
         );
+
+        $this->uriFactory = Psr17FactoryDiscovery::findUriFactory();
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -75,10 +89,8 @@ class HttpClient
      *
      * @param bool                  $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
      * @param array<string, string> $httpHeader           Custom HTTP Headers from SiteConfig
-     *
-     * @return array{effective_url: string, body: string, headers: array<string, string>, status: int}
      */
-    public function fetch(string $url, bool $skipTypeVerification = false, array $httpHeader = []): array
+    public function fetch(UriInterface $url, bool $skipTypeVerification = false, array $httpHeader = []): EffectiveResponse
     {
         $url = $this->cleanupUrl($url);
 
@@ -87,7 +99,7 @@ class HttpClient
             $method = 'head';
         }
 
-        $this->logger->info('Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => $url]);
+        $this->logger->info('Trying using method "{method}" on url "{url}"', ['method' => $method, 'url' => (string) $url]);
 
         $headers = [
             'User-Agent' => $this->getUserAgent($url, $httpHeader),
@@ -111,40 +123,33 @@ class HttpClient
             /** @var ResponseInterface $response */
             $response = $this->client->$method($url, $headers);
         } catch (LoopException $e) {
-            $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => $url]);
+            $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
 
-            return [
-                'effective_url' => $url,
-                'body' => '',
-                'headers' => [],
+            return new EffectiveResponse(
+                $url,
                 // Too many Redirects
-                'status' => 310,
-            ];
+                $this->responseFactory->createResponse(310)
+            );
         } catch (TransferException $e) {
             if (method_exists($e, 'getRequest')) {
-                $url = (string) $e->getRequest()->getUri();
+                $url = $e->getRequest()->getUri();
             }
 
             // no response attached to the exception, we won't be able to retrieve content from it
-            $data = [
-                'effective_url' => $url,
-                'body' => '',
-                'headers' => [],
-                'status' => 500,
-            ];
+            $data = new EffectiveResponse(
+                $url,
+                $this->responseFactory->createResponse(500)
+            );
             $message = 'Request throw exception (with no response): {error_message}';
 
             if (method_exists($e, 'getResponse')) {
                 // exception has a response which means we might be able to retrieve content from it, log it and continue
                 $response = $e->getResponse();
-                $headers = $this->formatHeaders($response);
 
-                $data = [
-                    'effective_url' => $url,
-                    'body' => (string) $response->getBody(),
-                    'headers' => $headers,
-                    'status' => $response->getStatusCode(),
-                ];
+                $data = new EffectiveResponse(
+                    $url,
+                    $response
+                );
                 $message = 'Request throw exception (with a response): {error_message}';
             }
 
@@ -156,20 +161,19 @@ class HttpClient
 
         $effectiveUrl = $url;
         if (null !== $this->responseHistory->getLastRequest()) {
-            $effectiveUrl = (string) $this->responseHistory->getLastRequest()->getUri();
+            $effectiveUrl = $this->responseHistory->getLastRequest()->getUri();
         }
 
-        $headers = $this->formatHeaders($response);
-
+        $refresh = $response->getHeaderLine('refresh');
         // if response give us a refresh header it means we need to follow the given url
-        if (!empty($headers['refresh']) && 1 === preg_match('![0-9];\s*url=["\']?([^"\'>]+)!i', $headers['refresh'], $match)) {
-            return $this->fetch($match[1], true, $httpHeader);
+        if (!empty($refresh) && 1 === preg_match('![0-9];\s*url=["\']?([^"\'>]+)!i', $refresh, $match)) {
+            return $this->fetch($this->uriFactory->createUri($match[1]), true, $httpHeader);
         }
 
         // the response content-type did not match our 'header only' types,
         // but we'd issues a HEAD request because we assumed it would. So
         // let's queue a proper GET request for this item...
-        if ('head' === $method && !$this->headerOnlyType($headers)) {
+        if ('head' === $method && !$this->headerOnlyType($response)) {
             return $this->fetch($effectiveUrl, true, $httpHeader);
         }
 
@@ -210,37 +214,37 @@ class HttpClient
         // check for <meta name='fragment' content='!'/>
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
         // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
-        if (false === strpos($effectiveUrl, '_escaped_fragment_')) {
-            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?: $this->getUglyURL($effectiveUrl, $body);
+        if (false === strpos((string) $effectiveUrl, '_escaped_fragment_')) {
+            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?? $this->getUglyURL($effectiveUrl, $body);
 
-            if (false !== $redirectURL) {
+            if (null !== $redirectURL) {
                 return $this->fetch($redirectURL, true, $httpHeader);
             }
         }
 
         // remove utm parameters & fragment
-        $effectiveUrl = (string) $this->removeTrackersFromUrl(new Uri(str_replace('&amp;', '&', $effectiveUrl)));
+        $effectiveUrl = $this->removeTrackersFromUrl($this->uriFactory->createUri(str_replace('&amp;', '&', (string) $effectiveUrl)));
 
         $this->logger->info('Data fetched: {data}', ['data' => [
-            'effective_url' => $effectiveUrl,
+            'effective_url' => (string) $effectiveUrl,
             'body' => '(only length for debug): ' . \strlen($body),
-            'headers' => $headers,
+            'headers' => $response->getHeaders(),
             'status' => $response->getStatusCode(),
         ]]);
 
-        return [
-            'effective_url' => $effectiveUrl,
-            'body' => $body,
-            'headers' => $headers,
-            'status' => $response->getStatusCode(),
-        ];
+        return new EffectiveResponse(
+            $effectiveUrl,
+            $response->withBody($this->streamFactory->createStream($body))
+        );
     }
 
     /**
      * Cleanup URL and retrieve the final url to be called.
      */
-    private function cleanupUrl(string $url): string
+    private function cleanupUrl(UriInterface $uri): UriInterface
     {
+        $url = (string) $uri;
+
         // rewrite part of urls to something more readable
         foreach ($this->config->getRewriteUrl() as $find => $action) {
             if (false !== strpos($url, (string) $find)) {
@@ -267,18 +271,16 @@ class HttpClient
             $url = substr($url, 0, $pos);
         }
 
-        return $url;
+        return $this->uriFactory->createUri($url);
     }
 
     /**
      * Try to determine if the url is a direct link to a binary resource
      * by checking the extension.
-     *
-     * @param string $url Absolute url
      */
-    private function possibleUnsupportedType(string $url): bool
+    private function possibleUnsupportedType(UriInterface $url): bool
     {
-        $ext = strtolower(trim(pathinfo($url, \PATHINFO_EXTENSION)));
+        $ext = strtolower(trim(pathinfo($url->getPath(), \PATHINFO_EXTENSION)));
 
         if (!$ext) {
             return false;
@@ -292,22 +294,21 @@ class HttpClient
      * Based on the config, it will try to find a UserAgent from an host.
      * Otherwise it will use the default one.
      *
-     * @param string                $url        Absolute url
      * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
-    private function getUserAgent(string $url, array $httpHeader = []): string
+    private function getUserAgent(UriInterface $url, array $httpHeader = []): string
     {
         $ua = $this->config->getUaBrowser();
 
         if (!empty($httpHeader['user-agent'])) {
-            $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => $url]);
+            $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => (string) $url]);
 
             return $httpHeader['user-agent'];
         }
 
-        $host = parse_url($url, \PHP_URL_HOST);
+        $host = $url->getHost();
 
-        if ('www.' === strtolower(substr((string) $host, 0, 4))) {
+        if ('www.' === strtolower(substr($host, 0, 4))) {
             $host = substr((string) $host, 4);
         }
 
@@ -322,13 +323,13 @@ class HttpClient
 
         foreach ($try as $h) {
             if (isset($this->config->getUserAgents()[$h])) {
-                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config->getUserAgents()[$h], 'url' => $url]);
+                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config->getUserAgents()[$h], 'url' => (string) $url]);
 
                 return $this->config->getUserAgents()[$h];
             }
         }
 
-        $this->logger->info('Use default user-agent "{user-agent}" for url "{url}"', ['user-agent' => $ua, 'url' => $url]);
+        $this->logger->info('Use default user-agent "{user-agent}" for url "{url}"', ['user-agent' => $ua, 'url' => (string) $url]);
 
         return $ua;
     }
@@ -338,20 +339,19 @@ class HttpClient
      * Based on the site config, it will return the Referer if any.
      * Otherwise it will use the default one.
      *
-     * @param string                $url        Absolute url
      * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
-    private function getReferer(string $url, array $httpHeader = []): string
+    private function getReferer(UriInterface $url, array $httpHeader = []): string
     {
         $default_referer = $this->config->getDefaultReferer();
 
         if (!empty($httpHeader['referer'])) {
-            $this->logger->info('Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => $url]);
+            $this->logger->info('Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => (string) $url]);
 
             return $httpHeader['referer'];
         }
 
-        $this->logger->info('Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => $url]);
+        $this->logger->info('Use default referer "{referer}" for url "{url}"', ['referer' => $default_referer, 'url' => (string) $url]);
 
         return $default_referer;
     }
@@ -362,13 +362,12 @@ class HttpClient
      * Based on the site config, it will return a string that can
      * be passed to Cookie request header, if any.
      *
-     * @param string                $url        Absolute url
      * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
-    private function getCookie(string $url, array $httpHeader = []): ?string
+    private function getCookie(UriInterface $url, array $httpHeader = []): ?string
     {
         if (!empty($httpHeader['cookie'])) {
-            $this->logger->info('Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => $url]);
+            $this->logger->info('Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => (string) $url]);
 
             $cookies = [];
             $pieces = array_filter(array_map('trim', explode(';', $httpHeader['cookie'])));
@@ -398,15 +397,14 @@ class HttpClient
     /**
      * Find an accept header for this url.
      * Based on the site config, it will return the accept if any.
-     * Otherwise it will return false.
+     * Otherwise it will return null.
      *
-     * @param string                $url        Absolute url
      * @param array<string, string> $httpHeader Custom HTTP Headers from SiteConfig
      */
-    private function getAccept(string $url, array $httpHeader = []): ?string
+    private function getAccept(UriInterface $url, array $httpHeader = []): ?string
     {
         if (!empty($httpHeader['accept'])) {
-            $this->logger->info('Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => $url]);
+            $this->logger->info('Found accept header "{accept}" for url "{url}" from site config', ['accept' => $httpHeader['accept'], 'url' => (string) $url]);
 
             return $httpHeader['accept'];
         }
@@ -419,12 +417,10 @@ class HttpClient
      * to determine if the request is a binary resource.
      *
      * Since the request is now done we directly check the Content-Type header
-     *
-     * @param array<string, string> $headers All headers from the request
      */
-    private function headerOnlyType(array $headers): bool
+    private function headerOnlyType(ResponseInterface $response): bool
     {
-        $contentType = $headers['content-type'] ?? '';
+        $contentType = $response->getHeaderLine('content-type');
 
         if (!preg_match('!\s*(([-\w]+)/([-\w\+]+))!im', strtolower($contentType), $match)) {
             return false;
@@ -445,22 +441,19 @@ class HttpClient
     /**
      * Try to find the refresh url from the meta.
      *
-     * @param string $url  Absolute url
      * @param string $html First characters of the response (hopefully it'll be enough to find some meta)
-     *
-     * @return false|string
      */
-    private function getMetaRefreshURL(string $url, string $html)
+    private function getMetaRefreshURL(UriInterface $url, string $html): ?UriInterface
     {
         if ('' === $html) {
-            return false;
+            return null;
         }
 
         // <meta HTTP-EQUIV="REFRESH" content="0; url=http://www.bernama.com/bernama/v6/newsindex.php?id=943513">
         if (!preg_match('!<meta http-equiv=["\']?refresh["\']? content=["\']?[0-9];\s*url=["\']?([^"\'>]+)["\']?!i', $html, $match)) {
             // let's try in a reverse mode (switch content & http-equiv attributes)
             if (!preg_match('!<meta content=["\']?[0-9];\s*url=["\']?([^"\'>]+)["\']? http-equiv=["\']?refresh["\']?!i', $html, $match)) {
-                return false;
+                return null;
             }
         }
 
@@ -469,10 +462,10 @@ class HttpClient
             // already absolute
             $this->logger->info('Meta refresh redirect found (http-equiv="refresh"), new URL: ' . $redirectUrl);
 
-            return $redirectUrl;
+            return $this->uriFactory->createUri($redirectUrl);
         }
 
-        return (string) UriResolver::resolve(new Uri($url), new Uri($redirectUrl));
+        return UriResolver::resolve($url, $this->uriFactory->createUri($redirectUrl));
     }
 
     /**
@@ -481,12 +474,9 @@ class HttpClient
      *
      * And adding `_escaped_fragment_` to the request will force the HTML version of the url instead of the full JS
      *
-     * @param string $url  Absolute url
      * @param string $html First characters of the response (hopefully it'll be enough to find some meta)
-     *
-     * @return false|string
      */
-    private function getUglyURL(string $url, string $html)
+    private function getUglyURL(UriInterface $url, string $html): ?UriInterface
     {
         $found = false;
         foreach ($this->config->getAjaxTriggers() as $string) {
@@ -497,7 +487,7 @@ class HttpClient
         }
 
         if (!$found) {
-            return false;
+            return null;
         }
 
         $this->logger->info('Added escaped fragment to url');
@@ -505,26 +495,14 @@ class HttpClient
         $query = ['_escaped_fragment_' => ''];
 
         // add fragment to url
-        $url .= parse_url($url, \PHP_URL_QUERY) ? '&' : '?';
-        // needed for some sites
-        $url .= str_replace('%2F', '/', http_build_query($query));
-
-        return $url;
-    }
-
-    /**
-     * Format all headers to avoid unecessary array level.
-     * Also lower the header name.
-     */
-    private function formatHeaders(ResponseInterface $response): array
-    {
-        $headers = [];
-        foreach ($response->getHeaders() as $name => $value) {
-            // some Content-Type are urlencoded like: image%2Fjpeg
-            $headers[strtolower($name)] = urldecode(implode(', ', $value));
+        $qs = $url->getQuery();
+        if ('' !== $qs) {
+            $qs .= '&';
         }
+        // needed for some sites
+        $qs .= str_replace('%2F', '/', http_build_query($query));
 
-        return $headers;
+        return $url->withQuery($qs);
     }
 
     /**
@@ -534,7 +512,7 @@ class HttpClient
      *
      * @see https://github.com/fossar/selfoss/blob/0d7bde56e502f7d79bfb38dcdd657c7da89cf1f1/src/spouts/rss/fulltextrss.php#L120
      */
-    private function removeTrackersFromUrl(Uri $uri): Uri
+    private function removeTrackersFromUrl(UriInterface $uri): UriInterface
     {
         // Query string
         $query = $uri->getQuery();
@@ -543,9 +521,7 @@ class HttpClient
             // Remove utm_* parameters
             $clean_query = array_filter(
                 $q_array,
-                function (string $param): bool {
-                    return !str_starts_with($param, 'utm_');
-                }
+                fn (string $param): bool => !str_starts_with($param, 'utm_')
             );
             $uri = $uri->withQuery(implode('&', $clean_query));
         }

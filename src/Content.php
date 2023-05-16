@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Graby;
+
+use Graby\HttpClient\EffectiveResponse;
 
 /**
  * Immutable container for Graby result.
  */
 final class Content
 {
-    private int $status;
+    private EffectiveResponse $effectiveResponse;
 
     private string $html;
 
@@ -20,50 +24,40 @@ final class Content
     /** @var string[] */
     private array $authors;
 
-    private string $url;
-
     private ?string $image;
-
-    /** @var array<string, string> */
-    private array $headers;
 
     private bool $isNativeAd;
 
     private ?string $summary;
 
     /**
-     * @param string[]              $authors
-     * @param array<string, string> $headers
+     * @param string[] $authors
      */
     public function __construct(
-        int $status,
+        EffectiveResponse $effectiveResponse,
         string $html,
         string $title,
         ?string $language,
         ?string $date,
         array $authors,
-        string $url,
         ?string $image,
-        array $headers,
         bool $isNativeAd,
         ?string $summary = null
     ) {
-        $this->status = $status;
+        $this->effectiveResponse = $effectiveResponse;
         $this->html = $html;
         $this->title = $title;
         $this->language = $language;
         $this->date = $date;
         $this->authors = $authors;
-        $this->url = $url;
         $this->image = $image;
-        $this->headers = $headers;
         $this->isNativeAd = $isNativeAd;
         $this->summary = $summary;
     }
 
-    public function getStatus(): int
+    public function getEffectiveResponse(): EffectiveResponse
     {
-        return $this->status;
+        return $this->effectiveResponse;
     }
 
     public function getHtml(): string
@@ -129,22 +123,9 @@ final class Content
         return $new;
     }
 
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
-
     public function getImage(): ?string
     {
         return $this->image;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getHeaders(): array
-    {
-        return $this->headers;
     }
 
     public function getIsNativeAd(): bool

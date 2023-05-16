@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Graby;
 
 use Graby\Graby;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -29,7 +32,7 @@ class GrabyTest extends TestCase
             \RecursiveIteratorIterator::LEAVES_ONLY
         );
         foreach ($fileFixtureIterator as $file) {
-            if (!preg_match('/\.test$/', $file)) {
+            if ('test' !== $file->getExtension()) {
                 continue;
             }
 
@@ -76,7 +79,7 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertSame($urlEffective, $res->getUrl(), 'Same url');
+        $this->assertSame($urlEffective, (string) $res->getEffectiveResponse()->getEffectiveUri(), 'Same url');
         $this->assertSame($title, $res->getTitle(), 'Same title');
         $this->assertSame($summary, $res->getSummary(), 'Same summary');
 
@@ -94,7 +97,7 @@ class GrabyTest extends TestCase
 
         $this->assertSame($parsedContent, $res->getHtml(), 'Same html');
 
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertFalse($res->getIsNativeAd());
     }
 
@@ -121,7 +124,7 @@ class GrabyTest extends TestCase
 
         $res = $graby->fetchContent($url);
 
-        $this->assertSame($res->getUrl(), $urlChanged);
+        $this->assertSame((string) $res->getEffectiveResponse()->getEffectiveUri(), $urlChanged);
     }
 
     public function dataForBlocked(): array
@@ -194,9 +197,9 @@ class GrabyTest extends TestCase
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('Image', $res->getTitle());
         $this->assertSame('<a href="http://example.com/my%20awesome%20image.jpg"><img src="http://example.com/my%20awesome%20image.jpg" alt="Image" /></a>', $res->getHtml());
-        $this->assertSame('http://example.com/my%20awesome%20image.jpg', $res->getUrl());
+        $this->assertSame('http://example.com/my%20awesome%20image.jpg', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertEmpty($res->getSummary());
-        $this->assertSame('image/jpeg', $res->getHeaders()['content-type']);
+        $this->assertSame('image/jpeg', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -256,9 +259,9 @@ class GrabyTest extends TestCase
         $this->assertEmpty($res->getLanguage());
         $this->assertSame($title, $res->getTitle());
         $this->assertSame($html, $res->getHtml());
-        $this->assertSame($url, $res->getUrl());
+        $this->assertSame($url, (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame($summary, $res->getSummary());
-        $this->assertSame($header, $res->getHeaders()['content-type']);
+        $this->assertSame($header, $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -280,10 +283,10 @@ class GrabyTest extends TestCase
         $this->assertSame('Document1', $res->getTitle());
         $this->assertStringContainsString('Document title', $res->getHtml());
         $this->assertStringContainsString('Morbi vulputate tincidunt ve nenatis.', $res->getHtml());
-        $this->assertStringContainsString('http://example.com/test.pdf', $res->getUrl());
+        $this->assertStringContainsString('http://example.com/test.pdf', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertNotNull($res->getSummary());
         $this->assertStringContainsString('Document title Calibri : Lorem ipsum dolor sit amet', $res->getSummary());
-        $this->assertSame('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertSame('application/pdf', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -311,7 +314,7 @@ class GrabyTest extends TestCase
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('ZIP', $res->getTitle());
         $this->assertStringContainsString('<a href="https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip">Download ZIP</a>', $res->getHtml());
-        $this->assertSame('application/zip', $res->getHeaders()['content-type']);
+        $this->assertSame('application/zip', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -333,10 +336,10 @@ class GrabyTest extends TestCase
         $this->assertSame(['Sebastien MALOT'], $res->getAuthors());
         $this->assertSame('Document1', $res->getTitle());
         $this->assertStringContainsString('orem ipsum dolor sit amet', $res->getHtml());
-        $this->assertStringContainsString('http://example.com/test.pdf', $res->getUrl());
+        $this->assertStringContainsString('http://example.com/test.pdf', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertNotNull($res->getSummary());
         $this->assertStringContainsString('orem ipsum dolor sit amet', $res->getSummary());
-        $this->assertSame('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertSame('application/pdf', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -353,9 +356,9 @@ class GrabyTest extends TestCase
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('Plain text', $res->getTitle());
         $this->assertSame('<pre>plain text :)</pre>', $res->getHtml());
-        $this->assertSame('http://example.com/test.txt', $res->getUrl());
+        $this->assertSame('http://example.com/test.txt', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('plain text :)', $res->getSummary());
-        $this->assertSame('text/plain', $res->getHeaders()['content-type']);
+        $this->assertSame('text/plain', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -394,11 +397,11 @@ class GrabyTest extends TestCase
                 'Content-Language' => 'en',
             ],
             <<<"HTML"
-<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul>
-<li class="service-links-print">
-    <a href="$singlePageUrl" class="service-links-print">printed view</a>
-</li></ul></html>
-HTML
+                <html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul>
+                <li class="service-links-print">
+                    <a href="$singlePageUrl" class="service-links-print">printed view</a>
+                </li></ul></html>
+                HTML
         );
         $httpMockClient->addResponse($response);
         $httpMockClient->addResponse($response);
@@ -412,9 +415,9 @@ HTML
         $this->assertSame('en', $res->getLanguage());
         $this->assertSame('my title', $res->getTitle());
         $this->assertSame('my content', $res->getHtml());
-        $this->assertSame($expectedUrl, $res->getUrl());
+        $this->assertSame($expectedUrl, (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('my content', $res->getSummary());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -449,9 +452,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('Image', $res->getTitle());
         $this->assertSame('<a href="http://singlepage1.com/data.jpg"><img src="http://singlepage1.com/data.jpg" alt="Image" /></a>', $res->getHtml());
-        $this->assertSame('http://singlepage1.com/data.jpg', $res->getUrl());
+        $this->assertSame('http://singlepage1.com/data.jpg', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('', $res->getSummary());
-        $this->assertSame('image/jpeg', $res->getHeaders()['content-type']);
+        $this->assertSame('image/jpeg', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -482,7 +485,7 @@ HTML
         $res = $graby->fetchContent('http://singlepage2.com/hello');
 
         $this->assertStringContainsString('my singlepage5', $res->getHtml());
-        $this->assertSame('http://singlepage5.com/hello', $res->getUrl());
+        $this->assertSame('http://singlepage5.com/hello', (string) $res->getEffectiveResponse()->getEffectiveUri());
     }
 
     /**
@@ -514,9 +517,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('my title', $res->getTitle());
         $this->assertSame('my content<div class="story">my content</div>', $res->getHtml());
-        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('http://multiplepage1.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('my content my content', $res->getSummary());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -550,9 +553,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('my title', $res->getTitle());
         $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
-        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('http://multiplepage1.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
-        $this->assertSame('application/pdf', $res->getHeaders()['content-type']);
+        $this->assertSame('application/pdf', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -586,9 +589,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('my title', $res->getTitle());
         $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
-        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('http://multiplepage1.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -627,9 +630,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('my title', $res->getTitle());
         $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
-        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('http://multiplepage1.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -663,9 +666,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('my title', $res->getTitle());
         $this->assertStringContainsString('This article appears to continue on subsequent pages which we could not extract', $res->getHtml());
-        $this->assertSame('http://multiplepage1.com', $res->getUrl());
+        $this->assertSame('http://multiplepage1.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('my content This article appears to continue on subsequent pages which we could not extract', $res->getSummary());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -727,9 +730,9 @@ HTML
         $method = $reflection->getMethod('makeAbsoluteStr');
         $method->setAccessible(true);
 
-        $res = $method->invokeArgs($graby, [$base, $url]);
+        $res = $method->invokeArgs($graby, [new Uri($base), $url]);
 
-        $this->assertSame($expectedResult, $res);
+        $this->assertSame($expectedResult, null === $res ? $res : (string) $res);
     }
 
     public function dataForMakeAbsoluteAttr(): array
@@ -762,7 +765,7 @@ HTML
         $method = $reflection->getMethod('makeAbsoluteAttr');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, [$base, $e, $attr]);
+        $method->invokeArgs($graby, [new Uri($base), $e, $attr]);
 
         $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
@@ -796,7 +799,7 @@ HTML
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, [$base, $e]);
+        $method->invokeArgs($graby, [new Uri($base), $e]);
 
         $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
@@ -818,7 +821,7 @@ HTML
         $method = $reflection->getMethod('makeAbsolute');
         $method->setAccessible(true);
 
-        $method->invokeArgs($graby, ['http://example.org', $e]);
+        $method->invokeArgs($graby, [new Uri('http://example.org'), $e]);
 
         $this->assertSame('http://example.org/lol', $e->getAttribute('href'));
         \assert($e->firstChild instanceof \DOMElement); // For PHPStan
@@ -842,9 +845,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('No title found', $res->getTitle());
         $this->assertStringContainsString('<p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' links :)</p>', $res->getHtml());
-        $this->assertSame('http://example.com', $res->getUrl());
+        $this->assertSame('http://example.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('This is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there are the awesomeThis is an awesome text with some links, here there &hellip;', $res->getSummary());
-        $this->assertStringContainsString('text/html', $res->getHeaders()['content-type']);
+        $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -875,10 +878,10 @@ HTML
         $this->assertSame('No title found', $res->getTitle());
         $this->assertSame('[unable to retrieve full-text content]', $res->getHtml());
         $this->assertSame('[unable to retrieve full-text content]', $res->getSummary());
-        $this->assertEmpty($res->getHeaders());
+        $this->assertEmpty($res->getEffectiveResponse()->getResponse()->getHeaders());
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
-        $this->assertSame(500, $res->getStatus());
+        $this->assertSame(500, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
 
     public function testErrorMessages(): void
@@ -896,9 +899,9 @@ HTML
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('No title detected', $res->getTitle());
         $this->assertSame('Nothing found, hu?', $res->getHtml());
-        $this->assertSame('http://example.com', $res->getUrl());
+        $this->assertSame('http://example.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('Nothing found, hu?', $res->getSummary());
-        $this->assertEmpty($res->getHeaders());
+        $this->assertEmpty($res->getEffectiveResponse()->getResponse()->getHeaders());
         $this->assertEmpty($res->getImage());
         $this->assertFalse($res->getIsNativeAd());
     }
@@ -926,7 +929,7 @@ HTML
 
         $res = $method->invokeArgs($graby, [$url]);
 
-        $this->assertSame($urlExpected, $res);
+        $this->assertSame($urlExpected, (string) $res);
     }
 
     public function dataForCleanupHtml(): array
@@ -975,7 +978,7 @@ HTML
         $graby = new Graby(['debug' => true]);
         $graby->setLogger($logger);
 
-        $cleanedHtml = $graby->cleanupHtml($html, 'http://0.0.0.0');
+        $cleanedHtml = $graby->cleanupHtml($html, new Uri('http://0.0.0.0'));
 
         $this->assertSame($expected, $cleanedHtml);
 
@@ -1022,7 +1025,7 @@ HTML
         $res = $graby->fetchContent('http://www.20minutes.fr/sport/football/2155935-20171022-stade-rennais-portugais-paulo-fonseca-remplacer-christian-gourcuff');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertSame('Stade Rennais: Le Portugais Paulo Fonseca pour remplacer Christian Gourcuff?', $res->getTitle());
         $this->assertCount(1, $res->getAuthors());
         $this->assertSame('Jeremy Goujon', $res->getAuthors()[0]);
@@ -1034,7 +1037,7 @@ HTML
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertStringContainsString('<ol start="2">', $res->getHtml());
         $this->assertStringContainsString('<ol start="3">', $res->getHtml());
         $this->assertStringContainsString('<ol start="4">', $res->getHtml());
@@ -1054,13 +1057,13 @@ HTML
         $res = $graby->fetchContent('https://bjori.blogspot.com/201');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(404, $res->getStatus());
+        $this->assertSame(404, $res->getEffectiveResponse()->getResponse()->getStatusCode());
         $this->assertEmpty($res->getLanguage());
-        $this->assertSame('https://bjori.blogspot.com/201', $res->getUrl());
+        $this->assertSame('https://bjori.blogspot.com/201', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame("bjori doesn't blog", $res->getTitle());
         $this->assertSame('[unable to retrieve full-text content]', $res->getHtml());
         $this->assertSame('[unable to retrieve full-text content]', $res->getSummary());
-        $this->assertSame('text/html', $res->getHeaders()['content-type']);
+        $this->assertSame('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));
         $this->assertEmpty($res->getImage());
     }
 
@@ -1149,7 +1152,7 @@ HTML
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
 
     /**
@@ -1172,7 +1175,7 @@ HTML
         $res = $graby->fetchContent('https://www.rollingstone.com/?redirurl=/politics/news/greed-and-debt-the-true-story-of-mitt-romney-and-bain-capital-20120829');
 
         $this->assertNotNull($res->getSummary());
-        $this->assertSame(200, $res->getStatus());
+        $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
 
     public function testImgNoReferrer(): void
@@ -1246,7 +1249,7 @@ HTML
         $res = $graby->fetchContent('https://example.com/prefetched-content');
 
         $this->assertSame('This is my awesome article', $res->getTitle());
-        $this->assertSame('https://example.com/prefetched-content', $res->getUrl());
+        $this->assertSame('https://example.com/prefetched-content', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertStringContainsString('here there are the awesome', $res->getHtml());
     }
 
