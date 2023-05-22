@@ -44,7 +44,7 @@ class Graby
     private $imgNoReferrer = false;
     private $prefetchedContent;
 
-    public function __construct($config = [], ClientInterface $client = null, ConfigBuilder $configBuilder = null)
+    public function __construct($config = [], ?ClientInterface $client = null, ?ConfigBuilder $configBuilder = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -150,7 +150,7 @@ class Graby
     public function getConfig($key)
     {
         if (!isset($this->config[$key])) {
-            throw new \Exception(sprintf('No config found for key: "%s"', $key));
+            throw new \Exception(\sprintf('No config found for key: "%s"', $key));
         }
 
         return $this->config[$key];
@@ -307,7 +307,7 @@ class Graby
         $effectiveUrl = $response['effective_url'];
         $effectiveUrl = str_replace(' ', '%20', $effectiveUrl);
         if (!$this->isUrlAllowed($effectiveUrl)) {
-            throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
+            throw new \Exception(\sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
         }
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
@@ -511,17 +511,17 @@ class Graby
         $url = (string) $uri;
 
         if (false === filter_var($url, \FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(sprintf('Url "%s" is not valid.', $url));
+            throw new \InvalidArgumentException(\sprintf('Url "%s" is not valid.', $url));
         }
 
         $url = filter_var($url, \FILTER_SANITIZE_URL);
 
         if (false === $url) {
-            throw new \InvalidArgumentException(sprintf('Sanitizing url "%s" failed.', $url));
+            throw new \InvalidArgumentException(\sprintf('Sanitizing url "%s" failed.', $url));
         }
 
         if (false === $this->isUrlAllowed($url)) {
-            throw new \InvalidArgumentException(sprintf('Url "%s" is not allowed to be parsed.', $url));
+            throw new \InvalidArgumentException(\sprintf('Url "%s" is not allowed to be parsed.', $url));
         }
 
         return $url;
@@ -621,7 +621,7 @@ class Graby
         ];
 
         if ('exclude' === $mimeInfo['action']) {
-            throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
+            throw new \Exception(\sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
         }
 
         $infos['html'] = '<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>';

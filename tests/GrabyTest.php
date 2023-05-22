@@ -255,7 +255,7 @@ class GrabyTest extends TestCase
 
         $graby = new Graby([
             'content_type_exc' => [
-               'application/x-msdownload' => ['action' => 'exclude', 'name' => 'we do not want virus'],
+                'application/x-msdownload' => ['action' => 'exclude', 'name' => 'we do not want virus'],
             ],
         ], $httpMockClient);
 

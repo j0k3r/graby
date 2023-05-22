@@ -181,7 +181,7 @@ class ConfigBuilderTest extends TestCase
     /**
      * @dataProvider dataForBuild
      */
-    public function testBuildSiteConfig(string $host, bool $expectedRes, string $matchedHost = null): void
+    public function testBuildSiteConfig(string $host, bool $expectedRes, ?string $matchedHost = null): void
     {
         $configBuilder = new ConfigBuilder([
             'site_config' => [__DIR__ . '/../fixtures/site_config'],

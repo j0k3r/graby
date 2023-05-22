@@ -42,7 +42,7 @@ class HttpClient
      */
     private $responseHistory;
 
-    public function __construct(ClientInterface $client, $config = [], LoggerInterface $logger = null)
+    public function __construct(ClientInterface $client, $config = [], ?LoggerInterface $logger = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
