@@ -12,8 +12,8 @@ use Graby\SiteConfig\ConfigBuilder;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\PluginClient;
-use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Discovery\Psr18ClientDiscovery;
 use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -87,7 +87,7 @@ class Graby
         );
 
         $this->httpClient = new HttpClient(
-            $client ?: new PluginClient(HttpClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
+            $client ?: new PluginClient(Psr18ClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
             $this->config->getHttpClient(),
             $this->logger,
             $this->extractor
@@ -769,12 +769,17 @@ class Graby
         $url = trim(str_replace('%20', ' ', $e->getAttribute($attr)));
         $url = str_replace(' ', '%20', $url);
 
-        try {
-            $absolute = $this->makeAbsoluteStr($base, $url);
-        } catch (\Exception $exception) {
-            $this->logger->info('Wrong content url', ['url' => (string) $url]);
-            $absolute = $url;
+        $absolute = $url;
+
+        // avoid converting anchor link to absolute anchor link (it'll then be broken in the UI)
+        if (!preg_match('!^(https?://|#)!i', $url)) {
+            try {
+                $absolute = $this->makeAbsoluteStr($base, $url);
+            } catch (\Exception $exception) {
+                $this->logger->info('Wrong content url', ['url' => (string) $url]);
+            }
         }
+
         if (null !== $absolute) {
             $e->setAttribute($attr, (string) $absolute);
         }
