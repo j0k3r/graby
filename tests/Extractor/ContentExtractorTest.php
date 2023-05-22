@@ -387,7 +387,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForStripIdOrClass
      */
-    public function testApplyStripIdOrClass(string $pattern, string $html, ?string $removedContent, string $matchContent = null): void
+    public function testApplyStripIdOrClass(string $pattern, string $html, ?string $removedContent, ?string $matchContent = null): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 

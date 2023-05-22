@@ -47,7 +47,7 @@ class Graby
 
     private ?string $prefetchedContent = null;
 
-    public function __construct(array $config = [], ?ClientInterface $client = null, ConfigBuilder $configBuilder = null)
+    public function __construct(array $config = [], ?ClientInterface $client = null, ?ConfigBuilder $configBuilder = null)
     {
         $this->config = new GrabyConfig($config);
 

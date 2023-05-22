@@ -42,7 +42,7 @@ class HttpClient
     /**
      * @param ClientInterface $client Http client
      */
-    public function __construct(ClientInterface $client, array $config = [], LoggerInterface $logger = null, ContentExtractor $extractor = null)
+    public function __construct(ClientInterface $client, array $config = [], ?LoggerInterface $logger = null, ?ContentExtractor $extractor = null)
     {
         $this->config = new HttpClientConfig($config);
 

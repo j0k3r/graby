@@ -31,9 +31,6 @@ class CookiePlugin implements Plugin
         $this->cookieJar = $cookieJar;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $cookies = [];

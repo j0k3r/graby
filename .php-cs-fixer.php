@@ -16,11 +16,19 @@ return (new PhpCsFixer\Config())
         'method_argument_space' => false,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_unsets' => true,
+        // Enabled by @Symfony:risky but requires PHP 8.
+        'get_class_to_class_keyword' => false,
         'heredoc_to_nowdoc' => true,
         'no_extra_blank_lines' => ['tokens' => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block']],
         'no_unreachable_default_argument_value' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
+        // Enabled by Symfony and changes properties without type hints but we cannot use those yet because they require PHP 8.
+        'no_null_property_initialization' => false,
+        // Enabled by @Symfony but is inconsistent.
+        'nullable_type_declaration_for_default_null_value' => [
+            'use_nullable_type_declaration' => true,
+        ],
         'ordered_class_elements' => true,
         'ordered_imports' => true,
         'php_unit_strict' => true,

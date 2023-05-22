@@ -31,7 +31,7 @@ class ConfigBuilder
         'div',
     ];
 
-    public function __construct(array $config = [], LoggerInterface $logger = null)
+    public function __construct(array $config = [], ?LoggerInterface $logger = null)
     {
         $this->config = new ConfigBuilderConfig($config);
 
@@ -335,23 +335,23 @@ class ConfigBuilder
                 $command = 'strip';
             }
 
-            // check for commands where we accept multiple statements
             if (\in_array($command, ['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'single_page_link', 'next_page_link', 'test_url', 'find_string', 'replace_string', 'login_extra_fields', 'native_ad_clue', 'date', 'author'], true)) {
+                // check for commands where we accept multiple statements
                 $config->$command[] = $val;
-            // check for single statement commands that evaluate to true or false
             } elseif (\in_array($command, ['tidy', 'prune', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'], true)) {
+                // check for single statement commands that evaluate to true or false
                 $config->$command = ('yes' === $val || 'true' === $val);
-            // check for single statement commands stored as strings
             } elseif (\in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
+                // check for single statement commands stored as strings
                 $config->$command = $val;
-            // check for replace_string(find): replace
             } elseif (str_ends_with($command, ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
+                // check for replace_string(find): replace
                 $config->find_string[] = $match[2];
                 $config->replace_string[] = $val;
             } elseif (str_ends_with($command, ')') && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedHeaders, true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
-            // special treatment for if_page_contains
             } elseif (\in_array($command, ['if_page_contains'], true)) {
+                // special treatment for if_page_contains
                 $this->handleIfPageContainsCondition($config, $val);
             } elseif (str_ends_with($command, ')') && preg_match('!([a-z0-9_]+)\(([a-z]+)\)$!i', $command, $match) && 'wrap_in' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedWrapInTags, true)) {
                 $config->wrap_in[strtolower(trim($match[2]))] = $val;

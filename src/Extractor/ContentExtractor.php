@@ -51,7 +51,7 @@ class ContentExtractor
      *   json_ld_ignore_types?: string[],
      * } $config
      */
-    public function __construct(array $config = [], LoggerInterface $logger = null, ConfigBuilder $configBuilder = null)
+    public function __construct(array $config = [], ?LoggerInterface $logger = null, ?ConfigBuilder $configBuilder = null)
     {
         $this->config = new ContentExtractorConfig($config);
 
@@ -139,7 +139,7 @@ class ContentExtractor
      *
      * @return bool true on success, false on failure
      */
-    public function process(string $html, UriInterface $url, SiteConfig $siteConfig = null, bool $smartTidy = true): bool
+    public function process(string $html, UriInterface $url, ?SiteConfig $siteConfig = null, bool $smartTidy = true): bool
     {
         $this->reset();
 
@@ -771,7 +771,7 @@ class ContentExtractor
      * @param \DOMNodeList<\DOMNode>|false $elems      Not force typed because it can also be false
      * @param string                       $logMessage
      */
-    private function removeElements($elems = false, string $logMessage = null): void
+    private function removeElements($elems = false, ?string $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -800,7 +800,7 @@ class ContentExtractor
      * @param \DOMNodeList<\DOMNode>|false $elems
      * @param string                       $logMessage
      */
-    private function wrapElements($elems = false, string $tag = 'div', string $logMessage = null): void
+    private function wrapElements($elems = false, string $tag = 'div', ?string $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -841,7 +841,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect entity again or not
      */
-    private function extractEntityFromQuery(string $entity, bool $detectEntity, string $xpathExpression, \DOMNode $node, string $logMessage, callable $returnCallback = null): bool
+    private function extractEntityFromQuery(string $entity, bool $detectEntity, string $xpathExpression, \DOMNode $node, string $logMessage, ?callable $returnCallback = null): bool
     {
         if (false === $detectEntity) {
             return false;
@@ -889,7 +889,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect title again or not
      */
-    private function extractTitle(bool $detectTitle, string $cssClass, \DOMNode $node = null, string $logMessage): bool
+    private function extractTitle(bool $detectTitle, string $cssClass, ?\DOMNode $node = null, string $logMessage): bool
     {
         if (null === $node) {
             return true;
@@ -913,7 +913,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect date again or not
      */
-    private function extractDate(bool $detectDate, string $cssClass, \DOMNode $node = null, string $logMessage): bool
+    private function extractDate(bool $detectDate, string $cssClass, ?\DOMNode $node = null, string $logMessage): bool
     {
         if (null === $node) {
             return true;
@@ -936,7 +936,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect author again or not
      */
-    private function extractAuthor(bool $detectAuthor, \DOMNode $node = null): bool
+    private function extractAuthor(bool $detectAuthor, ?\DOMNode $node = null): bool
     {
         if (false === $detectAuthor || !$this->xpath) {
             return false;
@@ -984,7 +984,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect body again or not
      */
-    private function extractBody(bool $detectBody, string $xpathExpression, \DOMNode $node = null, string $type): bool
+    private function extractBody(bool $detectBody, string $xpathExpression, ?\DOMNode $node = null, string $type): bool
     {
         if (false === $detectBody || !$this->xpath) {
             return false;

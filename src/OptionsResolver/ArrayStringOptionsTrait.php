@@ -11,7 +11,7 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
  */
 trait ArrayStringOptionsTrait
 {
-    public function validateArray(array $array, string $option, string $key = null): void
+    public function validateArray(array $array, string $option, ?string $key = null): void
     {
         if (null === $key) {
             foreach ($array as $arrayKey => $arrayValue) {
