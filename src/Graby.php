@@ -178,7 +178,7 @@ class Graby
         }
 
         // footnotes
-        if ('footnotes' === $this->config->getContentLinks() && false === strpos($url->getHost(), 'wikipedia.org') && $this->extractor->readability) {
+        if ('footnotes' === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $this->extractor->readability) {
             $this->extractor->readability->addFootnotes($contentBlock);
         }
 
@@ -290,7 +290,7 @@ class Graby
         // when it happen the string (usually) starts with this character
         // in that case, we'll take the default response instead of the utf8 forced one
         $body = (string) $response->getResponse()->getBody();
-        if (0 === strpos(utf8_encode($body), 'ÿþ')) {
+        if (str_starts_with(utf8_encode($body), 'ÿþ')) {
             $html = $body;
         }
 

@@ -66,7 +66,7 @@ class ConfigBuilder
     public function addToCache(string $key, SiteConfig $config): void
     {
         $key = strtolower($key);
-        if ('www.' === substr($key, 0, 4)) {
+        if (str_starts_with($key, 'www.')) {
             $key = substr($key, 4);
         }
 
@@ -88,7 +88,7 @@ class ConfigBuilder
     public function getCachedVersion(string $key): ?SiteConfig
     {
         $key = strtolower($key);
-        if ('www.' === substr($key, 0, 4)) {
+        if (str_starts_with($key, 'www.')) {
             $key = substr($key, 4);
         }
 
@@ -125,7 +125,7 @@ class ConfigBuilder
     public function buildForHost(string $host, bool $addToCache = true): SiteConfig
     {
         $host = strtolower($host);
-        if ('www.' === substr($host, 0, 4)) {
+        if (str_starts_with($host, 'www.')) {
             $host = substr($host, 4);
         }
 
@@ -178,7 +178,7 @@ class ConfigBuilder
     public function loadSiteConfig(string $host, bool $exactHostMatch = false): ?SiteConfig
     {
         $host = strtolower($host);
-        if ('www.' === substr($host, 0, 4)) {
+        if (str_starts_with($host, 'www.')) {
             $host = substr($host, 4);
         }
 
@@ -345,15 +345,15 @@ class ConfigBuilder
             } elseif (\in_array($command, ['parser', 'login_username_field', 'login_password_field', 'not_logged_in_xpath', 'login_uri', 'src_lazy_load_attr'], true)) {
                 $config->$command = $val;
             // check for replace_string(find): replace
-            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
+            } elseif (str_ends_with($command, ')') && preg_match('!^([a-z0-9_]+)\((.*?)\)$!i', $command, $match) && 'replace_string' === $match[1]) {
                 $config->find_string[] = $match[2];
                 $config->replace_string[] = $val;
-            } elseif ((')' === substr($command, -1)) && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedHeaders, true)) {
+            } elseif (str_ends_with($command, ')') && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedHeaders, true)) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
             // special treatment for if_page_contains
             } elseif (\in_array($command, ['if_page_contains'], true)) {
                 $this->handleIfPageContainsCondition($config, $val);
-            } elseif ((')' === substr($command, -1)) && preg_match('!([a-z0-9_]+)\(([a-z]+)\)$!i', $command, $match) && 'wrap_in' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedWrapInTags, true)) {
+            } elseif (str_ends_with($command, ')') && preg_match('!([a-z0-9_]+)\(([a-z]+)\)$!i', $command, $match) && 'wrap_in' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedWrapInTags, true)) {
                 $config->wrap_in[strtolower(trim($match[2]))] = $val;
             }
         }

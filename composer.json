@@ -32,7 +32,8 @@
         "simplepie/simplepie": "^1.8",
         "smalot/pdfparser": "^2.0",
         "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0",
-        "symfony/polyfill-intl-idn": "^1.26"
+        "symfony/polyfill-intl-idn": "^1.26",
+        "symfony/polyfill-php80": "^1.27"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
