@@ -19,7 +19,7 @@ use Readability\Readability;
  */
 class ContentExtractor
 {
-    public ?Readability $readability;
+    public ?Readability $readability = null;
     private ?\DOMXPath $xpath = null;
     private ?string $html = null;
     private ContentExtractorConfig $config;
