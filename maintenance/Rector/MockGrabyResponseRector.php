@@ -95,7 +95,7 @@ final class MockGrabyResponseRector extends AbstractRector
     public function refactor(Node $node): ?Node
     {
         $new = $node;
-        if (!$this->nodeNameResolver->isName($new->class, 'Graby\Graby')) {
+        if (!$this->nodeNameResolver->isName($new->class, Graby::class)) {
             return null;
         }
 
@@ -151,10 +151,10 @@ final class MockGrabyResponseRector extends AbstractRector
 
         // Add imports.
         $this->useNodesToAddCollector->addUseImport(
-            new AliasedObjectType('HttpMockClient', 'Http\Mock\Client')
+            new AliasedObjectType('HttpMockClient', \Http\Mock\Client::class)
         );
         $this->useNodesToAddCollector->addUseImport(
-            new FullyQualifiedObjectType('GuzzleHttp\Psr7\Response')
+            new FullyQualifiedObjectType(\GuzzleHttp\Psr7\Response::class)
         );
 
         $httpMockClientVariable = $this->createMockClientVariable($new);

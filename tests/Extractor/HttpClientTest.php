@@ -253,6 +253,7 @@ class HttpClientTest extends TestCase
 
     public function testTimeout(): void
     {
+        $adapter = null;
         $logger = new Logger('foo');
         $handler = new TestHandler();
         $logger->pushHandler($handler);
@@ -261,7 +262,7 @@ class HttpClientTest extends TestCase
         $isGuzzle = false;
 
         // find with adapter is installed
-        if (class_exists('Http\Adapter\Guzzle7\Client')) {
+        if (class_exists(\Http\Adapter\Guzzle7\Client::class)) {
             $isGuzzle = true;
             $guzzle = new \GuzzleHttp\Client(['timeout' => 2]);
             $adapter = new \Http\Adapter\Guzzle7\Client($guzzle);

@@ -99,7 +99,7 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
         $res = $contentExtractor->buildSiteConfig(new Uri('https://www.en.wikipedia.org/wiki/Metallica'));
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf(SiteConfig::class, $res);
 
         foreach (['author', 'single_page_link', 'next_page_link'] as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: ' . $value);
@@ -122,11 +122,11 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
         $res = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf(SiteConfig::class, $res);
 
         $res2 = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res2);
+        $this->assertInstanceOf(SiteConfig::class, $res2);
         $this->assertSame($res, $res2);
     }
 

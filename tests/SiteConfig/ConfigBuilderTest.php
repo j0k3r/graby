@@ -17,7 +17,7 @@ class ConfigBuilderTest extends TestCase
     {
         $builder = new ConfigBuilder(['site_config' => [__DIR__]]);
 
-        $this->assertInstanceOf('Graby\SiteConfig\ConfigBuilder', $builder);
+        $this->assertInstanceOf(ConfigBuilder::class, $builder);
     }
 
     public function testBuildFromArrayNoLines(): void
@@ -147,14 +147,14 @@ class ConfigBuilderTest extends TestCase
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $config1 = $configBuilder->buildForHost('www.host.io');
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config1);
+        $this->assertInstanceOf(SiteConfig::class, $config1);
 
         $this->assertSame($config1, $configBuilder->getCachedVersion('host.io'));
         $this->assertSame($config1, $configBuilder->getCachedVersion('host.io.merged'));
 
         $config2 = $configBuilder->buildForHost('host.io');
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $config2);
+        $this->assertInstanceOf(SiteConfig::class, $config2);
         $this->assertSame($config1, $config2);
     }
 
@@ -195,7 +195,7 @@ class ConfigBuilderTest extends TestCase
         if (false === $expectedRes) {
             $this->assertTrue(null === $res, 'No site config generated');
         } else {
-            $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res, 'Site config generated');
+            $this->assertInstanceOf(SiteConfig::class, $res, 'Site config generated');
             $this->assertSame($matchedHost, $res->cache_key);
         }
     }
@@ -208,13 +208,13 @@ class ConfigBuilderTest extends TestCase
 
         $res = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf(SiteConfig::class, $res);
 
         $configBuilder->addToCache((string) $res->cache_key, $res);
 
         $res2 = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf(SiteConfig::class, $res);
         $this->assertSame($res, $res2, 'Config retrieve from cache');
     }
 
@@ -231,7 +231,7 @@ class ConfigBuilderTest extends TestCase
 
         $res = $configBuilder->buildFromUrl(new Uri('https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal'));
 
-        $this->assertInstanceOf('Graby\SiteConfig\SiteConfig', $res);
+        $this->assertInstanceOf(SiteConfig::class, $res);
 
         $records = $handler->getRecords();
 
