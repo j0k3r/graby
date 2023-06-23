@@ -7,6 +7,7 @@ namespace Graby\Monolog\Handler;
 use Graby\Monolog\Formatter\GrabyFormatter;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Monolog\LogRecord;
 use Monolog\Processor\PsrLogMessageProcessor;
 
 /**
@@ -45,9 +46,9 @@ class GrabyHandler extends AbstractProcessingHandler
         return isset($this->recordsByLevel[$level]);
     }
 
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
-        $this->recordsByLevel[$record['level']][] = $record;
+        $this->recordsByLevel[$record->level->value][] = $record;
         $this->records[] = $record;
     }
 }
