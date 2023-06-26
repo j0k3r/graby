@@ -15,7 +15,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.1",
+        "php": ">=7.4|>=8.1",
         "ext-curl": "*",
         "ext-tidy": "*",
         "fossar/htmlawed": "^1.2.8",
@@ -23,7 +23,7 @@
         "j0k3r/graby-site-config": "^1.0.147",
         "j0k3r/httplug-ssrf-plugin": "^2.0",
         "j0k3r/php-readability": "dev-master",
-        "monolog/monolog": "^3",
+        "monolog/monolog": "^2.3|^3",
         "php-http/client-common": "^2.5",
         "php-http/discovery": "^1.14",
         "php-http/httplug": "^2.2",

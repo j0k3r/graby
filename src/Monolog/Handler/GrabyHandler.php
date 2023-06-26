@@ -46,9 +46,17 @@ class GrabyHandler extends AbstractProcessingHandler
         return isset($this->recordsByLevel[$level]);
     }
 
-    protected function write(LogRecord $record): void
+    /**
+     * @param array|LogRecord $record
+     * @return void
+     */
+    protected function write($record): void
     {
-        $this->recordsByLevel[$record->level->value][] = $record;
+        $level = $record instanceof LogRecord
+            ? $record->level->value
+            : $record['level'];
+
+        $this->recordsByLevel[$level][] = $record;
         $this->records[] = $record;
     }
 }

@@ -20,32 +20,36 @@ class GrabyFormatter extends HtmlFormatter
     /**
      * Formats a log record.
      *
-     * @param LogRecord $record A record to format
+     * @param array|LogRecord $record A record to format
      *
      * @return string The formatted record
      */
-    public function format(LogRecord $record): string
+    public function format($record): string
     {
+        if ($record instanceof LogRecord) {
+            $record = $record->toArray();
+        }
+
         $output = '<table cellspacing="1" width="100%" class="monolog-output">';
 
-        $output .= $this->addRowWithLevel($record->level, 'Time', $record->datetime->format($this->dateFormat));
-        $output .= $this->addRowWithLevel($record->level, 'Message', $record->message);
+        $output .= $this->addRowWithLevel($record['level'], 'Time', $record['datetime']->format($this->dateFormat));
+        $output .= $this->addRowWithLevel($record['level'], 'Message', (string) $record['message']);
 
-        if ($record->context) {
+        if ($record['context']) {
             $embeddedTable = '<table cellspacing="1" width="100%">';
-            foreach ($record->context as $key => $value) {
-                $embeddedTable .= $this->addRowWithLevel($record->level, $key, $this->convertToString($value));
+            foreach ($record['context'] as $key => $value) {
+                $embeddedTable .= $this->addRowWithLevel($record['level'], $key, $this->convertToString($value));
             }
             $embeddedTable .= '</table>';
-            $output .= $this->addRowWithLevel($record->level, 'Context', $embeddedTable, false);
+            $output .= $this->addRowWithLevel($record['level'], 'Context', $embeddedTable, false);
         }
-        if ($record->extra) {
+        if ($record['extra']) {
             $embeddedTable = '<table cellspacing="1" width="100%">';
-            foreach ($record->extra as $key => $value) {
-                $embeddedTable .= $this->addRowWithLevel($record->level, $key, $this->convertToString($value));
+            foreach ($record['extra'] as $key => $value) {
+                $embeddedTable .= $this->addRowWithLevel($record['level'], $key, $this->convertToString($value));
             }
             $embeddedTable .= '</table>';
-            $output .= $this->addRowWithLevel($record->level, 'Extra', $embeddedTable, false);
+            $output .= $this->addRowWithLevel($record['level'], 'Extra', $embeddedTable, false);
         }
 
         return $output . '</table>';
