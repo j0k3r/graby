@@ -8,37 +8,11 @@
         pkgs.mkShell {
           buildInputs =  with pkgs; [
             (php82.withExtensions
-              ({ all, ... }: with all; [
-                bz2
-                curl
-                dom
-                filter
-                fileinfo
-                gd
-                iconv
-                imagick
-                intl
-                mbstring
-                openssl
-                pdo
-                pdo_mysql
-                pdo_sqlite
-                session
-                sodium
-                sqlite3
+              ({ enabled, all }: with all; enabled ++ [
                 tidy
-                tokenizer
-                xdebug
-                xmlwriter
-#                yaml
-                zip
-                zlib
               ])
             )
             php82Packages.composer
-            libjpeg
-            libpng
-            libyaml
         ]; };
     };
 }
