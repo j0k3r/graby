@@ -53,10 +53,8 @@ class SiteConfig
 
     /**
      * Attribute used to replace lazyload image (like `data-lazy-src`).
-     *
-     * @var ?string
      */
-    public $src_lazy_load_attr = null;
+    public ?string $src_lazy_load_attr = null;
 
     /**
      * Strip elements which contain these strings (0 or more) in the id or class attribute.
@@ -88,10 +86,8 @@ class SiteConfig
 
     /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
-     *
-     * @var ?bool
      */
-    public $tidy = null;
+    public ?bool $tidy = null;
 
     /**
      * Autodetect title/body if xpath expressions fail to produce results.
@@ -102,17 +98,13 @@ class SiteConfig
      *       * if title and body are both empty (no xpath expressions), this option has no effect (both title and body will be auto-detected)
      *       * if there's an xpath expression for title and none for body, body will be auto-detected and this option will determine whether we auto-detect title if the xpath expression for it fails to produce results.
      *     Usage scenario: you want to extract something specific from a set of URLs, e.g. a table, and if the table is not found, you want to ignore the entry completely. Auto-detection is unlikely to succeed here, so you construct your patterns and set this option to false. Another scenario may be a site where auto-detection has proven to fail (or worse, picked up the wrong content).
-     *
-     * @var ?bool
      */
-    public $autodetect_on_failure = null;
+    public ?bool $autodetect_on_failure = null;
 
     /**
      * Clean up content block - attempt to remove elements that appear to be superfluous.
-     *
-     * @var ?bool
      */
-    public $prune = null;
+    public ?bool $prune = null;
 
     /**
      * Test URL - if present, can be used to test the config above.
@@ -148,10 +140,8 @@ class SiteConfig
 
     /**
      * Which parser to use for turning raw HTML into a DOMDocument (either 'libxml' or 'html5lib').
-     *
-     * @var ?string
      */
-    public $parser = null;
+    public ?string $parser = null;
 
     /**
      * Strings to search for in HTML before processing begins (used with $replace_string).
@@ -169,10 +159,8 @@ class SiteConfig
 
     /**
      * the options below cannot be set in the config files which this class represents.
-     *
-     * @var ?string
      */
-    public $cache_key = null;
+    public ?string $cache_key = null;
 
     /**
      * If fetching the site's content requires to authentify.
