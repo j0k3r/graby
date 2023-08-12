@@ -372,13 +372,29 @@ class HttpClientTest extends TestCase
                 'html' => '<!DOCTYPE html><html class="no-js"><head><meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"><meta charset="utf-8"><meta content="text/html" http-equiv="Content-Type"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0"><link href="/favicon.ie9.ico" rel="Shortcut Icon" type="image/x-icon"/><link href="//cdn.cnn.com/cnn/.e/img/3.0/global/misc/apple-touch-icon.png" rel="apple-touch-icon" type="image/png"/><!--[if lte IE 9]><meta http-equiv="refresh" content="1;url=/2.85.0/static/unsupp.html" /><![endif]--><!--[if gt IE 9><!--><!--<![endif]--><title>New York police tout improving crime numbers to defend frisking policy  - CNN</title><meta content="us" name="section"><meta name="referrer" content="unsafe-url"><meta content="2012-05-13T21:22:42Z" property="og:pubdate"><meta content="2012-05-13T21:22:42Z" name="pubdate"><meta content="2012-05-14T02:34:10Z" name="lastmod"><meta content="https://www.cnn.com/2012/05/13/us/new-york-police-policy/index.html" property="og:url"><meta content="By the CNN Wire Staff" name="author">',
                 'removeData' => '<meta http-equiv="refresh" content="1;url=/2.85.0/static/unsupp.html" />',
             ],
+            'non-standard downlevel-revealed comment' => [
+                'url' => 'http://wallabag.org',
+                'html' => '<!DOCTYPE html>
+<html>
+   <body>
+      <!--[if mso]>
+      <img src="http://example.wallabag.org/hidden.jpg" alt="hidden image">
+      <![endif]-->
+      <!--[if !mso]><!-- -->
+      <img src="http://example.wallabag.org/shown.jpg" alt="shown image" />
+      <!-- <![endif]-->
+   </body>
+</html>',
+                'removeData' => 'hidden image',
+                'preserveData' => 'shown image',
+            ],
         ];
     }
 
     /**
      * @dataProvider dataForConditionalComments
      */
-    public function testWithMetaRefreshInConditionalComments(string $url, string $html, string $removeData): void
+    public function testWithMetaRefreshInConditionalComments(string $url, string $html, string $removeData, ?string $preserveData = null): void
     {
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], $html));
@@ -392,6 +408,9 @@ class HttpClientTest extends TestCase
         $this->assertStringNotContainsString('endif', (string) $res->getResponse()->getBody());
         $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
         $this->assertSame(200, $res->getResponse()->getStatusCode());
+        if (null !== $preserveData) {
+            $this->assertStringContainsString($preserveData, (string) $res->getResponse()->getBody());
+        }
     }
 
     public function dataForUserAgent(): array

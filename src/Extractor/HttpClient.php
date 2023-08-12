@@ -179,27 +179,9 @@ class HttpClient
 
         $body = (string) $response->getBody();
 
-        // be sure to remove conditional comments for IE around the html tag
-        // we only remove conditional comments until we found the <head> tag
-        // they usually contains the <html> tag which we try to found and replace the last occurence
-        // with the whole conditional comments
-        preg_match('/^\<!--\[if(\X+)\<!\[endif\]--\>(\X+)\<head\>$/mi', $body, $matchesConditional);
-
-        if (\count($matchesConditional) > 1) {
-            preg_match_all('/\<html([\sa-z0-9\=\"\"\-:\/\.\#]+)\>$/mi', $matchesConditional[0], $matchesHtml);
-
-            if (\count($matchesHtml) > 1) {
-                $htmlTag = end($matchesHtml[0]);
-
-                if (!empty($htmlTag)) {
-                    $body = str_replace($matchesConditional[0], $htmlTag . '<head>', $body);
-                }
-            }
-        }
-
         // be sure to remove ALL other conditional comments for IE
-        // (regex found here: https://stackoverflow.com/a/137831/569101)
-        preg_match_all('/<!--\[if\s(?:[^<]+|<(?!!\[endif\]-->))*<!\[endif\]-->/mi', $body, $matchesConditional);
+        // (regex inspired from here: https://stackoverflow.com/a/55083809/954513)
+        preg_match_all('/<!--(?:\[| ?<!).+?-->/mis', $body, $matchesConditional);
 
         if (isset($matchesConditional[0]) && (is_countable($matchesConditional[0]) ? \count($matchesConditional[0]) : 0) > 1) {
             foreach ($matchesConditional as $conditionalComment) {
