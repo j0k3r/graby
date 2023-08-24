@@ -51,7 +51,7 @@ class ContentExtractorTest extends TestCase
                 'fingerprint.wordpress.com',
             ],
             'ippen.media' => [
-                '<html><div class="id-SiteBEEPWrap"><span class="id-SitePosHelperWrap"><span id="id-SitePosHelper" class="id-SitePosHelper"></span></span><div class="id-SiteWrap idjs-SiteWrap" data-id-module="jumpToWithOffset"></div></html>',
+                '<html><script>window.dataLayer = window.dataLayer||[];([{"de.ippen-digital.story.onlineId":91197383},{"de.ippen-digital.story.isPaywallContent":false},{"de.ippen-digital.page.pageViewId":"e101fa25-b1f6-c6b2-57c8-7be4c783215d-1692880932-856835822"},{"de.ippen-digital.user.transientId":"e101fa25-b1f6-c6b2-57c8-7be4c783215d"},{"de.ippen-digital.cms.cid":268}]).forEach(function(el){window.dataLayer.push(el)})</script></html>',
                 'fingerprint.ippen.media',
             ],
         ];
