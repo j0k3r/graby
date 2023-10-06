@@ -768,8 +768,7 @@ class ContentExtractor
     /**
      * Remove elements.
      *
-     * @param \DOMNodeList<\DOMNode>|false $elems      Not force typed because it can also be false
-     * @param string                       $logMessage
+     * @param \DOMNodeList<\DOMNode>|false $elems Not force typed because it can also be false
      */
     private function removeElements($elems = false, ?string $logMessage = null): void
     {
@@ -798,7 +797,6 @@ class ContentExtractor
      * Wrap elements with provided tag.
      *
      * @param \DOMNodeList<\DOMNode>|false $elems
-     * @param string                       $logMessage
      */
     private function wrapElements($elems = false, string $tag = 'div', ?string $logMessage = null): void
     {
