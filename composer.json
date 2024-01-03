@@ -19,18 +19,18 @@
         "ext-curl": "*",
         "ext-tidy": "*",
         "fossar/htmlawed": "^1.2.7",
-        "http-interop/http-factory-guzzle": "^1.0",
-        "j0k3r/graby-site-config": "^1.0.110",
+        "http-interop/http-factory-guzzle": "^1.1",
+        "j0k3r/graby-site-config": "^1.0.181",
         "j0k3r/httplug-ssrf-plugin": "^2.0",
-        "j0k3r/php-readability": "^1.2.3",
+        "j0k3r/php-readability": "^1.2.10",
         "monolog/monolog": "^1.18.0|^2.0",
-        "php-http/client-common": "^2.3",
-        "php-http/discovery": "^1.12",
-        "php-http/httplug": "^2.2",
-        "php-http/message": "^1.9",
-        "simplepie/simplepie": "^1.5",
-        "smalot/pdfparser": "^1.0",
-        "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0",
+        "php-http/client-common": "^2.7",
+        "php-http/discovery": "^1.19",
+        "php-http/httplug": "^2.4",
+        "php-http/message": "^1.14",
+        "simplepie/simplepie": "^1.7",
+        "smalot/pdfparser": "^1.1",
+        "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0|^7.0",
         "true/punycode": "^2.1",
         "guzzlehttp/psr7": "^1.5.0|^2.0"
     },
@@ -43,7 +43,7 @@
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-deprecation-rules": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
-        "symfony/phpunit-bridge": "^5.3"
+        "symfony/phpunit-bridge": "^6.4.1"
     },
     "extra": {
         "branch-alias": {
@@ -61,6 +61,10 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
+        }
     }
 }

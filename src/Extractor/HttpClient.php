@@ -13,8 +13,8 @@ use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
-use Http\Client\HttpClient as Client;
 use Http\Discovery\Psr17FactoryDiscovery;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -42,11 +42,7 @@ class HttpClient
      */
     private $responseHistory;
 
-    /**
-     * @param Client $client Http client
-     * @param array  $config
-     */
-    public function __construct(Client $client, $config = [], LoggerInterface $logger = null)
+    public function __construct(ClientInterface $client, $config = [], LoggerInterface $logger = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -254,7 +250,7 @@ class HttpClient
         // check for <meta name='fragment' content='!'/>
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
         // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
-        if (false === strpos($effectiveUrl, '_escaped_fragment_')) {
+        if (!str_contains($effectiveUrl, '_escaped_fragment_')) {
             $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?: $this->getUglyURL($effectiveUrl, $body);
 
             if (false !== $redirectURL) {
@@ -296,7 +292,7 @@ class HttpClient
     {
         // rewrite part of urls to something more readable
         foreach ($this->config['rewrite_url'] as $find => $action) {
-            if (false !== strpos($url, $find) && \is_array($action)) {
+            if (str_contains($url, $find) && \is_array($action)) {
                 $url = strtr($url, $action);
             }
         }

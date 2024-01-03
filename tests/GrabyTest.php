@@ -413,6 +413,7 @@ class GrabyTest extends TestCase
 
     /**
      * @group dns-sensitive
+     *
      * @dataProvider dataForSinglePage
      */
     public function testSinglePage(string $url, string $expectedUrl, string $singlePageUrl): void

@@ -38,6 +38,10 @@
         </listener>
     </listeners>
 
+    <php>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=0" />
+    </php>
+
     <!-- <logging>
         <log type="coverage-html" target="build" lowUpperBound="35" highLowerBound="70"/>
     </logging> -->
