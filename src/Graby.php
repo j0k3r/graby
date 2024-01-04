@@ -286,14 +286,6 @@ class Graby
 
         $this->logger->debug('HTML after regex empty nodes stripping', ['html' => $html]);
 
-        // some non utf8 enconding might be breaking after converting to utf8
-        // when it happen the string (usually) starts with this character
-        // in that case, we'll take the default response instead of the utf8 forced one
-        $body = (string) $response->getResponse()->getBody();
-        if (str_starts_with(utf8_encode($body), 'ÿþ')) {
-            $html = $body;
-        }
-
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;
         if ($this->config->getSinglepage() && null === $this->prefetchedContent && null !== ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
