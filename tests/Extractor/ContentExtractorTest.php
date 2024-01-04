@@ -847,7 +847,7 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('Trying {pattern} for language', $records[4]['message']);
         $this->assertSame('Trying {pattern} for language', $records[5]['message']);
         $this->assertSame('Using Readability', $records[6]['message']);
-        $this->assertSame('Date is bad (strtotime failed): {date}', $records[7]['message']);
+        $this->assertSame('Date is bad (wrong year): {date}', $records[7]['message']);
         $this->assertSame('Attempting to parse HTML with {parser}', $records[9]['message']);
     }
 

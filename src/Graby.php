@@ -9,11 +9,11 @@ use Graby\SiteConfig\ConfigBuilder;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\PluginClient;
-use Http\Client\HttpClient as Client;
-use Http\Discovery\HttpClientDiscovery;
+use Http\Discovery\Psr18ClientDiscovery;
 use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Readability\Readability;
@@ -34,21 +34,17 @@ class Graby
 
     private $config = [];
 
-    private $httpClient = null;
-    private $extractor = null;
+    private $httpClient;
+    private $extractor;
 
     /** @var ConfigBuilder */
     private $configBuilder;
     private $punycode;
 
     private $imgNoReferrer = false;
-    private $prefetchedContent = null;
+    private $prefetchedContent;
 
-    /**
-     * @param array       $config
-     * @param Client|null $client Http client
-     */
-    public function __construct($config = [], Client $client = null, ConfigBuilder $configBuilder = null)
+    public function __construct($config = [], ClientInterface $client = null, ConfigBuilder $configBuilder = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -118,7 +114,7 @@ class Graby
         );
 
         $this->httpClient = new HttpClient(
-            $client ?: new PluginClient(HttpClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
+            $client ?: new PluginClient(Psr18ClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
             $this->config['http_client'],
             $this->logger
         );
@@ -150,8 +146,6 @@ class Graby
      * Return a config.
      *
      * @param string $key
-     *
-     * @return mixed
      */
     public function getConfig($key)
     {
@@ -226,7 +220,7 @@ class Graby
         }
 
         // footnotes
-        if ('footnotes' === $this->config['content_links'] && false === strpos($url, 'wikipedia.org')) {
+        if ('footnotes' === $this->config['content_links'] && !str_contains($url, 'wikipedia.org')) {
             $this->extractor->readability->addFootnotes($contentBlock);
         }
 
@@ -342,13 +336,6 @@ class Graby
         }
 
         $this->logger->debug('HTML after regex empty nodes stripping', ['html' => $html]);
-
-        // some non utf8 enconding might be breaking after converting to utf8
-        // when it happen the string (usually) starts with this character
-        // in that case, we'll take the default response instead of the utf8 forced one
-        if (0 === strpos(utf8_encode($response['body']), 'ÿþ')) {
-            $html = $response['body'];
-        }
 
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;

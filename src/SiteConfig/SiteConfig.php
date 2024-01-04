@@ -54,7 +54,7 @@ class SiteConfig
      *
      * @var ?string
      */
-    public $src_lazy_load_attr = null;
+    public $src_lazy_load_attr;
 
     /**
      * Strip elements which contain these strings (0 or more) in the id or class attribute.
@@ -89,7 +89,7 @@ class SiteConfig
      *
      * @var ?bool
      */
-    public $tidy = null;
+    public $tidy;
 
     /**
      * Autodetect title/body if xpath expressions fail to produce results.
@@ -103,14 +103,14 @@ class SiteConfig
      *
      * @var ?bool
      */
-    public $autodetect_on_failure = null;
+    public $autodetect_on_failure;
 
     /**
      * Clean up content block - attempt to remove elements that appear to be superfluous.
      *
      * @var ?bool
      */
-    public $prune = null;
+    public $prune;
 
     /**
      * Test URL - if present, can be used to test the config above.
@@ -149,7 +149,7 @@ class SiteConfig
      *
      * @var ?string
      */
-    public $parser = null;
+    public $parser;
 
     /**
      * Strings to search for in HTML before processing begins (used with $replace_string).
@@ -170,7 +170,7 @@ class SiteConfig
      *
      * @var ?string
      */
-    public $cache_key = null;
+    public $cache_key;
 
     /**
      * If fetching the site's content requires to authentify.

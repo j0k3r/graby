@@ -21,14 +21,14 @@ class ContentExtractor
     private $xpath;
     private $html;
     private $config;
-    private $siteConfig = null;
-    private $title = null;
-    private $language = null;
+    private $siteConfig;
+    private $title;
+    private $language;
     private $authors = [];
-    private $body = null;
-    private $image = null;
+    private $body;
+    private $image;
     private $nativeAd = false;
-    private $date = null;
+    private $date;
     private $success = false;
     private $nextPageUrl;
     /** @var LoggerInterface */
