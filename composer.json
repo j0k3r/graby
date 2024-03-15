@@ -23,7 +23,7 @@
         "j0k3r/graby-site-config": "^1.0.181",
         "j0k3r/httplug-ssrf-plugin": "^2.0",
         "j0k3r/php-readability": "^1.2.9",
-        "monolog/monolog": "^1.18.0|^2.3",
+        "monolog/monolog": "^1.18.0|^2.3|^3.0",
         "php-http/client-common": "^2.7",
         "php-http/discovery": "^1.19",
         "php-http/httplug": "^2.4",
