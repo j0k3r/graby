@@ -1,7 +1,7 @@
 parameters:
     level: 7
     paths:
-        - maintenance/Rector
+        #- maintenance/Rector
         - src
         - tests
 

@@ -229,6 +229,37 @@ class GrabyFunctionalTest extends TestCase
         $this->assertSame('Michael Flynn\'s Contradictory Line On Russia', $res->getTitle());
     }
 
+    public function testCookieOnMultiplePages(): void
+    {
+        // Rector: do not add mock client – we are testing if the cookie is set.
+        $graby = new Graby([
+            'debug' => true,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ],
+            ],
+        ]);
+        $res = $graby->fetchContent('https://www.golem.de/news/app-entwicklung-cross-platform-oder-nativ-programmieren-2202-162600.html');
+
+        $this->assertCount(11, $res);
+
+        $this->assertArrayHasKey('status', $res);
+        $this->assertArrayHasKey('html', $res);
+        $this->assertArrayHasKey('title', $res);
+        $this->assertArrayHasKey('language', $res);
+        $this->assertArrayHasKey('date', $res);
+        $this->assertArrayHasKey('authors', $res);
+        $this->assertArrayHasKey('url', $res);
+        $this->assertArrayHasKey('summary', $res);
+        $this->assertArrayHasKey('image', $res);
+        $this->assertArrayHasKey('native_ad', $res);
+        $this->assertArrayHasKey('headers', $res);
+
+        $this->assertSame(200, $res['status']);
+        $this->assertStringNotContainsString('Golem.de mit Cookies', $res['html']);
+    }
+
     public function testSaveXmlUnknownEncoding(): void
     {
         $httpMockClient = new HttpMockClient();

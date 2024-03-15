@@ -33,7 +33,8 @@ class CookiePlugin implements Plugin
 
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
-        $cookies = [];
+        // inject cookies previously defined (like when it's defined in site config)
+        $cookies = $request->getHeader('Cookie');
         foreach ($this->cookieJar->getCookies() as $cookie) {
             if ($cookie->isExpired()) {
                 continue;
