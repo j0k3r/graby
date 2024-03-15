@@ -887,7 +887,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect title again or not
      */
-    private function extractTitle(bool $detectTitle, string $cssClass, ?\DOMNode $node = null, string $logMessage): bool
+    private function extractTitle(bool $detectTitle, string $cssClass, ?\DOMNode $node, string $logMessage): bool
     {
         if (null === $node) {
             return true;
@@ -911,7 +911,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect date again or not
      */
-    private function extractDate(bool $detectDate, string $cssClass, ?\DOMNode $node = null, string $logMessage): bool
+    private function extractDate(bool $detectDate, string $cssClass, ?\DOMNode $node, string $logMessage): bool
     {
         if (null === $node) {
             return true;
@@ -934,7 +934,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect author again or not
      */
-    private function extractAuthor(bool $detectAuthor, ?\DOMNode $node = null): bool
+    private function extractAuthor(bool $detectAuthor, ?\DOMNode $node): bool
     {
         if (false === $detectAuthor || !$this->xpath) {
             return false;
@@ -982,7 +982,7 @@ class ContentExtractor
      *
      * @return bool Telling if we have to detect body again or not
      */
-    private function extractBody(bool $detectBody, string $xpathExpression, ?\DOMNode $node = null, string $type): bool
+    private function extractBody(bool $detectBody, string $xpathExpression, ?\DOMNode $node, string $type): bool
     {
         if (false === $detectBody || !$this->xpath) {
             return false;
