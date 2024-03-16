@@ -4,36 +4,41 @@ declare(strict_types=1);
 
 namespace Maintenance\Graby\Rector\Helpers;
 
-use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\ClientInterface;
+use Http\Client\HttpAsyncClient;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class RecordingHttpClient implements ClientInterface
+class RecordingHttpClient implements HttpAsyncClient
 {
     /**
      * @var ResponseInterface[]
      */
     private array $responses;
 
-    private ClientInterface $httpClient;
+    private HttpAsyncClient $httpClient;
 
-    public function __construct(ClientInterface $httpClient)
+    public function __construct(HttpAsyncClient $httpClient)
     {
         $this->httpClient = $httpClient;
     }
 
     /**
-     * Sends a PSR-7 request and returns a PSR-7 response.
+     * Sends a PSR-7 request in an asynchronous way.
      *
-     * @throws ClientExceptionInterface if an error happens while processing the request
+     * Exceptions related to processing the request are available from the returned Promise.
+     *
+     * @throws \Exception If processing the request is impossible (eg. bad configuration).
+     *
+     * @return Promise resolves a PSR-7 Response or fails with an Http\Client\Exception
      */
-    public function sendRequest(RequestInterface $request): ResponseInterface
+    public function sendAsyncRequest(RequestInterface $request): Promise
     {
-        $response = $this->httpClient->sendRequest($request);
-        $this->responses[] = $response;
+        return $this->httpClient->sendAsyncRequest($request)->then(function (ResponseInterface $response): ResponseInterface {
+            $this->responses[] = $response;
 
-        return $response;
+            return $response;
+        });
     }
 
     /**

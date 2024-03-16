@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace Graby\Extractor;
 
+use Exception;
 use Graby\HttpClient\EffectiveResponse;
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
+use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\UriResolver;
 use Http\Client\Common\Exception\LoopException;
-use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
+use Http\Client\HttpAsyncClient as Client;
 use Http\Discovery\Psr17FactoryDiscovery;
-use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -31,8 +34,9 @@ use Psr\Log\NullLogger;
 class HttpClient
 {
     private HttpClientConfig $config;
-    private HttpMethodsClient $client;
+    private PluginClient $client;
     private LoggerInterface $logger;
+    private RequestFactoryInterface $requestFactory;
     private ResponseFactoryInterface $responseFactory;
     private StreamFactoryInterface $streamFactory;
     private UriFactoryInterface $uriFactory;
@@ -40,9 +44,9 @@ class HttpClient
     private ?ContentExtractor $extractor;
 
     /**
-     * @param ClientInterface $client Http client
+     * @param Client $client Http client
      */
-    public function __construct(ClientInterface $client, array $config = [], ?LoggerInterface $logger = null, ?ContentExtractor $extractor = null)
+    public function __construct(Client $client, array $config = [], ?LoggerInterface $logger = null, ?ContentExtractor $extractor = null)
     {
         $this->config = new HttpClientConfig($config);
 
@@ -53,24 +57,22 @@ class HttpClient
         $this->logger = $logger;
         $this->extractor = $extractor;
 
+        $this->requestFactory = Psr17FactoryDiscovery::findRequestFactory();
         $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
         $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
 
         $this->responseHistory = new History();
-        $this->client = new HttpMethodsClient(
-            new PluginClient(
-                $client,
-                [
-                    new ServerSideRequestForgeryProtectionPlugin(),
-                    new RedirectPlugin(),
-                    new Plugin\HistoryPlugin($this->responseHistory),
-                    new ErrorPlugin(),
-                ],
-                [
-                    'max_restarts' => $this->config->getMaxRedirect(),
-                ]
-            ),
-            Psr17FactoryDiscovery::findRequestFactory()
+        $this->client = new PluginClient(
+            $client,
+            [
+                new ServerSideRequestForgeryProtectionPlugin(),
+                new RedirectPlugin(),
+                new Plugin\HistoryPlugin($this->responseHistory),
+                new ErrorPlugin(),
+            ],
+            [
+                'max_restarts' => $this->config->getMaxRedirect(),
+            ]
         );
 
         $this->uriFactory = Psr17FactoryDiscovery::findUriFactory();
@@ -91,6 +93,22 @@ class HttpClient
      * @param array<string, string> $httpHeader           Custom HTTP Headers from SiteConfig
      */
     public function fetch(UriInterface $url, bool $skipTypeVerification = false, array $httpHeader = []): EffectiveResponse
+    {
+        return $this->fetchAsync($url, $skipTypeVerification, $httpHeader)->wait();
+    }
+
+    /**
+     * Grab informations from an url asynchronously:
+     *     - final url (after potential redirection)
+     *     - raw content
+     *     - content type header.
+     *
+     * @param bool                  $skipTypeVerification Avoid mime detection which means, force GET instead of potential HEAD
+     * @param array<string, string> $httpHeader           Custom HTTP Headers from SiteConfig
+     *
+     * @return PromiseInterface that resolves to EffectiveResponse
+     */
+    public function fetchAsync(UriInterface $url, bool $skipTypeVerification = false, array $httpHeader = []): PromiseInterface
     {
         $url = $this->cleanupUrl($url);
 
@@ -119,105 +137,135 @@ class HttpClient
             $headers['Accept'] = $accept;
         }
 
-        try {
-            /** @var ResponseInterface $response */
-            $response = $this->client->$method($url, $headers);
-        } catch (LoopException $e) {
-            $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
+        $request = $this->requestFactory->createRequest($method, $url);
+        foreach ($headers as $name => $value) {
+            $request = $request->withHeader($name, $value);
+        }
 
-            return new EffectiveResponse(
-                $url,
-                // Too many Redirects
-                $this->responseFactory->createResponse(310)
-            );
-        } catch (TransferException $e) {
-            if (method_exists($e, 'getRequest')) {
-                $url = $e->getRequest()->getUri();
-            }
+        return self::makePromise($this->client->sendAsyncRequest($request))->then(
+            function (ResponseInterface $response) use ($url, $httpHeader, $method) {
+                $effectiveUrl = $url;
+                if (null !== $this->responseHistory->getLastRequest()) {
+                    $effectiveUrl = $this->responseHistory->getLastRequest()->getUri();
+                }
 
-            // no response attached to the exception, we won't be able to retrieve content from it
-            $data = new EffectiveResponse(
-                $url,
-                $this->responseFactory->createResponse(500)
-            );
-            $message = 'Request throw exception (with no response): {error_message}';
+                $refresh = $response->getHeaderLine('refresh');
+                // if response give us a refresh header it means we need to follow the given url
+                if (!empty($refresh) && 1 === preg_match('![0-9];\s*url=["\']?([^"\'>]+)!i', $refresh, $match)) {
+                    return $this->fetchAsync($this->uriFactory->createUri($match[1]), true, $httpHeader);
+                }
 
-            if (method_exists($e, 'getResponse')) {
-                // exception has a response which means we might be able to retrieve content from it, log it and continue
-                $response = $e->getResponse();
+                // the response content-type did not match our 'header only' types,
+                // but we'd issues a HEAD request because we assumed it would. So
+                // let's queue a proper GET request for this item...
+                if ('head' === $method && !$this->headerOnlyType($response)) {
+                    return $this->fetchAsync($effectiveUrl, true, $httpHeader);
+                }
 
-                $data = new EffectiveResponse(
-                    $url,
-                    $response
+                $body = (string) $response->getBody();
+
+                // be sure to remove ALL other conditional comments for IE
+                // (regex inspired from here: https://stackoverflow.com/a/55083809/954513)
+                preg_match_all('/<!--(?:\[| ?<!).+?-->/mis', $body, $matchesConditional);
+
+                if (isset($matchesConditional[0]) && (is_countable($matchesConditional[0]) ? \count($matchesConditional[0]) : 0) > 1) {
+                    foreach ($matchesConditional as $conditionalComment) {
+                        $body = str_replace($conditionalComment, '', $body);
+                    }
+                }
+
+                if (null !== $this->extractor) {
+                    $body = $this->extractor->processStringReplacements($body, $effectiveUrl);
+                }
+
+                // check for <meta name='fragment' content='!'/>
+                // for AJAX sites, e.g. Blogger with its dynamic views templates.
+                // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
+                if (!str_contains((string) $effectiveUrl, '_escaped_fragment_')) {
+                    $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?? $this->getUglyURL($effectiveUrl, $body);
+
+                    if (null !== $redirectURL) {
+                        return $this->fetchAsync($redirectURL, true, $httpHeader);
+                    }
+                }
+
+                // remove utm parameters & fragment
+                $effectiveUrl = $this->removeTrackersFromUrl($this->uriFactory->createUri(str_replace('&amp;', '&', (string) $effectiveUrl)));
+
+                $this->logger->info('Data fetched: {data}', ['data' => [
+                    'effective_url' => (string) $effectiveUrl,
+                    'body' => '(only length for debug): ' . \strlen($body),
+                    'headers' => $response->getHeaders(),
+                    'status' => $response->getStatusCode(),
+                ]]);
+
+                return new EffectiveResponse(
+                    $effectiveUrl,
+                    $response->withBody($this->streamFactory->createStream($body))
                 );
-                $message = 'Request throw exception (with a response): {error_message}';
+            },
+            function (\Exception $e) use ($url) {
+                if ($e instanceof LoopException) {
+                    $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
+
+                    return new EffectiveResponse(
+                        $url,
+                        // Too many Redirects
+                        $this->responseFactory->createResponse(310)
+                    );
+                } elseif ($e instanceof TransferException) {
+                    if (method_exists($e, 'getRequest')) {
+                        $url = $e->getRequest()->getUri();
+                    }
+
+                    // no response attached to the exception, we won't be able to retrieve content from it
+                    $data = new EffectiveResponse(
+                        $url,
+                        $this->responseFactory->createResponse(500)
+                    );
+                    $message = 'Request throw exception (with no response): {error_message}';
+
+                    if (method_exists($e, 'getResponse')) {
+                        // exception has a response which means we might be able to retrieve content from it, log it and continue
+                        $response = $e->getResponse();
+
+                        $data = new EffectiveResponse(
+                            $url,
+                            $response
+                        );
+                        $message = 'Request throw exception (with a response): {error_message}';
+                    }
+
+                    $this->logger->warning($message, ['error_message' => $e->getMessage()]);
+                    $this->logger->info('Data fetched: {data}', ['data' => $data]);
+
+                    return $data;
+                }
             }
-
-            $this->logger->warning($message, ['error_message' => $e->getMessage()]);
-            $this->logger->info('Data fetched: {data}', ['data' => $data]);
-
-            return $data;
-        }
-
-        $effectiveUrl = $url;
-        if (null !== $this->responseHistory->getLastRequest()) {
-            $effectiveUrl = $this->responseHistory->getLastRequest()->getUri();
-        }
-
-        $refresh = $response->getHeaderLine('refresh');
-        // if response give us a refresh header it means we need to follow the given url
-        if (!empty($refresh) && 1 === preg_match('![0-9];\s*url=["\']?([^"\'>]+)!i', $refresh, $match)) {
-            return $this->fetch($this->uriFactory->createUri($match[1]), true, $httpHeader);
-        }
-
-        // the response content-type did not match our 'header only' types,
-        // but we'd issues a HEAD request because we assumed it would. So
-        // let's queue a proper GET request for this item...
-        if ('head' === $method && !$this->headerOnlyType($response)) {
-            return $this->fetch($effectiveUrl, true, $httpHeader);
-        }
-
-        $body = (string) $response->getBody();
-
-        // be sure to remove ALL other conditional comments for IE
-        // (regex inspired from here: https://stackoverflow.com/a/55083809/954513)
-        preg_match_all('/<!--(?:\[| ?<!).+?-->/mis', $body, $matchesConditional);
-
-        if (isset($matchesConditional[0]) && (is_countable($matchesConditional[0]) ? \count($matchesConditional[0]) : 0) > 1) {
-            foreach ($matchesConditional as $conditionalComment) {
-                $body = str_replace($conditionalComment, '', $body);
-            }
-        }
-
-        if (null !== $this->extractor) {
-            $body = $this->extractor->processStringReplacements($body, $effectiveUrl);
-        }
-
-        // check for <meta name='fragment' content='!'/>
-        // for AJAX sites, e.g. Blogger with its dynamic views templates.
-        // Based on Google's spec: https://developers.google.com/webmasters/ajax-crawling/docs/specification
-        if (!str_contains((string) $effectiveUrl, '_escaped_fragment_')) {
-            $redirectURL = $this->getMetaRefreshURL($effectiveUrl, $body) ?? $this->getUglyURL($effectiveUrl, $body);
-
-            if (null !== $redirectURL) {
-                return $this->fetch($redirectURL, true, $httpHeader);
-            }
-        }
-
-        // remove utm parameters & fragment
-        $effectiveUrl = $this->removeTrackersFromUrl($this->uriFactory->createUri(str_replace('&amp;', '&', (string) $effectiveUrl)));
-
-        $this->logger->info('Data fetched: {data}', ['data' => [
-            'effective_url' => (string) $effectiveUrl,
-            'body' => '(only length for debug): ' . \strlen($body),
-            'headers' => $response->getHeaders(),
-            'status' => $response->getStatusCode(),
-        ]]);
-
-        return new EffectiveResponse(
-            $effectiveUrl,
-            $response->withBody($this->streamFactory->createStream($body))
         );
+    }
+
+    /**
+     * @param mixed $thenable
+     */
+    private static function makePromise($thenable): PromiseInterface
+    {
+        if ($thenable instanceof \Http\Client\Promise\HttpFulfilledPromise) {
+            // Calling then() on HttpFulfilledPromise would create another HttpFulfilledPromise,
+            // which cannot resolve to anything other then ResponseInterface.
+            return new \GuzzleHttp\Promise\FulfilledPromise($thenable->wait());
+        } elseif ($thenable instanceof \Http\Client\Promise\HttpRejectedPromise) {
+            // Calling then() on HttpRejectedPromise would create HttpFulfilledPromise,
+            // which cannot resolve to anything other then ResponseInterface.
+            try {
+                // No other way to unpack the Exception than to have wait() throw it.
+                $thenable->wait();
+            } catch (\Exception $exception) {
+                return new \GuzzleHttp\Promise\RejectedPromise($exception);
+            }
+        }
+
+        return Create::promiseFor($thenable);
     }
 
     /**

@@ -59,10 +59,9 @@ Why `php-http/guzzle7-adapter`? Because Graby is decoupled from any HTTP client 
 Graby is tested & should work great with:
 
 - Guzzle 7 (using `php-http/guzzle7-adapter`)
-- Guzzle 5 (using `php-http/guzzle5-adapter`)
 - cURL (using `php-http/curl-client`)
 
-Note: if you want to use Guzzle 6, use Graby 2 (support has dropped in v3 because of dependencies conflicts, which does not happen with Guzzle 5 :shrug:)
+Note: if you want to use Guzzle 6, use Graby 2 (support has dropped in v3 because of dependencies conflicts)
 
 ### Retrieve content from an url
 
@@ -192,20 +191,6 @@ $logs = $this->get('monolog.handler.graby')->getRecords();
 
 If you need to define a timeout, you must create the `Http\Client\HttpClient` manually,
 configure it and inject it to `Graby\Graby`.
-
-- For Guzzle 5:
-
-    ```php
-    use Graby\Graby;
-    use GuzzleHttp\Client as GuzzleClient;
-    use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
-    $guzzle = new GuzzleClient([
-        'defaults' => [
-            'timeout' => 2,
-        ]
-    ]);
-    $graby = new Graby([], new GuzzleAdapter($guzzle));
-    ```
 
 - For Guzzle 7:
 
