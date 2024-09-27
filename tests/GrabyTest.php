@@ -1112,6 +1112,14 @@ class GrabyTest extends TestCase
         $this->assertStringNotContainsString('<figure><p>Après un <em>icebreaker</em>', $res->getHtml());
     }
 
+    public function testEmptyImgNodesPreserved(): void
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/empty-img-node.html');
+        $res = $graby->fetchContent('https://example.com/empty-img-node');
+
+        $this->assertStringContainsString('<img src="https://example.com/empty.jpg" alt="Empty node image" />', $res->getHtml());
+    }
+
     public function testMetaAuthor(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/keithjgrant.html');
