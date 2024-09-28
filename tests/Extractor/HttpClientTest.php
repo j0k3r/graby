@@ -15,7 +15,10 @@ use Psr\Http\Message\RequestInterface;
 
 class HttpClientTest extends TestCase
 {
-    public function dataForFetchGet(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataForFetchGet(): iterable
     {
         return [
             [
@@ -113,7 +116,10 @@ class HttpClientTest extends TestCase
         $this->assertSame(200, $res->getResponse()->getStatusCode());
     }
 
-    public function dataForMetaRefresh(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForMetaRefresh(): iterable
     {
         return [
             [
@@ -327,7 +333,10 @@ class HttpClientTest extends TestCase
         $this->assertSame('Endless redirect: 4 on "{url}"', $handler->getRecords()[3]['message']);
     }
 
-    public function dataForConditionalComments(): array
+    /**
+     * @return iterable<array{url: string, html: string, removeData: string, preserveData?: string}>
+     */
+    public function dataForConditionalComments(): iterable
     {
         return [
             [
@@ -405,7 +414,10 @@ class HttpClientTest extends TestCase
         }
     }
 
-    public function dataForUserAgent(): array
+    /**
+     * @return iterable<array{url: string, httpHeader: array<string, ?string>, expectedUa: string}>
+     */
+    public function dataForUserAgent(): iterable
     {
         return [
             [
@@ -433,6 +445,8 @@ class HttpClientTest extends TestCase
 
     /**
      * @dataProvider dataForUserAgent
+     *
+     * @param array<string, ?string> $httpHeader
      */
     public function testUserAgent(string $url, array $httpHeader, string $expectedUa): void
     {
@@ -459,7 +473,10 @@ class HttpClientTest extends TestCase
         $this->assertSame($url, $records[1]['context']['url']);
     }
 
-    public function dataForReferer(): array
+    /**
+     * @return iterable<array{url: string, httpHeader: array<string, ?string>, expectedReferer: string}>
+     */
+    public function dataForReferer(): iterable
     {
         return [
             [
@@ -487,6 +504,8 @@ class HttpClientTest extends TestCase
 
     /**
      * @dataProvider dataForReferer
+     *
+     * @param array<string, ?string> $httpHeader
      */
     public function testReferer(string $url, array $httpHeader, string $expectedReferer): void
     {
@@ -510,7 +529,10 @@ class HttpClientTest extends TestCase
         $this->assertSame($url, $records[2]['context']['url']);
     }
 
-    public function dataForCookie(): array
+    /**
+     * @return iterable<array{url: string, httpHeader: array<string, ?string>, expectedCookie: ?string}>
+     */
+    public function dataForCookie(): iterable
     {
         return [
             [
@@ -538,6 +560,8 @@ class HttpClientTest extends TestCase
 
     /**
      * @dataProvider dataForCookie
+     *
+     * @param array<string, ?string> $httpHeader
      */
     public function testCookie(string $url, array $httpHeader, ?string $expectedCookie): void
     {
@@ -564,7 +588,10 @@ class HttpClientTest extends TestCase
         }
     }
 
-    public function dataForAccept(): array
+    /**
+     * @return iterable<array{url: string, httpHeader: array<string, ?string>, expectedAccept: string|false}>
+     */
+    public function dataForAccept(): iterable
     {
         return [
             [
@@ -593,7 +620,8 @@ class HttpClientTest extends TestCase
     /**
      * @dataProvider dataForAccept
      *
-     * @param string|false $expectedAccept
+     * @param array<string, ?string> $httpHeader
+     * @param string|false           $expectedAccept
      */
     public function testAccept(string $url, array $httpHeader, $expectedAccept): void
     {
@@ -620,7 +648,10 @@ class HttpClientTest extends TestCase
         }
     }
 
-    public function dataForWithUrlContainingQueryAndFragment(): array
+    /**
+     * @return iterable<array{url: string, expectedUrl: string}>
+     */
+    public function dataForWithUrlContainingQueryAndFragment(): iterable
     {
         return [
             [

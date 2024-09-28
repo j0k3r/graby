@@ -118,7 +118,10 @@ class GrabyFunctionalTest extends TestCase
         $this->assertEmpty($res->getImage());
     }
 
-    public function dataWithAccent(): array
+    /**
+     * @return iterable<array{string}>
+     */
+    public function dataWithAccent(): iterable
     {
         return [
             // ['http://pérotin.com/post/2015/08/31/Le-cadran-solaire-amoureux'],
