@@ -84,7 +84,7 @@ class HttpClientConfig
         $resolver->setNormalizer('rewrite_url', function (Options $options, $value) {
             foreach ($value as $url => $action) {
                 if (!\is_string($url)) {
-                    throw new InvalidOptionsException(sprintf('The option "rewrite_url" with key "%s" is expected to be of type "string", but is of type "%s".', $url, get_debug_type($url)));
+                    throw new InvalidOptionsException(\sprintf('The option "rewrite_url" with key "%s" is expected to be of type "string", but is of type "%s".', $url, get_debug_type($url)));
                 }
 
                 $this->validateArray($action, 'rewrite_url[' . $url . ']');

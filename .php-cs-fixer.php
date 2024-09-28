@@ -25,17 +25,13 @@ return (new PhpCsFixer\Config())
         'no_useless_return' => true,
         // Enabled by Symfony and changes properties without type hints but we cannot use those yet because they require PHP 8.
         'no_null_property_initialization' => false,
-        // Enabled by @Symfony but is inconsistent.
-        'nullable_type_declaration_for_default_null_value' => [
-            'use_nullable_type_declaration' => true,
-        ],
         'ordered_class_elements' => true,
         'ordered_imports' => true,
         'php_unit_strict' => true,
         'phpdoc_order' => true,
-        'phpdoc_to_param_type' => true,
-        'phpdoc_to_return_type' => true,
-        'phpdoc_to_property_type' => true,
+        'phpdoc_to_param_type' => ['union_types' => false],
+        'phpdoc_to_return_type' => ['union_types' => false],
+        'phpdoc_to_property_type' => ['union_types' => false],
         // 'psr4' => true,
         'strict_comparison' => true,
         'strict_param' => true,
