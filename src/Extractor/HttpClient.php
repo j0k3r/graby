@@ -183,7 +183,7 @@ class HttpClient
         // (regex inspired from here: https://stackoverflow.com/a/55083809/954513)
         preg_match_all('/<!--(?:\[| ?<!).+?-->/mis', $body, $matchesConditional);
 
-        if (isset($matchesConditional[0]) && (is_countable($matchesConditional[0]) ? \count($matchesConditional[0]) : 0) > 1) {
+        if (\count($matchesConditional[0]) > 1) {
             foreach ($matchesConditional as $conditionalComment) {
                 $body = str_replace($conditionalComment, '', $body);
             }

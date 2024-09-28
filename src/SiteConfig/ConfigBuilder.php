@@ -68,6 +68,8 @@ class ConfigBuilder
         $key = strtolower($key);
         if (str_starts_with($key, 'www.')) {
             $key = substr($key, 4);
+            // For PHPStan on PHP < 8.0: it cannot fail since the prefix checked above has four characters.
+            \assert(false !== $key);
         }
 
         if ($config->cache_key) {
@@ -90,6 +92,8 @@ class ConfigBuilder
         $key = strtolower($key);
         if (str_starts_with($key, 'www.')) {
             $key = substr($key, 4);
+            // For PHPStan on PHP < 8.0: it cannot fail since the prefix checked above has four characters.
+            \assert(false !== $key);
         }
 
         if (\array_key_exists($key, $this->cache)) {
@@ -127,6 +131,8 @@ class ConfigBuilder
         $host = strtolower($host);
         if (str_starts_with($host, 'www.')) {
             $host = substr($host, 4);
+            // For PHPStan on PHP < 8.0: it cannot fail since the prefix checked above has four characters.
+            \assert(false !== $host);
         }
 
         // is merged version already cached?

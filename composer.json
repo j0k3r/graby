@@ -41,7 +41,7 @@
         "php-http/guzzle7-adapter": "^1.0",
         "php-http/mock-client": "^1.4",
         "phpstan/extension-installer": "^1.0",
-        "phpstan/phpstan": "^1.2",
+        "phpstan/phpstan": "^1.12",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpstan/phpstan-phpunit": "^1.0",
         "rector/rector": "^0.12.11",
