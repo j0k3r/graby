@@ -31,6 +31,12 @@ class ConfigBuilder
         'div',
     ];
 
+    /**
+     * @param array{
+     *   site_config?: string[],
+     *   hostname_regex?: string,
+     * } $config
+     */
     public function __construct(array $config = [], ?LoggerInterface $logger = null)
     {
         $this->config = new ConfigBuilderConfig($config);

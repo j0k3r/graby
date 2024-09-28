@@ -1300,6 +1300,45 @@ class GrabyTest extends TestCase
 
     /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
+     *
+     * @param array{
+     *   debug?: bool,
+     *   log_level?: 'info'|'debug',
+     *   rewrite_relative_urls?: bool,
+     *   singlepage?: bool,
+     *   multipage?: bool,
+     *   error_message?: string,
+     *   error_message_title?: string,
+     *   allowed_urls?: string[],
+     *   blocked_urls?: string[],
+     *   xss_filter?: bool,
+     *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
+     *   content_links?: 'preserve'|'footnotes'|'remove',
+     *   http_client?: array{
+     *     ua_browser?: string,
+     *     default_referer?: string,
+     *     rewrite_url?: array<array<string, string>>,
+     *     header_only_types?: array<string>,
+     *     header_only_clues?: array<string>,
+     *     user_agents?: array<string, string>,
+     *     ajax_triggers?: array<string>,
+     *     max_redirect?: int,
+     *   },
+     *   extractor?: array{
+     *     default_parser?: string,
+     *     fingerprints?: array<string, string>,
+     *     config_builder?: array{
+     *       site_config?: string[],
+     *       hostname_regex?: string,
+     *     },
+     *     readability?: array{
+     *       pre_filters?: array<string, string>,
+     *       post_filters?: array<string, string>,
+     *     },
+     *     src_lazy_load_attributes?: string[],
+     *     json_ld_ignore_types?: string[],
+     *   },
+     * } $grabyConfig
      */
     private function getGrabyWithMock(string $filePath, int $status = 200, array $grabyConfig = []): Graby
     {

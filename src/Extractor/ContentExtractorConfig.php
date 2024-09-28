@@ -20,8 +20,23 @@ class ContentExtractorConfig
     private string $default_parser;
     /** @var array<string, string> */
     private array $fingerprints;
+
+    /**
+     * @var array{
+     *   site_config?: string[],
+     *   hostname_regex?: string,
+     * }
+     */
     private array $config_builder;
+
+    /**
+     * @var array{
+     *   pre_filters: array<string, string>,
+     *   post_filters: array<string, string>,
+     * }
+     */
     private array $readability;
+
     /** @var array<string> */
     private array $src_lazy_load_attributes;
     /** @var array<string> */
@@ -31,7 +46,10 @@ class ContentExtractorConfig
      * @param array{
      *   default_parser?: string,
      *   fingerprints?: array<string, string>,
-     *   config_builder?: array,
+     *   config_builder?: array{
+     *     site_config?: string[],
+     *     hostname_regex?: string,
+     *   },
      *   readability?: array{
      *     pre_filters?: array<string, string>,
      *     post_filters?: array<string, string>,
@@ -129,11 +147,23 @@ class ContentExtractorConfig
         return $this->fingerprints;
     }
 
+    /**
+     * @return array{
+     *   site_config?: string[],
+     *   hostname_regex?: string,
+     * }
+     */
     public function getConfigBuilder(): array
     {
         return $this->config_builder;
     }
 
+    /**
+     * @return array{
+     *   pre_filters: array<string, string>,
+     *   post_filters: array<string, string>,
+     * }
+     */
     public function getReadability(): array
     {
         return $this->readability;

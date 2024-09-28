@@ -42,7 +42,10 @@ class ContentExtractor
      * @param array{
      *   default_parser?: string,
      *   fingerprints?: array<string, string>,
-     *   config_builder?: array,
+     *   config_builder?: array{
+     *     site_config?: string[],
+     *     hostname_regex?: string,
+     *   },
      *   readability?: array{
      *     pre_filters?: array<string, string>,
      *     post_filters?: array<string, string>,
