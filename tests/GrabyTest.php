@@ -38,20 +38,20 @@ class GrabyTest extends TestCase
 
             $test = (string) file_get_contents($file->getRealpath());
 
-            $parses = preg_match('/-----URL-----\s*(.*?)\s*-----URL_EFFECTIVE-----\s*(.*?)\s*-----HEADER-----\s*(.*?)\s*-----LANGUAGE-----\s*(.*?)\s*-----AUTHOR-----\s*(.*?)\s*-----TITLE-----\s*(.*?)\s*-----SUMMARY-----\s*(.*?)\s*-----RAW_CONTENT-----\s*(.*?)\s*(------RAW_CONTENT2-----\s*(.*?)\s*)?----PARSED_CONTENT-----\s*(.*)\s*/sx', $test, $match);
+            $parses = preg_match('/-----URL-----\s*(?P<url>.*?)\s*-----URL_EFFECTIVE-----\s*(?P<url_effective>.*?)\s*-----HEADER-----\s*(?P<header>.*?)\s*-----LANGUAGE-----\s*(?P<language>.*?)\s*-----AUTHOR-----\s*(?P<author>.*?)\s*-----TITLE-----\s*(?P<title>.*?)\s*-----SUMMARY-----\s*(?P<summary>.*?)\s*-----RAW_CONTENT-----\s*(?P<raw_content>.*?)\s*(?:------RAW_CONTENT2-----\s*(?P<raw_content2>.*?)\s*)?----PARSED_CONTENT-----\s*(?P<parsed_content>.*)\s*/sx', $test, $match);
             \assert(1 === $parses, \sprintf('File %s does not match the required pattern', $file->getRealpath()));
 
             $tests[] = [
-                $match[1], // url
-                $match[2], // url effective
-                $match[3], // header
-                $match[4], // language
-                $match[5], // author
-                $match[6], // title
-                $match[7], // summary
-                $match[8], // raw content
-                $match[10], // raw content2
-                $match[11], // parsed content
+                $match['url'],
+                $match['url_effective'],
+                $match['header'],
+                $match['language'],
+                $match['author'],
+                $match['title'],
+                $match['summary'],
+                $match['raw_content'],
+                $match['raw_content2'],
+                $match['parsed_content'],
             ];
         }
 
