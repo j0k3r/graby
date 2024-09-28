@@ -30,7 +30,5 @@ parameters:
         -
             message: '#expects DOMElement, DOMNode given#'
             path: %currentWorkingDirectory%/src/Graby.php
-        -
-            identifier: missingType.iterableValue
 
     inferPrivatePropertyTypeFromConstructor: true

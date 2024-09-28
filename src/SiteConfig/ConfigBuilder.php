@@ -13,10 +13,14 @@ class ConfigBuilder
 {
     private LoggerInterface $logger;
     private ConfigBuilderConfig $config;
+    /** @var array<string, string> */
     private array $configFiles = [];
+    /** @var array<string, SiteConfig> */
     private array $cache = [];
 
-    // Array for accepted headers for http_header()
+    /**
+     * @var string[] Array for accepted headers for http_header()
+     */
     private array $acceptedHeaders = [
         'user-agent',
         'referer',
@@ -24,7 +28,9 @@ class ConfigBuilder
         'accept',
     ];
 
-    // Array of accepted HTML tags for wrap_in()
+    /**
+     * @var string[] Array of accepted HTML tags for wrap_in()
+     */
     private array $acceptedWrapInTags = [
         'blockquote',
         'p',
@@ -315,6 +321,8 @@ class ConfigBuilder
 
     /**
      * Parse line from the config file to build the config.
+     *
+     * @param string[] $lines
      */
     public function parseLines(array $lines): SiteConfig
     {

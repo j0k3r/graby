@@ -548,8 +548,19 @@ class Graby
     /**
      * Based on content-type http header, decide what to do.
      *
-     * @return array With keys: 'mime', 'type', 'subtype', 'action', 'name'
-     *               e.g. array('mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image')
+     * @return array{
+     *   mime: '',
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     *   action: 'link'|'exclude',
+     *   name: string,
+     * } E.g. `['mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image']`
      */
     private function getMimeActionInfo(ResponseInterface $response): array
     {
@@ -586,7 +597,19 @@ class Graby
      * Handle action related to mime type detection.
      * These action can be exclude or link to handle custom content (like image, video, pdf, etc ..).
      *
-     * @param array $mimeInfo From getMimeActionInfo() function
+     * @param array{
+     *   mime: '',
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     *   action: 'link'|'exclude',
+     *   name: string,
+     * } $mimeInfo From getMimeActionInfo() function
      */
     private function handleMimeAction(array $mimeInfo, EffectiveResponse $response): ?Content
     {

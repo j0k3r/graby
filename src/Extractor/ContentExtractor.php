@@ -1322,6 +1322,8 @@ class ContentExtractor
     /**
      * Clean extract of JSON-LD authors.
      *
+     * @param array<mixed> $authors
+     *
      * @return string[]
      */
     private function extractAuthorsFromJsonLdArray(array $authors): array
