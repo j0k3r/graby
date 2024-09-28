@@ -18,7 +18,16 @@ class GrabyFormatter extends HtmlFormatter
     /**
      * Formats a log record.
      *
-     * @param array $record A record to format
+     * @param array{
+     *   channel: string,
+     *   level: int,
+     *   level_name: string,
+     *   datetime: \DateTimeInterface,
+     *   message: string,
+     *   formatted?: string,
+     *   context: array<string, mixed>,
+     *   extra: array<string, mixed>,
+     * } $record A record to format
      *
      * @return string The formatted record
      */
@@ -49,6 +58,9 @@ class GrabyFormatter extends HtmlFormatter
         return $output . '</table>';
     }
 
+    /**
+     * @param mixed $data
+     */
     protected function convertToString($data): string
     {
         if (\is_bool($data)) {
