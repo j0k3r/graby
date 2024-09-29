@@ -20,15 +20,5 @@ parameters:
         -
             message: '#\$innerHTML#'
             path: %currentWorkingDirectory%
-        # other stuff I might have fucked up with DOM* classes
-        -
-            message: '#DOMNode::\$tagName#'
-            path: %currentWorkingDirectory%/src/
-        -
-            message: '#DOMNode::getElementsByTagName#'
-            path: %currentWorkingDirectory%/src/
-        -
-            message: '#expects DOMElement, DOMNode given#'
-            path: %currentWorkingDirectory%/src/Graby.php
 
     inferPrivatePropertyTypeFromConstructor: true

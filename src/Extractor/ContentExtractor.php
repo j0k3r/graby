@@ -28,8 +28,7 @@ class ContentExtractor
     private ?string $language = null;
     /** @var string[] */
     private array $authors = [];
-    /** @var \DOMElement|\DOMNode|null */
-    private $body = null;
+    private ?\DOMElement $body = null;
     private ?string $image = null;
     private bool $nativeAd = false;
     private ?string $date = null;
@@ -500,7 +499,7 @@ class ContentExtractor
             $this->logger->info('Detecting body');
             $this->body = $this->readability->getContent();
 
-            if (1 === $this->body->childNodes->length && \XML_ELEMENT_NODE === $this->body->firstChild->nodeType) {
+            if (1 === $this->body->childNodes->length && $this->body->firstChild instanceof \DOMElement) {
                 $this->body = $this->body->firstChild;
             }
 
@@ -517,11 +516,11 @@ class ContentExtractor
             if (isset($this->title) && '' !== $this->title && null !== $this->body->firstChild) {
                 $firstChild = $this->body->firstChild;
 
-                while (null !== $firstChild->nextSibling && $firstChild->nodeType && (\XML_ELEMENT_NODE !== $firstChild->nodeType)) {
+                while (null !== $firstChild->nextSibling && !$firstChild instanceof \DOMElement) {
                     $firstChild = $firstChild->nextSibling;
                 }
 
-                if (\XML_ELEMENT_NODE === $firstChild->nodeType
+                if ($firstChild instanceof \DOMElement
                     && \in_array(strtolower($firstChild->tagName), ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)
                     && (strtolower(trim($firstChild->textContent)) === strtolower(trim($this->title)))) {
                     $this->body->removeChild($firstChild);
@@ -648,10 +647,7 @@ class ContentExtractor
         return $html;
     }
 
-    /**
-     * @return \DOMElement|\DOMNode|null
-     */
-    public function getContent()
+    public function getContent(): ?\DOMElement
     {
         return $this->body;
     }
@@ -1005,9 +1001,9 @@ class ContentExtractor
         $this->logger->info($type . ': found "' . $elems->length . '" with ' . $xpathExpression);
 
         if (1 === $elems->length) {
-            // body can't be an attribute
-            if ($elems->item(0) instanceof \DOMAttr) {
-                $this->logger->info('Body can not be an attribute');
+            // body can't be anything other than element
+            if (!$elems->item(0) instanceof \DOMElement) {
+                $this->logger->info('Body must be an element');
 
                 return true;
             }

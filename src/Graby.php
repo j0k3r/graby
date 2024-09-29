@@ -189,7 +189,7 @@ class Graby
     /**
      * Cleanup HTML from a DOMElement or a string.
      *
-     * @param string|\DOMElement|\DOMNode $contentBlock
+     * @param string|\DOMElement $contentBlock
      */
     public function cleanupHtml($contentBlock, UriInterface $url): string
     {
@@ -226,13 +226,13 @@ class Graby
 
         // remove empty text nodes
         foreach ($contentBlock->childNodes as $n) {
-            if (\XML_TEXT_NODE === $n->nodeType && '' === trim($n->textContent)) {
+            if ($n instanceof \DOMText && '' === trim($n->textContent)) {
                 $contentBlock->removeChild($n);
             }
         }
 
         // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while (1 === $contentBlock->childNodes->length && \XML_ELEMENT_NODE === $contentBlock->firstChild->nodeType) {
+        while (1 === $contentBlock->childNodes->length && $contentBlock->firstChild instanceof \DOMElement) {
             // only follow these tag names
             if (!\in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
                 break;
