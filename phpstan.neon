@@ -9,9 +9,9 @@ parameters:
         - vendor/bin/.phpunit/phpunit/vendor/autoload.php
 
     ignoreErrors:
-        # because we check for some HTTP client to exist or not (Guzzle 5/6 & cURL)
+        # because we check for some HTTP client to exist or not (cURL)
         -
-            message: '#Http\\Adapter\\Guzzle5\\Client\\|Http\\Adapter\\Guzzle6\\Client\\|Http\\Client\\Curl\\Client given#'
+            message: '#Http\\Client\\Curl\\Client given#'
             path: %currentWorkingDirectory%/tests/Extractor/HttpClientTest.php
         # phpstan does not seem to recognize the class override for JSLikeHTMLElement
         -
@@ -30,7 +30,7 @@ parameters:
         -
             message: '#expects DOMElement, DOMNode given#'
             path: %currentWorkingDirectory%/src/Graby.php
+        -
+            identifier: missingType.iterableValue
 
     inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false

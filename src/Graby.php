@@ -256,7 +256,7 @@ class Graby
         $effectiveUrl = $effectiveUrl->withPath(str_replace(' ', '%20', $effectiveUrl->getPath()));
         $response = $response->withEffectiveUri($effectiveUrl);
         if (!$this->isUrlAllowed((string) $effectiveUrl)) {
-            throw new \Exception(sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
+            throw new \Exception(\sprintf('Url "%s" is not allowed to be parsed.', $effectiveUrl));
         }
 
         // check if action defined for returned Content-Type, like image, pdf, audio or video
@@ -451,7 +451,7 @@ class Graby
             $uriIdnSafe = idn_to_ascii($uri->getHost());
 
             if (false === $uriIdnSafe) {
-                throw new \InvalidArgumentException(sprintf('Url "%s" is not valid IDN to ascii.', (string) $uri));
+                throw new \InvalidArgumentException(\sprintf('Url "%s" is not valid IDN to ascii.', (string) $uri));
             }
 
             $uri = $uri->withHost($uriIdnSafe);
@@ -470,17 +470,17 @@ class Graby
         $url = (string) $uri;
 
         if (false === filter_var($url, \FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(sprintf('Url "%s" is not valid.', $url));
+            throw new \InvalidArgumentException(\sprintf('Url "%s" is not valid.', $url));
         }
 
         $url = filter_var($url, \FILTER_SANITIZE_URL);
 
         if (false === $url) {
-            throw new \InvalidArgumentException(sprintf('Sanitizing url "%s" failed.', $url));
+            throw new \InvalidArgumentException(\sprintf('Sanitizing url "%s" failed.', $url));
         }
 
         if (false === $this->isUrlAllowed($url)) {
-            throw new \InvalidArgumentException(sprintf('Url "%s" is not allowed to be parsed.', $url));
+            throw new \InvalidArgumentException(\sprintf('Url "%s" is not allowed to be parsed.', $url));
         }
 
         return $this->uriFactory->createUri($url);
@@ -570,7 +570,7 @@ class Graby
         );
 
         if ('exclude' === $mimeInfo['action']) {
-            throw new \Exception(sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
+            throw new \Exception(\sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
         }
 
         $infos = $infos->withHtml('<a href="' . $effectiveUrl . '">Download ' . $mimeInfo['name'] . '</a>');
