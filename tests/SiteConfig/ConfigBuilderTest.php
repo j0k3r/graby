@@ -88,7 +88,10 @@ class ConfigBuilderTest extends TestCase
         $this->assertTrue(true === $configActual->autodetect_on_failure(true));
     }
 
-    public function dataForAddToCache(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForAddToCache(): iterable
     {
         return [
             ['mykey', '', 'mykey'],
@@ -115,7 +118,10 @@ class ConfigBuilderTest extends TestCase
         $this->assertSame($config, $configBuilder->getCachedVersion($expectedKey));
     }
 
-    public function dataForCachedVersion(): array
+    /**
+     * @return iterable<array{string, bool}>
+     */
+    public function dataForCachedVersion(): iterable
     {
         return [
             ['mykey', false],
@@ -158,7 +164,10 @@ class ConfigBuilderTest extends TestCase
         $this->assertSame($config1, $config2);
     }
 
-    public function dataForBuild(): array
+    /**
+     * @return iterable<array{0: string, 1: bool, 2?: string}>
+     */
+    public function dataForBuild(): iterable
     {
         return [
             // bar hostname

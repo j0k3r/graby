@@ -47,6 +47,46 @@ class Graby
 
     private ?string $prefetchedContent = null;
 
+    /**
+     * @param array{
+     *   debug?: bool,
+     *   log_level?: 'info'|'debug',
+     *   rewrite_relative_urls?: bool,
+     *   singlepage?: bool,
+     *   multipage?: bool,
+     *   error_message?: string,
+     *   error_message_title?: string,
+     *   allowed_urls?: string[],
+     *   blocked_urls?: string[],
+     *   xss_filter?: bool,
+     *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
+     *   content_links?: 'preserve'|'footnotes'|'remove',
+     *   http_client?: array{
+     *     ua_browser?: string,
+     *     default_referer?: string,
+     *     rewrite_url?: array<array<string, string>>,
+     *     header_only_types?: array<string>,
+     *     header_only_clues?: array<string>,
+     *     user_agents?: array<string, string>,
+     *     ajax_triggers?: array<string>,
+     *     max_redirect?: int,
+     *   },
+     *   extractor?: array{
+     *     default_parser?: string,
+     *     fingerprints?: array<string, string>,
+     *     config_builder?: array{
+     *       site_config?: string[],
+     *       hostname_regex?: string,
+     *     },
+     *     readability?: array{
+     *       pre_filters?: array<string, string>,
+     *       post_filters?: array<string, string>,
+     *     },
+     *     src_lazy_load_attributes?: string[],
+     *     json_ld_ignore_types?: string[],
+     *   },
+     * } $config
+     */
     public function __construct(array $config = [], ?ClientInterface $client = null, ?ConfigBuilder $configBuilder = null)
     {
         $this->config = new GrabyConfig($config);
@@ -149,7 +189,7 @@ class Graby
     /**
      * Cleanup HTML from a DOMElement or a string.
      *
-     * @param string|\DOMElement|\DOMNode $contentBlock
+     * @param string|\DOMElement $contentBlock
      */
     public function cleanupHtml($contentBlock, UriInterface $url): string
     {
@@ -186,13 +226,13 @@ class Graby
 
         // remove empty text nodes
         foreach ($contentBlock->childNodes as $n) {
-            if (\XML_TEXT_NODE === $n->nodeType && '' === trim($n->textContent)) {
+            if ($n instanceof \DOMText && '' === trim($n->textContent)) {
                 $contentBlock->removeChild($n);
             }
         }
 
         // remove nesting: <div><div><div><p>test</p></div></div></div> = <p>test</p>
-        while (1 === $contentBlock->childNodes->length && \XML_ELEMENT_NODE === $contentBlock->firstChild->nodeType) {
+        while (1 === $contentBlock->childNodes->length && $contentBlock->firstChild instanceof \DOMElement) {
             // only follow these tag names
             if (!\in_array(strtolower($contentBlock->tagName), ['div', 'article', 'section', 'header', 'footer'], true)) {
                 break;
@@ -508,8 +548,19 @@ class Graby
     /**
      * Based on content-type http header, decide what to do.
      *
-     * @return array With keys: 'mime', 'type', 'subtype', 'action', 'name'
-     *               e.g. array('mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image')
+     * @return array{
+     *   mime: '',
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     *   action: 'link'|'exclude',
+     *   name: string,
+     * } E.g. `['mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image']`
      */
     private function getMimeActionInfo(ResponseInterface $response): array
     {
@@ -546,7 +597,19 @@ class Graby
      * Handle action related to mime type detection.
      * These action can be exclude or link to handle custom content (like image, video, pdf, etc ..).
      *
-     * @param array $mimeInfo From getMimeActionInfo() function
+     * @param array{
+     *   mime: '',
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     * } | array{
+     *   mime: string,
+     *   type: string,
+     *   subtype: string,
+     *   action: 'link'|'exclude',
+     *   name: string,
+     * } $mimeInfo From getMimeActionInfo() function
      */
     private function handleMimeAction(array $mimeInfo, EffectiveResponse $response): ?Content
     {

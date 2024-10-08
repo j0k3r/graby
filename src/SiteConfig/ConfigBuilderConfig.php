@@ -16,6 +16,12 @@ class ConfigBuilderConfig
     private array $site_config;
     private string $hostname_regex;
 
+    /**
+     * @param array{
+     *   site_config?: string[],
+     *   hostname_regex?: string,
+     * } $config
+     */
     public function __construct(array $config)
     {
         $resolver = new OptionsResolver();

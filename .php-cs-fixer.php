@@ -29,9 +29,17 @@ return (new PhpCsFixer\Config())
         'ordered_imports' => true,
         'php_unit_strict' => true,
         'phpdoc_order' => true,
-        'phpdoc_to_param_type' => ['union_types' => false],
+        // This breaks `Monolog\Formatter\GrabyFormatter::convertToString()`.
+        // 'phpdoc_to_param_type' => ['union_types' => false],
         'phpdoc_to_return_type' => ['union_types' => false],
         'phpdoc_to_property_type' => ['union_types' => false],
+        'no_superfluous_phpdoc_tags' => [
+            // Copied from Symfony
+            'allow_hidden_params' => true,
+            'remove_inheritdoc' => true,
+            // We want this for PHPStan and we cannot use `mixed` type hint because it requires PHP 8.
+            'allow_mixed' => true,
+        ],
         // 'psr4' => true,
         'strict_comparison' => true,
         'strict_param' => true,

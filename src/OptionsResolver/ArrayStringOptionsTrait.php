@@ -11,6 +11,7 @@ use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
  */
 trait ArrayStringOptionsTrait
 {
+    // @phpstan-ignore missingType.iterableValue (it would need to be `@param ($key is not null ? array{$key?: array<int|string, mixed>|null} : array<int|string, mixed>) $array`, which is not a valid syntax)
     public function validateArray(array $array, string $option, ?string $key = null): void
     {
         if (null === $key) {

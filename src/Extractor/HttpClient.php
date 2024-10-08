@@ -41,6 +41,16 @@ class HttpClient
 
     /**
      * @param ClientInterface $client Http client
+     * @param array{
+     *   ua_browser?: string,
+     *   default_referer?: string,
+     *   rewrite_url?: array<array<string, string>>,
+     *   header_only_types?: array<string>,
+     *   header_only_clues?: array<string>,
+     *   user_agents?: array<string, string>,
+     *   ajax_triggers?: array<string>,
+     *   max_redirect?: int,
+     * } $config
      */
     public function __construct(ClientInterface $client, array $config = [], ?LoggerInterface $logger = null, ?ContentExtractor $extractor = null)
     {

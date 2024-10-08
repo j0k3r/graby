@@ -24,11 +24,24 @@ class HttpClientConfig
     private array $header_only_types;
     /** @var array<string> */
     private array $header_only_clues;
+    /** @var array<string, string> Mapping from hostnames to user agent strings */
     private array $user_agents;
     /** @var array<string> */
     private array $ajax_triggers;
     private int $max_redirect;
 
+    /**
+     * @param array{
+     *   ua_browser?: string,
+     *   default_referer?: string,
+     *   rewrite_url?: array<array<string, string>>,
+     *   header_only_types?: array<string>,
+     *   header_only_clues?: array<string>,
+     *   user_agents?: array<string, string>,
+     *   ajax_triggers?: array<string>,
+     *   max_redirect?: int,
+     * } $config
+     */
     public function __construct(array $config)
     {
         $resolver = new OptionsResolver();
@@ -134,6 +147,9 @@ class HttpClientConfig
         return $this->header_only_clues;
     }
 
+    /**
+     * @return array<string, string> Mapping from hostnames to user agent strings
+     */
     public function getUserAgents(): array
     {
         return $this->user_agents;

@@ -35,7 +35,10 @@ class ContentExtractorTest extends TestCase
         $this->assertNull($contentExtractor->getNextPageUrl());
     }
 
-    public function dataFingerPrints(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataFingerPrints(): iterable
     {
         return [
             'blogger double quote' => [
@@ -196,7 +199,10 @@ class ContentExtractorTest extends TestCase
         $this->assertStringContainsString('<iframe src="">[embedded content]</iframe>', $this->getXmlContent($contentExtractor));
     }
 
-    public function dataForNextPage(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForNextPage(): iterable
     {
         return [
             // return the link as string
@@ -227,7 +233,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($urlExpected, $contentExtractor->getNextPageUrl());
     }
 
-    public function dataForTitle(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForTitle(): iterable
     {
         return [
             // return the link as string
@@ -256,7 +265,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($titleExpected, $contentExtractor->getTitle());
     }
 
-    public function dataForAuthor(): array
+    /**
+     * @return iterable<array{string, string, string[]}>
+     */
+    public function dataForAuthor(): iterable
     {
         return [
             // return author node
@@ -270,6 +282,8 @@ class ContentExtractorTest extends TestCase
 
     /**
      * @dataProvider dataForAuthor
+     *
+     * @param string[] $authorExpected
      */
     public function testExtractAuthor(string $pattern, string $html, array $authorExpected): void
     {
@@ -287,7 +301,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($authorExpected, $contentExtractor->getAuthors());
     }
 
-    public function dataForLanguage(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataForLanguage(): iterable
     {
         return [
             ['<html><meta name="DC.language" content="en" />from <a rel="author" href="/user8412228">CaTV</a></html>', 'en'],
@@ -313,7 +330,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($languageExpected, $contentExtractor->getLanguage());
     }
 
-    public function dataForDate(): array
+    /**
+     * @return iterable<array{string, string, ?string}>
+     */
+    public function dataForDate(): iterable
     {
         return [
             // good time format
@@ -346,7 +366,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($dateExpected, $contentExtractor->getDate());
     }
 
-    public function dataForStrip(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForStrip(): iterable
     {
         return [
             // strip nav element and keep only the p
@@ -375,11 +398,14 @@ class ContentExtractorTest extends TestCase
         $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($contentExtractor));
     }
 
-    public function dataForStripIdOrClass(): array
+    /**
+     * @return iterable<array{string, string, ?string, ?string}>
+     */
+    public function dataForStripIdOrClass(): iterable
     {
         return [
-            ['commentlist', '<html><body><nav id="commentlist">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !'],
-            ['related_post', '<html><body><nav id="high">' . str_repeat('hello !', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'this is the best part of the show'],
+            ['commentlist', '<html><body><nav id="commentlist">hello !hello !hello !hello !hello !hello !hello !hello !hello !</nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'hello !', null],
+            ['related_post', '<html><body><nav id="high">' . str_repeat('hello !', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'this is the best part of the show', null],
             ['related', '<html><body><nav id="high">' . str_repeat('lorem ipsum dolor', 20) . '</nav><p class="related_post">' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', null, 'class="related_post"'],
         ];
     }
@@ -387,7 +413,7 @@ class ContentExtractorTest extends TestCase
     /**
      * @dataProvider dataForStripIdOrClass
      */
-    public function testApplyStripIdOrClass(string $pattern, string $html, ?string $removedContent, ?string $matchContent = null): void
+    public function testApplyStripIdOrClass(string $pattern, string $html, ?string $removedContent, ?string $matchContent): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
@@ -409,7 +435,10 @@ class ContentExtractorTest extends TestCase
         }
     }
 
-    public function dataForStripImageSrc(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForStripImageSrc(): iterable
     {
         return [
             ['doubleclick.net', '<html><body><img src="https://www.doubleclick.net/pub.jpg"/></nav><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>', 'https://www.doubleclick.net/pub.jpg'],
@@ -437,7 +466,10 @@ class ContentExtractorTest extends TestCase
         $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($contentExtractor));
     }
 
-    public function dataForStripDisplayNoneAndInstapaper(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataForStripDisplayNoneAndInstapaper(): iterable
     {
         return [
             // remove element with class "instapaper_ignore"
@@ -466,7 +498,10 @@ class ContentExtractorTest extends TestCase
         $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($contentExtractor));
     }
 
-    public function dataForStripAttr(): array
+    /**
+     * @return iterable<array{string[], string, array<string, string[]>}>
+     */
+    public function dataForStripAttr(): iterable
     {
         return [
             [
@@ -490,6 +525,9 @@ class ContentExtractorTest extends TestCase
 
     /**
      * @dataProvider dataForStripAttr
+     *
+     * @param string[]                $patterns
+     * @param array<string, string[]> $assertions
      */
     public function testApplyStripAttr(array $patterns, string $html, array $assertions): void
     {
@@ -515,7 +553,10 @@ class ContentExtractorTest extends TestCase
         }
     }
 
-    public function dataForExtractBody(): array
+    /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataForExtractBody(): iterable
     {
         return [
             // extract one element
@@ -554,7 +595,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($expectedContent, $this->getXmlContent($contentExtractor));
     }
 
-    public function dataForExtractHNews(): array
+    /**
+     * @return iterable<array{string, string, array<string, string|string[]|null>}>
+     */
+    public function dataForExtractHNews(): iterable
     {
         return [
             // the all hNews tested
@@ -594,6 +638,8 @@ class ContentExtractorTest extends TestCase
 
     /**
      * @dataProvider dataForExtractHNews
+     *
+     * @param array<string, string|string[]|null> $expectedElements
      */
     public function testExtractHNews(string $html, string $expectedContent, array $expectedElements): void
     {
@@ -636,7 +682,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame($contentExtractor->getTitle(), 'hello !');
     }
 
-    public function dataForExtractSchemaOrg(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataForExtractSchemaOrg(): iterable
     {
         return [
             // articleBody on one element
@@ -698,7 +747,10 @@ class ContentExtractorTest extends TestCase
         $this->assertSame('My Title', $contentExtractor->getTitle());
     }
 
-    public function dataForlazyLoad(): array
+    /**
+     * @return iterable<array{string, string}>
+     */
+    public function dataForlazyLoad(): iterable
     {
         return [
             // test with img attribute data-src
@@ -1131,7 +1183,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertNull($contentExtractor->getDate(), 'Date got vanish because it was wrong');
     }
 
-    public function dataForProcessWrapIn(): array
+    /**
+     * @return iterable<array{array<string, string>, string}>
+     */
+    public function dataForProcessWrapIn(): iterable
     {
         return [
             // blockquote with a nested div
@@ -1154,6 +1209,8 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
      * Test config wrap_in.
      *
      * @dataProvider dataForProcessWrapIn
+     *
+     * @param array<string, string> $wrapIn
      */
     public function testProcessWrapIn(array $wrapIn, string $xpathQuery): void
     {
