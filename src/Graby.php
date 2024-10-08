@@ -314,8 +314,8 @@ class Graby
         $re = '/^[ \t]*[\r\n]+/m';
         $htmlCleaned = preg_replace($re, '', $html);
 
-        // Remove empty nodes (except iframe, td and th)
-        $re = '/<(?!iframe|td|th)([^>\s]+)[^>]*>(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;|\s)*<\/\1>/m';
+        // Remove empty nodes (except iframe, img, td and th)
+        $re = '/<(?!iframe|img|td|th)([^>\s]+)[^>]*>(?:<br \/>|&nbsp;|&thinsp;|&ensp;|&emsp;|&#8201;|&#8194;|&#8195;|\s)*<\/\1>/m';
         $html = preg_replace($re, '', (string) $htmlCleaned);
 
         // in case html string is too long, keep the html uncleaned to avoid empty html
