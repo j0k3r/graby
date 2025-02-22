@@ -813,6 +813,7 @@ class ContentExtractor
                 /** @var \DOMDocument */
                 $ownerDocument = $item->ownerDocument;
                 $newNode = $ownerDocument->createElement($tag);
+                \assert(false !== $newNode); // For PHPStan
                 $newNode->setInnerHtml($ownerDocument->saveXML($item));
 
                 $item->parentNode->replaceChild($newNode, $item);

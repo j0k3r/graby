@@ -427,6 +427,7 @@ class Graby
             if (empty($multiPageContent)) {
                 $this->logger->info('Failed to extract all parts of multi-page article, so not going to include them');
                 $page = $readability->dom->createElement('p');
+                \assert(false !== $page); // For PHPStan
                 $page->innerHTML = '<em>This article appears to continue on subsequent pages which we could not extract</em>';
                 $multiPageContent[] = $page;
             }
