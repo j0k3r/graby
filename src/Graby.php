@@ -19,6 +19,7 @@ use Psr\Log\NullLogger;
 use Readability\Readability;
 use Smalot\PdfParser\Parser as PdfParser;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Polyfill\Intl\Idn\Idn as SymfonyIdn;
 
 /**
  * @todo add proxy
@@ -491,7 +492,15 @@ class Graby
         $uri = new Uri((string) $url);
 
         if (preg_match('/[\x80-\xff]/', $uri->getHost())) {
-            $uriIdnSafe = idn_to_ascii($uri->getHost());
+            $uriIdnSafe = \defined('INTL_IDNA_VARIANT_UTS46') ? idn_to_ascii(
+                $uri->getHost(),
+                \IDNA_DEFAULT,
+                \INTL_IDNA_VARIANT_UTS46
+            ) : SymfonyIdn::idn_to_ascii(
+                $uri->getHost(),
+                SymfonyIdn::IDNA_DEFAULT,
+                SymfonyIdn::INTL_IDNA_VARIANT_UTS46
+            );
 
             if (false === $uriIdnSafe) {
                 throw new \InvalidArgumentException(\sprintf('Url "%s" is not valid IDN to ascii.', $url));
