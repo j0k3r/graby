@@ -167,7 +167,7 @@ jobs:
       - name: "Setup adapter: Guzzle 5"
         run: |
           composer remove guzzlehttp/guzzle php-http/guzzle6-adapter --dev -n
-          composer require php-http/guzzle5-adapter --dev -n
+          composer require php-http/guzzle5-adapter --dev -n --with-all-dependencies
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"
