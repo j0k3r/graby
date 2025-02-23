@@ -21,7 +21,6 @@ class ContentExtractor
 {
     public ?Readability $readability = null;
     private ?\DOMXPath $xpath = null;
-    private ?string $html = null;
     private ContentExtractorConfig $config;
     private ?SiteConfig $siteConfig = null;
     private ?string $title = null;
@@ -70,7 +69,6 @@ class ContentExtractor
     public function reset(): void
     {
         $this->xpath = null;
-        $this->html = null;
         $this->readability = null;
         $this->siteConfig = null;
         $this->title = null;
@@ -589,7 +587,6 @@ class ContentExtractor
 
                 foreach (['src', 'srcset'] as $attr) {
                     if (\array_key_exists($attr, $attributes)
-                        && null !== $attributes[$attr]
                         && !empty($attributes[$attr])) {
                         $e->setAttribute($attr, $attributes[$attr]);
                     }
@@ -1418,12 +1415,10 @@ class ContentExtractor
             }
         }
 
-        if (\is_array($candidateNames) && \count($candidateNames) > 0) {
-            foreach ($candidateNames as $name) {
-                if (!\in_array($name, $ignoreNames, true)) {
-                    $this->title = $name;
-                    $this->logger->info('title matched from JsonLd: {{title}}', ['title' => $name]);
-                }
+        foreach ($candidateNames as $name) {
+            if (!\in_array($name, $ignoreNames, true)) {
+                $this->title = $name;
+                $this->logger->info('title matched from JsonLd: {{title}}', ['title' => $name]);
             }
         }
     }

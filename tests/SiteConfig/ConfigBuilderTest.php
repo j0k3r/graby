@@ -13,11 +13,12 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigBuilderTest extends TestCase
 {
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testConstructDefault(): void
     {
         $builder = new ConfigBuilder(['site_config' => [__DIR__]]);
-
-        $this->assertInstanceOf(ConfigBuilder::class, $builder);
     }
 
     public function testBuildFromArrayNoLines(): void
@@ -153,14 +154,11 @@ class ConfigBuilderTest extends TestCase
         $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
         $config1 = $configBuilder->buildForHost('www.host.io');
 
-        $this->assertInstanceOf(SiteConfig::class, $config1);
-
         $this->assertSame($config1, $configBuilder->getCachedVersion('host.io'));
         $this->assertSame($config1, $configBuilder->getCachedVersion('host.io.merged'));
 
         $config2 = $configBuilder->buildForHost('host.io');
 
-        $this->assertInstanceOf(SiteConfig::class, $config2);
         $this->assertSame($config1, $config2);
     }
 
@@ -223,7 +221,7 @@ class ConfigBuilderTest extends TestCase
 
         $res2 = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
-        $this->assertInstanceOf(SiteConfig::class, $res);
+        $this->assertInstanceOf(SiteConfig::class, $res2);
         $this->assertSame($res, $res2, 'Config retrieve from cache');
     }
 
@@ -239,8 +237,6 @@ class ConfigBuilderTest extends TestCase
         $configBuilder->setLogger($logger);
 
         $res = $configBuilder->buildFromUrl(new Uri('https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal'));
-
-        $this->assertInstanceOf(SiteConfig::class, $res);
 
         $records = $handler->getRecords();
 

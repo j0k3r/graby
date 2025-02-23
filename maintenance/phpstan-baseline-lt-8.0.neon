@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method Graby\\SiteConfig\\ConfigBuilder\:\:makeHostKey\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: ../src/SiteConfig/ConfigBuilder.php
