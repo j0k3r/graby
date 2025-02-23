@@ -189,7 +189,7 @@ class Graby
     /**
      * Cleanup HTML from a DOMElement or a string.
      *
-     * @param string|\DOMElement $contentBlock
+     * @param string|\DOMElement $contentBlock a DOM element or UTF-8-encoded HTML fragment
      */
     public function cleanupHtml($contentBlock, UriInterface $url): string
     {

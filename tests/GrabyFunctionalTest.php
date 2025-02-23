@@ -267,4 +267,27 @@ class GrabyFunctionalTest extends TestCase
         $this->assertNotNull($res->getSummary());
         $this->assertSame(200, $res->getEffectiveResponse()->getResponse()->getStatusCode());
     }
+
+    // https://github.com/j0k3r/graby/issues/359
+    public function testExtractDefinedInformation(): void
+    {
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => ['text/html; charset=UTF-8'], 'Transfer-Encoding' => ['chunked'], 'Connection' => ['keep-alive'], 'Date' => ['Sun, 23 Feb 2025 23:19:48 GMT'], 'countrycode' => ['CZ'], 'Accept-Ranges' => ['bytes'], 'X-Frame-Options' => ['SAMEORIGIN'], 'Cache-Control' => ['no-cache, private'], 'Surrogate-Control' => ['content="ESI/1.0"'], 'Vary' => ['Accept-Encoding'], 'Strict-Transport-Security' => ['max-age=31536000; includeSubDomains; preload'], 'x-clientip' => ['89.177.205.85'], 'X-Cache' => ['Miss from cloudfront'], 'Via' => ['1.1 4614c36172b2854b1e1e94af37435c8e.cloudfront.net (CloudFront)'], 'X-Amz-Cf-Pop' => ['PRG50-C1'], 'X-Amz-Cf-Id' => ['SX6OzC1Nese_say0csdmfmPKp4ez2utzI3ePYATt_MZuJri_HJ1mEA==']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___www.xataka.com_movilidad_coches-vendidos-2023-2024-espana.html')));
+        $graby = new Graby([
+            'debug' => true,
+            'extractor' => [
+                'config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ],
+            ],
+        ], $httpMockClient);
+        $res = $graby->fetchContent('https://www.xataka.com/movilidad/coches-vendidos-2023-2024-espana');
+
+        $this->assertNotNull($res->getSummary());
+        $this->assertStringContainsString(
+            'automóvil',
+            $res->getHtml(),
+            'JSON-LD processing must use UTF-8'
+        );
+    }
 }

@@ -1208,7 +1208,7 @@ class ContentExtractor
      *     - OpenGraph
      *     - JSON-LD.
      *
-     * @param string $html Html from the page
+     * @param string $html UTF-8-encoded HTML fragment of the page
      */
     private function extractDefinedInformation(string $html): void
     {
@@ -1219,7 +1219,7 @@ class ContentExtractor
         libxml_use_internal_errors(true);
 
         $doc = new \DOMDocument();
-        $doc->loadHTML($html);
+        $doc->loadHTML('<meta charset="utf-8">' . $html);
 
         libxml_use_internal_errors(false);
 
