@@ -31,7 +31,7 @@
         "simplepie/simplepie": "^1.7",
         "smalot/pdfparser": "^1.1",
         "symfony/options-resolver": "^3.4|^4.4|^5.3|^6.0|^7.0",
-        "true/punycode": "^2.1",
+        "symfony/polyfill-intl-idn": "^1.26",
         "guzzlehttp/psr7": "^1.5.0|^2.0"
     },
     "require-dev": {

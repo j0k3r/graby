@@ -19,7 +19,7 @@ use Psr\Log\NullLogger;
 use Readability\Readability;
 use Smalot\PdfParser\Parser as PdfParser;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use TrueBV\Punycode;
+use Symfony\Polyfill\Intl\Idn\Idn as SymfonyIdn;
 
 /**
  * @todo add proxy
@@ -39,7 +39,6 @@ class Graby
 
     /** @var ConfigBuilder */
     private $configBuilder;
-    private $punycode;
 
     private $imgNoReferrer = false;
     private $prefetchedContent;
@@ -118,8 +117,6 @@ class Graby
             $this->config['http_client'],
             $this->logger
         );
-
-        $this->punycode = new Punycode();
     }
 
     /**
@@ -495,7 +492,21 @@ class Graby
         $uri = new Uri((string) $url);
 
         if (preg_match('/[\x80-\xff]/', $uri->getHost())) {
-            $uri = $uri->withHost($this->punycode->encode($uri->getHost()));
+            $uriIdnSafe = \defined('INTL_IDNA_VARIANT_UTS46') ? idn_to_ascii(
+                $uri->getHost(),
+                \IDNA_DEFAULT,
+                \INTL_IDNA_VARIANT_UTS46
+            ) : SymfonyIdn::idn_to_ascii(
+                $uri->getHost(),
+                SymfonyIdn::IDNA_DEFAULT,
+                SymfonyIdn::INTL_IDNA_VARIANT_UTS46
+            );
+
+            if (false === $uriIdnSafe) {
+                throw new \InvalidArgumentException(\sprintf('Url "%s" is not valid IDN to ascii.', $url));
+            }
+
+            $uri = $uri->withHost($uriIdnSafe);
         }
 
         if (\strlen($uri->getPath()) && preg_match('/[\x80-\xff]/', $uri->getPath())) {
