@@ -102,8 +102,6 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
         $res = $contentExtractor->buildSiteConfig(new Uri('https://www.en.wikipedia.org/wiki/Metallica'));
 
-        $this->assertInstanceOf(SiteConfig::class, $res);
-
         foreach (['author', 'single_page_link', 'next_page_link'] as $value) {
             $this->assertEmpty($res->$value, 'Check empty value for: ' . $value);
         }
@@ -125,11 +123,8 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
         $res = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
 
-        $this->assertInstanceOf(SiteConfig::class, $res);
-
         $res2 = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
 
-        $this->assertInstanceOf(SiteConfig::class, $res2);
         $this->assertSame($res, $res2);
     }
 
@@ -974,9 +969,6 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/jsonld')
         );
 
-        /** @var \DOMNode */
-        $contentBlock = $contentExtractor->getContent();
-
         $this->assertSame([
             'Elisa Thevenet',
             'Humphrey Bogart',
@@ -1228,8 +1220,8 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertTrue($res, 'Extraction went well');
 
-        /** @var \DOMNode */
         $contentBlock = $contentExtractor->getContent();
+        $this->assertInstanceOf(\DOMElement::class, $contentBlock);
         $doc = new \DOMDocument();
         $doc->loadXML($contentBlock->innerHTML);
         $xpath = new \DOMXPath($doc);
@@ -1240,10 +1232,11 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     private function getXmlContent(ContentExtractor $contentExtractor): string
     {
-        /** @var \DOMNode */
         $contentBlock = $contentExtractor->getContent();
-        /** @var \DOMDocument */
+        $this->assertInstanceOf(\DOMElement::class, $contentBlock);
+
         $ownerDocument = $contentBlock->ownerDocument;
+        $this->assertInstanceOf(\DOMDocument::class, $ownerDocument);
 
         return (string) $ownerDocument->saveXML($contentBlock);
     }
