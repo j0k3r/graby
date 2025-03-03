@@ -181,11 +181,6 @@ final class MockGrabyResponseRector extends AbstractRector
             return $node;
         }
 
-        // Hack for working around https://github.com/rectorphp/rector/issues/9035
-        if (isset($config['extractor']['config_builder']) && \array_key_exists('site_config', $config_builder = $config['extractor']['config_builder']) && null === $config_builder['site_config']) {
-            $config['extractor']['config_builder']['site_config'] = [__DIR__ . '/../../tests/fixtures/site_config'];
-        }
-
         foreach ($this->fetchResponses($url, $config) as $index => $response) {
             $suffix = (0 !== $index ? '.' . $index : '') . preg_match('(\.[a-z0-9]+$)', $url) ? '' : '.html';
             $fileName = preg_replace('([^a-zA-Z0-9-_\.])', '_', $url) . $suffix;
