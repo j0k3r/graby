@@ -1298,6 +1298,19 @@ class GrabyTest extends TestCase
         $this->assertStringContainsString('here there are the awesome', $res->getHtml());
     }
 
+    public function testImgLazyLoading(): void
+    {
+        $graby = $this->getGrabyWithMock('/fixtures/content/uxmovement-img-lazy.html');
+        $res = $graby->fetchContent('https://uxmovement.com/buttons/dont-use-inverted-color-cues-on-toggle-buttons/');
+
+        $doc = new \DOMDocument();
+        $doc->loadXML('<html><body>' . $res['html'] . '</body></html>');
+
+        /** @var \DOMElement */
+        $item = $doc->getElementsByTagName('img')->item(0);
+        $this->assertStringContainsString('https://uxmovement.com/wp-content/uploads/2021/01/icc-equalcontrastratio.png', $item->getAttribute('src'));
+    }
+
     /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
      *
