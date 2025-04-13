@@ -512,10 +512,10 @@ class HttpClient
         $query = $uri->getQuery();
         if ('' !== $query) {
             $q_array = explode('&', $query);
-            // Remove utm_* parameters
+            // Remove utm_* and mtm_* parameters
             $clean_query = array_filter(
                 $q_array,
-                fn (string $param): bool => !str_starts_with($param, 'utm_')
+                fn (string $param): bool => !str_starts_with($param, 'utm_') && !str_starts_with($param, 'mtm_')
             );
             $uri = $uri->withQuery(implode('&', $clean_query));
         }
