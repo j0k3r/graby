@@ -666,6 +666,10 @@ class HttpClientTest extends TestCase
                 'url' => 'https://example.com/foo?utm_content=111315005',
                 'expectedUrl' => 'https://example.com/foo',
             ],
+            [
+                'url' => 'https://example.com/foo?mtm_campaign=feed',
+                'expectedUrl' => 'https://example.com/foo',
+            ],
         ];
     }
 
