@@ -262,7 +262,7 @@ class HttpClient
         $uri = new Uri(str_replace('&amp;', '&', $effectiveUrl));
         parse_str($uri->getQuery(), $query);
         $queryParameters = array_filter($query, function ($k) {
-            return !(0 === stripos($k, 'utm_'));
+            return !(0 === stripos($k, 'utm_') || 0 === stripos($k, 'mtm_'));
         }, \ARRAY_FILTER_USE_KEY);
         $effectiveUrl = (string) Uri::withQueryValues(new Uri($uri->withFragment('')->withQuery('')), $queryParameters);
 
