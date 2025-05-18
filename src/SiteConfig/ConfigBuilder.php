@@ -11,8 +11,9 @@ class ConfigBuilder
 {
     /** @var LoggerInterface */
     private $logger;
+    /** @var ConfigLinesProvider */
+    private $configLinesProvider;
     private $config = [];
-    private $configFiles = [];
     private $cache = [];
 
     // Array for accepted headers for http_header()
@@ -33,7 +34,7 @@ class ConfigBuilder
     /**
      * @param array $config
      */
-    public function __construct($config = [], ?LoggerInterface $logger = null)
+    public function __construct($config = [], ?LoggerInterface $logger = null, ?ConfigLinesProvider $configLinesProvider = null)
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -49,7 +50,7 @@ class ConfigBuilder
 
         $this->logger = null === $logger ? new NullLogger() : $logger;
 
-        $this->loadConfigFiles();
+        $this->configLinesProvider = null === $configLinesProvider ? new BuiltinConfigLinesProvider($this->config['site_config']) : $configLinesProvider;
     }
 
     public function setLogger(LoggerInterface $logger)
@@ -66,7 +67,7 @@ class ConfigBuilder
      */
     public function loadConfigFiles()
     {
-        $this->configFiles = Files::getFiles($this->config['site_config']);
+        $this->configLinesProvider->reload();
     }
 
     /**
@@ -260,12 +261,12 @@ class ConfigBuilder
             }
 
             // if we found site config, process it
-            if (isset($this->configFiles[$host . '.txt'])) {
+            if ($this->configLinesProvider->supportsHost($host)) {
                 $this->logger->info('... found site config {host}', ['host' => $host . '.txt']);
 
-                $configLines = file($this->configFiles[$host . '.txt'], \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
+                $configLines = $this->configLinesProvider->getLinesForHost($host);
                 // no lines ? we don't found config then
-                if (empty($configLines) || !\is_array($configLines)) {
+                if ([] === $configLines) {
                     return false;
                 }
 
@@ -276,7 +277,7 @@ class ConfigBuilder
         }
 
         // append global config?
-        if ('global' !== $host && $config->autodetect_on_failure() && isset($this->configFiles['global.txt'])) {
+        if ('global' !== $host && $config->autodetect_on_failure() && $this->configLinesProvider->supportsHost('global')) {
             $this->logger->info('Appending site config settings from global.txt');
 
             $configGlobal = $this->loadSiteConfig('global', true);
