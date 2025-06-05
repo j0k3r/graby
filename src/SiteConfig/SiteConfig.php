@@ -190,7 +190,7 @@ class SiteConfig
     /**
      * Extra fields to POST to the site's login form.
      *
-     * @var array<string, string> hash of form field name => value
+     * @var array<int|string, string> hash of form field name => value
      */
     public array $login_extra_fields = [];
 

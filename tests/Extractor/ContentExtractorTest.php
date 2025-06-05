@@ -111,7 +111,7 @@ class ContentExtractorTest extends TestCase
         }
 
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'test_url', 'date'] as $value) {
-            $this->assertGreaterThan(0, is_countable($res->$value) ? \count($res->$value) : 0, 'Check count XPath for: ' . $value);
+            $this->assertGreaterThan(0, \count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
@@ -141,7 +141,7 @@ class ContentExtractorTest extends TestCase
         );
 
         foreach (['title', 'body', 'strip', 'strip_id_or_class', 'strip_image_src', 'author', 'date'] as $value) {
-            $this->assertGreaterThan(0, is_countable($res->$value) ? \count($res->$value) : 0, 'Check count XPath for: ' . $value);
+            $this->assertGreaterThan(0, \count($res->$value), 'Check count XPath for: ' . $value);
         }
     }
 
