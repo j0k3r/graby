@@ -16,7 +16,7 @@ env:
 jobs:
   phpunit:
     name: "PHPUnit (PHP ${{ matrix.php }})"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -58,7 +58,7 @@ jobs:
 
   phpunit-coverage:
     name: "PHPUnit coverage (PHP ${{ matrix.php }})"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -103,7 +103,7 @@ jobs:
 
   phpunit-lowest:
     name: "PHPUnit lowest deps (PHP ${{ matrix.php }})"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -139,7 +139,7 @@ jobs:
 
   phpunit-guzzle5:
     name: "PHPUnit (PHP ${{ matrix.php }} and Guzzle 5)"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -178,7 +178,7 @@ jobs:
 
   phpunit-guzzle7:
     name: "PHPUnit (PHP ${{ matrix.php }} and Guzzle 7)"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -218,7 +218,7 @@ jobs:
 
   phpunit-curl:
     name: "PHPUnit (PHP ${{ matrix.php }} and cURL)"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
@@ -257,7 +257,7 @@ jobs:
 
   phpunit-composerv1:
     name: "PHPUnit Composer v1 (PHP ${{ matrix.php }})"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
