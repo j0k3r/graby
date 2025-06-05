@@ -11,12 +11,12 @@ on:
 jobs:
   coding-standards:
     name: "CS Fixer & PHPStan"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
         php:
-          - "7.4"
+          - "8.2"
 
     steps:
       - name: "Checkout"
