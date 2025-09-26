@@ -21,7 +21,7 @@ class ContentExtractor
 {
     public ?Readability $readability = null;
     private ?\DOMXPath $xpath = null;
-    private ContentExtractorConfig $config;
+    private readonly ContentExtractorConfig $config;
     private ?SiteConfig $siteConfig = null;
     private ?string $title = null;
     private ?string $language = null;
@@ -34,7 +34,7 @@ class ContentExtractor
     private bool $success = false;
     private ?string $nextPageUrl = null;
     private LoggerInterface $logger;
-    private ConfigBuilder $configBuilder;
+    private readonly ConfigBuilder $configBuilder;
 
     /**
      * @param array{
@@ -448,7 +448,7 @@ class ContentExtractor
             "//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]",
             $this->readability->dom,
             'Author found (rel="author"): {author}',
-            fn ($element, $currentEntity) => $currentEntity + [trim($element)]
+            fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
         );
 
         $this->extractEntityFromQuery(
@@ -457,7 +457,7 @@ class ContentExtractor
             '//meta[@name="author"]/@content',
             $this->readability->dom,
             'Author found (meta name="author"): {author}',
-            fn ($element, $currentEntity) => $currentEntity + [trim($element)]
+            fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
         );
 
         // Find date in pubdate marked time element
@@ -708,7 +708,7 @@ class ContentExtractor
 
         try {
             return (new \DateTime($date))->format(\DateTime::W3C);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $this->logger->info('Cannot parse date: {date}', ['date' => $date]);
 
             return null;
@@ -847,7 +847,7 @@ class ContentExtractor
 
         // we define the default callback here
         if (null === $returnCallback) {
-            $returnCallback = fn ($element) => trim($element);
+            $returnCallback = fn ($element) => trim((string) $element);
         }
 
         if (!$this->xpath) {
@@ -871,7 +871,7 @@ class ContentExtractor
         // remove entity from document
         try {
             $elems->item(0)->parentNode->removeChild($elems->item(0));
-        } catch (\DOMException $e) {
+        } catch (\DOMException) {
             // do nothing
         }
 
@@ -1106,7 +1106,7 @@ class ContentExtractor
     {
         // we define the default callback here
         if (null === $returnCallback) {
-            $returnCallback = fn ($e) => trim($e);
+            $returnCallback = fn ($e) => trim((string) $e);
         }
 
         if (!$this->xpath || !$this->readability) {
@@ -1134,7 +1134,7 @@ class ContentExtractor
             // remove entity from document
             try {
                 $elems->item(0)->parentNode->removeChild($elems->item(0));
-            } catch (\DOMException $e) {
+            } catch (\DOMException) {
                 // do nothing
             }
         }
@@ -1163,7 +1163,7 @@ class ContentExtractor
     {
         // we define the default callback here
         if (null === $returnCallback) {
-            $returnCallback = fn ($e) => trim($e);
+            $returnCallback = fn ($e) => trim((string) $e);
         }
 
         if (!$this->xpath || !$this->readability) {
@@ -1185,7 +1185,7 @@ class ContentExtractor
                 // remove entity from document
                 try {
                     $item->parentNode->removeChild($item);
-                } catch (\DOMException $e) {
+                } catch (\DOMException) {
                     // do nothing
                 }
             }
@@ -1363,8 +1363,8 @@ class ContentExtractor
 
         foreach ($scripts as $script) {
             try {
-                $data = (array) json_decode(trim($script->nodeValue), true, 512, \JSON_THROW_ON_ERROR);
-            } catch (\JsonException $e) {
+                $data = (array) json_decode(trim((string) $script->nodeValue), true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
                 continue;
             }
 
@@ -1391,7 +1391,7 @@ class ContentExtractor
             // body should be a DOMNode
             if (!empty($data['articlebody'])) {
                 $dom = new \DOMDocument('1.0', 'utf-8');
-                $this->body = $dom->createElement('p', htmlspecialchars(trim($data['articlebody'])));
+                $this->body = $dom->createElement('p', htmlspecialchars(trim((string) $data['articlebody'])));
                 $this->logger->info('body matched from JsonLd: {body}', ['body' => $this->body]);
             }
 
