@@ -31,7 +31,7 @@
         "psr/http-client-implementation": "^1.0",
         "simplepie/simplepie": "^1.8",
         "smalot/pdfparser": "^2.8",
-        "symfony/options-resolver": "^5.3|^6.4|^7.0",
+        "symfony/options-resolver": "^5.4|^6.4|^7.3",
         "symfony/polyfill-intl-idn": "^1.26"
     },
     "require-dev": {
@@ -44,8 +44,8 @@
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
         "rector/rector": "^2.0.0",
-        "symfony/filesystem": "^7.0",
-        "symfony/phpunit-bridge": "^7.0"
+        "symfony/filesystem": "^7.3",
+        "symfony/phpunit-bridge": "^7.3"
     },
     "autoload": {
         "psr-4": {
