@@ -21,7 +21,7 @@
         "fossar/htmlawed": "^1.2.7",
         "http-interop/http-factory-guzzle": "^1.1",
         "j0k3r/graby-site-config": "^1.0.181",
-        "j0k3r/httplug-ssrf-plugin": "^2.0",
+        "j0k3r/httplug-ssrf-plugin": "^2.0|^3.0",
         "j0k3r/php-readability": "^1.2.10",
         "monolog/monolog": "^1.18.0|^2.0",
         "php-http/client-common": "^2.7",
