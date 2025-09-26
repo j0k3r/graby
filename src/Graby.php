@@ -16,6 +16,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Http\Message\CookieJar;
 use Monolog\Handler\StreamHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -98,7 +99,7 @@ class Graby
         if ($this->config->getDebug()) {
             $this->logger = new Logger('graby');
 
-            // This statement has to be before Logger::INFO to catch all DEBUG messages
+            // This statement has to be before Level::Info to catch all DEBUG messages
             if ('debug' === $this->config->getLogLevel()) {
                 $fp = fopen(__DIR__ . '/../log/html.log', 'w');
                 if (false !== $fp) {
@@ -106,10 +107,10 @@ class Graby
                     fclose($fp);
                 }
 
-                $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/html.log', Logger::DEBUG));
+                $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/html.log', Level::Debug));
             }
 
-            $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/graby.log', Logger::INFO, false));
+            $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/graby.log', Level::Info, false));
         }
 
         if (null === $configBuilder) {
