@@ -45,7 +45,7 @@ That's why I made this fork:
 
 ### Requirements
 
-- PHP >= 7.4
+- PHP >= 8.2
 - [Tidy](https://github.com/htacg/tidy-html5) & cURL extensions enabled
 
 ### Installation

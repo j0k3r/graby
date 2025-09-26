@@ -16,11 +16,8 @@ class RecordingHttpClient implements ClientInterface
      */
     private array $responses;
 
-    private ClientInterface $httpClient;
-
-    public function __construct(ClientInterface $httpClient)
+    public function __construct(private readonly ClientInterface $httpClient)
     {
-        $this->httpClient = $httpClient;
     }
 
     /**

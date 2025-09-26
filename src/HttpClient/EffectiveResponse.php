@@ -12,15 +12,10 @@ use Psr\Http\Message\UriInterface;
  */
 final class EffectiveResponse
 {
-    private UriInterface $effectiveUrl;
-    private ResponseInterface $response;
-
     public function __construct(
-        UriInterface $effectiveUrl,
-        ResponseInterface $response
+        private UriInterface $effectiveUrl,
+        private ResponseInterface $response
     ) {
-        $this->effectiveUrl = $effectiveUrl;
-        $this->response = $response;
     }
 
     public function getEffectiveUri(): UriInterface

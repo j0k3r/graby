@@ -12,7 +12,7 @@ use Psr\Log\NullLogger;
 class ConfigBuilder
 {
     private LoggerInterface $logger;
-    private ConfigBuilderConfig $config;
+    private readonly ConfigBuilderConfig $config;
     /** @var array<string, string> */
     private array $configFiles = [];
     /** @var array<string, SiteConfig> */

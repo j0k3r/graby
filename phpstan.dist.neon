@@ -23,5 +23,6 @@ parameters:
         -
             message: '#\$innerHTML#'
             path: %currentWorkingDirectory%
+        - identifier: property.uninitializedReadonly
 
     inferPrivatePropertyTypeFromConstructor: true
