@@ -8,9 +8,9 @@ parameters:
         - vendor/bin/.phpunit/phpunit-8.5-0/vendor/autoload.php
 
     ignoreErrors:
-        # because we check for some HTTP client to exist or not (Guzzle 5/6 & cURL)
+        # because we check for some HTTP client to exist or not (Guzzle 6 & cURL)
         -
-            message: '#Http\\Adapter\\Guzzle5\\Client\\|Http\\Adapter\\Guzzle6\\Client\\|Http\\Client\\Curl\\Client given#'
+            message: '#Http\\Adapter\\Guzzle6\\Client\\|Http\\Client\\Curl\\Client given#'
             path: %currentWorkingDirectory%/tests/Extractor/HttpClientTest.php
         # we don't want to BC by defining typehint everywhere
         # TODO: remove when jumping to 3.0
