@@ -477,7 +477,10 @@ class ContentExtractor
             $this->logger->info('Using Readability');
             // clone body if we're only using Readability for title (otherwise it may interfere with body element)
             if (isset($this->body)) {
-                $this->body = $this->body->cloneNode(true);
+                $cloned = $this->body->cloneNode(true);
+                if ($cloned instanceof \DOMElement) {
+                    $this->body = $cloned;
+                }
             }
             $success = $this->readability->init();
         }
