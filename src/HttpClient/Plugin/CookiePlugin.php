@@ -21,14 +21,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class CookiePlugin implements Plugin
 {
-    /**
-     * Cookie storage.
-     */
-    private CookieJar $cookieJar;
-
-    public function __construct(CookieJar $cookieJar)
+    public function __construct(private readonly CookieJar $cookieJar)
     {
-        $this->cookieJar = $cookieJar;
     }
 
     public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
@@ -143,7 +137,7 @@ class CookiePlugin implements Plugin
 
         try {
             return new Cookie($name, $cookieValue, $maxAge, $domain, $path, $secure, $httpOnly, $expires);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             return null;
         }
     }
