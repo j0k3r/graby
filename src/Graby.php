@@ -193,13 +193,19 @@ class Graby
      */
     public function cleanupHtml($contentBlock, UriInterface $url): string
     {
+        $readability = null;
         $originalContentBlock = \is_string($contentBlock) ? $contentBlock : $contentBlock->textContent;
 
         // if content is pure html, convert it
         if (\is_string($contentBlock)) {
-            $this->extractor->process($contentBlock, $url);
+            $result = $this->extractor->process($contentBlock, $url);
 
-            $contentBlock = $this->extractor->getContent();
+            $contentBlock = $result->content;
+            $readability = $result->readability;
+        } else {
+            // because we still need to retrieve readability for later cleanup
+            $result = $this->extractor->process($contentBlock->textContent, $url);
+            $readability = $result->readability;
         }
 
         // in case of extractor failed
@@ -209,17 +215,15 @@ class Graby
             return trim($this->cleanupXss($originalContentBlock));
         }
 
-        if ($this->extractor->readability) {
-            $this->extractor->readability->clean($contentBlock, 'select');
-        }
+        $readability->clean($contentBlock, 'select');
 
         if ($this->config->getRewriteRelativeUrls()) {
             $this->makeAbsolute($url, $contentBlock);
         }
 
         // footnotes
-        if ('footnotes' === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $this->extractor->readability) {
-            $this->extractor->readability->addFootnotes($contentBlock);
+        if ('footnotes' === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $readability) {
+            $readability->addFootnotes($contentBlock);
         }
 
         $contentBlock->normalize();
@@ -347,15 +351,14 @@ class Graby
 
         $this->logger->info('Attempting to extract content');
 
-        $extractResult = $this->extractor->process($html, $effectiveUrl);
-        /** @var Readability */
-        $readability = $this->extractor->readability;
-        $contentBlock = $this->extractor->getContent();
-        $extractedTitle = $this->extractor->getTitle();
-        $extractedLanguage = $this->extractor->getLanguage();
-        $extractedDate = $this->extractor->getDate();
-        $extractedAuthors = $this->extractor->getAuthors();
-        $extractedImage = $this->extractor->getImage();
+        $extractedContent = $this->extractor->process($html, $effectiveUrl);
+        $readability = $extractedContent->readability;
+        $contentBlock = $extractedContent->content;
+        $extractedTitle = $extractedContent->title;
+        $extractedLanguage = $extractedContent->language;
+        $extractedDate = $extractedContent->date;
+        $extractedAuthors = $extractedContent->authors;
+        $extractedImage = $extractedContent->image;
 
         // ensure image is absolute
         if (null !== $extractedImage) {
@@ -369,7 +372,7 @@ class Graby
         }
 
         // Deal with multi-page articles
-        $isMultiPage = (!$isSinglePage && $extractResult && null !== $this->extractor->getNextPageUrl());
+        $isMultiPage = (!$isSinglePage && $extractedContent->isSuccess && null !== $extractedContent->nextPageUrl);
         if ($this->config->getMultipage() && null === $this->prefetchedContent && $isMultiPage) {
             $this->logger->info('Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
@@ -378,7 +381,8 @@ class Graby
             ];
             $multiPageContent = [];
 
-            while ($nextPageUrl = $this->extractor->getNextPageUrl()) {
+            $nextPageUrl = $extractedContent->nextPageUrl;
+            while ($nextPageUrl) {
                 $this->logger->info('Processing next page: {url}', ['url' => (string) $nextPageUrl]);
                 // If we've got URL, resolve against $url
                 $nextPageUrl = $this->makeAbsoluteStr($effectiveUrl, $nextPageUrl);
@@ -409,18 +413,19 @@ class Graby
                     break;
                 }
 
-                $extracSuccess = $this->extractor->process(
+                $nextPageExtractedContent = $this->extractor->process(
                     $this->convert2Utf8($response->getResponse()),
                     $nextPageUrl
                 );
 
-                if (!$extracSuccess) {
+                if (!$nextPageExtractedContent->isSuccess) {
                     $this->logger->info('Failed to extract content');
                     $multiPageContent = [];
                     break;
                 }
 
-                $multiPageContent[] = clone $this->extractor->getContent();
+                $multiPageContent[] = clone $nextPageExtractedContent->content;
+                $nextPageUrl = $nextPageExtractedContent->nextPageUrl;
             }
 
             // did we successfully deal with this multi-page article?
@@ -448,11 +453,11 @@ class Graby
             /* date: */ $extractedDate,
             /* authors: */ $extractedAuthors,
             /* image: */ (string) $extractedImage,
-            /* isNativeAd: */ $this->extractor->isNativeAd()
+            /* isNativeAd: */ $extractedContent->isNativeAd
         );
 
         // if we failed to extract content...
-        if (!$extractResult || null === $contentBlock) {
+        if (!$extractedContent->isSuccess || null === $contentBlock) {
             $this->logger->info('Extract failed');
 
             return $res;
