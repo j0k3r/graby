@@ -11,7 +11,6 @@ use GuzzleHttp\Psr7\Uri;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
-use Readability\Readability;
 
 class ContentExtractorTest extends TestCase
 {
@@ -26,14 +25,14 @@ class ContentExtractorTest extends TestCase
         $contentExtractor = new ContentExtractor(['config_builder' => ['site_config' => [__DIR__]]]);
         $result = $contentExtractor->process('', new Uri('http://example.com'));
 
-        $this->assertNull($result->getContent());
-        $this->assertNull($result->getTitle());
-        $this->assertNull($result->getLanguage());
-        $this->assertNull($result->getDate());
-        $this->assertNull($result->getImage());
-        $this->assertSame([], $result->getAuthors());
-        $this->assertNotNull($result->getSiteConfig());
-        $this->assertNull($result->getNextPageUrl());
+        $this->assertNull($result->content);
+        $this->assertNull($result->title);
+        $this->assertNull($result->language);
+        $this->assertNull($result->date);
+        $this->assertNull($result->image);
+        $this->assertSame([], $result->authors);
+        $this->assertNotNull($result->siteConfig);
+        $this->assertNull($result->nextPageUrl);
     }
 
     /**
@@ -164,11 +163,11 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
         $this->assertStringContainsString('<iframe class="video"', $this->getXmlContent($result));
-        $this->assertCount(1, (array) $result->getAuthors());
-        $this->assertSame('CaTV', (string) ((array) $result->getAuthors())[0]);
+        $this->assertCount(1, (array) $result->authors);
+        $this->assertSame('CaTV', (string) ((array) $result->authors)[0]);
     }
 
     /**
@@ -190,7 +189,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
         $this->assertStringContainsString('<iframe src="">[embedded content]</iframe>', $this->getXmlContent($result));
     }
@@ -226,7 +225,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertSame($urlExpected, $result->getNextPageUrl());
+        $this->assertSame($urlExpected, $result->nextPageUrl);
     }
 
     /**
@@ -258,7 +257,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertSame($titleExpected, $result->getTitle());
+        $this->assertSame($titleExpected, $result->title);
     }
 
     /**
@@ -294,7 +293,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertSame($authorExpected, $result->getAuthors());
+        $this->assertSame($authorExpected, $result->authors);
     }
 
     /**
@@ -323,7 +322,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertSame($languageExpected, $result->getLanguage());
+        $this->assertSame($languageExpected, $result->language);
     }
 
     /**
@@ -359,7 +358,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertSame($dateExpected, $result->getDate());
+        $this->assertSame($dateExpected, $result->date);
     }
 
     /**
@@ -458,7 +457,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($result));
     }
 
@@ -490,7 +489,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($result));
     }
 
@@ -586,7 +585,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
         $this->assertSame($expectedContent, $this->getXmlContent($result));
     }
@@ -649,12 +648,12 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
         $this->assertSame($expectedContent, $this->getXmlContent($result));
 
         foreach ($expectedElements as $key => $value) {
-            $this->assertSame($result->{'get' . ucfirst($key)}(), $value);
+            $this->assertSame($result->{$key}, $value);
         }
     }
 
@@ -673,9 +672,9 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertSame('<p class="instapaper_body">' . str_repeat('this is the best part of the show', 10) . '</p>', $this->getXmlContent($result));
-        $this->assertSame($result->getTitle(), 'hello !');
+        $this->assertSame($result->title, 'hello !');
     }
 
     /**
@@ -717,7 +716,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertSame($expectedContent, $this->getXmlContent($result));
     }
 
@@ -738,9 +737,9 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertStringNotContainsString('My Title', $this->getXmlContent($result));
-        $this->assertSame('My Title', $result->getTitle());
+        $this->assertSame('My Title', $result->title);
     }
 
     /**
@@ -811,7 +810,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertStringContainsString($htmlExpected, $this->getXmlContent($result));
     }
 
@@ -831,7 +830,7 @@ class ContentExtractorTest extends TestCase
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertStringContainsString('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $this->getXmlContent($result));
     }
 
@@ -925,7 +924,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
         $this->assertStringNotContainsString('<head>', $this->getXmlContent($result));
         $this->assertStringNotContainsString('<base>', $this->getXmlContent($result));
     }
@@ -939,8 +938,8 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/woops!')
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
-        $this->assertTrue($result->isNativeAd());
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertTrue($result->isNativeAd);
         $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
@@ -953,11 +952,11 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
-        $this->assertSame('title !!', $result->getTitle());
-        $this->assertSame('2017-10-23T16:05:38+02:00', $result->getDate());
-        $this->assertStringContainsString('bob', (string) ((array) $result->getAuthors())[0]);
-        $this->assertSame('https://static.jsonld.io/medias.jpg', $result->getImage());
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertSame('title !!', $result->title);
+        $this->assertSame('2017-10-23T16:05:38+02:00', $result->date);
+        $this->assertStringContainsString('bob', (string) ((array) $result->authors)[0]);
+        $this->assertSame('https://static.jsonld.io/medias.jpg', $result->image);
         $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
@@ -973,7 +972,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame([
             'Elisa Thevenet',
             'Humphrey Bogart',
-        ], $result->getAuthors());
+        ], $result->authors);
     }
 
     public function testJsonLdWithAuthorWithNameList(): void
@@ -987,7 +986,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $this->assertSame([
             'Greg Myre',
-        ], $result->getAuthors());
+        ], $result->authors);
     }
 
     public function testNoDefinedHtml(): void
@@ -996,9 +995,9 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $result = $contentExtractor->process('', new Uri('https://nativead.io/jsonld'));
 
-        $this->assertFalse($result->isSuccess());
+        $this->assertFalse($result->isSuccess);
 
-        $this->assertEmpty($result->getImage());
+        $this->assertEmpty($result->image);
     }
 
     public function testOpenGraph(): void
@@ -1020,11 +1019,11 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/opengraph')
         );
 
-        $this->assertTrue($result->isSuccess());
-        $this->assertSame('title !!', $result->getTitle());
-        $this->assertSame('2017-10-23T17:04:21+00:00', $result->getDate());
-        $this->assertSame('fr_FR', $result->getLanguage());
-        $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $result->getImage());
+        $this->assertTrue($result->isSuccess);
+        $this->assertSame('title !!', $result->title);
+        $this->assertSame('2017-10-23T17:04:21+00:00', $result->date);
+        $this->assertSame('fr_FR', $result->language);
+        $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $result->image);
         $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
@@ -1037,8 +1036,8 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/opengraph')
         );
 
-        $this->assertTrue($result->isSuccess());
-        $this->assertEmpty($result->getImage());
+        $this->assertTrue($result->isSuccess);
+        $this->assertEmpty($result->image);
         $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
@@ -1051,10 +1050,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://example.com/jsonld')
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertSame('The Foobar Company is launching globally', $result->getTitle());
-        $this->assertStringContainsString('Foobar CEO', (string) ((array) $result->getAuthors())[0]);
+        $this->assertSame('The Foobar Company is launching globally', $result->title);
+        $this->assertStringContainsString('Foobar CEO', (string) ((array) $result->authors)[0]);
     }
 
     public function testJsonLdIgnoreListWithPeriodical(): void
@@ -1066,9 +1065,9 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://example.com/jsonld')
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertSame('Hello world, this is title', $result->getTitle());
+        $this->assertSame('Hello world, this is title', $result->title);
     }
 
     public function testJsonLdSkipper(): void
@@ -1084,10 +1083,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
-        $this->assertEmpty($result->getTitle());
-        $this->assertNull($result->getDate());
-        $this->assertEmpty($result->getAuthors());
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertEmpty($result->title);
+        $this->assertNull($result->date);
+        $this->assertEmpty($result->authors);
         $this->assertStringContainsString('this is the best part of the show', $this->getXmlContent($result));
     }
 
@@ -1100,7 +1099,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertSame('name !!', $result->getTitle());
+        $this->assertSame('name !!', $result->title);
     }
 
     public function testJsonLdDateArray(): void
@@ -1112,7 +1111,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertSame('2014-05-29T00:00:00+02:00', $result->getDate());
+        $this->assertSame('2014-05-29T00:00:00+02:00', $result->date);
     }
 
     public function testJsonLdImageUrlArray(): void
@@ -1124,7 +1123,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertSame('https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png', $result->getImage());
+        $this->assertSame('https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png', $result->image);
     }
 
     public function testUniqueAuthors(): void
@@ -1140,7 +1139,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             $url,
             $siteConfig
         );
-        $authors = (array) $result->getAuthors();
+        $authors = (array) $result->authors;
         $authorsUnique = array_unique($authors);
 
         $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
@@ -1160,7 +1159,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             $config
         );
 
-        $this->assertFalse($result->isSuccess(), 'Extraction failed');
+        $this->assertFalse($result->isSuccess, 'Extraction failed');
     }
 
     public function testBadDate(): void
@@ -1172,8 +1171,8 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://domattr.io/woops!')
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went fine');
-        $this->assertNull($result->getDate(), 'Date got vanish because it was wrong');
+        $this->assertTrue($result->isSuccess, 'Extraction went fine');
+        $this->assertNull($result->date, 'Date got vanish because it was wrong');
     }
 
     /**
@@ -1219,9 +1218,9 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             $config
         );
 
-        $this->assertTrue($result->isSuccess(), 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $contentBlock = $result->getContent();
+        $contentBlock = $result->content;
         $this->assertInstanceOf(\DOMElement::class, $contentBlock);
         $doc = new \DOMDocument();
         $doc->loadXML($contentBlock->innerHTML);
@@ -1233,7 +1232,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     private function getXmlContent(ExtractedContent $extractedContent): string
     {
-        $contentBlock = $extractedContent->getContent();
+        $contentBlock = $extractedContent->content;
         $this->assertInstanceOf(\DOMElement::class, $contentBlock);
 
         $ownerDocument = $contentBlock->ownerDocument;
@@ -1244,8 +1243,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     private function getReadabilityContent(ExtractedContent $extractedContent): string
     {
-        /** @var Readability */
-        $readability = $extractedContent->getReadability();
+        $readability = $extractedContent->readability;
         $domElement = $readability->getContent();
         /** @var \DOMDocument */
         $ownerDocument = $domElement->ownerDocument;

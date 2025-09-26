@@ -200,12 +200,12 @@ class Graby
         if (\is_string($contentBlock)) {
             $result = $this->extractor->process($contentBlock, $url);
 
-            $contentBlock = $result->getContent();
-            $readability = $result->getReadability();
+            $contentBlock = $result->content;
+            $readability = $result->readability;
         } else {
             // because we still need to retrieve readability for later cleanup
             $result = $this->extractor->process($contentBlock->textContent, $url);
-            $readability = $result->getReadability();
+            $readability = $result->readability;
         }
 
         // in case of extractor failed
@@ -352,13 +352,13 @@ class Graby
         $this->logger->info('Attempting to extract content');
 
         $extractedContent = $this->extractor->process($html, $effectiveUrl);
-        $readability = $extractedContent->getReadability();
-        $contentBlock = $extractedContent->getContent();
-        $extractedTitle = $extractedContent->getTitle();
-        $extractedLanguage = $extractedContent->getLanguage();
-        $extractedDate = $extractedContent->getDate();
-        $extractedAuthors = $extractedContent->getAuthors();
-        $extractedImage = $extractedContent->getImage();
+        $readability = $extractedContent->readability;
+        $contentBlock = $extractedContent->content;
+        $extractedTitle = $extractedContent->title;
+        $extractedLanguage = $extractedContent->language;
+        $extractedDate = $extractedContent->date;
+        $extractedAuthors = $extractedContent->authors;
+        $extractedImage = $extractedContent->image;
 
         // ensure image is absolute
         if (null !== $extractedImage) {
@@ -372,7 +372,7 @@ class Graby
         }
 
         // Deal with multi-page articles
-        $isMultiPage = (!$isSinglePage && $extractedContent->isSuccess() && null !== $extractedContent->getNextPageUrl());
+        $isMultiPage = (!$isSinglePage && $extractedContent->isSuccess && null !== $extractedContent->nextPageUrl);
         if ($this->config->getMultipage() && null === $this->prefetchedContent && $isMultiPage) {
             $this->logger->info('Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
@@ -381,7 +381,7 @@ class Graby
             ];
             $multiPageContent = [];
 
-            $nextPageUrl = $extractedContent->getNextPageUrl();
+            $nextPageUrl = $extractedContent->nextPageUrl;
             while ($nextPageUrl) {
                 $this->logger->info('Processing next page: {url}', ['url' => (string) $nextPageUrl]);
                 // If we've got URL, resolve against $url
@@ -418,14 +418,14 @@ class Graby
                     $nextPageUrl
                 );
 
-                if (!$nextPageExtractedContent->isSuccess()) {
+                if (!$nextPageExtractedContent->isSuccess) {
                     $this->logger->info('Failed to extract content');
                     $multiPageContent = [];
                     break;
                 }
 
-                $multiPageContent[] = clone $nextPageExtractedContent->getContent();
-                $nextPageUrl = $nextPageExtractedContent->getNextPageUrl();
+                $multiPageContent[] = clone $nextPageExtractedContent->content;
+                $nextPageUrl = $nextPageExtractedContent->nextPageUrl;
             }
 
             // did we successfully deal with this multi-page article?
@@ -453,11 +453,11 @@ class Graby
             /* date: */ $extractedDate,
             /* authors: */ $extractedAuthors,
             /* image: */ (string) $extractedImage,
-            /* isNativeAd: */ $extractedContent->isNativeAd()
+            /* isNativeAd: */ $extractedContent->isNativeAd
         );
 
         // if we failed to extract content...
-        if (!$extractedContent->isSuccess() || null === $contentBlock) {
+        if (!$extractedContent->isSuccess || null === $contentBlock) {
             $this->logger->info('Extract failed');
 
             return $res;
