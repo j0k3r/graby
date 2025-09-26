@@ -3,6 +3,7 @@
 namespace Tests\Graby\SiteConfig;
 
 use Graby\SiteConfig\ConfigBuilder;
+use Graby\SiteConfig\ConfigLinesProvider;
 use Graby\SiteConfig\SiteConfig;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -15,6 +16,63 @@ class ConfigBuilderTest extends TestCase
         $builder = new ConfigBuilder(['site_config' => [__DIR__]]);
 
         $this->assertInstanceOf('Graby\SiteConfig\ConfigBuilder', $builder);
+    }
+
+    public function testLoadConfigFilesCallsProviderReload(): void
+    {
+        $configLinesProvider = $this->createMock(ConfigLinesProvider::class);
+        $configLinesProvider->expects($this->once())
+            ->method('reload');
+
+        $builder = new ConfigBuilder(
+            ['site_config' => [__DIR__]],
+            null,
+            $configLinesProvider
+        );
+
+        $builder->loadConfigFiles();
+    }
+
+    public function testBuildForHostUsesCustomProvider(): void
+    {
+        $customProvider = new class implements ConfigLinesProvider {
+            public function supportsHost(string $host): bool
+            {
+                return 'example.com' === $host;
+            }
+
+            public function getLinesForHost(string $host): array
+            {
+                if ('example.com' === $host) {
+                    return [
+                        'title: Test Title',
+                        'body: //article',
+                    ];
+                }
+
+                return [];
+            }
+
+            public function reload(): void
+            {
+                // No-op for test
+            }
+        };
+
+        $builder = new ConfigBuilder(
+            ['site_config' => []],
+            null,
+            $customProvider
+        );
+
+        $config = $builder->buildForHost('example.com');
+        $this->assertSame(['Test Title'], $config->title);
+        $this->assertSame(['//article'], $config->body);
+
+        // Test with unsupported host
+        $config = $builder->buildForHost('unknown.com');
+        $this->assertEmpty($config->title);
+        $this->assertEmpty($config->body);
     }
 
     public function testBuildFromArrayNoLines(): void
