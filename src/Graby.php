@@ -551,11 +551,11 @@ class Graby
      *
      * @return array{
      *   mime: '',
-     * } | array{
+     * }|array{
      *   mime: string,
      *   type: string,
      *   subtype: string,
-     * } | array{
+     * }|array{
      *   mime: string,
      *   type: string,
      *   subtype: string,
@@ -600,11 +600,11 @@ class Graby
      *
      * @param array{
      *   mime: '',
-     * } | array{
+     * }|array{
      *   mime: string,
      *   type: string,
      *   subtype: string,
-     * } | array{
+     * }|array{
      *   mime: string,
      *   type: string,
      *   subtype: string,
