@@ -43,8 +43,12 @@ final class MockGrabyResponseRector extends AbstractRector
     private const MATCHING_ERROR_COMMENT = 'TODO: Rector was unable to evaluate this Graby config.';
     private const IGNORE_COMMENT = 'Rector: do not add mock client';
 
-    public function __construct(private readonly BetterNodeFinder $betterNodeFinder, private readonly UseNodesToAddCollector $useNodesToAddCollector, private readonly ValueResolver $valueResolver, private readonly VariableNaming $variableNaming)
-    {
+    public function __construct(
+        private readonly BetterNodeFinder $betterNodeFinder,
+        private readonly UseNodesToAddCollector $useNodesToAddCollector,
+        private readonly ValueResolver $valueResolver,
+        private readonly VariableNaming $variableNaming
+    ) {
     }
 
     public function getRuleDefinition(): RuleDefinition
