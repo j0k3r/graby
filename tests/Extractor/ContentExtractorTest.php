@@ -837,7 +837,7 @@ class ContentExtractorTest extends TestCase
     public function testLogMessage(): void
     {
         $logger = new Logger('foo');
-        $handler = new TestHandler($level = Logger::INFO);
+        $handler = new TestHandler($level = \Monolog\Level::Info);
         $logger->pushHandler($handler);
 
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);

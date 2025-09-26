@@ -21,7 +21,7 @@ class GrabyFunctionalTest extends TestCase
     public function testRealFetchContent(): void
     {
         $logger = new Logger('foo');
-        $handler = new TestHandler($level = Logger::INFO);
+        $handler = new TestHandler($level = \Monolog\Level::Info);
         $logger->pushHandler($handler);
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Connection' => ['keep-alive'], 'Content-Type' => ['text/html; charset=UTF-8'], 'X-Protected-By' => ['Sqreen'], 'Set-Cookie' => ['critical-article-free-desktop=f63cb50f6847971760d55dff34849007; expires=Thu, 10-Feb-2022 19:11:31 GMT; Max-Age=2592000; path=/; secure'], 'X-Frame-Options' => ['SAMEORIGIN'], 'X-XSS-Protection' => ['1; mode=block'], 'Via' => ['1.1 google, 1.1 varnish, 1.1 varnish'], 'Cache-Control' => ['private, max-age=0'], 'Accept-Ranges' => ['bytes'], 'Date' => ['Tue, 11 Jan 2022 19:11:31 GMT'], 'X-Served-By' => ['cache-cdg20730-CDG, cache-fra19144-FRA'], 'X-Cache' => ['MISS, MISS'], 'X-Cache-Hits' => ['0, 0'], 'X-Timer' => ['S1641928291.389187,VS0,VE95'], 'Vary' => ['Accept-Encoding'], 'Strict-Transport-Security' => ['max-age=31557600'], 'transfer-encoding' => ['chunked']], (string) file_get_contents(__DIR__ . '/fixtures/content/https___www.lemonde.fr_actualite-medias_article_2015_04_12_radio-france-vers-une-sortie-du-conflit_4614610_3236.html')));

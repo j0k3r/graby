@@ -23,6 +23,16 @@ parameters:
         -
             message: '#\$innerHTML#'
             path: %currentWorkingDirectory%
-        - identifier: property.uninitializedReadonly
+        -
+            identifier: property.uninitializedReadonly
+        -
+            identifier: offsetAccess.nonOffsetAccessible
+            path: %currentWorkingDirectory%/tests
+            count: 13
+        -
+            identifier: argument.type
+            paths:
+                - %currentWorkingDirectory%/tests/Extractor/HttpClientTest.php
+                - %currentWorkingDirectory%/tests/SiteConfig/ConfigBuilderTest.php
 
     inferPrivatePropertyTypeFromConstructor: true
