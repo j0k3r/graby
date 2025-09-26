@@ -9,7 +9,7 @@
 
 [![Join the chat at https://gitter.im/j0k3r/graby](https://badges.gitter.im/j0k3r/graby.svg)](https://gitter.im/j0k3r/graby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ![CI](https://github.com/j0k3r/graby/workflows/CI/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/j0k3r/graby/badge.svg?branch=master&service=github)](https://coveralls.io/github/j0k3r/graby?branch=master)
+[![codecov](https://codecov.io/github/j0k3r/graby/branch/2.x/graph/badge.svg?token=yyhZtiTBlc)](https://codecov.io/github/j0k3r/graby)
 [![Total Downloads](https://img.shields.io/packagist/dt/j0k3r/graby.svg)](https://packagist.org/packages/j0k3r/graby)
 [![License](https://poser.pugx.org/j0k3r/graby/license)](https://packagist.org/packages/j0k3r/graby)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/j0k3r/graby/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/j0k3r/graby/?branch=master)
@@ -57,7 +57,6 @@ Why `php-http/guzzle6-adapter`? Because Graby is decoupled from any HTTP client 
 Graby is tested & should work great with:
 
 - Guzzle 6 (using `php-http/guzzle6-adapter`)
-- Guzzle 5 (using `php-http/guzzle5-adapter`)
 - cURL (using `php-http/curl-client` and a PSR-17 response factory [from this list](https://packagist.org/providers/psr/http-factory-implementation))
 
 ### Retrieve content from an url
@@ -197,20 +196,6 @@ $logs = $this->get('monolog.handler.graby')->getRecords();
 
 If you need to define a timeout, you must create the `Http\Client\HttpClient` manually,
 configure it and inject it to `Graby\Graby`.
-
-- For Guzzle 5:
-
-    ```php
-    use Graby\Graby;
-    use GuzzleHttp\Client as GuzzleClient;
-    use Http\Adapter\Guzzle5\Client as GuzzleAdapter;
-    $guzzle = new GuzzleClient([
-        'defaults' => [
-            'timeout' => 2,
-        ]
-    ]);
-    $graby = new Graby([], new GuzzleAdapter($guzzle));
-    ```
 
 - For Guzzle 6:
 

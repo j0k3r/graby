@@ -280,10 +280,6 @@ class HttpClientTest extends TestCase
             $isGuzzle = true;
             $guzzle = new \GuzzleHttp\Client(['timeout' => 2]);
             $adapter = new \Http\Adapter\Guzzle6\Client($guzzle);
-        } elseif (class_exists('Http\Adapter\Guzzle5\Client')) {
-            $isGuzzle = true;
-            $guzzle = new \GuzzleHttp\Client(['defaults' => ['timeout' => 2]]);
-            $adapter = new \Http\Adapter\Guzzle5\Client($guzzle);
         } elseif (class_exists('Http\Client\Curl\Client')) {
             $isCurl = true;
             $adapter = new \Http\Client\Curl\Client(
