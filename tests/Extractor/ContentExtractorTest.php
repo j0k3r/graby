@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\ContentExtractor;
+use Graby\Extractor\ExtractedContent;
 use Graby\SiteConfig\SiteConfig;
 use GuzzleHttp\Psr7\Uri;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
-use Readability\Readability;
 
 class ContentExtractorTest extends TestCase
 {
@@ -23,16 +23,16 @@ class ContentExtractorTest extends TestCase
     public function testConstructDefault(): void
     {
         $contentExtractor = new ContentExtractor(['config_builder' => ['site_config' => [__DIR__]]]);
-        $contentExtractor->reset();
+        $result = $contentExtractor->process('', new Uri('http://example.com'));
 
-        $this->assertNull($contentExtractor->getContent());
-        $this->assertNull($contentExtractor->getTitle());
-        $this->assertNull($contentExtractor->getLanguage());
-        $this->assertNull($contentExtractor->getDate());
-        $this->assertNull($contentExtractor->getImage());
-        $this->assertSame([], $contentExtractor->getAuthors());
-        $this->assertNull($contentExtractor->getSiteConfig());
-        $this->assertNull($contentExtractor->getNextPageUrl());
+        $this->assertNull($result->content);
+        $this->assertNull($result->title);
+        $this->assertNull($result->language);
+        $this->assertNull($result->date);
+        $this->assertNull($result->image);
+        $this->assertSame([], $result->authors);
+        $this->assertNotNull($result->siteConfig);
+        $this->assertNull($result->nextPageUrl);
     }
 
     /**
@@ -157,17 +157,17 @@ class ContentExtractorTest extends TestCase
         $config->find_string = ['<html>&lt;iframe', '&gt;&lt;/iframe&gt;</html>'];
         $config->replace_string = ['<iframe class="video"', '></iframe>'];
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html>&lt;iframe src=""&gt;&lt;/iframe&gt;</html> <a rel="author" href="/user8412228">CaTV</a>',
             new Uri('https://vimeo.com/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertStringContainsString('<iframe class="video"', $this->getXmlContent($contentExtractor));
-        $this->assertCount(1, (array) $contentExtractor->getAuthors());
-        $this->assertSame('CaTV', (string) ((array) $contentExtractor->getAuthors())[0]);
+        $this->assertStringContainsString('<iframe class="video"', $this->getXmlContent($result));
+        $this->assertCount(1, (array) $result->authors);
+        $this->assertSame('CaTV', (string) ((array) $result->authors)[0]);
     }
 
     /**
@@ -183,15 +183,15 @@ class ContentExtractorTest extends TestCase
         $config->find_string = ['one'];
         $config->replace_string = ['1', '2'];
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html><iframe src=""></iframe></html>',
             new Uri('https://vimeo.com/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertStringContainsString('<iframe src="">[embedded content]</iframe>', $this->getXmlContent($contentExtractor));
+        $this->assertStringContainsString('<iframe src="">[embedded content]</iframe>', $this->getXmlContent($result));
     }
 
     /**
@@ -219,13 +219,13 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->next_page_link = [$pattern];
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertSame($urlExpected, $contentExtractor->getNextPageUrl());
+        $this->assertSame($urlExpected, $result->nextPageUrl);
     }
 
     /**
@@ -251,13 +251,13 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->title = [$pattern];
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertSame($titleExpected, $contentExtractor->getTitle());
+        $this->assertSame($titleExpected, $result->title);
     }
 
     /**
@@ -287,13 +287,13 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->author = [$pattern];
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertSame($authorExpected, $contentExtractor->getAuthors());
+        $this->assertSame($authorExpected, $result->authors);
     }
 
     /**
@@ -316,13 +316,13 @@ class ContentExtractorTest extends TestCase
 
         $config = new SiteConfig();
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertSame($languageExpected, $contentExtractor->getLanguage());
+        $this->assertSame($languageExpected, $result->language);
     }
 
     /**
@@ -352,13 +352,13 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->date = [$pattern];
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertSame($dateExpected, $contentExtractor->getDate());
+        $this->assertSame($dateExpected, $result->date);
     }
 
     /**
@@ -384,13 +384,13 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->strip = [$pattern];
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($contentExtractor));
+        $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($result));
     }
 
     /**
@@ -415,13 +415,13 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->strip_id_or_class = [$pattern];
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $content = $this->getReadabilityContent($contentExtractor);
+        $content = $this->getReadabilityContent($result);
 
         if (null === $removedContent) {
             $this->assertStringContainsString((string) $matchContent, $content);
@@ -451,14 +451,14 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->strip_image_src = [$pattern];
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($result));
     }
 
     /**
@@ -483,14 +483,14 @@ class ContentExtractorTest extends TestCase
 
         $config = new SiteConfig();
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertStringNotContainsString($removedContent, $this->getReadabilityContent($result));
     }
 
     /**
@@ -531,13 +531,13 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->strip = $patterns;
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $content = $this->getReadabilityContent($contentExtractor);
+        $content = $this->getReadabilityContent($result);
 
         foreach ($assertions['removedContent'] as $removedContent) {
             $this->assertStringNotContainsString($removedContent, $content);
@@ -579,15 +579,15 @@ class ContentExtractorTest extends TestCase
         $config = new SiteConfig();
         $config->body = [$pattern];
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertSame($expectedContent, $this->getXmlContent($contentExtractor));
+        $this->assertSame($expectedContent, $this->getXmlContent($result));
     }
 
     /**
@@ -642,18 +642,18 @@ class ContentExtractorTest extends TestCase
 
         $config = new SiteConfig();
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertSame($expectedContent, $this->getXmlContent($contentExtractor));
+        $this->assertSame($expectedContent, $this->getXmlContent($result));
 
         foreach ($expectedElements as $key => $value) {
-            $this->assertSame($contentExtractor->{'get' . ucfirst($key)}(), $value);
+            $this->assertSame($result->{$key}, $value);
         }
     }
 
@@ -666,15 +666,15 @@ class ContentExtractorTest extends TestCase
 
         $config = new SiteConfig();
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html><body><div><p class="instapaper_title">hello !</p>hello !hello !hello !hello !hello !hello !hello !<p class="instapaper_body">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertSame('<p class="instapaper_body">' . str_repeat('this is the best part of the show', 10) . '</p>', $this->getXmlContent($contentExtractor));
-        $this->assertSame($contentExtractor->getTitle(), 'hello !');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertSame('<p class="instapaper_body">' . str_repeat('this is the best part of the show', 10) . '</p>', $this->getXmlContent($result));
+        $this->assertSame($result->title, 'hello !');
     }
 
     /**
@@ -710,14 +710,14 @@ class ContentExtractorTest extends TestCase
 
         $config = new SiteConfig();
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertSame($expectedContent, $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertSame($expectedContent, $this->getXmlContent($result));
     }
 
     /**
@@ -731,15 +731,15 @@ class ContentExtractorTest extends TestCase
         $config->body = ['//div'];
         $config->title = ['//title'];
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html><head><title>My Title</title></head><body><div><h3>My Title</h3>' . str_repeat('this is the best part of the show', 10) . '</div></body></html>',
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertStringNotContainsString('My Title', $this->getXmlContent($contentExtractor));
-        $this->assertSame('My Title', $contentExtractor->getTitle());
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertStringNotContainsString('My Title', $this->getXmlContent($result));
+        $this->assertSame('My Title', $result->title);
     }
 
     /**
@@ -804,14 +804,14 @@ class ContentExtractorTest extends TestCase
         $config->body = ['//div'];
         $config->src_lazy_load_attr = 'data-toto-src';
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertStringContainsString($htmlExpected, $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertStringContainsString($htmlExpected, $this->getXmlContent($result));
     }
 
     public function testIframeEmbeddedContent(): void
@@ -824,14 +824,14 @@ class ContentExtractorTest extends TestCase
         // obviously a bad parser which will be converted to use the default one
         $config->parser = 'toto';
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<div>' . str_repeat('this is the best part of the show', 10) . '</div><div class="video_player"><iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320"></iframe></div>',
             new Uri('https://lemonde.io/35941909'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertStringContainsString('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertStringContainsString('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $this->getXmlContent($result));
     }
 
     public function testLogMessage(): void
@@ -876,7 +876,7 @@ class ContentExtractorTest extends TestCase
 
         $config = new SiteConfig();
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<!DOCTYPE html>
 <html lang="fr" dir="ltr">
 <head>
@@ -900,7 +900,7 @@ dossier_squelettes = \'squelettes\';
 secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 </script>
 
-<link rel="alternate" type="application/rss+xml" title="Actualit��s du LHC" href="http://feeds.feedburner.com/lhcfranceactus?format=xml" />
+<link rel="alternate" type="application/rss+xml" title="Actualités du LHC" href="http://feeds.feedburner.com/lhcfranceactus?format=xml" />
 <link rel="alternate" type="application/rss+xml" title="La BD du LHC" href="http://www.lhc-france.fr/?page=backend&id_rubrique=65" />
 
 <link rel="stylesheet" href="http://www.lhc-france.fr/local/cache-css/styles-urlabs-b1fc-urlabs-b1fc-minify-3f10.css" type="text/css" media="all" />
@@ -909,10 +909,10 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 <link rel="stylesheet" href="http://www.lhc-france.fr/squelettes/styles.rouge.css" type="text/css" media="all" />
 
 <script type="text/javascript" src="http://www.lhc-france.fr/local/cache-js/AC_RunActiveContent-minify-d850.js"></script>
-<title>Novembre 2016 - Je voudrais de la mati��re noire �� No��l... | LHC France</title>
+<title>Novembre 2016 - Je voudrais de la matière noire à Noël... | LHC France</title>
 <meta name="robots" content="index, follow, all" />
-<meta name="description" content="La contribution du CNRS et du CEA au LHC, un instrument international de physique des particules situ�� au Cern. Avec toute l\'actualit�� du projet et la BD du LHC." />
-<meta name="keywords" content="LHC,Higgs,Atlas,CMS,Alice,LHCb,acc��l��rateur,particule,Cern,grille,d��tecteur,exp��riences,boson de higgs" />
+<meta name="description" content="La contribution du CNRS et du CEA au LHC, un instrument international de physique des particules situé au Cern. Avec toute l\'actualité du projet et la BD du LHC." />
+<meta name="keywords" content="LHC,Higgs,Atlas,CMS,Alice,LHCb,accélérateur,particule,Cern,grille,détecteur,expériences,boson de higgs" />
 
 <meta name="verify-v1" content="WWk3UJy6FdmEUs2ZATuUi6+OQnIL3Sci3WmPHmaWQWs=" />
 <meta name="verify-v1" content="VAs7L6UxdHUoi699A76rt8aDBfL4c6hBE3vJw2SRbh4=" />
@@ -924,47 +924,47 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertStringNotContainsString('<head>', $this->getXmlContent($contentExtractor));
-        $this->assertStringNotContainsString('<base>', $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertStringNotContainsString('<head>', $this->getXmlContent($result));
+        $this->assertStringNotContainsString('<base>', $this->getXmlContent($result));
     }
 
     public function testNativeAd(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p>hihi</p>',
             new Uri('https://nativead.io/woops!')
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertTrue($contentExtractor->isNativeAd());
-        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertTrue($result->isNativeAd);
+        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
     public function testJsonLd(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertSame('title !!', $contentExtractor->getTitle());
-        $this->assertSame('2017-10-23T16:05:38+02:00', $contentExtractor->getDate());
-        $this->assertStringContainsString('bob', (string) ((array) $contentExtractor->getAuthors())[0]);
-        $this->assertSame('https://static.jsonld.io/medias.jpg', $contentExtractor->getImage());
-        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertSame('title !!', $result->title);
+        $this->assertSame('2017-10-23T16:05:38+02:00', $result->date);
+        $this->assertStringContainsString('bob', (string) ((array) $result->authors)[0]);
+        $this->assertSame('https://static.jsonld.io/medias.jpg', $result->image);
+        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
     public function testJsonLdWithMultipleAuthors(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":[{"@type":"Person","name":"Elisa Thevenet"},{"@type":"Person","name":"Humphrey Bogart"}]}</script>',
             new Uri('https://nativead.io/jsonld')
         );
@@ -972,39 +972,39 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame([
             'Elisa Thevenet',
             'Humphrey Bogart',
-        ], $contentExtractor->getAuthors());
+        ], $result->authors);
     }
 
     public function testJsonLdWithAuthorWithNameList(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":{"@type":"Person","name":["Greg Myre"]}}</script>',
             new Uri('https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia')
         );
 
         $this->assertSame([
             'Greg Myre',
-        ], $contentExtractor->getAuthors());
+        ], $result->authors);
     }
 
     public function testNoDefinedHtml(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process('', new Uri('https://nativead.io/jsonld'));
+        $result = $contentExtractor->process('', new Uri('https://nativead.io/jsonld'));
 
-        $this->assertFalse($res);
+        $this->assertFalse($result->isSuccess);
 
-        $this->assertEmpty($contentExtractor->getImage());
+        $this->assertEmpty($result->image);
     }
 
     public function testOpenGraph(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             ' <meta property="og:title" content="title !!"/>
             <meta property="og:site_name" content="opengraph.io" />
             <meta property="og:type" content="article"/>
@@ -1019,55 +1019,55 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
             new Uri('https://nativead.io/opengraph')
         );
 
-        $this->assertTrue($res);
-        $this->assertSame('title !!', $contentExtractor->getTitle());
-        $this->assertSame('2017-10-23T17:04:21+00:00', $contentExtractor->getDate());
-        $this->assertSame('fr_FR', $contentExtractor->getLanguage());
-        $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $contentExtractor->getImage());
-        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess);
+        $this->assertSame('title !!', $result->title);
+        $this->assertSame('2017-10-23T17:04:21+00:00', $result->date);
+        $this->assertSame('fr_FR', $result->language);
+        $this->assertSame('https://static.opengraph.io/medias_11570.jpg', $result->image);
+        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
     public function testAvoidDataUriImageInOpenGraph(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             ' <html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/><p>hihi</p></html>',
             new Uri('https://nativead.io/opengraph')
         );
 
-        $this->assertTrue($res);
-        $this->assertEmpty($contentExtractor->getImage());
-        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess);
+        $this->assertEmpty($result->image);
+        $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
     public function testJsonLdIgnoreList(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "NewsArticle", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "headline": "The Foobar Company is launching globally", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
             new Uri('https://example.com/jsonld')
         );
 
-        $this->assertTrue($res, 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertSame('The Foobar Company is launching globally', $contentExtractor->getTitle());
-        $this->assertStringContainsString('Foobar CEO', (string) ((array) $contentExtractor->getAuthors())[0]);
+        $this->assertSame('The Foobar Company is launching globally', $result->title);
+        $this->assertStringContainsString('Foobar CEO', (string) ((array) $result->authors)[0]);
     }
 
     public function testJsonLdIgnoreListWithPeriodical(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Periodical", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "name": "Foobar Company", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><h1>Hello world, this is title</h1><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
             new Uri('https://example.com/jsonld')
         );
 
-        $this->assertTrue($res, 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $this->assertSame('Hello world, this is title', $contentExtractor->getTitle());
+        $this->assertSame('Hello world, this is title', $result->title);
     }
 
     public function testJsonLdSkipper(): void
@@ -1077,53 +1077,53 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $config = new SiteConfig();
         $config->skip_json_ld = true;
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html><script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><body><div>hello !hello !hello !hello !hello !hello !hello !<p itemprop="articleBody">' . str_repeat('this is the best part of the show', 10) . '</p></div></body></html>',
             new Uri('https://skipjsonld.io/jsonld'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
-        $this->assertEmpty($contentExtractor->getTitle());
-        $this->assertNull($contentExtractor->getDate());
-        $this->assertEmpty($contentExtractor->getAuthors());
-        $this->assertStringContainsString('this is the best part of the show', $this->getXmlContent($contentExtractor));
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
+        $this->assertEmpty($result->title);
+        $this->assertNull($result->date);
+        $this->assertEmpty($result->authors);
+        $this->assertStringContainsString('this is the best part of the show', $this->getXmlContent($result));
     }
 
     public function testJsonLdName(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "name": "name !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertSame('name !!', $contentExtractor->getTitle());
+        $this->assertSame('name !!', $result->title);
     }
 
     public function testJsonLdDateArray(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"] }</script><p>hihi</p>',
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertSame('2014-05-29T00:00:00+02:00', $contentExtractor->getDate());
+        $this->assertSame('2014-05-29T00:00:00+02:00', $result->date);
     }
 
     public function testJsonLdImageUrlArray(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"], "image": { "@type": "ImageObject", "url": [ "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_4x3.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_16x9.png" ]} }</script><p>hihi</p>',
             new Uri('https://nativead.io/jsonld')
         );
 
-        $this->assertSame('https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png', $contentExtractor->getImage());
+        $this->assertSame('https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png', $result->image);
     }
 
     public function testUniqueAuthors(): void
@@ -1134,12 +1134,12 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
         $siteConfig = $contentExtractor->buildSiteConfig($url);
 
-        $contentExtractor->process(
+        $result = $contentExtractor->process(
             $html,
             $url,
             $siteConfig
         );
-        $authors = (array) $contentExtractor->getAuthors();
+        $authors = (array) $result->authors;
         $authorsUnique = array_unique($authors);
 
         $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
@@ -1153,26 +1153,26 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         // a xpath retrieving a dom attribute
         $config->body = ['//iframe/@src'];
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '   <iframe src="blog_0x34.md.html" frameborder="0" style="overflow:hidden; display:block; position: absolute; height: 80%; width:100%;"></iframe>',
             new Uri('https://domattr.io/woops!'),
             $config
         );
 
-        $this->assertFalse($res, 'Extraction failed');
+        $this->assertFalse($result->isSuccess, 'Extraction failed');
     }
 
     public function testBadDate(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '   <meta property="article:published_time" content="-0001-11-304T00:00:00+00:00" /> <p>' . str_repeat('this is the best part of the show', 10) . '</p> ',
             new Uri('https://domattr.io/woops!')
         );
 
-        $this->assertTrue($res, 'Extraction went fine');
-        $this->assertNull($contentExtractor->getDate(), 'Date got vanish because it was wrong');
+        $this->assertTrue($result->isSuccess, 'Extraction went fine');
+        $this->assertNull($result->date, 'Date got vanish because it was wrong');
     }
 
     /**
@@ -1212,15 +1212,15 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $config->body = ['//article'];
         $config->wrap_in = $wrapIn;
 
-        $res = $contentExtractor->process(
+        $result = $contentExtractor->process(
             '<html><article><div class="cond1"><p>Hello world</p></div></article></html>',
             new Uri('https://example.com/wrapin'),
             $config
         );
 
-        $this->assertTrue($res, 'Extraction went well');
+        $this->assertTrue($result->isSuccess, 'Extraction went well');
 
-        $contentBlock = $contentExtractor->getContent();
+        $contentBlock = $result->content;
         $this->assertInstanceOf(\DOMElement::class, $contentBlock);
         $doc = new \DOMDocument();
         $doc->loadXML($contentBlock->innerHTML);
@@ -1230,9 +1230,9 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertCount(1, $el ?: []);
     }
 
-    private function getXmlContent(ContentExtractor $contentExtractor): string
+    private function getXmlContent(ExtractedContent $extractedContent): string
     {
-        $contentBlock = $contentExtractor->getContent();
+        $contentBlock = $extractedContent->content;
         $this->assertInstanceOf(\DOMElement::class, $contentBlock);
 
         $ownerDocument = $contentBlock->ownerDocument;
@@ -1241,10 +1241,9 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         return (string) $ownerDocument->saveXML($contentBlock);
     }
 
-    private function getReadabilityContent(ContentExtractor $contentExtractor): string
+    private function getReadabilityContent(ExtractedContent $extractedContent): string
     {
-        /** @var Readability */
-        $readability = $contentExtractor->readability;
+        $readability = $extractedContent->readability;
         $domElement = $readability->getContent();
         /** @var \DOMDocument */
         $ownerDocument = $domElement->ownerDocument;
