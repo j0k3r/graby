@@ -562,20 +562,6 @@ class ContentExtractor
                     continue;
                 }
 
-                // Custom case for WordPress plugin http://wordpress.org/extend/plugins/lazy-load/
-                // the plugin replaces the src attribute to point to a 1x1 gif and puts the original src
-                // inside the data-lazy-src attribute. It also places the original image inside a noscript element
-                // next to the amended one.
-                // @see https://plugins.trac.wordpress.org/browser/lazy-load/trunk/lazy-load.php
-                if (null !== $e->nextSibling && 'noscript' === $e->nextSibling->nodeName) {
-                    $newElem = $e->ownerDocument->createDocumentFragment();
-                    $newElem->appendXML($e->nextSibling->innerHTML);
-                    $e->nextSibling->parentNode->replaceChild($newElem, $e->nextSibling);
-                    $e->parentNode->removeChild($e);
-
-                    continue;
-                }
-
                 $attributes = [];
                 foreach ($this->config->getSrcLazyLoadAttributes() as $attribute) {
                     if ($e->hasAttribute($attribute)) {
