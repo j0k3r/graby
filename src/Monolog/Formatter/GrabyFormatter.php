@@ -41,7 +41,7 @@ class GrabyFormatter extends HtmlFormatter
         if ($record['context']) {
             $embeddedTable = '<table cellspacing="1" width="100%">';
             foreach ($record['context'] as $key => $value) {
-                $embeddedTable .= $this->addRowWithLevel($record['level'], $key, $this->convertToString($value));
+                $embeddedTable .= $this->addRowWithLevel($record['level'], (string) $key, $this->convertToString($value));
             }
             $embeddedTable .= '</table>';
             $output .= $this->addRowWithLevel($record['level'], 'Context', $embeddedTable, false);
@@ -49,7 +49,7 @@ class GrabyFormatter extends HtmlFormatter
         if ($record['extra']) {
             $embeddedTable = '<table cellspacing="1" width="100%">';
             foreach ($record['extra'] as $key => $value) {
-                $embeddedTable .= $this->addRowWithLevel($record['level'], $key, $this->convertToString($value));
+                $embeddedTable .= $this->addRowWithLevel($record['level'], (string) $key, $this->convertToString($value));
             }
             $embeddedTable .= '</table>';
             $output .= $this->addRowWithLevel($record['level'], 'Extra', $embeddedTable, false);

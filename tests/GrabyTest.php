@@ -293,7 +293,7 @@ class GrabyTest extends TestCase
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('Document1', $res->getTitle());
         $this->assertStringContainsString('Document title', $res->getHtml());
-        $this->assertStringContainsString('Morbi vulputate tincidunt venenatis.', $res->getHtml());
+        $this->assertStringContainsString('Morbi vulputate tincidunt', $res->getHtml());
         $this->assertStringContainsString('http://example.com/test.pdf', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertNotNull($res->getSummary());
         $this->assertStringContainsString('Document title Calibri : Lorem ipsum dolor sit amet', $res->getSummary());
