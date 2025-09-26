@@ -9,7 +9,7 @@ use Rector\Set\ValueObject\LevelSetList;
 
 return RectorConfig::configure()
     ->withSets([
-        LevelSetList::UP_TO_PHP_74,
+        LevelSetList::UP_TO_PHP_82,
     ])
 
     ->withRules([

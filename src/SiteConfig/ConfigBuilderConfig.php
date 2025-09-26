@@ -13,8 +13,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class ConfigBuilderConfig
 {
     /** @var array<string> */
-    private array $site_config;
-    private string $hostname_regex;
+    private readonly array $site_config;
+    private readonly string $hostname_regex;
 
     /**
      * @param array{

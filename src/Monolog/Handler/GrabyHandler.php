@@ -6,8 +6,11 @@ namespace Graby\Monolog\Handler;
 
 use Graby\Monolog\Formatter\GrabyFormatter;
 use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Level;
 use Monolog\Logger;
+use Monolog\LogRecord;
 use Monolog\Processor\PsrLogMessageProcessor;
+use Psr\Log\LogLevel;
 
 /**
  * Custom handler to keep all related log
@@ -15,34 +18,12 @@ use Monolog\Processor\PsrLogMessageProcessor;
  */
 class GrabyHandler extends AbstractProcessingHandler
 {
-    /**
-     * @var array<array{
-     *   channel: string,
-     *   level: int,
-     *   level_name: string,
-     *   datetime: \DateTimeInterface,
-     *   message: string,
-     *   formatted?: string,
-     *   context: array<string, mixed>,
-     *   extra: array<string, mixed>,
-     * }>
-     */
+    /** @var LogRecord[] */
     protected array $records = [];
-    /**
-     * @var array<int, array{
-     *   channel: string,
-     *   level: int,
-     *   level_name: string,
-     *   datetime: \DateTimeInterface,
-     *   message: string,
-     *   formatted?: string,
-     *   context: array<string, mixed>,
-     *   extra: array<string, mixed>,
-     * }>
-     */
+    /** @phpstan-var array<value-of<Level::VALUES>, LogRecord[]> */
     protected array $recordsByLevel = [];
 
-    public function __construct($level = Logger::DEBUG, $bubble = true)
+    public function __construct($level = Level::Debug, $bubble = true)
     {
         parent::__construct($level, $bubble);
 
@@ -51,16 +32,7 @@ class GrabyHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @return array<array{
-     *   channel: string,
-     *   level: int,
-     *   level_name: string,
-     *   datetime: \DateTimeInterface,
-     *   message: string,
-     *   formatted?: string,
-     *   context: array<string, mixed>,
-     *   extra: array<string, mixed>,
-     * }>
+     * @return array<LogRecord>
      */
     public function getRecords(): array
     {
@@ -74,28 +46,18 @@ class GrabyHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @param string|int $level Logging level value or name
+     * @param int|string|Level|LogLevel::* $level Logging level value or name
+     *
+     * @phpstan-param value-of<Level::VALUES>|value-of<Level::NAMES>|Level|LogLevel::* $level
      */
-    public function hasRecords($level): bool
+    public function hasRecords(int|string|Level $level): bool
     {
-        return isset($this->recordsByLevel[$level]);
+        return isset($this->recordsByLevel[Logger::toMonologLevel($level)->value]);
     }
 
-    /**
-     * @param array{
-     *   channel: string,
-     *   level: int,
-     *   level_name: string,
-     *   datetime: \DateTimeInterface,
-     *   message: string,
-     *   formatted?: string,
-     *   context: array<string, mixed>,
-     *   extra: array<string, mixed>,
-     * } $record
-     */
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
-        $this->recordsByLevel[$record['level']][] = $record;
+        $this->recordsByLevel[$record->level->value][] = $record;
         $this->records[] = $record;
     }
 }

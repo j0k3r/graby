@@ -42,21 +42,13 @@ final class MockGrabyResponseRector extends AbstractRector
     private const FIXTURE_DIRECTORY = __DIR__ . '/../../tests/fixtures/content';
     private const MATCHING_ERROR_COMMENT = 'TODO: Rector was unable to evaluate this Graby config.';
     private const IGNORE_COMMENT = 'Rector: do not add mock client';
-    private BetterNodeFinder $betterNodeFinder;
-    private UseNodesToAddCollector $useNodesToAddCollector;
-    private ValueResolver $valueResolver;
-    private VariableNaming $variableNaming;
 
     public function __construct(
-        BetterNodeFinder $betterNodeFinder,
-        UseNodesToAddCollector $useNodesToAddCollector,
-        ValueResolver $valueResolver,
-        VariableNaming $variableNaming
+        private readonly BetterNodeFinder $betterNodeFinder,
+        private readonly UseNodesToAddCollector $useNodesToAddCollector,
+        private readonly ValueResolver $valueResolver,
+        private readonly VariableNaming $variableNaming
     ) {
-        $this->betterNodeFinder = $betterNodeFinder;
-        $this->useNodesToAddCollector = $useNodesToAddCollector;
-        $this->valueResolver = $valueResolver;
-        $this->variableNaming = $variableNaming;
     }
 
     public function getRuleDefinition(): RuleDefinition
@@ -119,7 +111,7 @@ final class MockGrabyResponseRector extends AbstractRector
         $comments = $assignStmt->getAttribute(AttributeKey::COMMENTS);
         if (null !== $comments) {
             foreach ($comments as $comment) {
-                if (preg_match('(' . preg_quote(self::MATCHING_ERROR_COMMENT) . '|' . preg_quote(self::IGNORE_COMMENT) . ')', $comment->getText())) {
+                if (preg_match('(' . preg_quote(self::MATCHING_ERROR_COMMENT) . '|' . preg_quote(self::IGNORE_COMMENT) . ')', (string) $comment->getText())) {
                     // Skip already processed or intentionally excluded.
                     return null;
                 }
