@@ -712,9 +712,8 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(\get_class($graby));
+        $reflection = new \ReflectionClass($graby::class);
         $method = $reflection->getMethod('getExcerpt');
-        $method->setAccessible(true);
 
         $res = $method->invokeArgs($graby, [$text, $length, $separator]);
 
@@ -746,9 +745,8 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(\get_class($graby));
+        $reflection = new \ReflectionClass($graby::class);
         $method = $reflection->getMethod('makeAbsoluteStr');
-        $method->setAccessible(true);
 
         $res = $method->invokeArgs($graby, [new Uri($base), $url]);
 
@@ -784,9 +782,8 @@ class GrabyTest extends TestCase
         /** @var \DOMElement */
         $e = $doc->documentElement;
 
-        $reflection = new \ReflectionClass(\get_class($graby));
+        $reflection = new \ReflectionClass($graby::class);
         $method = $reflection->getMethod('makeAbsoluteAttr');
-        $method->setAccessible(true);
 
         $method->invokeArgs($graby, [new Uri($base), $e, $attr]);
 
@@ -821,9 +818,8 @@ class GrabyTest extends TestCase
         /** @var \DOMElement */
         $e = $doc->documentElement;
 
-        $reflection = new \ReflectionClass(\get_class($graby));
+        $reflection = new \ReflectionClass($graby::class);
         $method = $reflection->getMethod('makeAbsolute');
-        $method->setAccessible(true);
 
         $method->invokeArgs($graby, [new Uri($base), $e]);
 
@@ -843,9 +839,8 @@ class GrabyTest extends TestCase
         /** @var \DOMElement */
         $e = $doc->documentElement;
 
-        $reflection = new \ReflectionClass(\get_class($graby));
+        $reflection = new \ReflectionClass($graby::class);
         $method = $reflection->getMethod('makeAbsolute');
-        $method->setAccessible(true);
 
         $method->invokeArgs($graby, [new Uri('http://example.org'), $e]);
 
@@ -955,9 +950,8 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
 
-        $reflection = new \ReflectionClass(\get_class($graby));
+        $reflection = new \ReflectionClass($graby::class);
         $method = $reflection->getMethod('validateUrl');
-        $method->setAccessible(true);
 
         $res = $method->invokeArgs($graby, [$url]);
 

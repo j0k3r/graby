@@ -44,6 +44,9 @@ return (new PhpCsFixer\Config())
         'strict_comparison' => true,
         'strict_param' => true,
         'concat_space' => ['spacing' => 'one'],
+        'multiline_promoted_properties' => [
+            'minimum_number_of_parameters' => 2
+        ],
     ])
     ->setFinder($finder)
 ;

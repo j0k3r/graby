@@ -36,14 +36,14 @@ use Smalot\PdfParser\Parser as PdfParser;
 class Graby
 {
     private LoggerInterface $logger;
-    private GrabyConfig $config;
-    private HttpClient $httpClient;
-    private ContentExtractor $extractor;
-    private ConfigBuilder $configBuilder;
-    private UriFactoryInterface $uriFactory;
+    private readonly GrabyConfig $config;
+    private readonly HttpClient $httpClient;
+    private readonly ContentExtractor $extractor;
+    private readonly ConfigBuilder $configBuilder;
+    private readonly UriFactoryInterface $uriFactory;
     private bool $imgNoReferrer = false;
-    private ResponseFactoryInterface $responseFactory;
-    private StreamFactoryInterface $streamFactory;
+    private readonly ResponseFactoryInterface $responseFactory;
+    private readonly StreamFactoryInterface $streamFactory;
 
     private ?string $prefetchedContent = null;
 
@@ -662,7 +662,7 @@ class Graby
 
             // Title can be a string or an array with one key
             if (isset($details['Title'])) {
-                if (\is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim($details['Title'][0])) {
+                if (\is_array($details['Title']) && isset($details['Title'][0]) && '' !== trim((string) $details['Title'][0])) {
                     $infos = $infos->withTitle($details['Title'][0]);
                 } elseif (\is_string($details['Title']) && '' !== trim($details['Title'])) {
                     $infos = $infos->withTitle($details['Title']);
@@ -670,7 +670,7 @@ class Graby
             }
 
             if (isset($details['Author'])) {
-                if (\is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim($details['Author'][0])) {
+                if (\is_array($details['Author']) && isset($details['Author'][0]) && '' !== trim((string) $details['Author'][0])) {
                     $infos = $infos->withAuthors([$details['Author'][0]]);
                 } elseif (\is_string($details['Author']) && '' !== trim($details['Author'])) {
                     $infos = $infos->withAuthors([$details['Author']]);
@@ -678,7 +678,7 @@ class Graby
             }
 
             if (isset($details['CreationDate'])) {
-                if (\is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim($details['CreationDate'][0])) {
+                if (\is_array($details['CreationDate']) && isset($details['CreationDate'][0]) && '' !== trim((string) $details['CreationDate'][0])) {
                     $infos = $infos->withDate($this->extractor->validateDate($details['CreationDate'][0]));
                 } elseif (\is_string($details['CreationDate']) && '' !== trim($details['CreationDate'])) {
                     $infos = $infos->withDate($this->extractor->validateDate($details['CreationDate']));
@@ -831,7 +831,7 @@ class Graby
         if (!preg_match('!^(https?://|#)!i', $url)) {
             try {
                 $absolute = $this->makeAbsoluteStr($base, $url);
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 $this->logger->info('Wrong content url', ['url' => (string) $url]);
             }
         }

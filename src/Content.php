@@ -11,48 +11,20 @@ use Graby\HttpClient\EffectiveResponse;
  */
 final class Content
 {
-    private EffectiveResponse $effectiveResponse;
-
-    private string $html;
-
-    private string $title;
-
-    private ?string $language;
-
-    private ?string $date;
-
-    /** @var string[] */
-    private array $authors;
-
-    private ?string $image;
-
-    private bool $isNativeAd;
-
-    private ?string $summary;
-
     /**
      * @param string[] $authors
      */
     public function __construct(
-        EffectiveResponse $effectiveResponse,
-        string $html,
-        string $title,
-        ?string $language,
-        ?string $date,
-        array $authors,
-        ?string $image,
-        bool $isNativeAd,
-        ?string $summary = null
+        private EffectiveResponse $effectiveResponse,
+        private string $html,
+        private string $title,
+        private ?string $language,
+        private ?string $date,
+        private array $authors,
+        private ?string $image,
+        private bool $isNativeAd,
+        private ?string $summary = null
     ) {
-        $this->effectiveResponse = $effectiveResponse;
-        $this->html = $html;
-        $this->title = $title;
-        $this->language = $language;
-        $this->date = $date;
-        $this->authors = $authors;
-        $this->image = $image;
-        $this->isNativeAd = $isNativeAd;
-        $this->summary = $summary;
     }
 
     public function getEffectiveResponse(): EffectiveResponse

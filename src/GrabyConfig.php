@@ -12,23 +12,23 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class GrabyConfig
 {
-    private bool $debug;
+    private readonly bool $debug;
     /** @var 'info'|'debug' */
-    private string $log_level;
-    private bool $rewrite_relative_urls;
-    private bool $singlepage;
-    private bool $multipage;
-    private string $error_message;
-    private string $error_message_title;
+    private readonly string $log_level;
+    private readonly bool $rewrite_relative_urls;
+    private readonly bool $singlepage;
+    private readonly bool $multipage;
+    private readonly string $error_message;
+    private readonly string $error_message_title;
     /** @var array<string> */
-    private array $allowed_urls;
+    private readonly array $allowed_urls;
     /** @var array<string> */
-    private array $blocked_urls;
-    private bool $xss_filter;
+    private readonly array $blocked_urls;
+    private readonly bool $xss_filter;
     /** @var array<string, array{name: string, action: 'link'|'exclude'}> */
-    private array $content_type_exc;
+    private readonly array $content_type_exc;
     /** @var 'preserve'|'footnotes'|'remove' */
-    private string $content_links;
+    private readonly string $content_links;
 
     /**
      * @var array{
@@ -42,7 +42,7 @@ class GrabyConfig
      *   max_redirect?: int,
      * }
      */
-    private array $http_client;
+    private readonly array $http_client;
 
     /**
      * @var array{
@@ -60,7 +60,7 @@ class GrabyConfig
      *   json_ld_ignore_types?: string[],
      * }
      */
-    private array $extractor;
+    private readonly array $extractor;
 
     /**
      * @param array{

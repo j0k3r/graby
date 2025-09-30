@@ -30,14 +30,13 @@ use Psr\Log\NullLogger;
  */
 class HttpClient
 {
-    private HttpClientConfig $config;
-    private HttpMethodsClient $client;
+    private readonly HttpClientConfig $config;
+    private readonly HttpMethodsClient $client;
     private LoggerInterface $logger;
-    private ResponseFactoryInterface $responseFactory;
-    private StreamFactoryInterface $streamFactory;
-    private UriFactoryInterface $uriFactory;
-    private History $responseHistory;
-    private ?ContentExtractor $extractor;
+    private readonly ResponseFactoryInterface $responseFactory;
+    private readonly StreamFactoryInterface $streamFactory;
+    private readonly UriFactoryInterface $uriFactory;
+    private readonly History $responseHistory;
 
     /**
      * @param ClientInterface $client Http client
@@ -52,8 +51,12 @@ class HttpClient
      *   max_redirect?: int,
      * } $config
      */
-    public function __construct(ClientInterface $client, array $config = [], ?LoggerInterface $logger = null, ?ContentExtractor $extractor = null)
-    {
+    public function __construct(
+        ClientInterface $client,
+        array $config = [],
+        ?LoggerInterface $logger = null,
+        private readonly ?ContentExtractor $extractor = null
+    ) {
         $this->config = new HttpClientConfig($config);
 
         if (null === $logger) {
@@ -61,7 +64,6 @@ class HttpClient
         }
 
         $this->logger = $logger;
-        $this->extractor = $extractor;
 
         $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
         $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
@@ -132,7 +134,7 @@ class HttpClient
         try {
             /** @var ResponseInterface $response */
             $response = $this->client->$method($url, $headers);
-        } catch (LoopException $e) {
+        } catch (LoopException) {
             $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
 
             return new EffectiveResponse(
