@@ -496,7 +496,7 @@ class ContentExtractor
             "//a[contains(concat(' ',normalize-space(@rel),' '),' author ')]",
             $this->readability->dom,
             'Author found (rel="author"): {author}',
-            function ($element, $currentEntity) {
+            static function ($element, $currentEntity) {
                 return $currentEntity + [trim($element)];
             }
         );
@@ -507,7 +507,7 @@ class ContentExtractor
             '//meta[@name="author"]/@content',
             $this->readability->dom,
             'Author found (meta name="author"): {author}',
-            function ($element, $currentEntity) {
+            static function ($element, $currentEntity) {
                 return $currentEntity + [trim($element)];
             }
         );
@@ -849,7 +849,7 @@ class ContentExtractor
 
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
-            $returnCallback = function ($element) {
+            $returnCallback = static function ($element) {
                 return trim($element);
             };
         }
@@ -1110,7 +1110,7 @@ class ContentExtractor
     {
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
-            $returnCallback = function ($e) {
+            $returnCallback = static function ($e) {
                 return trim($e);
             };
         }
@@ -1165,7 +1165,7 @@ class ContentExtractor
     {
         // we define the default callback here
         if (!\is_callable($returnCallback)) {
-            $returnCallback = function ($e) {
+            $returnCallback = static function ($e) {
                 return trim($e);
             };
         }
@@ -1325,7 +1325,7 @@ class ContentExtractor
             return $authors['name'];
         }
 
-        return array_map(function ($author) {
+        return array_map(static function ($author) {
             if (isset($author['name']) && \is_string($author['name'])) {
                 return $author['name'];
             }

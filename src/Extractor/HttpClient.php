@@ -261,7 +261,7 @@ class HttpClient
         // remove utm parameters & fragment
         $uri = new Uri(str_replace('&amp;', '&', $effectiveUrl));
         parse_str($uri->getQuery(), $query);
-        $queryParameters = array_filter($query, function ($k) {
+        $queryParameters = array_filter($query, static function ($k) {
             return !(0 === stripos($k, 'utm_') || 0 === stripos($k, 'mtm_'));
         }, \ARRAY_FILTER_USE_KEY);
         $effectiveUrl = (string) Uri::withQueryValues(new Uri($uri->withFragment('')->withQuery('')), $queryParameters);
@@ -446,7 +446,7 @@ class HttpClient
             }
 
             // see https://tools.ietf.org/html/rfc6265.html#section-4.2.1
-            return implode('; ', array_map(function ($name) use ($cookies) {
+            return implode('; ', array_map(static function ($name) use ($cookies) {
                 return $name . '=' . $cookies[$name];
             }, array_keys($cookies)));
         }
