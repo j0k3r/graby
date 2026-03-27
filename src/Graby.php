@@ -1041,7 +1041,7 @@ class Graby
                 'safe' => 1,
                 // *+iframe: do not remove iframe elements
                 'elements' => '*+iframe-meta',
-                'deny_attribute' => 'style',
+                'deny_attribute' => 'style srcdoc',
                 'comment' => 1,
                 'cdata' => 1,
             ]
