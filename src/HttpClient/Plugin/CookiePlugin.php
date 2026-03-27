@@ -84,7 +84,7 @@ class CookiePlugin implements Plugin
      */
     private function createCookie(RequestInterface $request, string $setCookieHeader): ?Cookie
     {
-        $parts = array_map('trim', explode(';', $setCookieHeader));
+        $parts = array_map(trim(...), explode(';', $setCookieHeader));
 
         if ('' === $parts[0] || !str_contains($parts[0], '=')) {
             return null;

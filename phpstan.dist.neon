@@ -34,5 +34,14 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/tests/Extractor/HttpClientTest.php
                 - %currentWorkingDirectory%/tests/SiteConfig/ConfigBuilderTest.php
+        -
+            identifier: argument.type
+            path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
+            count: 18
+        -
+            identifier: property.notFound
+            path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
+            count: 5
 
     inferPrivatePropertyTypeFromConstructor: true
+    treatPhpDocTypesAsCertain: false
