@@ -364,7 +364,7 @@ class HttpClient
             $this->logger->info('Found cookie "{cookie}" for url "{url}" from site config', ['cookie' => $httpHeader['cookie'], 'url' => (string) $url]);
 
             $cookies = [];
-            $pieces = array_filter(array_map('trim', explode(';', $httpHeader['cookie'])));
+            $pieces = array_filter(array_map(trim(...), explode(';', $httpHeader['cookie'])));
 
             foreach ($pieces as $part) {
                 $cookieParts = explode('=', $part, 2);
@@ -382,7 +382,7 @@ class HttpClient
             }
 
             // see https://tools.ietf.org/html/rfc6265.html#section-4.2.1
-            return implode('; ', array_map(fn ($name) => $name . '=' . $cookies[$name], array_keys($cookies)));
+            return implode('; ', array_map(static fn ($name) => $name . '=' . $cookies[$name], array_keys($cookies)));
         }
 
         return null;
@@ -515,7 +515,7 @@ class HttpClient
             // Remove utm_* parameters
             $clean_query = array_filter(
                 $q_array,
-                fn (string $param): bool => !str_starts_with($param, 'utm_')
+                static fn (string $param): bool => !str_starts_with($param, 'utm_')
             );
             $uri = $uri->withQuery(implode('&', $clean_query));
         }

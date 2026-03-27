@@ -11,7 +11,6 @@ use Psr\Log\NullLogger;
 
 class ConfigBuilder
 {
-    private LoggerInterface $logger;
     private readonly ConfigBuilderConfig $config;
     /** @var array<string, string> */
     private array $configFiles = [];
@@ -43,11 +42,11 @@ class ConfigBuilder
      *   hostname_regex?: string,
      * } $config
      */
-    public function __construct(array $config = [], ?LoggerInterface $logger = null)
-    {
+    public function __construct(
+        array $config = [],
+        private ?LoggerInterface $logger = new NullLogger(),
+    ) {
         $this->config = new ConfigBuilderConfig($config);
-
-        $this->logger = $logger ?? new NullLogger();
 
         $this->loadConfigFiles();
     }

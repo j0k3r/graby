@@ -20,7 +20,6 @@ use Readability\Readability;
 class ContentExtractor
 {
     private readonly ContentExtractorConfig $config;
-    private LoggerInterface $logger;
     private readonly ConfigBuilder $configBuilder;
 
     /**
@@ -39,11 +38,12 @@ class ContentExtractor
      *   json_ld_ignore_types?: string[],
      * } $config
      */
-    public function __construct(array $config = [], ?LoggerInterface $logger = null, ?ConfigBuilder $configBuilder = null)
-    {
+    public function __construct(
+        array $config = [],
+        private ?LoggerInterface $logger = new NullLogger(),
+        ?ConfigBuilder $configBuilder = null
+    ) {
         $this->config = new ContentExtractorConfig($config);
-
-        $this->logger = $logger ?? new NullLogger();
         $this->configBuilder = $configBuilder ?? new ConfigBuilder($this->config->getConfigBuilder(), $this->logger);
     }
 
@@ -488,7 +488,7 @@ class ContentExtractor
             $readability->dom,
             'Author found (rel="author"): {author}',
             $xpath,
-            fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
+            static fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
         );
         if (null !== $extractedAuthors) {
             $authors = array_merge($authors, $extractedAuthors);
@@ -501,7 +501,7 @@ class ContentExtractor
             $readability->dom,
             'Author found (meta name="author"): {author}',
             $xpath,
-            fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
+            static fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
         );
         if (null !== $extractedAuthors) {
             $authors = array_merge($authors, $extractedAuthors);
@@ -846,7 +846,7 @@ class ContentExtractor
 
         // we define the default callback here
         if (null === $returnCallback) {
-            $returnCallback = fn ($element) => trim((string) $element);
+            $returnCallback = static fn ($element) => trim((string) $element);
         }
 
         // check for given css class
@@ -1101,7 +1101,7 @@ class ContentExtractor
     {
         // we define the default callback here
         if (null === $returnCallback) {
-            $returnCallback = fn ($e) => trim((string) $e);
+            $returnCallback = static fn ($e) => trim((string) $e);
         }
 
         $elems = $xpath->evaluate($pattern, $readability->dom);
@@ -1148,7 +1148,7 @@ class ContentExtractor
     {
         // we define the default callback here
         if (null === $returnCallback) {
-            $returnCallback = fn ($e) => trim((string) $e);
+            $returnCallback = static fn ($e) => trim((string) $e);
         }
 
         $elems = $xpath->evaluate($pattern, $readability->dom);

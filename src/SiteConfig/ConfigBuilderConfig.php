@@ -36,7 +36,7 @@ class ConfigBuilderConfig
         $resolver->setAllowedTypes('site_config', 'string[]');
         $resolver->setAllowedTypes('hostname_regex', 'string');
 
-        $resolver->setNormalizer('site_config', function (Options $options, $value) {
+        $resolver->setNormalizer('site_config', static function (Options $options, $value) {
             foreach ($value as $key => $path) {
                 $value[$key] = rtrim($path, '/');
             }

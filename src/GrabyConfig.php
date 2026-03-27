@@ -143,7 +143,7 @@ class GrabyConfig
         $resolver->setAllowedTypes('http_client', 'array');
         $resolver->setAllowedTypes('extractor', 'array');
 
-        $resolver->setNormalizer('content_type_exc', function (Options $options, $value) {
+        $resolver->setNormalizer('content_type_exc', static function (Options $options, $value) {
             $resolver = new OptionsResolver();
             $resolver->setRequired(['action', 'name']);
             $resolver->setAllowedValues('action', ['link', 'exclude']);
