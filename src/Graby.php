@@ -798,18 +798,16 @@ class Graby
      */
     private function makeAbsolute(UriInterface $base, \DOMElement $elem): void
     {
-        foreach (['a' => 'href', 'img' => 'src', 'iframe' => 'src'] as $tag => $attr) {
-            $elems = $elem->getElementsByTagName($tag);
+        $tagAttrMap = ['a' => 'href', 'img' => 'src', 'iframe' => 'src'];
 
-            for ($i = $elems->length - 1; $i >= 0; --$i) {
-                $e = $elems->item($i);
-                if (null !== $e) {
-                    $this->makeAbsoluteAttr($base, $e, $attr);
-                }
-            }
+        $nodeName = strtolower($elem->nodeName);
+        if (isset($tagAttrMap[$nodeName])) {
+            $this->makeAbsoluteAttr($base, $elem, $tagAttrMap[$nodeName]);
+        }
 
-            if (strtolower($elem->nodeName) === $tag) {
-                $this->makeAbsoluteAttr($base, $elem, $attr);
+        foreach ($tagAttrMap as $tag => $attr) {
+            foreach ($elem->getElementsByTagName($tag) as $e) {
+                $this->makeAbsoluteAttr($base, $e, $attr);
             }
         }
     }

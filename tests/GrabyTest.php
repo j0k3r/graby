@@ -879,6 +879,51 @@ class GrabyTest extends TestCase
         $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->attributes->getNamedItem('src')->nodeValue);
     }
 
+    /**
+     * A wrapper element (not itself a/img/iframe) holding several url-bearing
+     * descendants of each kind: every descendant must be made absolute.
+     */
+    public function testMakeAbsoluteWithManyChildren(): void
+    {
+        $graby = new Graby();
+
+        $doc = new \DOMDocument();
+        $doc->loadXML(
+            '<div>'
+            . '<a href="/one">1</a>'
+            . '<img src="/a.jpg" />'
+            . '<p><a href="/two">2</a><iframe src="/frame" /></p>'
+            . '<img src="/b.jpg" />'
+            . '</div>'
+        );
+
+        /** @var \DOMElement */
+        $e = $doc->documentElement;
+
+        $reflection = new \ReflectionClass($graby::class);
+        $method = $reflection->getMethod('makeAbsolute');
+
+        $method->invokeArgs($graby, [new Uri('http://example.org'), $e]);
+
+        $hrefs = [];
+        foreach ($doc->getElementsByTagName('a') as $a) {
+            $hrefs[] = $a->getAttribute('href');
+        }
+        $srcs = [];
+        foreach ($doc->getElementsByTagName('img') as $img) {
+            $srcs[] = $img->getAttribute('src');
+        }
+        foreach ($doc->getElementsByTagName('iframe') as $iframe) {
+            $srcs[] = $iframe->getAttribute('src');
+        }
+
+        $this->assertSame(['http://example.org/one', 'http://example.org/two'], $hrefs);
+        $this->assertSame(
+            ['http://example.org/a.jpg', 'http://example.org/b.jpg', 'http://example.org/frame'],
+            $srcs
+        );
+    }
+
     public function testContentLinksRemove(): void
     {
         $httpMockClient = new HttpMockClient();
