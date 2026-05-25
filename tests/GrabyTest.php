@@ -791,6 +791,35 @@ class GrabyTest extends TestCase
     }
 
     /**
+     * A malformed (but non-anchor, non-http) url makes the uri factory throw:
+     * the attribute is then left untouched and the failure is logged.
+     */
+    public function testMakeAbsoluteAttrWithWrongUrl(): void
+    {
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $graby = new Graby();
+        $graby->setLogger($logger);
+
+        $doc = new \DOMDocument();
+        $doc->loadXML('<a href="//example.com:port/p">test</a>');
+
+        /** @var \DOMElement */
+        $e = $doc->documentElement;
+
+        $reflection = new \ReflectionClass($graby::class);
+        $method = $reflection->getMethod('makeAbsoluteAttr');
+
+        $method->invokeArgs($graby, [new Uri('http://example.org'), $e, 'href']);
+
+        // url is invalid so it can't be made absolute: kept as-is
+        $this->assertSame('//example.com:port/p', $e->getAttribute('href'));
+        $this->assertTrue($handler->hasInfoThatContains('Wrong content url'));
+    }
+
+    /**
      * @return iterable<array{string, string, string, string}>
      */
     public function dataForMakeAbsolute(): iterable
