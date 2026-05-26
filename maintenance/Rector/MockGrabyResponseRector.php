@@ -225,7 +225,7 @@ final class MockGrabyResponseRector extends AbstractRector
      */
     private function createNewResponseExpression(ResponseInterface $response, string $fileName): New_
     {
-        $relativeFixturePath = Path::makeRelative(self::FIXTURE_DIRECTORY, \dirname($this->file->getFilePath()));
+        $relativeFixturePath = Path::makeRelative(self::FIXTURE_DIRECTORY, \dirname($this->getFile()->getFilePath()));
 
         return new New_(
             new Name('Response'),
