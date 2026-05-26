@@ -10,6 +10,9 @@ on:
       - "master"
       - "2.x"
 
+env:
+  SYMFONY_PHPUNIT_VERSION: 8.5
+
 jobs:
   coding-standards:
     name: "CS Fixer & PHPStan"
