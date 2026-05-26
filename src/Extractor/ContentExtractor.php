@@ -21,6 +21,7 @@ class ContentExtractor
     private $xpath;
     private $html;
     private $config;
+    /** @var SiteConfig|null */
     private $siteConfig;
     private $title;
     private $language;
@@ -74,13 +75,13 @@ class ContentExtractor
         $this->configBuilder = null === $configBuilder ? new ConfigBuilder($this->config['config_builder'], $this->logger) : $configBuilder;
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
         $this->configBuilder->setLogger($logger);
     }
 
-    public function reset()
+    public function reset(): void
     {
         $this->xpath = null;
         $this->html = null;
@@ -741,7 +742,7 @@ class ContentExtractor
         return (new \DateTime($date))->format(\DateTime::W3C);
     }
 
-    protected function addAuthor($authorDirty)
+    protected function addAuthor($authorDirty): void
     {
         $author = trim($authorDirty);
         if (!\in_array($author, $this->authors, true)) {
@@ -771,7 +772,7 @@ class ContentExtractor
      * @param \DOMNodeList|false $elems      Not force typed because it can also be false
      * @param string             $logMessage
      */
-    private function removeElements($elems = false, $logMessage = null)
+    private function removeElements($elems = false, $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -801,7 +802,7 @@ class ContentExtractor
      * @param string             $tag
      * @param string             $logMessage
      */
-    private function wrapElements($elems = false, $tag = 'div', $logMessage = null)
+    private function wrapElements($elems = false, $tag = 'div', $logMessage = null): void
     {
         if (false === $elems || false === $this->hasElements($elems)) {
             return;
@@ -1210,7 +1211,7 @@ class ContentExtractor
      *
      * @param string $html Html from the page
      */
-    private function extractDefinedInformation($html)
+    private function extractDefinedInformation($html): void
     {
         if ('' === trim($html)) {
             return;
@@ -1238,7 +1239,7 @@ class ContentExtractor
      *
      * @see http://stackoverflow.com/a/7454737/569101
      */
-    private function extractOpenGraph(\DOMXPath $xpath)
+    private function extractOpenGraph(\DOMXPath $xpath): void
     {
         // retrieve "og:" properties
         $metas = $xpath->query('//*/meta[starts-with(@property, \'og:\')]');

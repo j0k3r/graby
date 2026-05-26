@@ -53,7 +53,7 @@ class ConfigBuilder
         $this->configLinesProvider = null === $configLinesProvider ? new BuiltinConfigLinesProvider($this->config['site_config']) : $configLinesProvider;
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -65,7 +65,7 @@ class ConfigBuilder
      *     - If we add a new file after, it won't be loaded.
      *     - We'll need to manually reload config files.
      */
-    public function loadConfigFiles()
+    public function loadConfigFiles(): void
     {
         $this->configLinesProvider->reload();
     }
@@ -76,7 +76,7 @@ class ConfigBuilder
      * @param string     $key    Key for the cache
      * @param SiteConfig $config Config to be cached
      */
-    public function addToCache($key, SiteConfig $config)
+    public function addToCache($key, SiteConfig $config): void
     {
         $key = strtolower($key);
         if ('www.' === substr($key, 0, 4)) {
@@ -430,7 +430,7 @@ class ConfigBuilder
      * @param SiteConfig $config    Current config
      * @param string     $condition XPath condition
      */
-    private function handleIfPageContainsCondition(SiteConfig $config, $condition)
+    private function handleIfPageContainsCondition(SiteConfig $config, $condition): void
     {
         if (!empty($config->single_page_link)) {
             $rule = 'single_page_link';

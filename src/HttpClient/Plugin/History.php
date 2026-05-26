@@ -34,13 +34,13 @@ class History implements Journal
         return $this->lastResponse;
     }
 
-    public function addSuccess(RequestInterface $request, ResponseInterface $response)
+    public function addSuccess(RequestInterface $request, ResponseInterface $response): void
     {
         $this->lastRequest = $request;
         $this->lastResponse = $response;
     }
 
-    public function addFailure(RequestInterface $request, ClientExceptionInterface $exception)
+    public function addFailure(RequestInterface $request, ClientExceptionInterface $exception): void
     {
     }
 }

@@ -29,7 +29,7 @@ class GrabyHandler extends AbstractProcessingHandler
         return $this->records;
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->records = [];
         $this->recordsByLevel = [];

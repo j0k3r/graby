@@ -122,7 +122,7 @@ class Graby
     /**
      * Redefine all loggers.
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
         $this->extractor->setLogger($logger);
@@ -134,7 +134,7 @@ class Graby
      *
      * @see ConfigBuilder::loadConfigFiles
      */
-    public function reloadConfigFiles()
+    public function reloadConfigFiles(): void
     {
         $this->configBuilder->loadConfigFiles();
     }
@@ -177,7 +177,7 @@ class Graby
         return $infos;
     }
 
-    public function toggleImgNoReferrer($toggle)
+    public function toggleImgNoReferrer($toggle): void
     {
         if (\is_bool($toggle)) {
             $this->imgNoReferrer = $toggle;
@@ -797,7 +797,7 @@ class Graby
      * @param string      $base The base url
      * @param \DOMElement $elem Element on which we'll retrieve the attribute
      */
-    private function makeAbsolute($base, \DOMElement $elem)
+    private function makeAbsolute($base, \DOMElement $elem): void
     {
         foreach (['a' => 'href', 'img' => 'src', 'iframe' => 'src'] as $tag => $attr) {
             $elems = $elem->getElementsByTagName($tag);
@@ -822,7 +822,7 @@ class Graby
      * @param \DOMNode $e    Element on which we'll retrieve the attribute
      * @param string   $attr Attribute that contains the url to absolutize
      */
-    private function makeAbsoluteAttr($base, \DOMNode $e, $attr)
+    private function makeAbsoluteAttr($base, \DOMNode $e, $attr): void
     {
         if (!$e->attributes->getNamedItem($attr) || !$e instanceof \DOMElement) {
             return;
