@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Graby\Extractor;
 
 use Graby\HttpClient\EffectiveResponse;
+use Graby\HttpClient\Plugin\CookiePlugin;
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
+use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
+use Http\Client\Common\Exception\CircularRedirectionException;
 use Http\Client\Common\Exception\LoopException;
 use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin;
@@ -16,6 +19,7 @@ use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
 use Http\Client\Exception\TransferException;
 use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Message\CookieJar;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -37,6 +41,8 @@ class HttpClient
     private readonly StreamFactoryInterface $streamFactory;
     private readonly UriFactoryInterface $uriFactory;
     private readonly History $responseHistory;
+    private readonly CookieJar $cookieJar;
+    private readonly CookiePlugin $cookiePlugin;
 
     /**
      * @param ClientInterface $client Http client
@@ -69,12 +75,16 @@ class HttpClient
         $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
 
         $this->responseHistory = new History();
+        $this->cookieJar = new CookieJar();
+        $this->cookiePlugin = new CookiePlugin($this->cookieJar);
         $this->client = new HttpMethodsClient(
             new PluginClient(
                 $client,
                 [
                     new ServerSideRequestForgeryProtectionPlugin(),
                     new RedirectPlugin(),
+                    // Inner plugin: stores Set-Cookie before RedirectPlugin handles the response.
+                    $this->cookiePlugin,
                     new Plugin\HistoryPlugin($this->responseHistory),
                     new ErrorPlugin(),
                 ],
@@ -142,10 +152,25 @@ class HttpClient
 
             $headers[$header] = $value;
         }
+        $cookieGateRetried = false;
 
         try {
-            /** @var ResponseInterface $response */
-            $response = $this->client->$method($url, $headers);
+            while (true) {
+                try {
+                    /** @var ResponseInterface $response */
+                    $response = $this->client->$method($url, $headers);
+
+                    break;
+                } catch (CircularRedirectionException $e) {
+                    if ($cookieGateRetried || !$this->isCookieGateRedirect($e)) {
+                        throw $e;
+                    }
+
+                    $this->logger->info('Cookie-gate redirect detected on "{url}", retrying with stored cookies', ['url' => (string) $url]);
+                    $this->cookiePlugin->storeSetCookies($e->getRequest(), $e->getResponse());
+                    $cookieGateRetried = true;
+                }
+            }
         } catch (LoopException) {
             $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
 
@@ -242,6 +267,28 @@ class HttpClient
             $effectiveUrl,
             $response->withBody($this->streamFactory->createStream($body))
         );
+    }
+
+    /**
+     * Detect cookie-gate redirects: same URL + Set-Cookie (e.g. Tamedia / Piano CMS).
+     */
+    private function isCookieGateRedirect(CircularRedirectionException $e): bool
+    {
+        if (!method_exists($e, 'getRequest') || !method_exists($e, 'getResponse')) {
+            return false;
+        }
+
+        $request = $e->getRequest();
+        $response = $e->getResponse();
+
+        if (null === $response || !$response->hasHeader('Set-Cookie') || !$response->hasHeader('Location')) {
+            return false;
+        }
+
+        $location = $response->getHeaderLine('Location');
+        $targetUri = UriResolver::resolve($request->getUri(), new Uri($location));
+
+        return (string) $targetUri === (string) $request->getUri();
     }
 
     /**

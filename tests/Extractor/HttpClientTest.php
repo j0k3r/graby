@@ -707,4 +707,38 @@ class HttpClientTest extends TestCase
 
         $this->assertSame($expectedUrl, (string) $res->getEffectiveUri());
     }
+
+    public function testCookieGateRedirectRetriesWithStoredCookie(): void
+    {
+        $articleUrl = 'https://www.tagesanzeiger.ch/example-article-123';
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            302,
+            [
+                'Location' => $articleUrl,
+                'Set-Cookie' => 'entitlementToken=test-token; Domain=.tagesanzeiger.ch; Path=/; Secure; SameSite=Lax',
+                'Content-Type' => 'text/plain; charset=utf-8',
+            ],
+            'Found. Redirecting to ' . $articleUrl
+        ));
+        $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], '<html><body>Article</body></html>'));
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($httpMockClient);
+        $http->setLogger($logger);
+
+        $res = $http->fetch(new Uri($articleUrl));
+
+        $this->assertSame(200, $res->getResponse()->getStatusCode());
+        $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
+        $this->assertStringContainsString('Article', (string) $res->getResponse()->getBody());
+        $this->assertSame('Cookie-gate redirect detected on "{url}", retrying with stored cookies', $handler->getRecords()[3]['message']);
+
+        /** @var RequestInterface $secondRequest */
+        $secondRequest = $httpMockClient->getRequests()[1];
+        $this->assertStringContainsString('entitlementToken=test-token', $secondRequest->getHeaderLine('Cookie'));
+    }
 }
