@@ -2,11 +2,14 @@
 
 namespace Graby\Extractor;
 
+use Graby\HttpClient\Plugin\CookiePlugin;
 use Graby\HttpClient\Plugin\History;
 use Graby\HttpClient\Plugin\ServerSideRequestForgeryProtection\ServerSideRequestForgeryProtectionPlugin;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
+use Http\Client\Common\Exception\CircularRedirectionException;
 use Http\Client\Common\Exception\LoopException;
+use Http\Message\CookieJar;
 use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\ErrorPlugin;
@@ -41,6 +44,14 @@ class HttpClient
      * @var History
      */
     private $responseHistory;
+    /**
+     * @var CookieJar
+     */
+    private $cookieJar;
+    /**
+     * @var CookiePlugin
+     */
+    private $cookiePlugin;
 
     public function __construct(ClientInterface $client, $config = [], ?LoggerInterface $logger = null)
     {
@@ -88,12 +99,16 @@ class HttpClient
         $this->logger = $logger;
 
         $this->responseHistory = new History();
+        $this->cookieJar = new CookieJar();
+        $this->cookiePlugin = new CookiePlugin($this->cookieJar);
         $this->client = new HttpMethodsClient(
             new PluginClient(
                 $client,
                 [
                     new ServerSideRequestForgeryProtectionPlugin(),
                     new RedirectPlugin(),
+                    // Inner plugin: stores Set-Cookie before RedirectPlugin handles the response.
+                    $this->cookiePlugin,
                     new Plugin\HistoryPlugin($this->responseHistory),
                     new ErrorPlugin(),
                 ],
@@ -151,9 +166,25 @@ class HttpClient
             $headers['Accept'] = $accept;
         }
 
+        $cookieGateRetried = false;
+
         try {
-            /** @var ResponseInterface $response */
-            $response = $this->client->$method($url, $headers);
+            while (true) {
+                try {
+                    /** @var ResponseInterface $response */
+                    $response = $this->client->$method($url, $headers);
+
+                    break;
+                } catch (CircularRedirectionException $e) {
+                    if ($cookieGateRetried || !$this->isCookieGateRedirect($e)) {
+                        throw $e;
+                    }
+
+                    $this->logger->info('Cookie-gate redirect detected on "{url}", retrying with stored cookies', ['url' => $url]);
+                    $this->cookiePlugin->storeSetCookies($e->getRequest(), $e->getResponse());
+                    $cookieGateRetried = true;
+                }
+            }
         } catch (LoopException $e) {
             $this->logger->info('Endless redirect: ' . ($this->config['max_redirect'] + 1) . ' on "{url}"', ['url' => $url]);
 
@@ -279,6 +310,28 @@ class HttpClient
             'headers' => $headers,
             'status' => $response->getStatusCode(),
         ];
+    }
+
+    /**
+     * Detect cookie-gate redirects: same URL + Set-Cookie (e.g. Tamedia / Piano CMS).
+     */
+    private function isCookieGateRedirect(CircularRedirectionException $e): bool
+    {
+        if (!method_exists($e, 'getRequest') || !method_exists($e, 'getResponse')) {
+            return false;
+        }
+
+        $request = $e->getRequest();
+        $response = $e->getResponse();
+
+        if (null === $response || !$response->hasHeader('Set-Cookie') || !$response->hasHeader('Location')) {
+            return false;
+        }
+
+        $location = $response->getHeaderLine('Location');
+        $targetUri = UriResolver::resolve($request->getUri(), new Uri($location));
+
+        return (string) $targetUri === (string) $request->getUri();
     }
 
     /**
