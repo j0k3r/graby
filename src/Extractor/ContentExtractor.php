@@ -1112,6 +1112,8 @@ class ContentExtractor
             $readability->addPostFilter($filter, $replacer);
         }
 
+        $readability->loadHtml();
+
         return $readability;
     }
 
