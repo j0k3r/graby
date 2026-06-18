@@ -1088,6 +1088,8 @@ class ContentExtractor
             }
         }
 
+        $readability->loadHtml();
+
         return $readability;
     }
 
