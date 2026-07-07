@@ -31,7 +31,7 @@
         "psr/http-client-implementation": "^1.0",
         "simplepie/simplepie": "^1.8",
         "smalot/pdfparser": "^2.8",
-        "symfony/options-resolver": "^5.4|^6.4|^7.3",
+        "symfony/options-resolver": "^5.4|^6.4|^7.3|^8.0",
         "symfony/polyfill-intl-idn": "^1.26"
     },
     "require-dev": {

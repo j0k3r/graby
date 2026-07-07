@@ -95,19 +95,20 @@ class ContentExtractorConfig
         $resolver->setAllowedTypes('default_parser', 'string');
         $resolver->setAllowedTypes('fingerprints', 'array');
         $resolver->setAllowedTypes('config_builder', 'array');
+        $resolver->setAllowedTypes('readability', 'array');
         $resolver->setAllowedTypes('src_lazy_load_attributes', 'string[]');
         $resolver->setAllowedTypes('json_ld_ignore_types', 'string[]');
 
-        $resolver->setDefault('readability', static function (OptionsResolver $readabilityResolver): void {
+        $resolver->setNormalizer('readability', function (Options $options, $value) {
+            $readabilityResolver = new OptionsResolver();
             $readabilityResolver->setDefaults([
                 'pre_filters' => [],
                 'post_filters' => [],
             ]);
             $readabilityResolver->setAllowedTypes('pre_filters', 'array');
             $readabilityResolver->setAllowedTypes('post_filters', 'array');
-        });
+            $value = $readabilityResolver->resolve($value);
 
-        $resolver->setNormalizer('readability', function (Options $options, $value) {
             $this->validateArray($value, 'readability[pre_filters]', 'pre_filters');
             $this->validateArray($value, 'readability[post_filters]', 'post_filters');
 
