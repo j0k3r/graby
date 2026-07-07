@@ -791,6 +791,35 @@ class GrabyTest extends TestCase
     }
 
     /**
+     * A malformed (but non-anchor, non-http) url makes the uri factory throw:
+     * the attribute is then left untouched and the failure is logged.
+     */
+    public function testMakeAbsoluteAttrWithWrongUrl(): void
+    {
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $graby = new Graby();
+        $graby->setLogger($logger);
+
+        $doc = new \DOMDocument();
+        $doc->loadXML('<a href="//example.com:port/p">test</a>');
+
+        /** @var \DOMElement */
+        $e = $doc->documentElement;
+
+        $reflection = new \ReflectionClass($graby::class);
+        $method = $reflection->getMethod('makeAbsoluteAttr');
+
+        $method->invokeArgs($graby, [new Uri('http://example.org'), $e, 'href']);
+
+        // url is invalid so it can't be made absolute: kept as-is
+        $this->assertSame('//example.com:port/p', $e->getAttribute('href'));
+        $this->assertTrue($handler->hasInfoThatContains('Wrong content url'));
+    }
+
+    /**
      * @return iterable<array{string, string, string, string}>
      */
     public function dataForMakeAbsolute(): iterable
@@ -848,6 +877,51 @@ class GrabyTest extends TestCase
         \assert($e->firstChild instanceof \DOMElement); // For PHPStan
         $this->assertNotNull($e->firstChild->attributes->getNamedItem('src'));
         $this->assertSame('http://example.org/path/to/image.jpg', $e->firstChild->attributes->getNamedItem('src')->nodeValue);
+    }
+
+    /**
+     * A wrapper element (not itself a/img/iframe) holding several url-bearing
+     * descendants of each kind: every descendant must be made absolute.
+     */
+    public function testMakeAbsoluteWithManyChildren(): void
+    {
+        $graby = new Graby();
+
+        $doc = new \DOMDocument();
+        $doc->loadXML(
+            '<div>'
+            . '<a href="/one">1</a>'
+            . '<img src="/a.jpg" />'
+            . '<p><a href="/two">2</a><iframe src="/frame" /></p>'
+            . '<img src="/b.jpg" />'
+            . '</div>'
+        );
+
+        /** @var \DOMElement */
+        $e = $doc->documentElement;
+
+        $reflection = new \ReflectionClass($graby::class);
+        $method = $reflection->getMethod('makeAbsolute');
+
+        $method->invokeArgs($graby, [new Uri('http://example.org'), $e]);
+
+        $hrefs = [];
+        foreach ($doc->getElementsByTagName('a') as $a) {
+            $hrefs[] = $a->getAttribute('href');
+        }
+        $srcs = [];
+        foreach ($doc->getElementsByTagName('img') as $img) {
+            $srcs[] = $img->getAttribute('src');
+        }
+        foreach ($doc->getElementsByTagName('iframe') as $iframe) {
+            $srcs[] = $iframe->getAttribute('src');
+        }
+
+        $this->assertSame(['http://example.org/one', 'http://example.org/two'], $hrefs);
+        $this->assertSame(
+            ['http://example.org/a.jpg', 'http://example.org/b.jpg', 'http://example.org/frame'],
+            $srcs
+        );
     }
 
     public function testContentLinksRemove(): void
