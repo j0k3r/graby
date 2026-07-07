@@ -18,16 +18,6 @@ class ConfigBuilder
     private array $cache = [];
 
     /**
-     * @var string[] Array for accepted headers for http_header()
-     */
-    private array $acceptedHeaders = [
-        'user-agent',
-        'referer',
-        'cookie',
-        'accept',
-    ];
-
-    /**
      * @var string[] Array of accepted HTML tags for wrap_in()
      */
     private array $acceptedWrapInTags = [
@@ -349,7 +339,7 @@ class ConfigBuilder
                 // check for replace_string(find): replace
                 $config->find_string[] = $match[2];
                 $config->replace_string[] = $val;
-            } elseif (str_ends_with($command, ')') && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1] && \in_array(strtolower($match[2]), $this->acceptedHeaders, true)) {
+            } elseif (str_ends_with($command, ')') && preg_match('!^([a-z0-9_]+)\(([a-z0-9_-]+)\)$!i', $command, $match) && 'http_header' === $match[1]) {
                 $config->http_header[strtolower(trim($match[2]))] = $val;
             } elseif (\in_array($command, ['if_page_contains'], true)) {
                 // special treatment for if_page_contains

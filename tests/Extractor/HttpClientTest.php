@@ -648,6 +648,27 @@ class HttpClientTest extends TestCase
         }
     }
 
+    public function testCustomHttpHeaders(): void
+    {
+        $url = 'http://example.com/foo';
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(200, [], ''));
+
+        $http = new HttpClient($httpMockClient);
+        $http->fetch(new Uri($url), false, [
+            'Accept-Language' => 'fr,en-US;q=0.9,en;q=0.8',
+            'X-Custom-Header' => 'custom value',
+            'x-empty-header' => '',
+        ]);
+
+        /** @var RequestInterface $request */
+        $request = $httpMockClient->getRequests()[0];
+
+        $this->assertSame('fr,en-US;q=0.9,en;q=0.8', $request->getHeaderLine('Accept-Language'));
+        $this->assertSame('custom value', $request->getHeaderLine('X-Custom-Header'));
+        $this->assertFalse($request->hasHeader('X-Empty-Header'));
+    }
+
     /**
      * @return iterable<array{url: string, expectedUrl: string}>
      */

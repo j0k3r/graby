@@ -104,6 +104,9 @@ class HttpClient
      */
     public function fetch(UriInterface $url, bool $skipTypeVerification = false, array $httpHeader = []): EffectiveResponse
     {
+        // if fetch is used directly, force case to avoid bad headers later
+        $httpHeader = array_change_key_case($httpHeader, \CASE_LOWER);
+
         $url = $this->cleanupUrl($url);
 
         $method = 'get';
@@ -129,6 +132,15 @@ class HttpClient
         $accept = $this->getAccept($url, $httpHeader);
         if (null !== $accept) {
             $headers['Accept'] = $accept;
+        }
+
+        foreach ($httpHeader as $header => $value) {
+            // do not override already defined headers
+            if (null === $value || '' === $value || \in_array($header, ['user-agent', 'referer', 'cookie', 'accept'], true)) {
+                continue;
+            }
+
+            $headers[$header] = $value;
         }
 
         try {
