@@ -1082,6 +1082,25 @@ class GrabyTest extends TestCase
         $this->assertStringNotContainsString('<script>', $res->getHtml());
     }
 
+    public function testCleanupHtmlRemovesDeniedXssAttributes(): void
+    {
+        $graby = new Graby();
+        $html = '<article>'
+            . '<div style="position:fixed;inset:0;z-index:2147483647;background:#fff">overlay</div>'
+            . '<iframe src="https://example.com/embed" srcdoc="&lt;script&gt;alert(document.domain)&lt;/script&gt;"></iframe>'
+            . '<img src="x" onerror="alert(1)" />'
+            . '</article>';
+
+        $cleanedHtml = $graby->cleanupHtml($html, new Uri('http://0.0.0.0'));
+
+        $this->assertStringContainsString('<div>overlay</div>', $cleanedHtml);
+        $this->assertStringContainsString('<iframe src="https://example.com/embed"></iframe>', $cleanedHtml);
+        $this->assertStringContainsString('<img src="x" alt="image" />', $cleanedHtml);
+        $this->assertStringNotContainsString('style=', $cleanedHtml);
+        $this->assertStringNotContainsString('srcdoc=', $cleanedHtml);
+        $this->assertStringNotContainsString('onerror=', $cleanedHtml);
+    }
+
     public function testBadUrl(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);
