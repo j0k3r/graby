@@ -30,7 +30,6 @@ use Rector\Naming\Naming\VariableNaming;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\PhpParser\Node\BetterNodeFinder;
 use Rector\PhpParser\Node\Value\ValueResolver;
-use Rector\PostRector\Collector\UseNodesToAddCollector;
 use Rector\Rector\AbstractRector;
 use Rector\StaticTypeMapper\ValueObject\Type\FullyQualifiedObjectType;
 use Symfony\Component\Filesystem\Path;
@@ -45,7 +44,6 @@ final class MockGrabyResponseRector extends AbstractRector
 
     public function __construct(
         private readonly BetterNodeFinder $betterNodeFinder,
-        private readonly UseNodesToAddCollector $useNodesToAddCollector,
         private readonly ValueResolver $valueResolver,
         private readonly VariableNaming $variableNaming
     ) {
@@ -147,7 +145,12 @@ final class MockGrabyResponseRector extends AbstractRector
 
         // Add imports.
         // `use Http\Mock\Client as HttpMockClient;` needs to be added manually.
-        $this->useNodesToAddCollector->addUseImport(
+        $fileNode = $this->getFile()->getFileNode();
+        if (null === $fileNode) {
+            return null;
+        }
+
+        $fileNode->getPendingImports()->addUseImport(
             new FullyQualifiedObjectType(\GuzzleHttp\Psr7\Response::class)
         );
 
