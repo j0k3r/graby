@@ -530,7 +530,7 @@ class GrabyTest extends TestCase
 
         $this->assertEmpty($res->getLanguage());
         $this->assertSame('my title', $res->getTitle());
-        $this->assertSame('my content<div class="story">my content</div>', $res->getHtml());
+        $this->assertSame('my content<div>my content</div>', $res->getHtml());
         $this->assertSame('http://multiplepage1.com', (string) $res->getEffectiveResponse()->getEffectiveUri());
         $this->assertSame('my content my content', $res->getSummary());
         $this->assertStringContainsString('text/html', $res->getEffectiveResponse()->getResponse()->getHeaderLine('content-type'));

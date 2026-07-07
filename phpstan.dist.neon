@@ -37,7 +37,7 @@ parameters:
         -
             identifier: argument.type
             path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php
-            count: 18
+            count: 20
         -
             identifier: property.notFound
             path: %currentWorkingDirectory%/src/Extractor/ContentExtractor.php

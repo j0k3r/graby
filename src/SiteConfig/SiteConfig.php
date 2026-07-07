@@ -232,6 +232,7 @@ class SiteConfig
      * Used if undeclared.
      */
     protected string $default_parser = 'libxml';
+
     /**
      * Process HTML with tidy before creating DOM (bool or null if undeclared).
      */
