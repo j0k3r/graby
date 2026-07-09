@@ -741,4 +741,32 @@ class HttpClientTest extends TestCase
         $secondRequest = $httpMockClient->getRequests()[1];
         $this->assertStringContainsString('entitlementToken=test-token', $secondRequest->getHeaderLine('Cookie'));
     }
+
+    public function testCircularRedirectWithoutCookieGateDoesNotRetry(): void
+    {
+        $articleUrl = 'https://www.tagesanzeiger.ch/example-article-123';
+        $httpMockClient = new HttpMockClient();
+        $httpMockClient->addResponse(new Response(
+            302,
+            [
+                'Location' => $articleUrl,
+                'Content-Type' => 'text/plain; charset=utf-8',
+            ],
+            'Found. Redirecting to ' . $articleUrl
+        ));
+
+        $logger = new Logger('foo');
+        $handler = new TestHandler();
+        $logger->pushHandler($handler);
+
+        $http = new HttpClient($httpMockClient);
+        $http->setLogger($logger);
+
+        $res = $http->fetch(new Uri($articleUrl));
+
+        $this->assertCount(1, $httpMockClient->getRequests());
+        $this->assertSame(302, $res->getResponse()->getStatusCode());
+        $this->assertSame('Request throw exception (with a response): {error_message}', $handler->getRecords()[3]['message']);
+        $this->assertStringContainsString('Circular redirection detected', $handler->getRecords()[3]['context']['error_message']);
+    }
 }

@@ -274,10 +274,6 @@ class HttpClient
      */
     private function isCookieGateRedirect(CircularRedirectionException $e): bool
     {
-        if (!method_exists($e, 'getRequest') || !method_exists($e, 'getResponse')) {
-            return false;
-        }
-
         $request = $e->getRequest();
         $response = $e->getResponse();
 
