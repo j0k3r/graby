@@ -49,6 +49,7 @@ class ConfigBuilderTest extends TestCase
             'http_header(x-custom-header): custom value',
             'strip_attr: @class',
             'strip_attr: @style',
+            'post_strip_attr: //a/@target',
             'single_page_link: //canonical',
             'if_page_contains: //div/article/header',
         ]);
@@ -69,6 +70,7 @@ class ConfigBuilderTest extends TestCase
         ];
         $configExpected->date = ['foo'];
         $configExpected->strip = ['@class', '@style'];
+        $configExpected->post_strip_attr = ['//a/@target'];
         $configExpected->single_page_link = ['//canonical'];
         $configExpected->if_page_contains = [
             'single_page_link' => [
@@ -264,16 +266,19 @@ class ConfigBuilderTest extends TestCase
         $config1 = new SiteConfig();
         $config1->find_string = ['toto'];
         $config1->replace_string = ['titi'];
+        $config1->post_strip_attr = ['//a/@target'];
 
         $config2 = new SiteConfig();
         $config2->find_string = ['papa'];
         $config2->replace_string = ['popo'];
+        $config2->post_strip_attr = ['//a/@target', '//img/@srcset'];
 
         $config3 = $configBuilder->mergeConfig($config1, $config2);
         $config4 = $configBuilder->mergeConfig($config3, $config2);
 
         $this->assertCount(2, $config4->find_string);
         $this->assertCount(2, $config4->replace_string);
+        $this->assertSame(['//a/@target', '//img/@srcset'], $config4->post_strip_attr);
     }
 
     public function testCleanupFindReplaceString(): void

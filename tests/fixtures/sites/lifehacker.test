@@ -2473,11 +2473,11 @@ So, I became pretty adept at using keyboard shortcuts. But it turns out the crea
 -----RAW_CONTENT2-----
 Shouldn't have redirected
 -----PARSED_CONTENT-----
-<article class="article-content" itemprop="articleBody">
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/l6hczgesgnjtflonf5dr.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/l6hczgesgnjtflonf5dr.jpg" class="size_xlarge" alt=""/></a></div>
+<article itemprop="articleBody">
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/l6hczgesgnjtflonf5dr.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/l6hczgesgnjtflonf5dr.jpg" alt=""/></a></div>
 <p>Didn't you think Mark Zuckerberg is tall? According to a 2010 <em>New Yorker</em> profile, he's "only around five feet eight, but he seems taller, because he stands with his chest out and his back straight, as if held up by a string." <em>Wired</em> writer Graham Starr thinks Zuck seems tall for another reason: He stages his photos to exaggerate his height. </p>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<blockquote class="twitter-tweet" data-width="500" data-dnt="true">
+<blockquote data-width="500" data-dnt="true">
 <p lang="en" dir="ltr" xml:lang="en">Mark Zuckerberg is 5'7" and stages all of his photos to make it look like he's average height <a href="https://t.co/CwInaJt9lA">pic.twitter.com/CwInaJt9lA</a></p>
 <p>— graham starr (@GrahamStarr) <a href="https://twitter.com/GrahamStarr/status/885343770031554560?ref_src=twsrc%5Etfw">July 13, 2017</a></p>
 </blockquote>
@@ -2487,41 +2487,41 @@ Shouldn't have redirected
 <p>But Zuckerberg comes across as much taller, even <a href="https://www.youtube.com/watch?v=yqr6yLyuHQA">towering over 5' 10" Bill Gates on a sofa</a>.</p>
 <p>Most internet sources, including the murky world of celebrity height forums, list Zuckerberg as just 5' 7". IMDb splits the difference at <a href="http://www.imdb.com/name/nm3212916/bio">5' 7.5"</a>. Either way, I feel a kinship, as I'm 5' 6" on a good day. So I went out with my colleague Patrick Austin to see if we could use Zuckerberg's tricks to make me look taller.</p>
 <p>First we started easy, with a subject who was already shorter than me. As I inched toward the camera, I easily doubled our height difference.</p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/dsljrbsgo4y6ec429hbs.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/dsljrbsgo4y6ec429hbs.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/dsljrbsgo4y6ec429hbs.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/dsljrbsgo4y6ec429hbs.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/v26qknverku5jmc0esv2.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/v26qknverku5jmc0esv2.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/v26qknverku5jmc0esv2.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/v26qknverku5jmc0esv2.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/jgej3xqnfzrncmqhjemy.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/jgej3xqnfzrncmqhjemy.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/jgej3xqnfzrncmqhjemy.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/jgej3xqnfzrncmqhjemy.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/n0etzngnhy8bp5h3nffi.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/n0etzngnhy8bp5h3nffi.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/n0etzngnhy8bp5h3nffi.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/n0etzngnhy8bp5h3nffi.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
 <p>But that was easy mode. All I accomplished here was to make someone else look short. Could I look taller than someone my height, or even someone taller?</p>
 <p>I couldn't even get my arm up over our next volunteer's shoulders. So instead I just beelined for the camera.</p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/r15prgptklt4xmpsr0w5.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/r15prgptklt4xmpsr0w5.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/r15prgptklt4xmpsr0w5.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/r15prgptklt4xmpsr0w5.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/qqq1nrw5xcosni1h2qvw.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/qqq1nrw5xcosni1h2qvw.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/qqq1nrw5xcosni1h2qvw.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/qqq1nrw5xcosni1h2qvw.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/eex27uwslz7dsdqvlb4w.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/eex27uwslz7dsdqvlb4w.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/eex27uwslz7dsdqvlb4w.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/eex27uwslz7dsdqvlb4w.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/wy9i3zzizwjddxjvunnj.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/wy9i3zzizwjddxjvunnj.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/wy9i3zzizwjddxjvunnj.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/wy9i3zzizwjddxjvunnj.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
 <p>I believe we achieved some parity in that last shot, even if I had to wave my hat above my head in a desperate bid to confuse the viewer. Without a pair of <a href="https://donsfootwear.com/en/all-elevator-shoes">$US200 ($253) elevator shoes</a>, I clung to that hat, hoping it would give me an extra optical inch. It was time for a tougher test: group shots.</p>
 <p>These two men were not just taller than me, they were fit enough to highlight my skinny little torso. I did something desperate: I stood on my tiptoes.</p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/chybyr50jktoszfwvyi8.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/chybyr50jktoszfwvyi8.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/chybyr50jktoszfwvyi8.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/chybyr50jktoszfwvyi8.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/node5fjp9ohvjqeghdcq.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/node5fjp9ohvjqeghdcq.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/node5fjp9ohvjqeghdcq.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/node5fjp9ohvjqeghdcq.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/mer5nb8jg6rzioric0mp.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/mer5nb8jg6rzioric0mp.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/mer5nb8jg6rzioric0mp.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/mer5nb8jg6rzioric0mp.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
 <p>Patrick figured out that the "stand closer" trick sometimes hits a limit. Without a super-low angle, our volunteers' downward eyelines were enough to give away our height difference. Plus I was forgetting to cheat to the camera (more on that below), the way Zuckerberg did with his cattle rancher friends.</p>
 <p>Lastly we tried a varied group shot, with a whole range of heights. Our volunteers kindly ignored my blatant toe-stand and even leaned in to give me a comparative advantage. I'm pretty sure the "move toward the camera" trick paid off, until our volunteers turned it right back around on me. Again, the hat was essential.</p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/sre6s9vigv4leettjvqm.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/sre6s9vigv4leettjvqm.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/sre6s9vigv4leettjvqm.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/sre6s9vigv4leettjvqm.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/jrex9e75alhgkicurj1o.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/jrex9e75alhgkicurj1o.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/jrex9e75alhgkicurj1o.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/jrex9e75alhgkicurj1o.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/njofg1gc8cwkewfy2j5q.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/njofg1gc8cwkewfy2j5q.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/njofg1gc8cwkewfy2j5q.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/njofg1gc8cwkewfy2j5q.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
-<div class="media_wrap image xlarge center clear"><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/hdo1m4iafis0jofhvsqy.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/hdo1m4iafis0jofhvsqy.jpg" class="size_xlarge" alt=""/></a></div>
+<div><a href="https://i.kinja-img.com/gawker-media/image/upload/t_original/hdo1m4iafis0jofhvsqy.jpg" rel="modal"><img src="https://i.kinja-img.com/gawker-media/image/upload/t_original/hdo1m4iafis0jofhvsqy.jpg" alt=""/></a></div>
 <p><small>Photo by Patrick Lucas Austin.</small></p>
 <p>We found three basic tricks for looking tall next to other people:</p>
 <ul><li>Get closer to the camera, but "cheat out" by turning a bit toward the camera, to imply you're as far away as your companion.</li>
@@ -2530,29 +2530,29 @@ Shouldn't have redirected
 <li>Find the shortest person in the group, and stand next to them.</li>
 </ul><p>Looking taller can't repair the <a href="http://news.nationalgeographic.com/news/2014/02/140216-short-tall-height-perception-psychology-bias-science/">longterm psychological damage of being short</a>, but it can trick the public, at least until they google you.</p>
 <hr/><p><em>This story has been updated since its original publication.</em></p>
-</article><hr/><section class="article-comments"><h2>Comments</h2>
-<div class="modal fade votes-modal modal-dialog modal-content" id="votes-modal" tabindex="-1" role="dialog" aria-labelledby="votes-modal">
-<div class="modal-body row">
-<div class="col-sm-6 votes-modal__column">
-<h3 id="votes-modal-upvote-count" class="votes-modal-column-title">Up Votes</h3>
+</article><hr/><section><h2>Comments</h2>
+<div id="votes-modal" tabindex="-1" role="dialog" aria-labelledby="votes-modal">
+<div>
+<div>
+<h3 id="votes-modal-upvote-count">Up Votes</h3>
 </div>
-<div class="col-sm-6 votes-modal__column">
-<h3 id="votes-modal-downvote-count" class="votes-modal-column-title">Down Votes</h3>
-</div>
-</div>
-</div>
-</section><section class="article-trending"><h2>Trending Stories Right Now</h2>
-<div class="pull-left">
-<div class="trending-river__post" id="trending-post-1">
-<div class="trending-river__thumbnail col-sm-4"><a href="https://www.lifehacker.com.au/2019/08/46-baby-names-you-cant-use-in-australia" title="Read more"><img src="https://edge.alluremedia.com.au/m/l/2019/08/Baby-shock-410x231.jpg" class="img-responsive" alt="au babies names parents"/></a></div>
-<div class="trending-river__content col-sm-8">
-<div class="trending-river__excerpt" itemprop="description">As anyone who works in a school or childcare centre will attest, Australian parents come up with some pretty weird names for their offspring - including Google, Tron and Hippo. While most names are reluctantly approved by the state or territory's Registry of Births, there are a few that you just can't get away with.</div>
+<div>
+<h3 id="votes-modal-downvote-count">Down Votes</h3>
 </div>
 </div>
-<div class="trending-river__post" id="trending-post-2">
-<div class="trending-river__thumbnail col-sm-4"><a href="https://www.lifehacker.com.au/2019/08/five-obscure-windows-keyboard-shortcuts" title="Read more"><img src="https://edge.alluremedia.com.au/m/l/2019/08/Keyboards-410x231.jpg" class="img-responsive" alt="au keyboard-shortcuts shortcuts windows-10"/></a></div>
-<div class="trending-river__content col-sm-8">
-<div class="trending-river__excerpt" itemprop="description">Since the late 1980s, when the mouse became the main way people invoked actions from the applications they use, the art of the keyboard shortcut has slowly disappeared. I started using a PC in the time when a pointing device was an expensive option on laptops. So, I became pretty adept at using keyboard shortcuts. But it turns out the creators of our software still include them even though we are more likely to use a touchpad, mouse or touchscreen these days. What are some of the lesser known keyboard shortcuts you can use with Windows?</div>
+</div>
+</section><section><h2>Trending Stories Right Now</h2>
+<div>
+<div id="trending-post-1">
+<div><a href="https://www.lifehacker.com.au/2019/08/46-baby-names-you-cant-use-in-australia" title="Read more"><img src="https://edge.alluremedia.com.au/m/l/2019/08/Baby-shock-410x231.jpg" alt="au babies names parents"/></a></div>
+<div>
+<div itemprop="description">As anyone who works in a school or childcare centre will attest, Australian parents come up with some pretty weird names for their offspring - including Google, Tron and Hippo. While most names are reluctantly approved by the state or territory's Registry of Births, there are a few that you just can't get away with.</div>
+</div>
+</div>
+<div id="trending-post-2">
+<div><a href="https://www.lifehacker.com.au/2019/08/five-obscure-windows-keyboard-shortcuts" title="Read more"><img src="https://edge.alluremedia.com.au/m/l/2019/08/Keyboards-410x231.jpg" alt="au keyboard-shortcuts shortcuts windows-10"/></a></div>
+<div>
+<div itemprop="description">Since the late 1980s, when the mouse became the main way people invoked actions from the applications they use, the art of the keyboard shortcut has slowly disappeared. I started using a PC in the time when a pointing device was an expensive option on laptops. So, I became pretty adept at using keyboard shortcuts. But it turns out the creators of our software still include them even though we are more likely to use a touchpad, mouse or touchscreen these days. What are some of the lesser known keyboard shortcuts you can use with Windows?</div>
 </div>
 </div>
 </div>

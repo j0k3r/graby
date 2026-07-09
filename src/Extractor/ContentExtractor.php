@@ -647,6 +647,16 @@ class ContentExtractor
                 }
             }
 
+            foreach ($siteConfig->post_strip_attr as $pattern) {
+                $this->logger->debug('Trying {pattern} to strip attribute', ['pattern' => $pattern]);
+                $elems = $xpath->query($pattern, $body);
+                if (!$this->hasElements($elems) && str_starts_with($pattern, '//')) {
+                    $elems = $xpath->query('.' . $pattern, $body);
+                }
+
+                $this->removeAttributes($elems, 'Stripping {length} attributes (post_strip_attr)');
+            }
+
             $success = true;
         }
 
@@ -787,6 +797,30 @@ class ContentExtractor
                 } else {
                     $item->parentNode->removeChild($item);
                 }
+            }
+        }
+    }
+
+    /**
+     * Remove attributes.
+     *
+     * @param \DOMNodeList<\DOMNode>|false $elems Not force typed because it can also be false
+     */
+    private function removeAttributes($elems = false, ?string $logMessage = null): void
+    {
+        if (false === $elems || false === $this->hasElements($elems)) {
+            return;
+        }
+
+        if (null !== $logMessage) {
+            $this->logger->info($logMessage, ['length' => $elems->length]);
+        }
+
+        for ($i = $elems->length - 1; $i >= 0; --$i) {
+            $item = $elems->item($i);
+
+            if ($item instanceof \DOMAttr && null !== $item->ownerElement) {
+                $item->ownerElement->removeAttributeNode($item);
             }
         }
     }

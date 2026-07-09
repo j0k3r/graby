@@ -548,6 +548,27 @@ class ContentExtractorTest extends TestCase
         }
     }
 
+    public function testApplyPostStripAttr(): void
+    {
+        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+
+        $config = new SiteConfig();
+        $config->body = ['//article'];
+        $config->post_strip_attr = ['//a/@target'];
+
+        $result = $contentExtractor->process(
+            '<html><body><article><p>' . str_repeat('this is the best part of the show', 10) . '</p><a href="https://example.com" target="_blank" rel="noopener">link</a></article></body></html>',
+            new Uri('https://lemonde.io/35941909'),
+            $config
+        );
+
+        $content = $this->getXmlContent($result);
+
+        $this->assertStringNotContainsString('target="_blank"', $content);
+        $this->assertStringContainsString('href="https://example.com"', $content);
+        $this->assertStringContainsString('rel="noopener"', $content);
+    }
+
     /**
      * @return iterable<array{string, string, string}>
      */
