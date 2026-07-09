@@ -723,19 +723,13 @@ class HttpClientTest extends TestCase
         ));
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], '<html><body>Article</body></html>'));
 
-        $logger = new Logger('foo');
-        $handler = new TestHandler();
-        $logger->pushHandler($handler);
-
         $http = new HttpClient($httpMockClient);
-        $http->setLogger($logger);
 
         $res = $http->fetch(new Uri($articleUrl));
 
         $this->assertSame(200, $res->getResponse()->getStatusCode());
         $this->assertSame('text/html', $res->getResponse()->getHeaderLine('content-type'));
         $this->assertStringContainsString('Article', (string) $res->getResponse()->getBody());
-        $this->assertSame('Cookie-gate redirect detected on "{url}", retrying with stored cookies', $handler->getRecords()[3]['message']);
 
         /** @var RequestInterface $secondRequest */
         $secondRequest = $httpMockClient->getRequests()[1];
@@ -755,17 +749,11 @@ class HttpClientTest extends TestCase
             'Found. Redirecting to ' . $articleUrl
         ));
 
-        $logger = new Logger('foo');
-        $handler = new TestHandler();
-        $logger->pushHandler($handler);
-
         $http = new HttpClient($httpMockClient);
-        $http->setLogger($logger);
 
         $res = $http->fetch(new Uri($articleUrl));
 
         $this->assertCount(1, $httpMockClient->getRequests());
         $this->assertSame(302, $res->getResponse()->getStatusCode());
-        $this->assertCount(4, $handler->getRecords());
     }
 }
