@@ -45,6 +45,8 @@ class ConfigBuilderTest extends TestCase
             'http_header(user-agent): my-user-agent',
             'http_header(referer): http://idontl.ie',
             'http_header(Cookie): GDPR_consent=1',
+            'http_header(accept-language): fr,en-US;q=0.9,en;q=0.8',
+            'http_header(x-custom-header): custom value',
             'strip_attr: @class',
             'strip_attr: @style',
             'single_page_link: //canonical',
@@ -62,6 +64,8 @@ class ConfigBuilderTest extends TestCase
             'user-agent' => 'my-user-agent',
             'referer' => 'http://idontl.ie',
             'cookie' => 'GDPR_consent=1',
+            'accept-language' => 'fr,en-US;q=0.9,en;q=0.8',
+            'x-custom-header' => 'custom value',
         ];
         $configExpected->date = ['foo'];
         $configExpected->strip = ['@class', '@style'];
