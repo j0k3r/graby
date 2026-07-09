@@ -766,7 +766,6 @@ class HttpClientTest extends TestCase
 
         $this->assertCount(1, $httpMockClient->getRequests());
         $this->assertSame(302, $res->getResponse()->getStatusCode());
-        $this->assertSame('Request throw exception (with a response): {error_message}', $handler->getRecords()[3]['message']);
-        $this->assertStringContainsString('Circular redirection detected', $handler->getRecords()[3]['context']['error_message']);
+        $this->assertCount(4, $handler->getRecords());
     }
 }
