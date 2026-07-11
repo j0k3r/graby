@@ -9,4 +9,7 @@ author: //div[@class='meta__author']/a
 find_string: <meta http-equiv="refresh"
 replace_string: <meta norefresh
 
+strip_id_or_class: meta__second-row
+strip_id_or_class: trending-river__meta
+
 test_url: https://www.lifehacker.com.au/2019/03/we-tried-mark-zuckerbergs-tricks-for-looking-taller-in-photos/
