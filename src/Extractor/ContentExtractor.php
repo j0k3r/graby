@@ -243,6 +243,8 @@ class ContentExtractor
 
             if ($elems instanceof \DOMNodeList && $elems->length > 0) {
                 foreach ($elems as $elem) {
+                    // For PHPStan: The static XPath expression guarantees the type.
+                    \assert($elem instanceof \DOMAttr);
                     $language = trim($elem->textContent);
                     $this->logger->info('Language matched: {language}', ['language' => $language]);
                 }
@@ -374,9 +376,9 @@ class ContentExtractor
             // check for hentry
             $elems = $xpath->query("//*[contains(concat(' ',normalize-space(@class),' '),' hentry ')]", $readability->dom);
 
-            if (false !== $elems && $this->hasElements($elems)) {
+            $hentry = self::firstNode($elems);
+            if (null !== $hentry) {
                 $this->logger->info('hNews: found hentry');
-                $hentry = $elems->item(0);
 
                 // check for entry-title
                 $extractedTitle = $this->extractTitle(
@@ -760,23 +762,42 @@ class ContentExtractor
     }
 
     /**
-     * Check if given node list exists and has length more than 0.
+     * Check if given node list exists and contains at least one `\DOMNode`.
      *
-     * @param \DOMNodeList<\DOMNode>|false $elems Not force typed because it can also be false
+     * @param \DOMNodeList<\DOMNode|\DOMNameSpaceNode>|false $elems Not force typed because it can also be false
      */
     private function hasElements($elems = false): bool
     {
+        return null !== self::firstNode($elems);
+    }
+
+    /**
+     * Check if given node list exists and returns the first `\DOMNode` if present.
+     *
+     * @param \DOMNodeList<\DOMNode|\DOMNameSpaceNode>|false $elems Not force typed because it can also be false
+     */
+    private static function firstNode($elems = false): ?\DOMNode
+    {
+        // Internal XPath expressions are valid and evaluating invalid external ones will return an error before getting here.
+        // @codeCoverageIgnoreStart
         if (false === $elems) {
-            return false;
+            return null;
+        }
+        // @codeCoverageIgnoreEnd
+
+        foreach ($elems as $elem) {
+            if ($elem instanceof \DOMNode) {
+                return $elem;
+            }
         }
 
-        return $elems->length > 0;
+        return null;
     }
 
     /**
      * Remove elements.
      *
-     * @param \DOMNodeList<\DOMNode>|false $elems Not force typed because it can also be false
+     * @param \DOMNodeList<\DOMNode|\DOMNameSpaceNode>|false $elems Not force typed because it can also be false
      */
     private function removeElements($elems = false, ?string $logMessage = null): void
     {
@@ -791,7 +812,7 @@ class ContentExtractor
         for ($i = $elems->length - 1; $i >= 0; --$i) {
             $item = $elems->item($i);
 
-            if (null !== $item && null !== $item->parentNode) {
+            if ($item instanceof \DOMNode && null !== $item->parentNode) {
                 if ($item instanceof \DOMAttr) {
                     $item->ownerElement->removeAttributeNode($item);
                 } else {
@@ -804,7 +825,7 @@ class ContentExtractor
     /**
      * Remove attributes.
      *
-     * @param \DOMNodeList<\DOMNode>|false $elems Not force typed because it can also be false
+     * @param \DOMNodeList<\DOMNode|\DOMNameSpaceNode>|false $elems Not force typed because it can also be false
      */
     private function removeAttributes($elems = false, ?string $logMessage = null): void
     {
@@ -828,7 +849,7 @@ class ContentExtractor
     /**
      * Wrap elements with provided tag.
      *
-     * @param \DOMNodeList<\DOMNode>|false $elems
+     * @param \DOMNodeList<\DOMNode|\DOMNameSpaceNode>|false $elems
      */
     private function wrapElements($elems = false, string $tag = 'div', ?string $logMessage = null): void
     {
@@ -887,19 +908,20 @@ class ContentExtractor
         // shut up operator as there is no pre-validation possible.
         $elems = @$xpath->query($xpathExpression, $node);
 
-        if (false === $elems || false === $this->hasElements($elems)) {
+        $first = self::firstNode($elems);
+        if (null === $first) {
             return null;
         }
 
         $entityValue = $returnCallback(
-            $elems->item(0)->textContent,
+            $first->textContent,
             []
         );
         $this->logger->info($logMessage, [$entity => $entityValue]);
 
         // remove entity from document
         try {
-            $elems->item(0)->parentNode->removeChild($elems->item(0));
+            $first->parentNode->removeChild($first);
         } catch (\DOMException) {
             // do nothing
         }
@@ -987,6 +1009,8 @@ class ContentExtractor
 
             if ($fns && $fns->length > 0) {
                 foreach ($fns as $fn) {
+                    // For PHPStan: The static XPath expression guarantees the type.
+                    \assert($fn instanceof \DOMElement);
                     if ('' !== trim($fn->textContent)) {
                         $authors[] = trim($fn->textContent);
                         $this->logger->info('hNews: found author: ' . trim($fn->textContent));
@@ -1058,7 +1082,7 @@ class ContentExtractor
         $len = 0;
 
         foreach ($elems as $elem) {
-            if (!isset($elem->parentNode)) {
+            if (!$elem instanceof \DOMNode || null === $elem->parentNode) {
                 continue;
             }
 
@@ -1146,19 +1170,20 @@ class ContentExtractor
 
             $this->logger->info("{$entity} expression evaluated as string: {{$entity}}", [$entity => $entityValue]);
             $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
-        } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
-            if (null === $elems->item(0)) {
+        } elseif ($elems instanceof \DOMNodeList) {
+            $first = self::firstNode($elems);
+            if (null === $first) {
                 return null;
             }
 
-            $entityValue = $returnCallback($elems->item(0)->textContent);
+            $entityValue = $returnCallback($first->textContent);
 
             $this->logger->info("{$entity} matched: {{$entity}}", [$entity => $entityValue]);
             $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
 
             // remove entity from document
             try {
-                $elems->item(0)->parentNode->removeChild($elems->item(0));
+                $first->parentNode->removeChild($first);
             } catch (\DOMException) {
                 // do nothing
             }
@@ -1195,6 +1220,10 @@ class ContentExtractor
             $this->logger->info('...XPath match: {pattern}', ['pattern', $pattern]);
         } elseif ($elems instanceof \DOMNodeList && $elems->length > 0) {
             foreach ($elems as $item) {
+                if (!$item instanceof \DOMNode) {
+                    continue;
+                }
+
                 $entityValue[] = $returnCallback($item->textContent);
 
                 // remove entity from document
