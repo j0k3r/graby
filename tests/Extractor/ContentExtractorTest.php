@@ -272,6 +272,8 @@ class ContentExtractorTest extends TestCase
             ['string(//*[(@rel = "author")])', '<html>from <a rel="author" href="/user8412228">CaTV</a></html>', ['CaTV']],
             // return nothing because the rel="author" does not exist
             ['string(//*[(@rel = "author")])', '<html>from <a href="/user8412228">CaTV</a></html>', []],
+            // Nonsensical query, returning DOMNameSpaceNode.
+            ['/html/namespace::*', '<html xmlns="http://www.w3.org/1999/xhtml"></html>', []],
         ];
     }
 
