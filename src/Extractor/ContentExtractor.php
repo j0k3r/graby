@@ -657,6 +657,13 @@ class ContentExtractor
                 $this->removeAttributes($elems, 'Stripping {length} attributes (post_strip_attr)');
             }
 
+            // Starting with readability 2.0, tidy does not remove inline style attributes anymore during init(), so we do it here
+            foreach ($body->getElementsByTagName('*') as $e) {
+                if ($e->hasAttribute('style')) {
+                    $e->removeAttribute('style');
+                }
+            }
+
             $success = true;
         }
 
@@ -1111,6 +1118,8 @@ class ContentExtractor
         foreach ($this->config->getReadability()['post_filters'] as $filter => $replacer) {
             $readability->addPostFilter($filter, $replacer);
         }
+
+        $readability->loadHtml();
 
         return $readability;
     }

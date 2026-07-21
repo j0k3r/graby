@@ -723,6 +723,7 @@ class Graby
 
         // Build DOM tree from HTML
         $readability = new Readability($html, (string) $url);
+        $readability->loadHtml();
         $xpath = new \DOMXPath($readability->dom);
 
         // Loop through single_page_link xpath expressions

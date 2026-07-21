@@ -2532,12 +2532,18 @@ Shouldn't have redirected
 <hr/><p><em>This story has been updated since its original publication.</em></p>
 </article><hr/><section><h2>Comments</h2>
 <div id="votes-modal" tabindex="-1" role="dialog" aria-labelledby="votes-modal">
+<div role="document">
+<div>
+<div>
 <div>
 <div>
 <h3 id="votes-modal-upvote-count">Up Votes</h3>
 </div>
 <div>
 <h3 id="votes-modal-downvote-count">Down Votes</h3>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
