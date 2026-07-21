@@ -53,28 +53,39 @@ class CookiePlugin implements Plugin
         }
 
         return $next($request)->then(function (ResponseInterface $response) use ($request) {
-            if ($response->hasHeader('Set-Cookie')) {
-                $setCookies = $response->getHeader('Set-Cookie');
-
-                foreach ($setCookies as $setCookie) {
-                    $cookie = $this->createCookie($request, $setCookie);
-
-                    // Cookie invalid do not use it
-                    if (null === $cookie) {
-                        continue;
-                    }
-
-                    // Restrict setting cookie from another domain
-                    if (!preg_match("/\.{$cookie->getDomain()}$/", '.' . $request->getUri()->getHost())) {
-                        continue;
-                    }
-
-                    $this->cookieJar->addCookie($cookie);
-                }
-            }
+            $this->storeSetCookies($request, $response);
 
             return $response;
         });
+    }
+
+    /**
+     * Store Set-Cookie headers from a response into the cookie jar.
+     *
+     * Exposed so HttpClient can persist cookies from a redirect response when
+     * RedirectPlugin aborts before the cookie plugin's response handler runs.
+     */
+    public function storeSetCookies(RequestInterface $request, ResponseInterface $response): void
+    {
+        if (!$response->hasHeader('Set-Cookie')) {
+            return;
+        }
+
+        foreach ($response->getHeader('Set-Cookie') as $setCookie) {
+            $cookie = $this->createCookie($request, $setCookie);
+
+            // Cookie invalid do not use it
+            if (null === $cookie) {
+                continue;
+            }
+
+            // Restrict setting cookie from another domain
+            if (!preg_match("/\.{$cookie->getDomain()}$/", '.' . $request->getUri()->getHost())) {
+                continue;
+            }
+
+            $this->cookieJar->addCookie($cookie);
+        }
     }
 
     /**
