@@ -211,45 +211,45 @@ configure it and inject it to `Graby\Graby`.
 This is the full documented configuration and also the default one.
 
 ```php
-$graby = new Graby([
+$graby = new Graby(new GrabyConfig(
     // Enable or disable debugging.
     // This will only generate log information in a file (log/graby.log)
-    'debug' => false,
+    debug: false,
     // use LogLevel::Debug value if you want more data (HTML at each step for example) to be dumped in a different file (log/html.log)
-    'log_level' => LogLevel::Info,
+    logLevel: LogLevel::Info,
     // If enabled relative URLs found in the extracted content are automatically rewritten as absolute URLs.
-    'rewrite_relative_urls' => true,
+    rewriteRelativeUrls: true,
     // If enabled, we will try to follow single page links (e.g. print view) on multi-page articles.
     // Currently this only happens for sites where single_page_link has been defined
     // in a site config file.
-    'singlepage' => true,
+    singlepage: true,
     // If enabled, we will try to follow next page links on multi-page articles.
     // Currently this only happens for sites where next_page_link has been defined
     // in a site config file.
-    'multipage' => true,
+    multipage: true,
     // Error message when content extraction fails
-    'error_message' => '[unable to retrieve full-text content]',
+    errorMessage: '[unable to retrieve full-text content]',
     // Default title when we won't be able to extract a title
-    'error_message_title' => 'No title found',
+    errorMessageTitle: 'No title found',
     // List of URLs (or parts of a URL) which will be accept.
     // If the list is empty, all URLs (except those specified in the blocked list below)
     // will be permitted.
     // Example: array('example.com', 'anothersite.org');
-    'allowed_urls' => [],
+    allowedUrls: [],
     // List of URLs (or parts of a URL) which will be not accept.
     // Note: this list is ignored if allowed_urls is not empty
-    'blocked_urls' => [],
+    blockedUrls: [],
     // If enabled, we'll pass retrieved HTML content through htmLawed with
     // safe flag on and style attributes denied, see
     // http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed/htmLawed_README.htm#s3.6
     // Note: if enabled this will also remove certain elements you may want to preserve, such as iframes.
-    'xss_filter' => true,
+    xssFilter: true,
     // Here you can define different actions based on the Content-Type header returned by server.
     // MIME type as key, action as value.
     // Valid actions:
     // * ContentTypeAction::Exclude - exclude this item from the result
     // * ContentTypeAction::Link - create HTML link to the item
-    'content_type_exc' => [
+    contentTypeExc: [
        'application/zip' => ['action' => ContentTypeAction::Link, 'name' => 'ZIP'],
        'application/pdf' => ['action' => ContentTypeAction::Link, 'name' => 'PDF'],
        'image' => ['action' => ContentTypeAction::Link, 'name' => 'Image'],
@@ -262,8 +262,8 @@ $graby = new Graby([
     // * ContentLinks::Preserve: nothing is done
     // * ContentLinks::Footnotes: convert links as footnotes
     // * ContentLinks::Remove: remove all links
-    'content_links' => ContentLinks::Preserve,
-    'http_client' => [
+    contentLinks: ContentLinks::Preserve,
+    httpClient: [
         // User-Agent used to fetch content
         'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
         // default referer when fetching content
@@ -303,7 +303,7 @@ $graby = new Graby([
         // number of redirection allowed until we assume request won't be complete
         'max_redirect' => 10,
     ],
-    'extractor' => [
+    extractor: [
         'default_parser' => 'libxml',
         // key is fingerprint (fragment to find in HTML)
         // value is host name to use for site config lookup if fingerprint matches
@@ -334,7 +334,7 @@ $graby = new Graby([
         // these JSON-LD types will be ignored
         'json_ld_ignore_types' => ['Organization', 'WebSite', 'Person', 'VideoGame'],
     ],
-]);
+));
 ```
 
 ## Credits

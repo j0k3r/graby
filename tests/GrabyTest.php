@@ -6,8 +6,8 @@ namespace Tests\Graby;
 
 use Graby\Config\ContentLinks;
 use Graby\Config\ContentTypeAction;
-use Graby\Config\LogLevel;
 use Graby\Graby;
+use Graby\GrabyConfig;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use Http\Mock\Client as HttpMockClient;
@@ -68,16 +68,19 @@ class GrabyTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], $rawContent));
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => $header], (!empty($rawContent2)) ? $rawContent2 : $rawContent));
 
-        $graby = new Graby([
-            'xss_filter' => false,
-            'extractor' => [
-                'config_builder' => [
-                    'site_config' => [
-                        __DIR__ . '/fixtures/site_config',
+        $graby = new Graby(
+            new GrabyConfig(
+                xssFilter: false,
+                extractor: [
+                    'config_builder' => [
+                        'site_config' => [
+                            __DIR__ . '/fixtures/site_config',
+                        ],
                     ],
                 ],
-            ],
-        ], $httpMockClient);
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent($url);
 
@@ -123,9 +126,12 @@ class GrabyTest extends TestCase
         $httpMockClient->addResponse(new Response(301, ['Location' => $urlChanged]));
         $httpMockClient->addResponse(new Response(200));
 
-        $graby = new Graby([
-            'allowed_urls' => ['wikipedia.org', 'wikimedia.com'],
-        ], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                allowedUrls: ['wikipedia.org', 'wikimedia.com'],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent($url);
 
@@ -151,9 +157,9 @@ class GrabyTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('is not allowed to be parsed.');
 
-        $graby = new Graby([
-            'blocked_urls' => ['t411.io', 'lexpress.fr'],
-        ]);
+        $graby = new Graby(new GrabyConfig(
+            blockedUrls: ['t411.io', 'lexpress.fr'],
+        ));
 
         $graby->fetchContent($url);
     }
@@ -189,9 +195,12 @@ class GrabyTest extends TestCase
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200));
 
-        $graby = new Graby([
-            'blocked_urls' => ['t411.io'],
-        ], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                blockedUrls: ['t411.io'],
+            ),
+            $httpMockClient,
+        );
 
         $graby->fetchContent('t411.io');
     }
@@ -201,7 +210,7 @@ class GrabyTest extends TestCase
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpeg']));
 
-        $graby = new Graby(['xss_filter' => false], $httpMockClient);
+        $graby = new Graby(new GrabyConfig(xssFilter: false), $httpMockClient);
 
         $res = $graby->fetchContent('http://example.com/my%20awesome%20image.jpg');
 
@@ -230,11 +239,14 @@ class GrabyTest extends TestCase
             ['Content-Type' => 'application/x-msdownload']
         ));
 
-        $graby = new Graby([
-            'content_type_exc' => [
-                'application/x-msdownload' => ['action' => ContentTypeAction::Exclude, 'name' => 'we do not want virus'],
-            ],
-        ], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                contentTypeExc: [
+                    'application/x-msdownload' => ['action' => ContentTypeAction::Exclude, 'name' => 'we do not want virus'],
+                ],
+            ),
+            $httpMockClient,
+        );
 
         $graby->fetchContent('http://example.com/virus.exe');
 
@@ -264,7 +276,7 @@ class GrabyTest extends TestCase
             ['Content-Type' => $header]
         ));
 
-        $graby = new Graby(['xss_filter' => false], $httpMockClient);
+        $graby = new Graby(new GrabyConfig(xssFilter: false), $httpMockClient);
 
         $res = $graby->fetchContent($url);
 
@@ -423,9 +435,15 @@ class GrabyTest extends TestCase
         $httpMockClient->addResponse($response);
         $httpMockClient->addResponse($response);
 
-        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                contentLinks: ContentLinks::Footnotes,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://' . $url);
 
@@ -460,9 +478,15 @@ class GrabyTest extends TestCase
             '<html><h1 class="print-title">my title</h1><div class="print-submitted">my content</div><ul><li class="service-links-print"><a href="http://moreintelligentlife.com/print/content" class="service-links-print">printed view</a></li></ul></html>'
         ));
 
-        $graby = new Graby(['xss_filter' => false, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                xssFilter: false,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://singlepage1.com/data.jpg');
 
@@ -495,9 +519,16 @@ class GrabyTest extends TestCase
             '<html><h1 class="print-title">my title</h1><div class="main-article">my singlepage5</div></html>'
         ));
 
-        $graby = new Graby(['debug' => true, 'xss_filter' => false, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                debug: true,
+                xssFilter: false,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://singlepage2.com/hello');
 
@@ -525,9 +556,15 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
         ));
 
-        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                contentLinks: ContentLinks::Footnotes,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
@@ -561,9 +598,15 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
         ));
 
-        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                contentLinks: ContentLinks::Footnotes,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
@@ -597,9 +640,15 @@ class GrabyTest extends TestCase
             ''
         ));
 
-        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                contentLinks: ContentLinks::Footnotes,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
@@ -638,9 +687,15 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
         ));
 
-        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                contentLinks: ContentLinks::Footnotes,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
@@ -674,9 +729,15 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
         ));
 
-        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
-            'site_config' => [__DIR__ . '/fixtures/site_config'],
-        ]]], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                contentLinks: ContentLinks::Footnotes,
+                extractor: ['config_builder' => [
+                    'site_config' => [__DIR__ . '/fixtures/site_config'],
+                ]],
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('http://multiplepage1.com');
 
@@ -936,7 +997,7 @@ class GrabyTest extends TestCase
             '<article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' <a href="#links">links :)</a></p></article>'
         ));
 
-        $graby = new Graby(['content_links' => ContentLinks::Remove], $httpMockClient);
+        $graby = new Graby(new GrabyConfig(contentLinks: ContentLinks::Remove), $httpMockClient);
 
         $res = $graby->fetchContent('http://example.com');
 
@@ -990,10 +1051,13 @@ class GrabyTest extends TestCase
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
-        $graby = new Graby([
-            'error_message' => 'Nothing found, hu?',
-            'error_message_title' => 'No title detected',
-        ], $httpMockClient);
+        $graby = new Graby(
+            new GrabyConfig(
+                errorMessage: 'Nothing found, hu?',
+                errorMessageTitle: 'No title detected',
+            ),
+            $httpMockClient,
+        );
 
         $res = $graby->fetchContent('example.com');
 
@@ -1083,7 +1147,7 @@ class GrabyTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $graby = new Graby(['debug' => true]);
+        $graby = new Graby(new GrabyConfig(debug: true));
         $graby->setLogger($logger);
 
         $cleanedHtml = $graby->cleanupHtml($html, new Uri('http://0.0.0.0'));
@@ -1262,13 +1326,13 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/' . $file,
             200,
-            [
-                'extractor' => [
+            new GrabyConfig(
+                extractor: [
                     'config_builder' => [
                         'site_config' => [__DIR__ . '/fixtures/site_config'],
                     ],
                 ],
-            ]
+            ),
         );
         $res = $graby->fetchContent($url);
 
@@ -1284,13 +1348,13 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/timothysykes-keepol.html',
             200,
-            [
-                'extractor' => [
+            new GrabyConfig(
+                extractor: [
                     'config_builder' => [
                         'site_config' => [__DIR__ . '/fixtures/site_config'],
                     ],
                 ],
-            ]
+            ),
         );
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
 
@@ -1306,14 +1370,14 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/rollingstone.html',
             200,
-            [
-                'debug' => true,
-                'extractor' => [
+            new GrabyConfig(
+                debug: true,
+                extractor: [
                     'config_builder' => [
                         'site_config' => [__DIR__ . '/fixtures/site_config'],
                     ],
                 ],
-            ]
+            ),
         );
         $res = $graby->fetchContent('https://www.rollingstone.com/?redirurl=/politics/news/greed-and-debt-the-true-story-of-mitt-romney-and-bain-capital-20120829');
 
@@ -1335,7 +1399,7 @@ class GrabyTest extends TestCase
             '<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>'
         ));
 
-        $graby = new Graby(['content_links' => ContentLinks::Remove], $httpMockClient);
+        $graby = new Graby(new GrabyConfig(contentLinks: ContentLinks::Remove), $httpMockClient);
 
         $graby->toggleImgNoReferrer(true);
         $res = $graby->fetchContent('example.com');
@@ -1369,9 +1433,7 @@ class GrabyTest extends TestCase
         $graby = $this->getGrabyWithMock(
             '/fixtures/content/blog-oracle.html',
             200,
-            [
-                'debug' => true,
-            ]
+            new GrabyConfig(debug: true),
         );
         $res = $graby->fetchContent('https://blogs.oracle.com/dave/java-contended-annotation-to-help-reduce-false-sharing');
 
@@ -1382,9 +1444,7 @@ class GrabyTest extends TestCase
     public function testPrefetchedContent(): void
     {
         $httpMockClient = new HttpMockClient();
-        $graby = new Graby([
-            'debug' => true,
-        ], $httpMockClient);
+        $graby = new Graby(new GrabyConfig(debug: true), $httpMockClient);
 
         $input = '<html><body><h1>This is my awesome article</h1><article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>';
 
@@ -1398,47 +1458,8 @@ class GrabyTest extends TestCase
 
     /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
-     *
-     * @param array{
-     *   debug?: bool,
-     *   log_level?: LogLevel,
-     *   rewrite_relative_urls?: bool,
-     *   singlepage?: bool,
-     *   multipage?: bool,
-     *   error_message?: string,
-     *   error_message_title?: string,
-     *   allowed_urls?: string[],
-     *   blocked_urls?: string[],
-     *   xss_filter?: bool,
-     *   content_type_exc?: array<string, array{name: string, action: ContentTypeAction}>,
-     *   content_links?: ContentLinks,
-     *   http_client?: array{
-     *     ua_browser?: string,
-     *     default_referer?: string,
-     *     rewrite_url?: array<array<string, string>>,
-     *     header_only_types?: array<string>,
-     *     header_only_clues?: array<string>,
-     *     user_agents?: array<string, string>,
-     *     ajax_triggers?: array<string>,
-     *     max_redirect?: int,
-     *   },
-     *   extractor?: array{
-     *     default_parser?: string,
-     *     fingerprints?: array<string, string>,
-     *     config_builder?: array{
-     *       site_config?: string[],
-     *       hostname_regex?: string,
-     *     },
-     *     readability?: array{
-     *       pre_filters?: array<string, string>,
-     *       post_filters?: array<string, string>,
-     *     },
-     *     src_lazy_load_attributes?: string[],
-     *     json_ld_ignore_types?: string[],
-     *   },
-     * } $grabyConfig
      */
-    private function getGrabyWithMock(string $filePath, int $status = 200, array $grabyConfig = []): Graby
+    private function getGrabyWithMock(string $filePath, int $status = 200, GrabyConfig $grabyConfig = new GrabyConfig()): Graby
     {
         $response = new Response(
             $status,
