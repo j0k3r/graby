@@ -15,22 +15,23 @@ class GrabyHandlerTest extends TestCase
     public function testFormat(): void
     {
         $handler = new GrabyHandler();
-        $handler->handle(new LogRecord(
-            message: 'This is a log message',
-            context: [
-                'cursor' => 'here',
-                'success' => true,
-            ],
-            level: Logger::toMonologLevel(100),
-            channel: 'graby',
-            datetime: new \DateTimeImmutable(),
-            extra: [
-                'complex' => [
-                    'interesting' => 'ok',
+        $handler->handle(
+            new LogRecord(
+                message: 'This is a log message',
+                context: [
+                    'cursor' => 'here',
+                    'success' => true,
                 ],
-                'success' => true,
-            ],
-        )
+                level: Logger::toMonologLevel(100),
+                channel: 'graby',
+                datetime: new \DateTimeImmutable(),
+                extra: [
+                    'complex' => [
+                        'interesting' => 'ok',
+                    ],
+                    'success' => true,
+                ],
+            )
         );
 
         $this->assertCount(1, $handler->getRecords());
