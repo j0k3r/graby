@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Graby;
 
+use Graby\Config\ContentLinks;
 use Graby\Config\LogLevel;
 use Graby\Graby;
 use GuzzleHttp\Psr7\Response;
@@ -421,7 +422,7 @@ class GrabyTest extends TestCase
         $httpMockClient->addResponse($response);
         $httpMockClient->addResponse($response);
 
-        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $httpMockClient);
 
@@ -523,7 +524,7 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
         ));
 
-        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $httpMockClient);
 
@@ -559,7 +560,7 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
         ));
 
-        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $httpMockClient);
 
@@ -595,7 +596,7 @@ class GrabyTest extends TestCase
             ''
         ));
 
-        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $httpMockClient);
 
@@ -636,7 +637,7 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div></html>'
         ));
 
-        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $httpMockClient);
 
@@ -672,7 +673,7 @@ class GrabyTest extends TestCase
             '<html><h2 class="primary">my title</h2><div class="story">my content</div><ul><li class="next"><a href="http://multiplepage1.com">next page</a></li></ul></html>'
         ));
 
-        $graby = new Graby(['content_links' => 'footnotes', 'extractor' => ['config_builder' => [
+        $graby = new Graby(['content_links' => ContentLinks::Footnotes, 'extractor' => ['config_builder' => [
             'site_config' => [__DIR__ . '/fixtures/site_config'],
         ]]], $httpMockClient);
 
@@ -934,7 +935,7 @@ class GrabyTest extends TestCase
             '<article><p>' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . ' <a href="#links">links :)</a></p></article>'
         ));
 
-        $graby = new Graby(['content_links' => 'remove'], $httpMockClient);
+        $graby = new Graby(['content_links' => ContentLinks::Remove], $httpMockClient);
 
         $res = $graby->fetchContent('http://example.com');
 
@@ -1333,7 +1334,7 @@ class GrabyTest extends TestCase
             '<html><body><h1>Hello world</h1><article><p><img src="http://example.com/hello.jpg"> ' . str_repeat('This is an awesome text with some links, here there are the awesome', 7) . '</p></article></body></html>'
         ));
 
-        $graby = new Graby(['content_links' => 'remove'], $httpMockClient);
+        $graby = new Graby(['content_links' => ContentLinks::Remove], $httpMockClient);
 
         $graby->toggleImgNoReferrer(true);
         $res = $graby->fetchContent('example.com');
@@ -1409,7 +1410,7 @@ class GrabyTest extends TestCase
      *   blocked_urls?: string[],
      *   xss_filter?: bool,
      *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
-     *   content_links?: 'preserve'|'footnotes'|'remove',
+     *   content_links?: ContentLinks,
      *   http_client?: array{
      *     ua_browser?: string,
      *     default_referer?: string,

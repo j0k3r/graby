@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Graby;
 
+use Graby\Config\ContentLinks;
 use Graby\Config\LogLevel;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -27,8 +28,7 @@ class GrabyConfig
     private readonly bool $xss_filter;
     /** @var array<string, array{name: string, action: 'link'|'exclude'}> */
     private readonly array $content_type_exc;
-    /** @var 'preserve'|'footnotes'|'remove' */
-    private readonly string $content_links;
+    private readonly ContentLinks $content_links;
 
     /**
      * @var array{
@@ -75,7 +75,7 @@ class GrabyConfig
      *   blocked_urls?: string[],
      *   xss_filter?: bool,
      *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
-     *   content_links?: 'preserve'|'footnotes'|'remove',
+     *   content_links?: ContentLinks,
      *   http_client?: array{
      *     ua_browser?: string,
      *     default_referer?: string,
@@ -124,12 +124,10 @@ class GrabyConfig
                 'video' => ['action' => 'link', 'name' => 'Video'],
                 'text/plain' => ['action' => 'link', 'name' => 'Plain text'],
             ],
-            'content_links' => 'preserve',
+            'content_links' => ContentLinks::Preserve,
             'http_client' => [],
             'extractor' => [],
         ]);
-
-        $resolver->setAllowedValues('content_links', ['preserve', 'footnotes', 'remove']);
 
         $resolver->setAllowedTypes('debug', 'bool');
         $resolver->setAllowedTypes('log_level', LogLevel::class);
@@ -140,6 +138,7 @@ class GrabyConfig
         $resolver->setAllowedTypes('allowed_urls', 'string[]');
         $resolver->setAllowedTypes('blocked_urls', 'string[]');
         $resolver->setAllowedTypes('xss_filter', 'bool');
+        $resolver->setAllowedTypes('content_links', ContentLinks::class);
         $resolver->setAllowedTypes('http_client', 'array');
         $resolver->setAllowedTypes('extractor', 'array');
 
@@ -226,10 +225,7 @@ class GrabyConfig
         return $this->content_type_exc;
     }
 
-    /**
-     * @return 'preserve'|'footnotes'|'remove'
-     */
-    public function getContentLinks(): string
+    public function getContentLinks(): ContentLinks
     {
         return $this->content_links;
     }
