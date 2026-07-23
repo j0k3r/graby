@@ -12,8 +12,6 @@ return (new PhpCsFixer\Config())
         '@Symfony:risky' => true,
         '@PHP7x4Migration' => true,
         '@PHP7x4Migration:risky' => true,
-        // Breaks spacing around faux named arguments (in a comment).
-        'method_argument_space' => false,
         'combine_consecutive_unsets' => true,
         'heredoc_to_nowdoc' => true,
         'no_extra_blank_lines' => ['tokens' => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block']],
