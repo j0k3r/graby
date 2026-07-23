@@ -202,7 +202,7 @@ configure it and inject it to `Graby\Graby`.
     $guzzle = new GuzzleClient([
         'timeout' => 2,
     ]);
-    $graby = new Graby([], new GuzzleAdapter($guzzle));
+    $graby = new Graby(client: new GuzzleAdapter($guzzle));
     ```
 
 
