@@ -215,8 +215,8 @@ $graby = new Graby([
     // Enable or disable debugging.
     // This will only generate log information in a file (log/graby.log)
     'debug' => false,
-    // use 'debug' value if you want more data (HTML at each step for example) to be dumped in a different file (log/html.log)
-    'log_level' => 'info',
+    // use LogLevel::Debug value if you want more data (HTML at each step for example) to be dumped in a different file (log/html.log)
+    'log_level' => LogLevel::Info,
     // If enabled relative URLs found in the extracted content are automatically rewritten as absolute URLs.
     'rewrite_relative_urls' => true,
     // If enabled, we will try to follow single page links (e.g. print view) on multi-page articles.

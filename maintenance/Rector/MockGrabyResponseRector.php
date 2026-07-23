@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maintenance\Graby\Rector;
 
+use Graby\Config\LogLevel;
 use Graby\Graby;
 use Graby\HttpClient\Plugin\CookiePlugin;
 use Http\Client\Common\PluginClient;
@@ -253,7 +254,7 @@ final class MockGrabyResponseRector extends AbstractRector
      *
      * @param array{
      *   debug?: bool,
-     *   log_level?: 'info'|'debug',
+     *   log_level?: LogLevel,
      *   rewrite_relative_urls?: bool,
      *   singlepage?: bool,
      *   multipage?: bool,

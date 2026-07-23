@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Graby;
 
+use Graby\Config\LogLevel;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
 use Graby\HttpClient\EffectiveResponse;
@@ -51,7 +52,7 @@ class Graby
     /**
      * @param array{
      *   debug?: bool,
-     *   log_level?: 'info'|'debug',
+     *   log_level?: LogLevel,
      *   rewrite_relative_urls?: bool,
      *   singlepage?: bool,
      *   multipage?: bool,
@@ -95,12 +96,12 @@ class Graby
         $this->logger = new NullLogger();
 
         // Debug mode can be activated with 'debug' => true
-        // More details on the retrieved code and its consequent modifications can be obtained using 'log_level' = 'debug'
+        // More details on the retrieved code and its consequent modifications can be obtained using 'log_level' = LogLevel::Debug
         if ($this->config->getDebug()) {
             $this->logger = new Logger('graby');
 
             // This statement has to be before Level::Info to catch all DEBUG messages
-            if ('debug' === $this->config->getLogLevel()) {
+            if (LogLevel::Debug === $this->config->getLogLevel()) {
                 $fp = fopen(__DIR__ . '/../log/html.log', 'w');
                 if (false !== $fp) {
                     // Emptying of the HTML logfile to avoid gigantic logs
