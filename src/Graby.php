@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Graby;
 
+use Graby\Config\ContentLinks;
 use Graby\Config\LogLevel;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
@@ -62,7 +63,7 @@ class Graby
      *   blocked_urls?: string[],
      *   xss_filter?: bool,
      *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
-     *   content_links?: 'preserve'|'footnotes'|'remove',
+     *   content_links?: ContentLinks,
      *   http_client?: array{
      *     ua_browser?: string,
      *     default_referer?: string,
@@ -224,7 +225,7 @@ class Graby
         }
 
         // footnotes
-        if ('footnotes' === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $readability) {
+        if (ContentLinks::Footnotes === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $readability) {
             $readability->addFootnotes($contentBlock);
         }
 
@@ -266,7 +267,7 @@ class Graby
 
         // post-processing cleanup
         $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', (string) $html);
-        if ('remove' === $this->config->getContentLinks()) {
+        if (ContentLinks::Remove === $this->config->getContentLinks()) {
             $html = preg_replace('!</?a[^>]*>!', '', (string) $html);
         }
 

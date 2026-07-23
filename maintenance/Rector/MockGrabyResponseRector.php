@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Maintenance\Graby\Rector;
 
+use Graby\Config\ContentLinks;
 use Graby\Config\LogLevel;
 use Graby\Graby;
 use Graby\HttpClient\Plugin\CookiePlugin;
@@ -264,7 +265,7 @@ final class MockGrabyResponseRector extends AbstractRector
      *   blocked_urls?: string[],
      *   xss_filter?: bool,
      *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
-     *   content_links?: 'preserve'|'footnotes'|'remove',
+     *   content_links?: ContentLinks,
      *   http_client?: array{
      *     ua_browser?: string,
      *     default_referer?: string,

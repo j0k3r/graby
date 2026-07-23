@@ -259,10 +259,10 @@ $graby = new Graby([
     ],
     // How we handle link in content
     // Valid values :
-    // * preserve: nothing is done
-    // * footnotes: convert links as footnotes
-    // * remove: remove all links
-    'content_links' => 'preserve',
+    // * ContentLinks::Preserve: nothing is done
+    // * ContentLinks::Footnotes: convert links as footnotes
+    // * ContentLinks::Remove: remove all links
+    'content_links' => ContentLinks::Preserve,
     'http_client' => [
         // User-Agent used to fetch content
         'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
