@@ -12,8 +12,6 @@ return (new PhpCsFixer\Config())
         '@Symfony:risky' => true,
         '@PHP7x4Migration' => true,
         '@PHP7x4Migration:risky' => true,
-        // Breaks spacing around faux named arguments (in a comment).
-        'method_argument_space' => false,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_unsets' => true,
         // Enabled by @Symfony:risky but requires PHP 8.
