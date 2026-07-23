@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Graby;
 
+use Graby\Config\LogLevel;
 use Graby\Graby;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
@@ -1398,7 +1399,7 @@ class GrabyTest extends TestCase
      *
      * @param array{
      *   debug?: bool,
-     *   log_level?: 'info'|'debug',
+     *   log_level?: LogLevel,
      *   rewrite_relative_urls?: bool,
      *   singlepage?: bool,
      *   multipage?: bool,

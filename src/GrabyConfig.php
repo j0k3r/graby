@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Graby;
 
+use Graby\Config\LogLevel;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -13,8 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class GrabyConfig
 {
     private readonly bool $debug;
-    /** @var 'info'|'debug' */
-    private readonly string $log_level;
+    private readonly LogLevel $log_level;
     private readonly bool $rewrite_relative_urls;
     private readonly bool $singlepage;
     private readonly bool $multipage;
@@ -65,7 +65,7 @@ class GrabyConfig
     /**
      * @param array{
      *   debug?: bool,
-     *   log_level?: 'info'|'debug',
+     *   log_level?: LogLevel,
      *   rewrite_relative_urls?: bool,
      *   singlepage?: bool,
      *   multipage?: bool,
@@ -107,7 +107,7 @@ class GrabyConfig
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             'debug' => false,
-            'log_level' => 'info',
+            'log_level' => LogLevel::Info,
             'rewrite_relative_urls' => true,
             'singlepage' => true,
             'multipage' => true,
@@ -130,9 +130,9 @@ class GrabyConfig
         ]);
 
         $resolver->setAllowedValues('content_links', ['preserve', 'footnotes', 'remove']);
-        $resolver->setAllowedValues('log_level', ['info', 'debug']);
 
         $resolver->setAllowedTypes('debug', 'bool');
+        $resolver->setAllowedTypes('log_level', LogLevel::class);
         $resolver->setAllowedTypes('rewrite_relative_urls', 'bool');
         $resolver->setAllowedTypes('singlepage', 'bool');
         $resolver->setAllowedTypes('multipage', 'bool');
@@ -167,10 +167,7 @@ class GrabyConfig
         return $this->debug;
     }
 
-    /**
-     * @return 'info'|'debug'
-     */
-    public function getLogLevel(): string
+    public function getLogLevel(): LogLevel
     {
         return $this->log_level;
     }
