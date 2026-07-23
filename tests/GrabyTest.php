@@ -286,7 +286,7 @@ class GrabyTest extends TestCase
             (string) file_get_contents(__DIR__ . '/fixtures/document1.pdf')
         ));
 
-        $graby = new Graby([], $httpMockClient);
+        $graby = new Graby(client: $httpMockClient);
 
         $res = $graby->fetchContent('http://example.com/test.pdf');
 
@@ -314,7 +314,7 @@ class GrabyTest extends TestCase
             ['Content-Type' => 'application/zip']
         ));
 
-        $graby = new Graby([], $httpMockClient);
+        $graby = new Graby(client: $httpMockClient);
 
         $res = $graby->fetchContent('https://github.com/nathanaccidentally/Cydia-Repo-Template/archive/master.zip');
 
@@ -338,7 +338,7 @@ class GrabyTest extends TestCase
             ['Content-Type' => 'application/pdf'],
             (string) file_get_contents(__DIR__ . '/fixtures/Document1_pdfcreator.pdf')
         ));
-        $graby = new Graby([], $httpMockClient);
+        $graby = new Graby(client: $httpMockClient);
 
         $res = $graby->fetchContent('http://example.com/test.pdf');
 
@@ -360,7 +360,7 @@ class GrabyTest extends TestCase
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/plain'], 'plain text :)'));
 
-        $graby = new Graby([], $httpMockClient);
+        $graby = new Graby(client: $httpMockClient);
 
         $res = $graby->fetchContent('http://example.com/test.txt');
 

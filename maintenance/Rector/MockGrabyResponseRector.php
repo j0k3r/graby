@@ -160,7 +160,8 @@ final class MockGrabyResponseRector extends AbstractRector
             new Expression(new Assign($httpMockClientVariable, new New_(new Name('HttpMockClient')))),
         ];
 
-        $config = 0 === \count($new->args) || !($configArg = $new->args[0]) instanceof Arg ? [] : $this->valueResolver->getValue($configArg->value);
+        $configArg = isset($new->args[0]) ? $new->args[0]:(isset($new->args['config']) ? $new->args['config'] : null);
+        $config = !$configArg instanceof Arg ? [] : $this->valueResolver->getValue($configArg->value);
         if (null === $config) {
             // Paste the config here if this failed.
             $config = [];
