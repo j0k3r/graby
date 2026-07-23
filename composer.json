@@ -68,7 +68,7 @@
         "sort-packages": true,
         "allow-plugins": {
             "phpstan/extension-installer": true,
-            "php-http/discovery": true
+            "php-http/discovery": false
         }
     }
 }
