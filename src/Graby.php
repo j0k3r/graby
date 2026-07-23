@@ -450,14 +450,14 @@ class Graby
         }
 
         $res = new Content(
-            /* response: */ $response->withEffectiveUri($effectiveUrl),
-            /* html: */ $this->config->getErrorMessage(),
-            /* title: */ $extractedTitle ?: $this->config->getErrorMessageTitle(),
-            /* language: */ $extractedLanguage,
-            /* date: */ $extractedDate,
-            /* authors: */ $extractedAuthors,
-            /* image: */ (string) $extractedImage,
-            /* isNativeAd: */ $extractedContent->isNativeAd
+            effectiveResponse: $response->withEffectiveUri($effectiveUrl),
+            html: $this->config->getErrorMessage(),
+            title: $extractedTitle ?: $this->config->getErrorMessageTitle(),
+            language: $extractedLanguage,
+            date: $extractedDate,
+            authors: $extractedAuthors,
+            image: (string) $extractedImage,
+            isNativeAd: $extractedContent->isNativeAd
         );
 
         // if we failed to extract content...
@@ -632,14 +632,14 @@ class Graby
 
         $infos = new Content(
             // at this point status will always be considered as 200
-            /* response: */ $response,
-            /* html: */ '',
-            /* title: */ $mimeInfo['name'],
-            /* language: */ '',
-            /* date: */ null,
-            /* authors: */ [],
-            /* image: */ '',
-            /* isNativeAd: */ false
+            effectiveResponse: $response,
+            html: '',
+            title: $mimeInfo['name'],
+            language: '',
+            date: null,
+            authors: [],
+            image: '',
+            isNativeAd: false
         );
 
         if (ContentTypeAction::Exclude === $mimeInfo['action']) {
