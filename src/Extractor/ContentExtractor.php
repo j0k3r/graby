@@ -19,31 +19,13 @@ use Readability\Readability;
  */
 class ContentExtractor
 {
-    private readonly ContentExtractorConfig $config;
     private readonly ConfigBuilder $configBuilder;
 
-    /**
-     * @param array{
-     *   default_parser?: Parser,
-     *   fingerprints?: array<string, string>,
-     *   config_builder?: array{
-     *     site_config?: string[],
-     *     hostname_regex?: string,
-     *   },
-     *   readability?: array{
-     *     pre_filters?: array<string, string>,
-     *     post_filters?: array<string, string>,
-     *   },
-     *   src_lazy_load_attributes?: string[],
-     *   json_ld_ignore_types?: string[],
-     * } $config
-     */
     public function __construct(
-        array $config = [],
+        private readonly ContentExtractorConfig $config = new ContentExtractorConfig(),
         private ?LoggerInterface $logger = new NullLogger(),
         ?ConfigBuilder $configBuilder = null
     ) {
-        $this->config = new ContentExtractorConfig($config);
         $this->configBuilder = $configBuilder ?? new ConfigBuilder($this->config->getConfigBuilder(), $this->logger);
     }
 

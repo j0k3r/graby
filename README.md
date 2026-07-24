@@ -303,28 +303,28 @@ $graby = new Graby(new GrabyConfig(
         // number of redirection allowed until we assume request won't be complete
         maxRedirect: 10,
     ),
-    extractor: [
-        'default_parser' => \Graby\Extractor\Parser::Libxml,
+    extractor: new ContentExtractorConfig(
+        defaultParser: \Graby\Extractor\Parser::Libxml,
         // key is fingerprint (fragment to find in HTML)
         // value is host name to use for site config lookup if fingerprint matches
         // \s* match anything INCLUDING new lines
-        'fingerprints' => [
+        fingerprints: [
             '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
         ],
-        'config_builder' => [
+        configBuilder: [
             // Directory path to the site config folder WITHOUT trailing slash
             'site_config' => [],
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ],
-        'readability' => [
+        readability: [
             // filters might be like array('regex' => 'replace with')
             // for example, to remove script content: array('!<script[^>]*>(.*?)</script>!is' => '')
             'pre_filters' => [],
             'post_filters' => [],
         ],
-        'src_lazy_load_attributes' => [
+        srcLazyLoadAttributes: [
             'data-src',
             'data-lazy-src',
             'data-original',
@@ -332,8 +332,8 @@ $graby = new Graby(new GrabyConfig(
             'data-hi-res-src',
         ],
         // these JSON-LD types will be ignored
-        'json_ld_ignore_types' => ['Organization', 'WebSite', 'Person', 'VideoGame'],
-    ],
+        jsonLdIgnoreTypes: ['Organization', 'WebSite', 'Person', 'VideoGame'],
+    ),
 ));
 ```
 

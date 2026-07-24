@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\ContentExtractor;
+use Graby\Extractor\ContentExtractorConfig;
 use Graby\Extractor\ExtractedContent;
 use Graby\SiteConfig\SiteConfig;
 use GuzzleHttp\Psr7\Uri;
@@ -14,15 +15,9 @@ use PHPUnit\Framework\TestCase;
 
 class ContentExtractorTest extends TestCase
 {
-    private const CONTENT_EXTRACTOR_CONFIG = [
-        'config_builder' => [
-            'site_config' => [__DIR__ . '/../fixtures/site_config'],
-        ],
-    ];
-
     public function testConstructDefault(): void
     {
-        $contentExtractor = new ContentExtractor(['config_builder' => ['site_config' => [__DIR__]]]);
+        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(configBuilder: ['site_config' => [__DIR__]]));
         $result = $contentExtractor->process('', new Uri('http://example.com'));
 
         $this->assertNull($result->content);
@@ -67,9 +62,9 @@ class ContentExtractorTest extends TestCase
      */
     public function testFingerPrints(string $html, string $fingerprints): void
     {
-        $contentExtractor = new ContentExtractor([
-            'config_builder' => ['site_config' => [__DIR__]],
-        ]);
+        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(
+            configBuilder: ['site_config' => [__DIR__]],
+        ));
 
         $res = $contentExtractor->findHostUsingFingerprints('');
 
@@ -88,9 +83,9 @@ class ContentExtractorTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('directory does not exist');
 
-        $contentExtractor = new ContentExtractor(['config_builder' => [
+        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(configBuilder: [
             'site_config' => [__DIR__ . '/../../wrong_site_config'],
-        ]]);
+        ]));
         $contentExtractor->buildSiteConfig(new Uri('http://0.0.0.0'));
     }
 
@@ -99,7 +94,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testBuildSiteConfig(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
         $res = $contentExtractor->buildSiteConfig(new Uri('https://www.en.wikipedia.org/wiki/Metallica'));
 
         foreach (['author', 'single_page_link', 'next_page_link'] as $value) {
@@ -120,7 +115,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testBuildSiteConfigCached(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
         $res = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
 
         $res2 = $contentExtractor->buildSiteConfig(new Uri('https://nofailure.io/wiki/Metallica'));
@@ -133,7 +128,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testWithFingerPrints(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $res = $contentExtractor->buildSiteConfig(
             new Uri('https://en.blog.wordpress.com/2015/03/23/writing-101-registration/'),
@@ -150,7 +145,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testProcessFindString(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->body = ['//iframe'];
@@ -176,7 +171,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testProcessFindStringBadCount(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->body = ['//iframe'];
@@ -214,7 +209,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractNextPageLink(string $pattern, string $html, string $urlExpected): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->next_page_link = [$pattern];
@@ -246,7 +241,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractTitle(string $pattern, string $html, string $titleExpected): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->title = [$pattern];
@@ -284,7 +279,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractAuthor(string $pattern, string $html, array $authorExpected): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->author = [$pattern];
@@ -314,7 +309,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractLanguage(string $html, string $languageExpected): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
 
@@ -349,7 +344,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractDate(string $pattern, string $html, ?string $dateExpected): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->date = [$pattern];
@@ -381,7 +376,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testApplyStrip(string $pattern, string $html, string $removedContent): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->strip = [$pattern];
@@ -412,7 +407,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testApplyStripIdOrClass(string $pattern, string $html, ?string $removedContent, ?string $matchContent): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->strip_id_or_class = [$pattern];
@@ -448,7 +443,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testApplyStripImageSrc(string $pattern, string $html, string $removedContent): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->strip_image_src = [$pattern];
@@ -481,7 +476,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testApplyStripDisplayNoneAndInstapaper(string $html, string $removedContent): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
 
@@ -528,7 +523,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testApplyStripAttr(array $patterns, string $html, array $assertions): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->strip = $patterns;
@@ -552,7 +547,7 @@ class ContentExtractorTest extends TestCase
 
     public function testApplyPostStripAttr(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->body = ['//article'];
@@ -597,7 +592,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractBody(string $pattern, string $html, string $expectedContent): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->body = [$pattern];
@@ -661,7 +656,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractHNews(string $html, string $expectedContent, array $expectedElements): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
 
@@ -685,7 +680,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractInstapaper(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
 
@@ -729,7 +724,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testExtractSchemaOrg(string $html, string $expectedContent): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
 
@@ -748,7 +743,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testRemoveHFromBody(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->body = ['//div'];
@@ -821,7 +816,7 @@ class ContentExtractorTest extends TestCase
      */
     public function testConvertLazyLoadImages(string $html, string $htmlExpected): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->body = ['//div'];
@@ -839,7 +834,7 @@ class ContentExtractorTest extends TestCase
 
     public function testIframeEmbeddedContent(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         // '//header' is a bad pattern, and it will jump to the next one
@@ -863,7 +858,7 @@ class ContentExtractorTest extends TestCase
         $handler = new TestHandler($level = \Monolog\Level::Info);
         $logger->pushHandler($handler);
 
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
         $contentExtractor->setLogger($logger);
 
         $config = new SiteConfig();
@@ -889,13 +884,15 @@ class ContentExtractorTest extends TestCase
 
     public function testWithCustomFiltersForReadability(): void
     {
-        $contentExtractor = new ContentExtractor(
-            self::CONTENT_EXTRACTOR_CONFIG
-            + ['readability' => [
+        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(
+            configBuilder: [
+                'site_config' => [__DIR__ . '/../fixtures/site_config'],
+            ],
+            readability: [
                 'post_filters' => ['!<head[^>]*>(.*?)</head>!is' => ''],
                 'pre_filters' => ['!</?noscript>!is' => ''],
-            ]]
-        );
+            ],
+        ));
 
         $config = new SiteConfig();
 
@@ -954,7 +951,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testNativeAd(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             ' <meta property="og:url" content="https://nativead.io/sponsored/woops"/><p>hihi</p>',
@@ -968,7 +965,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLd(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
@@ -985,7 +982,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdWithMultipleAuthors(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":[{"@type":"Person","name":"Elisa Thevenet"},{"@type":"Person","name":"Humphrey Bogart"}]}</script>',
@@ -1000,7 +997,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdWithAuthorWithNameList(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":{"@type":"Person","name":["Greg Myre"]}}</script>',
@@ -1014,7 +1011,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testNoDefinedHtml(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process('', new Uri('https://nativead.io/jsonld'));
 
@@ -1025,7 +1022,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testOpenGraph(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             ' <meta property="og:title" content="title !!"/>
@@ -1052,7 +1049,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testAvoidDataUriImageInOpenGraph(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             ' <html><meta content="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" property="og:image" /><meta content="http://www.io.lol" property="og:url"/><p>hihi</p></html>',
@@ -1066,7 +1063,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdIgnoreList(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "NewsArticle", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "headline": "The Foobar Company is launching globally", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
@@ -1081,7 +1078,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdIgnoreListWithPeriodical(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             '<html><body><script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Periodical", "publisher": { "@type": "Organization", "name": "Foobar Company" }, "description": "A method for fooling tools", "mainEntityOfPage": { "@type": "WebPage", "@id": "https:\/\/www.example.com/foobar" }, "name": "Foobar Company", "datePublished": "2019-01-14T16:02:00.000+00:00", "dateModified": "2019-01-14T13:25:09.980+00:00", "author": { "@type": "Person", "name": "Foobar CEO" } }</script> <script type="application/ld+json">{ "@context": "http:\/\/schema.org", "@type": "Organization", "name": "Foobar Company", "url": "https:\/\/www.example.com" }</script><h1>Hello world, this is title</h1><p>' . str_repeat('this is the best part of the show', 10) . '</p></body></html>',
@@ -1095,7 +1092,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdSkipper(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->skip_json_ld = true;
@@ -1115,7 +1112,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdName(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "https:\/\/schema.org", "@type": "NewsArticle", "headline": "title !!", "name": "name !!", "mainEntityOfPage": "http:\/\/jsonld.io\/toto", "datePublished": "2017-10-23T16:05:38+02:00", "dateModified": "2017-10-23T16:06:28+02:00", "description": "it is describe", "articlebody": " my body", "relatedLink": "", "image": { "@type": "ImageObject", "url": "https:\/\/static.jsonld.io\/medias.jpg", "height": "830", "width": "532" }, "author": { "@type": "Person", "name": "bob", "sameAs": ["https:\/\/twitter.com\/bob"] }, "keywords": ["syndicat", "usine", "licenciement", "Emmanuel Macron", "creuse", "plan social", "Automobile"] }</script><p>hihi</p>',
@@ -1127,7 +1124,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdDateArray(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"] }</script><p>hihi</p>',
@@ -1139,7 +1136,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testJsonLdImageUrlArray(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             ' <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "description": "Smoke rises from the 998-tonne fuel tanker Shoko Maru after it exploded off the coast of Himeji, western Japan, in this photo taken and released May 29, 2014.  REUTERS/5th Regional Coast Guard Headqua", "headline": "Editor&#039;s choice", "url": "https://www.reuters.com/news/picture/editors-choice-idUSRTR3RD95", "thumbnailUrl": "https://s3.reutersmedia.net/resources/r/?m=02&d=20140529&t=2&i=901254582&w=&fh=810&fw=545&ll=&pl=&sq=&r=2014-05-29T132753Z_2_GM1EA5T1BTD01_RTRMADP_0_JAPAN", "dateCreated": "2014-05-29T13:27:53+0000", "dateModified": "2014-05-29T13:27:53+0000", "articleSection": "RCOMUS_24", "creator": ["JaShong King"], "keywords": ["24 HOURS IN PICTURES", "Slideshow"], "about": "Slideshow", "author": ["JaShong King"], "datePublished": ["05/29/2014"], "image": { "@type": "ImageObject", "url": [ "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_1x1.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_4x3.png", "https://statics.estadao.com.br/s2016/portal/img/json-ld/estadao_16x9.png" ]} }</script><p>hihi</p>',
@@ -1154,7 +1151,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $url = new Uri('https://www.lemonde.fr/pixels/article/2018/05/30/bloodstained-curse-of-the-moon-delicieux-jeu-de-vampires-a-la-mode-des-annees-1980_5307173_4408996.html');
         $html = '<script type="application/ld+json">{"author":{"@type":"Person","name":"William Audureau"}}</script><a class="auteur" target="_blank" href="/journaliste/william-audureau/">William Audureau</a>';
 
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
         $siteConfig = $contentExtractor->buildSiteConfig($url);
 
         $result = $contentExtractor->process(
@@ -1170,7 +1167,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testBodyAsDomAttribute(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         // a xpath retrieving a dom attribute
@@ -1187,7 +1184,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
     public function testBadDate(): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $result = $contentExtractor->process(
             '   <meta property="article:published_time" content="-0001-11-304T00:00:00+00:00" /> <p>' . str_repeat('this is the best part of the show', 10) . '</p> ',
@@ -1229,7 +1226,7 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
      */
     public function testProcessWrapIn(array $wrapIn, string $xpathQuery): void
     {
-        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
 
         $config = new SiteConfig();
         $config->body = ['//article'];
@@ -1251,6 +1248,15 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
 
         $el = $xpath->query($xpathQuery);
         $this->assertCount(1, $el ?: []);
+    }
+
+    private static function contentExtractorConfig(): ContentExtractorConfig
+    {
+        return new ContentExtractorConfig(
+            configBuilder: [
+                'site_config' => [__DIR__ . '/../fixtures/site_config'],
+            ],
+        );
     }
 
     private function getXmlContent(ExtractedContent $extractedContent): string

@@ -7,8 +7,8 @@ namespace Graby;
 use Graby\Config\ContentLinks;
 use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
+use Graby\Extractor\ContentExtractorConfig;
 use Graby\Extractor\HttpClientConfig;
-use Graby\Extractor\Parser;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -41,23 +41,7 @@ readonly class GrabyConfig
         ],
         public ContentLinks $contentLinks = ContentLinks::Preserve,
         public HttpClientConfig $httpClient = new HttpClientConfig(),
-        /**
-         * @var array{
-         *   default_parser?: Parser,
-         *   fingerprints?: array<string, string>,
-         *   config_builder?: array{
-         *     site_config?: string[],
-         *     hostname_regex?: string,
-         *   },
-         *   readability?: array{
-         *     pre_filters?: array<string, string>,
-         *     post_filters?: array<string, string>,
-         *   },
-         *   src_lazy_load_attributes?: string[],
-         *   json_ld_ignore_types?: string[],
-         * }
-         */
-        public array $extractor = [],
+        public ContentExtractorConfig $extractor = new ContentExtractorConfig(),
     ) {
         $resolver = new OptionsResolver();
 
