@@ -59,11 +59,11 @@ class Graby
 
         // Debug mode can be activated with 'debug' => true
         // More details on the retrieved code and its consequent modifications can be obtained using 'log_level' = LogLevel::Debug
-        if ($this->config->getDebug()) {
+        if ($this->config->debug) {
             $this->logger = new Logger('graby');
 
             // This statement has to be before Level::Info to catch all DEBUG messages
-            if (LogLevel::Debug === $this->config->getLogLevel()) {
+            if (LogLevel::Debug === $this->config->logLevel) {
                 $fp = fopen(__DIR__ . '/../log/html.log', 'w');
                 if (false !== $fp) {
                     // Emptying of the HTML logfile to avoid gigantic logs
@@ -78,21 +78,21 @@ class Graby
 
         if (null === $configBuilder) {
             $configBuilder = new ConfigBuilder(
-                $this->config->getExtractor()['config_builder'] ?? [],
+                $this->config->extractor['config_builder'] ?? [],
                 $this->logger
             );
         }
         $this->configBuilder = $configBuilder;
 
         $this->extractor = new ContentExtractor(
-            $this->config->getExtractor(),
+            $this->config->extractor,
             $this->logger,
             $this->configBuilder
         );
 
         $this->httpClient = new HttpClient(
             $client ?: new PluginClient(Psr18ClientDiscovery::find(), [new CookiePlugin(new CookieJar())]),
-            $this->config->getHttpClient(),
+            $this->config->httpClient,
             $this->logger,
             $this->extractor
         );
@@ -181,12 +181,12 @@ class Graby
 
         $readability->clean($contentBlock, 'select');
 
-        if ($this->config->getRewriteRelativeUrls()) {
+        if ($this->config->rewriteRelativeUrls) {
             $this->makeAbsolute($url, $contentBlock);
         }
 
         // footnotes
-        if (ContentLinks::Footnotes === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $readability) {
+        if (ContentLinks::Footnotes === $this->config->contentLinks && !str_contains($url->getHost(), 'wikipedia.org') && $readability) {
             $readability->addFootnotes($contentBlock);
         }
 
@@ -228,7 +228,7 @@ class Graby
 
         // post-processing cleanup
         $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', (string) $html);
-        if (ContentLinks::Remove === $this->config->getContentLinks()) {
+        if (ContentLinks::Remove === $this->config->contentLinks) {
             $html = preg_replace('!</?a[^>]*>!', '', (string) $html);
         }
 
@@ -296,7 +296,7 @@ class Graby
 
         // check site config for single page URL - fetch it if found
         $isSinglePage = false;
-        if ($this->config->getSinglepage() && null === $this->prefetchedContent && null !== ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
+        if ($this->config->singlepage && null === $this->prefetchedContent && null !== ($singlePageResponse = $this->getSinglePage($html, $effectiveUrl))) {
             $isSinglePage = true;
             $effectiveUrl = $singlePageResponse->getEffectiveUri();
 
@@ -337,7 +337,7 @@ class Graby
 
         // Deal with multi-page articles
         $isMultiPage = (!$isSinglePage && $extractedContent->isSuccess && null !== $extractedContent->nextPageUrl);
-        if ($this->config->getMultipage() && null === $this->prefetchedContent && $isMultiPage) {
+        if ($this->config->multipage && null === $this->prefetchedContent && $isMultiPage) {
             $this->logger->info('Attempting to process multi-page article');
             // store first page to avoid parsing it again (previous url content is in `$contentBlock`)
             $multiPageUrls = [
@@ -411,8 +411,8 @@ class Graby
 
         $res = new Content(
             effectiveResponse: $response->withEffectiveUri($effectiveUrl),
-            html: $this->config->getErrorMessage(),
-            title: $extractedTitle ?: $this->config->getErrorMessageTitle(),
+            html: $this->config->errorMessage,
+            title: $extractedTitle ?: $this->config->errorMessageTitle,
             language: $extractedLanguage,
             date: $extractedDate,
             authors: $extractedAuthors,
@@ -498,14 +498,14 @@ class Graby
 
     private function isUrlAllowed(string $url): bool
     {
-        if (!empty($this->config->getAllowedUrls())) {
-            foreach ($this->config->getAllowedUrls() as $allowurl) {
+        if (!empty($this->config->allowedUrls)) {
+            foreach ($this->config->allowedUrls as $allowurl) {
                 if (false !== stristr($url, $allowurl)) {
                     return true;
                 }
             }
         } else {
-            foreach ($this->config->getBlockedUrls() as $blockurl) {
+            foreach ($this->config->blockedUrls as $blockurl) {
                 if (false !== stristr($url, $blockurl)) {
                     return false;
                 }
@@ -551,9 +551,9 @@ class Graby
             $info['subtype'] = trim($match[3]);
 
             foreach ([$info['mime'], $info['type']] as $mime) {
-                if (isset($this->config->getContentTypeExc()[$mime])) {
-                    $info['action'] = $this->config->getContentTypeExc()[$mime]['action'];
-                    $info['name'] = $this->config->getContentTypeExc()[$mime]['name'];
+                if (isset($this->config->contentTypeExc[$mime])) {
+                    $info['action'] = $this->config->contentTypeExc[$mime]['action'];
+                    $info['name'] = $this->config->contentTypeExc[$mime]['name'];
 
                     break;
                 }
@@ -975,7 +975,7 @@ class Graby
      */
     private function cleanupXss(string $html): string
     {
-        if (false === $this->config->getXssFilter()) {
+        if (false === $this->config->xssFilter) {
             return $html;
         }
 
