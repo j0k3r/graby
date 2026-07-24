@@ -11,7 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Configuration for ContentExtractor as a Value Object.
  */
-class ContentExtractorConfig
+readonly class ContentExtractorConfig
 {
     use ArrayStringOptionsTrait;
 
