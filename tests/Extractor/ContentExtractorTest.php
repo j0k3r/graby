@@ -1020,6 +1020,18 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         ], $result->authors);
     }
 
+    public function testJsonLdWithNonStringAuthorNames(): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+
+        $result = $contentExtractor->process(
+            '<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","author":{"@type":"Person","name":[null,42,false,{"name":"Invalid nested author"},["Invalid author list"]," John Doe "]}}</script>',
+            new Uri('https://example.com/invalid-authors')
+        );
+
+        $this->assertSame(['John Doe'], $result->authors);
+    }
+
     public function testNoDefinedHtml(): void
     {
         $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
@@ -1174,6 +1186,67 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $authorsUnique = array_unique($authors);
 
         $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
+    }
+
+    /**
+     * @return iterable<array{string, list<string>}>
+     */
+    public function dataForAuthorsMergedAcrossSources(): iterable
+    {
+        return [
+            'duplicate author' => [' John Doe ', ['John Doe']],
+            'distinct authors' => [' Jane Doe ', ['John Doe', 'Jane Doe']],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForAuthorsMergedAcrossSources
+     *
+     * @param list<string> $expectedAuthors
+     */
+    public function testAuthorsAreMergedAcrossSources(string $metaAuthor, array $expectedAuthors): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+
+        $result = $contentExtractor->process(
+            '<html><head><meta name="author" content="' . $metaAuthor . '"></head><body><a rel="author"> John Doe </a></body></html>',
+            new Uri('https://example.com/merged-authors'),
+            new SiteConfig()
+        );
+
+        $this->assertSame($expectedAuthors, $result->authors);
+    }
+
+    public function testBlankAuthorsAreIgnoredAfterTrim(): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+
+        $siteConfig = new SiteConfig();
+        $siteConfig->author = ['//*[(@rel = "author")]'];
+
+        $result = $contentExtractor->process(
+            '<html>from <a rel="author" href="/user"> John Doe </a><a rel="author"></a><a rel="author">   </a><a rel="author">John Doe</a></html>',
+            new Uri('https://example.com/blank-authors'),
+            $siteConfig
+        );
+
+        $this->assertSame(['John Doe'], $result->authors);
+    }
+
+    public function testOnlyBlankAuthorsAreIgnored(): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+
+        $siteConfig = new SiteConfig();
+        $siteConfig->author = ['//*[(@rel = "author")]'];
+
+        $result = $contentExtractor->process(
+            '<html>from <a rel="author" href="/user"></a><a rel="author">   </a></html>',
+            new Uri('https://example.com/empty-author'),
+            $siteConfig
+        );
+
+        $this->assertSame([], $result->authors);
     }
 
     public function testBodyAsDomAttribute(): void
