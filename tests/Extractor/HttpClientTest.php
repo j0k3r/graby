@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\HttpClient;
+use Graby\Extractor\HttpClientConfig;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use Http\Mock\Client as HttpMockClient;
@@ -44,7 +45,7 @@ class HttpClientTest extends TestCase
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, [], 'yay'));
 
-        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, new HttpClientConfig(userAgents: ['.wikipedia.org' => 'Mozilla/5.2']));
         $res = $http->fetch(new Uri($url));
 
         $this->assertSame($urlEffective, (string) $res->getEffectiveUri());
@@ -59,7 +60,7 @@ class HttpClientTest extends TestCase
         $httpMockClient = new HttpMockClient();
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'image/jpg'], 'yay'));
 
-        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, new HttpClientConfig(userAgents: ['.wikipedia.org' => 'Mozilla/5.2']));
         $res = $http->fetch(new Uri($url));
 
         $this->assertCount(1, $httpMockClient->getRequests());
@@ -82,7 +83,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'yay'));
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'text/html'], 'yay'));
 
-        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, new HttpClientConfig(userAgents: ['.wikipedia.org' => 'Mozilla/5.2']));
         $res = $http->fetch(new Uri($url));
 
         $this->assertCount(2, $httpMockClient->getRequests());
@@ -103,7 +104,7 @@ class HttpClientTest extends TestCase
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'fucked'], 'yay'));
         $httpMockClient->addResponse(new Response(200, ['Content-Type' => 'fucked'], 'yay'));
 
-        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, new HttpClientConfig(userAgents: ['.wikipedia.org' => 'Mozilla/5.2']));
         $res = $http->fetch(new Uri($url));
 
         $this->assertCount(2, $httpMockClient->getRequests());
@@ -232,7 +233,7 @@ class HttpClientTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($httpMockClient, ['user_agents' => ['.wikipedia.org' => 'Mozilla/5.2']]);
+        $http = new HttpClient($httpMockClient, new HttpClientConfig(userAgents: ['.wikipedia.org' => 'Mozilla/5.2']));
         $http->setLogger($logger);
 
         $res = $http->fetch(new Uri('http://fr.m.wikipedia.org/wiki/Copyright#bottom'));
@@ -285,7 +286,7 @@ class HttpClientTest extends TestCase
             $this->markTestSkipped('No Guzzle adapter defined ?');
         }
 
-        $http = new HttpClient($adapter, [], $logger);
+        $http = new HttpClient($adapter, new HttpClientConfig(), $logger);
 
         $res = $http->fetch(new Uri('http://blackhole.webpagetest.org/'));
 
@@ -323,7 +324,7 @@ class HttpClientTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($httpMockClient, ['max_redirect' => 3]);
+        $http = new HttpClient($httpMockClient, new HttpClientConfig(maxRedirect: 3));
         $http->setLogger($logger);
 
         $res = $http->fetch(new Uri('http://fr.wikipedia.org/wiki/Copyright'));
@@ -457,12 +458,15 @@ class HttpClientTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($httpMockClient, [
-            'ua_browser' => 'UA/Default',
-            'user_agents' => [
-                'example.com' => 'UA/Config',
-            ],
-        ]);
+        $http = new HttpClient(
+            $httpMockClient,
+            new HttpClientConfig(
+                uaBrowser: 'UA/Default',
+                userAgents: [
+                    'example.com' => 'UA/Config',
+                ],
+            ),
+        );
         $http->setLogger($logger);
 
         $http->fetch(new Uri($url), false, $httpHeader);
@@ -516,9 +520,9 @@ class HttpClientTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $http = new HttpClient($httpMockClient, [
-            'default_referer' => 'http://defaultreferer.local',
-        ]);
+        $http = new HttpClient($httpMockClient, new HttpClientConfig(
+            defaultReferer: 'http://defaultreferer.local',
+        ));
         $http->setLogger($logger);
 
         $http->fetch(new Uri($url), false, $httpHeader);
