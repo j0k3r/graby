@@ -30,7 +30,6 @@ use Psr\Log\NullLogger;
  */
 class HttpClient
 {
-    private readonly HttpClientConfig $config;
     private readonly HttpMethodsClient $client;
     private LoggerInterface $logger;
     private readonly ResponseFactoryInterface $responseFactory;
@@ -40,25 +39,13 @@ class HttpClient
 
     /**
      * @param ClientInterface $client Http client
-     * @param array{
-     *   ua_browser?: string,
-     *   default_referer?: string,
-     *   rewrite_url?: array<array<string, string>>,
-     *   header_only_types?: array<string>,
-     *   header_only_clues?: array<string>,
-     *   user_agents?: array<string, string>,
-     *   ajax_triggers?: array<string>,
-     *   max_redirect?: int,
-     * } $config
      */
     public function __construct(
         ClientInterface $client,
-        array $config = [],
+        private readonly HttpClientConfig $config = new HttpClientConfig(),
         ?LoggerInterface $logger = null,
         private readonly ?ContentExtractor $extractor = null
     ) {
-        $this->config = new HttpClientConfig($config);
-
         if (null === $logger) {
             $logger = new NullLogger();
         }

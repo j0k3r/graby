@@ -263,16 +263,16 @@ $graby = new Graby(new GrabyConfig(
     // * ContentLinks::Footnotes: convert links as footnotes
     // * ContentLinks::Remove: remove all links
     contentLinks: ContentLinks::Preserve,
-    httpClient: [
+    httpClient: new HttpClientConfig(
         // User-Agent used to fetch content
-        'ua_browser' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
+        uaBrowser: 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
         // default referer when fetching content
-        'default_referer' => 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+        defaultReferer: 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
         // Currently allows simple string replace of URLs.
         // Useful for rewriting certain URLs to point to a single page or HTML view.
         // Although using the single_page_link site config instruction is the preferred way to do this, sometimes, as
         // with Google Docs URLs, it's not possible.
-        'rewrite_url' => [
+        rewriteUrl: [
             'docs.google.com' => ['/Doc?' => '/View?'],
             'tnr.com' => ['tnr.com/article/' => 'tnr.com/print/article/'],
             '.m.wikipedia.org' => ['.m.wikipedia.org' => '.wikipedia.org'],
@@ -281,7 +281,7 @@ $graby = new Graby(new GrabyConfig(
         // Prevent certain file/mime types
         // HTTP responses which match these content types will
         // be returned without body.
-        'header_only_types' => [
+        headerOnlyTypes: [
            'image',
            'audio',
            'video',
@@ -289,20 +289,20 @@ $graby = new Graby(new GrabyConfig(
         // URLs ending with one of these extensions will
         // prompt Humble HTTP Agent to send a HEAD request first
         // to see if returned content type matches $headerOnlyTypes.
-        'header_only_clues' => ['mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'],
+        headerOnlyClues: ['mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'],
         // User Agent strings - mapping domain names
-        'user_agents' => [],
+        userAgents: [],
         // AJAX triggers to search for.
         // for AJAX sites, e.g. Blogger with its dynamic views templates.
-        'ajax_triggers' => [
+        ajaxTriggers: [
             "<meta name='fragment' content='!'",
             '<meta name="fragment" content="!"',
             "<meta content='!' name='fragment'",
             '<meta content="!" name="fragment"',
         ],
         // number of redirection allowed until we assume request won't be complete
-        'max_redirect' => 10,
-    ],
+        maxRedirect: 10,
+    ),
     extractor: [
         'default_parser' => 'libxml',
         // key is fingerprint (fragment to find in HTML)

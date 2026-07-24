@@ -7,6 +7,7 @@ namespace Graby;
 use Graby\Config\ContentLinks;
 use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
+use Graby\Extractor\HttpClientConfig;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -38,19 +39,7 @@ readonly class GrabyConfig
             'text/plain' => ['action' => ContentTypeAction::Link, 'name' => 'Plain text'],
         ],
         private ContentLinks $contentLinks = ContentLinks::Preserve,
-        /**
-         * @var array{
-         *   ua_browser?: string,
-         *   default_referer?: string,
-         *   rewrite_url?: array<array<string, string>>,
-         *   header_only_types?: array<string>,
-         *   header_only_clues?: array<string>,
-         *   user_agents?: array<string, string>,
-         *   ajax_triggers?: array<string>,
-         *   max_redirect?: int,
-         * }
-         */
-        private array $httpClient = [],
+        private HttpClientConfig $httpClient = new HttpClientConfig(),
         /**
          * @var array{
          *   default_parser?: string,
@@ -168,19 +157,7 @@ readonly class GrabyConfig
         return $this->contentLinks;
     }
 
-    /**
-     * @return array{
-     *   ua_browser?: string,
-     *   default_referer?: string,
-     *   rewrite_url?: array<array<string, string>>,
-     *   header_only_types?: array<string>,
-     *   header_only_clues?: array<string>,
-     *   user_agents?: array<string, string>,
-     *   ajax_triggers?: array<string>,
-     *   max_redirect?: int,
-     * }
-     */
-    public function getHttpClient(): array
+    public function getHttpClient(): HttpClientConfig
     {
         return $this->httpClient;
     }
