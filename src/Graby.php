@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Graby;
 
+use Graby\Config\ContentLinks;
+use Graby\Config\ContentTypeAction;
+use Graby\Config\LogLevel;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
 use Graby\HttpClient\EffectiveResponse;
@@ -37,7 +40,6 @@ use Smalot\PdfParser\Parser as PdfParser;
 class Graby
 {
     private LoggerInterface $logger;
-    private readonly GrabyConfig $config;
     private readonly HttpClient $httpClient;
     private readonly ContentExtractor $extractor;
     private readonly ConfigBuilder $configBuilder;
@@ -48,59 +50,20 @@ class Graby
 
     private ?string $prefetchedContent = null;
 
-    /**
-     * @param array{
-     *   debug?: bool,
-     *   log_level?: 'info'|'debug',
-     *   rewrite_relative_urls?: bool,
-     *   singlepage?: bool,
-     *   multipage?: bool,
-     *   error_message?: string,
-     *   error_message_title?: string,
-     *   allowed_urls?: string[],
-     *   blocked_urls?: string[],
-     *   xss_filter?: bool,
-     *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
-     *   content_links?: 'preserve'|'footnotes'|'remove',
-     *   http_client?: array{
-     *     ua_browser?: string,
-     *     default_referer?: string,
-     *     rewrite_url?: array<array<string, string>>,
-     *     header_only_types?: array<string>,
-     *     header_only_clues?: array<string>,
-     *     user_agents?: array<string, string>,
-     *     ajax_triggers?: array<string>,
-     *     max_redirect?: int,
-     *   },
-     *   extractor?: array{
-     *     default_parser?: string,
-     *     fingerprints?: array<string, string>,
-     *     config_builder?: array{
-     *       site_config?: string[],
-     *       hostname_regex?: string,
-     *     },
-     *     readability?: array{
-     *       pre_filters?: array<string, string>,
-     *       post_filters?: array<string, string>,
-     *     },
-     *     src_lazy_load_attributes?: string[],
-     *     json_ld_ignore_types?: string[],
-     *   },
-     * } $config
-     */
-    public function __construct(array $config = [], ?ClientInterface $client = null, ?ConfigBuilder $configBuilder = null)
-    {
-        $this->config = new GrabyConfig($config);
-
+    public function __construct(
+        private readonly GrabyConfig $config = new GrabyConfig(),
+        ?ClientInterface $client = null,
+        ?ConfigBuilder $configBuilder = null
+    ) {
         $this->logger = new NullLogger();
 
         // Debug mode can be activated with 'debug' => true
-        // More details on the retrieved code and its consequent modifications can be obtained using 'log_level' = 'debug'
+        // More details on the retrieved code and its consequent modifications can be obtained using 'log_level' = LogLevel::Debug
         if ($this->config->getDebug()) {
             $this->logger = new Logger('graby');
 
             // This statement has to be before Level::Info to catch all DEBUG messages
-            if ('debug' === $this->config->getLogLevel()) {
+            if (LogLevel::Debug === $this->config->getLogLevel()) {
                 $fp = fopen(__DIR__ . '/../log/html.log', 'w');
                 if (false !== $fp) {
                     // Emptying of the HTML logfile to avoid gigantic logs
@@ -223,7 +186,7 @@ class Graby
         }
 
         // footnotes
-        if ('footnotes' === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $readability) {
+        if (ContentLinks::Footnotes === $this->config->getContentLinks() && !str_contains($url->getHost(), 'wikipedia.org') && $readability) {
             $readability->addFootnotes($contentBlock);
         }
 
@@ -265,7 +228,7 @@ class Graby
 
         // post-processing cleanup
         $html = preg_replace('!<p>[\s\h\v]*</p>!u', '', (string) $html);
-        if ('remove' === $this->config->getContentLinks()) {
+        if (ContentLinks::Remove === $this->config->getContentLinks()) {
             $html = preg_replace('!</?a[^>]*>!', '', (string) $html);
         }
 
@@ -447,14 +410,14 @@ class Graby
         }
 
         $res = new Content(
-            /* response: */ $response->withEffectiveUri($effectiveUrl),
-            /* html: */ $this->config->getErrorMessage(),
-            /* title: */ $extractedTitle ?: $this->config->getErrorMessageTitle(),
-            /* language: */ $extractedLanguage,
-            /* date: */ $extractedDate,
-            /* authors: */ $extractedAuthors,
-            /* image: */ (string) $extractedImage,
-            /* isNativeAd: */ $extractedContent->isNativeAd
+            effectiveResponse: $response->withEffectiveUri($effectiveUrl),
+            html: $this->config->getErrorMessage(),
+            title: $extractedTitle ?: $this->config->getErrorMessageTitle(),
+            language: $extractedLanguage,
+            date: $extractedDate,
+            authors: $extractedAuthors,
+            image: (string) $extractedImage,
+            isNativeAd: $extractedContent->isNativeAd
         );
 
         // if we failed to extract content...
@@ -565,9 +528,9 @@ class Graby
      *   mime: string,
      *   type: string,
      *   subtype: string,
-     *   action: 'link'|'exclude',
+     *   action: ContentTypeAction,
      *   name: string,
-     * } E.g. `['mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image']`
+     * } E.g. `['mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>ContentTypeAction::Link, 'name'=>'Image']`
      */
     private function getMimeActionInfo(ResponseInterface $response): array
     {
@@ -614,7 +577,7 @@ class Graby
      *   mime: string,
      *   type: string,
      *   subtype: string,
-     *   action: 'link'|'exclude',
+     *   action: ContentTypeAction,
      *   name: string,
      * } $mimeInfo From getMimeActionInfo() function
      */
@@ -629,17 +592,17 @@ class Graby
 
         $infos = new Content(
             // at this point status will always be considered as 200
-            /* response: */ $response,
-            /* html: */ '',
-            /* title: */ $mimeInfo['name'],
-            /* language: */ '',
-            /* date: */ null,
-            /* authors: */ [],
-            /* image: */ '',
-            /* isNativeAd: */ false
+            effectiveResponse: $response,
+            html: '',
+            title: $mimeInfo['name'],
+            language: '',
+            date: null,
+            authors: [],
+            image: '',
+            isNativeAd: false
         );
 
-        if ('exclude' === $mimeInfo['action']) {
+        if (ContentTypeAction::Exclude === $mimeInfo['action']) {
             throw new \Exception(\sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
         }
 
