@@ -78,7 +78,7 @@ class Graby
 
         if (null === $configBuilder) {
             $configBuilder = new ConfigBuilder(
-                $this->config->extractor->getConfigBuilder(),
+                $this->config->extractor->configBuilder,
                 $this->logger
             );
         }

@@ -16,13 +16,13 @@ readonly class ContentExtractorConfig
     use ArrayStringOptionsTrait;
 
     public function __construct(
-        private Parser $defaultParser = Parser::Libxml,
+        public Parser $defaultParser = Parser::Libxml,
         /**
          * @var array<string, string> key is fingerprint (fragment to find in HTML)
          *                            value is host name to use for site config lookup if fingerprint matches
          *                            \s* match anything INCLUDING new lines
          */
-        private array $fingerprints = [
+        public array $fingerprints = [
             '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
@@ -36,10 +36,10 @@ readonly class ContentExtractorConfig
          *   hostname_regex?: string,
          * }
          */
-        private array $configBuilder = [],
-        private ReadabilityConfig $readability = new ReadabilityConfig(),
+        public array $configBuilder = [],
+        public ReadabilityConfig $readability = new ReadabilityConfig(),
         /** @var array<string> */
-        private array $srcLazyLoadAttributes = [
+        public array $srcLazyLoadAttributes = [
             'data-src',
             'data-lazy-src',
             'data-original',
@@ -48,7 +48,7 @@ readonly class ContentExtractorConfig
             'data-srcset',
         ],
         /** @var array<string> */
-        private array $jsonLdIgnoreTypes = ['Organization', 'WebSite', 'Person', 'VideoGame'],
+        public array $jsonLdIgnoreTypes = ['Organization', 'WebSite', 'Person', 'VideoGame'],
     ) {
         $resolver = new OptionsResolver();
         $resolver->setDefined([
@@ -75,50 +75,5 @@ readonly class ContentExtractorConfig
             'srcLazyLoadAttributes' => $srcLazyLoadAttributes,
             'jsonLdIgnoreTypes' => $jsonLdIgnoreTypes,
         ]);
-    }
-
-    public function getDefaultParser(): Parser
-    {
-        return $this->defaultParser;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getFingerprints(): array
-    {
-        return $this->fingerprints;
-    }
-
-    /**
-     * @return array{
-     *   site_config?: string[],
-     *   hostname_regex?: string,
-     * }
-     */
-    public function getConfigBuilder(): array
-    {
-        return $this->configBuilder;
-    }
-
-    public function getReadability(): ReadabilityConfig
-    {
-        return $this->readability;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getSrcLazyLoadAttributes(): array
-    {
-        return $this->srcLazyLoadAttributes;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getJsonLdIgnoreTypes(): array
-    {
-        return $this->jsonLdIgnoreTypes;
     }
 }
