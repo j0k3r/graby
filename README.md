@@ -247,15 +247,15 @@ $graby = new Graby([
     // Here you can define different actions based on the Content-Type header returned by server.
     // MIME type as key, action as value.
     // Valid actions:
-    // * 'exclude' - exclude this item from the result
-    // * 'link' - create HTML link to the item
+    // * ContentTypeAction::Exclude - exclude this item from the result
+    // * ContentTypeAction::Link - create HTML link to the item
     'content_type_exc' => [
-       'application/zip' => ['action' => 'link', 'name' => 'ZIP'],
-       'application/pdf' => ['action' => 'link', 'name' => 'PDF'],
-       'image' => ['action' => 'link', 'name' => 'Image'],
-       'audio' => ['action' => 'link', 'name' => 'Audio'],
-       'video' => ['action' => 'link', 'name' => 'Video'],
-       'text/plain' => ['action' => 'link', 'name' => 'Plain text'],
+       'application/zip' => ['action' => ContentTypeAction::Link, 'name' => 'ZIP'],
+       'application/pdf' => ['action' => ContentTypeAction::Link, 'name' => 'PDF'],
+       'image' => ['action' => ContentTypeAction::Link, 'name' => 'Image'],
+       'audio' => ['action' => ContentTypeAction::Link, 'name' => 'Audio'],
+       'video' => ['action' => ContentTypeAction::Link, 'name' => 'Video'],
+       'text/plain' => ['action' => ContentTypeAction::Link, 'name' => 'Plain text'],
     ],
     // How we handle link in content
     // Valid values :

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Graby;
 
 use Graby\Config\ContentLinks;
+use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\HttpClient;
@@ -62,7 +63,7 @@ class Graby
      *   allowed_urls?: string[],
      *   blocked_urls?: string[],
      *   xss_filter?: bool,
-     *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
+     *   content_type_exc?: array<string, array{name: string, action: ContentTypeAction}>,
      *   content_links?: ContentLinks,
      *   http_client?: array{
      *     ua_browser?: string,
@@ -567,9 +568,9 @@ class Graby
      *   mime: string,
      *   type: string,
      *   subtype: string,
-     *   action: 'link'|'exclude',
+     *   action: ContentTypeAction,
      *   name: string,
-     * } E.g. `['mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>'link', 'name'=>'Image']`
+     * } E.g. `['mime'=>'image/jpeg', 'type'=>'image', 'subtype'=>'jpeg', 'action'=>ContentTypeAction::Link, 'name'=>'Image']`
      */
     private function getMimeActionInfo(ResponseInterface $response): array
     {
@@ -616,7 +617,7 @@ class Graby
      *   mime: string,
      *   type: string,
      *   subtype: string,
-     *   action: 'link'|'exclude',
+     *   action: ContentTypeAction,
      *   name: string,
      * } $mimeInfo From getMimeActionInfo() function
      */
@@ -641,7 +642,7 @@ class Graby
             /* isNativeAd: */ false
         );
 
-        if ('exclude' === $mimeInfo['action']) {
+        if (ContentTypeAction::Exclude === $mimeInfo['action']) {
             throw new \Exception(\sprintf('This is url "%s" is blocked by mime action.', $effectiveUrl));
         }
 
