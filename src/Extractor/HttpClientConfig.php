@@ -17,10 +17,10 @@ readonly class HttpClientConfig
     use ArrayStringOptionsTrait;
 
     public function __construct(
-        private string $uaBrowser = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
-        private string $defaultReferer = 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
+        public string $uaBrowser = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.92 Safari/535.2',
+        public string $defaultReferer = 'http://www.google.co.uk/url?sa=t&source=web&cd=1',
         /** @var array<array<string, string>> */
-        private array $rewriteUrl = [
+        public array $rewriteUrl = [
             'docs.google.com' => ['/Doc?' => '/View?'],
             'tnr.com' => ['tnr.com/article/' => 'tnr.com/print/article/'],
             '.m.wikipedia.org' => ['.m.wikipedia.org' => '.wikipedia.org'],
@@ -31,7 +31,7 @@ readonly class HttpClientConfig
          *                    HTTP responses which match these content types will
          *                    be returned without body
          */
-        private array $headerOnlyTypes = [
+        public array $headerOnlyTypes = [
             'image',
             'audio',
             'video',
@@ -41,21 +41,21 @@ readonly class HttpClientConfig
          *                    prompt client to send a HEAD request first
          *                    to see if returned content type matches $headerOnlyTypes
          */
-        private array $headerOnlyClues = ['mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'],
+        public array $headerOnlyClues = ['mp3', 'zip', 'exe', 'gif', 'gzip', 'gz', 'jpeg', 'jpg', 'mpg', 'mpeg', 'png', 'ppt', 'mov'],
         /** @var array<string, string> Mapping from hostnames to user agent strings */
-        private array $userAgents = [],
+        public array $userAgents = [],
         /**
          * @var array<string> AJAX triggers to search for.
          *                    for AJAX sites, e.g. Blogger with its dynamic views templates.
          */
-        private array $ajaxTriggers = [
+        public array $ajaxTriggers = [
             "<meta name='fragment' content='!'",
             '<meta name="fragment" content="!"',
             "<meta content='!' name='fragment'",
             '<meta content="!" name="fragment"',
         ],
         /** @var int number of redirection allowed until we assume request won't be complete */
-        private int $maxRedirect = 10,
+        public int $maxRedirect = 10,
     ) {
         $resolver = new OptionsResolver();
         $resolver->setDefined([
@@ -94,60 +94,5 @@ readonly class HttpClientConfig
             'userAgents' => $userAgents,
             'ajaxTriggers' => $ajaxTriggers,
         ]);
-    }
-
-    public function getUaBrowser(): string
-    {
-        return $this->uaBrowser;
-    }
-
-    public function getDefaultReferer(): string
-    {
-        return $this->defaultReferer;
-    }
-
-    /**
-     * @return array<array<string, string>>
-     */
-    public function getRewriteUrl(): array
-    {
-        return $this->rewriteUrl;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getHeaderOnlyTypes(): array
-    {
-        return $this->headerOnlyTypes;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getHeaderOnlyClues(): array
-    {
-        return $this->headerOnlyClues;
-    }
-
-    /**
-     * @return array<string, string> Mapping from hostnames to user agent strings
-     */
-    public function getUserAgents(): array
-    {
-        return $this->userAgents;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getAjaxTriggers(): array
-    {
-        return $this->ajaxTriggers;
-    }
-
-    public function getMaxRedirect(): int
-    {
-        return $this->maxRedirect;
     }
 }
