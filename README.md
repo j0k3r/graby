@@ -304,7 +304,7 @@ $graby = new Graby(new GrabyConfig(
         maxRedirect: 10,
     ),
     extractor: [
-        'default_parser' => 'libxml',
+        'default_parser' => \Graby\Extractor\Parser::Libxml,
         // key is fingerprint (fragment to find in HTML)
         // value is host name to use for site config lookup if fingerprint matches
         // \s* match anything INCLUDING new lines

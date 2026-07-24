@@ -15,9 +15,7 @@ class ContentExtractorConfig
 {
     use ArrayStringOptionsTrait;
 
-    private const ALLOWED_PARSERS = ['libxml', 'html5lib'];
-
-    private string $default_parser;
+    private Parser $default_parser;
     /** @var array<string, string> */
     private array $fingerprints;
 
@@ -44,7 +42,7 @@ class ContentExtractorConfig
 
     /**
      * @param array{
-     *   default_parser?: string,
+     *   default_parser?: Parser,
      *   fingerprints?: array<string, string>,
      *   config_builder?: array{
      *     site_config?: string[],
@@ -62,7 +60,7 @@ class ContentExtractorConfig
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
-            'default_parser' => 'libxml',
+            'default_parser' => Parser::Libxml,
             // key is fingerprint (fragment to find in HTML)
             // value is host name to use for site config lookup if fingerprint matches
             // \s* match anything INCLUDING new lines
@@ -90,9 +88,8 @@ class ContentExtractorConfig
             'json_ld_ignore_types' => ['Organization', 'WebSite', 'Person', 'VideoGame'],
         ]);
 
-        $resolver->setAllowedValues('default_parser', self::ALLOWED_PARSERS);
 
-        $resolver->setAllowedTypes('default_parser', 'string');
+        $resolver->setAllowedTypes('default_parser', Parser::class);
         $resolver->setAllowedTypes('fingerprints', 'array');
         $resolver->setAllowedTypes('config_builder', 'array');
         $resolver->setAllowedTypes('readability', 'array');
@@ -127,17 +124,9 @@ class ContentExtractorConfig
         }
     }
 
-    public function getDefaultParser(): string
+    public function getDefaultParser(): Parser
     {
         return $this->default_parser;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getAllowedParsers(): array
-    {
-        return self::ALLOWED_PARSERS;
     }
 
     /**

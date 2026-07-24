@@ -8,6 +8,7 @@ use Graby\Config\ContentLinks;
 use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
 use Graby\Extractor\HttpClientConfig;
+use Graby\Extractor\Parser;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -42,7 +43,7 @@ readonly class GrabyConfig
         public HttpClientConfig $httpClient = new HttpClientConfig(),
         /**
          * @var array{
-         *   default_parser?: string,
+         *   default_parser?: Parser,
          *   fingerprints?: array<string, string>,
          *   config_builder?: array{
          *     site_config?: string[],

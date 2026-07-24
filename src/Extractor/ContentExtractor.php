@@ -24,7 +24,7 @@ class ContentExtractor
 
     /**
      * @param array{
-     *   default_parser?: string,
+     *   default_parser?: Parser,
      *   fingerprints?: array<string, string>,
      *   config_builder?: array{
      *     site_config?: string[],
@@ -130,14 +130,13 @@ class ContentExtractor
         $html = $this->processStringReplacements($html, $url, $siteConfig);
 
         // load and parse html
-        $parser = $siteConfig->parser();
-
-        if (!\in_array($parser, $this->config->getAllowedParsers(), true)) {
-            $this->logger->info('HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $parser, 'default_parser' => $this->config->getDefaultParser()]);
+        $parser = Parser::tryFrom($siteConfig->parser());
+        if (null === $parser) {
+            $this->logger->info('HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $siteConfig->parser(), 'default_parser' => $this->config->getDefaultParser()]);
             $parser = $this->config->getDefaultParser();
         }
 
-        $this->logger->info('Attempting to parse HTML with {parser}', ['parser' => $parser]);
+        $this->logger->info('Attempting to parse HTML with {parser}', ['parser' => $parser->value]);
 
         $readability = $this->getReadability($html, $url, $parser, $siteConfig->tidy() && $smartTidy);
         $tidied = $readability->tidied;
@@ -1128,12 +1127,12 @@ class ContentExtractor
      * Return an instance of Readability with pre & post filters added.
      *
      * @param string $html       HTML to make readable from Readability lib
-     * @param string $parser     Parser to use
+     * @param Parser $parser     Parser to use
      * @param bool   $enableTidy Should it use tidy extension?
      */
-    private function getReadability(string $html, UriInterface $url, string $parser, bool $enableTidy): Readability
+    private function getReadability(string $html, UriInterface $url, Parser $parser, bool $enableTidy): Readability
     {
-        $readability = new Readability($html, (string) $url, $parser, $enableTidy);
+        $readability = new Readability($html, (string) $url, $parser->value, $enableTidy);
 
         foreach ($this->config->getReadability()['pre_filters'] as $filter => $replacer) {
             $readability->addPreFilter($filter, $replacer);
