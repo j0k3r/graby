@@ -119,7 +119,7 @@ final class MockGrabyResponseRector extends AbstractRector
             }
         }
 
-        if (\count($new->args) > 1) {
+        if (null !== $new->getArg('client', 1)) {
             // The Graby instance is already passed a MockHttpClient.
             return null;
         }
@@ -163,8 +163,8 @@ final class MockGrabyResponseRector extends AbstractRector
             new Expression(new Assign($httpMockClientVariable, new New_(new Name('HttpMockClient')))),
         ];
 
-        $configArg = isset($new->args[0]) ? $new->args[0]:(isset($new->args['config']) ? $new->args['config'] : null);
-        $config = !$configArg instanceof Arg ? [] : $this->valueResolver->getValue($configArg->value);
+        $configArg = $new->getArg('config', 0);
+        $config = null === $configArg ? [] : $this->valueResolver->getValue($configArg->value);
         if (null === $config) {
             // Paste the config here if this failed.
             $config = [];
@@ -201,7 +201,10 @@ final class MockGrabyResponseRector extends AbstractRector
         }
 
         // Add the mocked client to Graby constructor.
-        $new->args[] = new Arg($httpMockClientVariable);
+        $new->args[] = new Arg(
+            $httpMockClientVariable,
+            name: (null === $configArg || null !== $configArg->name) ? new Identifier('client') : null,
+        );
 
         $index = array_search($assignStmt, $stmts, true);
         \assert(false !== $index, 'Assignment statement not direct child of the method');
