@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Graby;
 
 use Graby\Config\ContentLinks;
+use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -26,7 +27,7 @@ class GrabyConfig
     /** @var array<string> */
     private readonly array $blocked_urls;
     private readonly bool $xss_filter;
-    /** @var array<string, array{name: string, action: 'link'|'exclude'}> */
+    /** @var array<string, array{name: string, action: ContentTypeAction}> */
     private readonly array $content_type_exc;
     private readonly ContentLinks $content_links;
 
@@ -74,7 +75,7 @@ class GrabyConfig
      *   allowed_urls?: string[],
      *   blocked_urls?: string[],
      *   xss_filter?: bool,
-     *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
+     *   content_type_exc?: array<string, array{name: string, action: ContentTypeAction}>,
      *   content_links?: ContentLinks,
      *   http_client?: array{
      *     ua_browser?: string,
@@ -117,12 +118,12 @@ class GrabyConfig
             'blocked_urls' => [],
             'xss_filter' => true,
             'content_type_exc' => [
-                'application/zip' => ['action' => 'link', 'name' => 'ZIP'],
-                'application/pdf' => ['action' => 'link', 'name' => 'PDF'],
-                'image' => ['action' => 'link', 'name' => 'Image'],
-                'audio' => ['action' => 'link', 'name' => 'Audio'],
-                'video' => ['action' => 'link', 'name' => 'Video'],
-                'text/plain' => ['action' => 'link', 'name' => 'Plain text'],
+                'application/zip' => ['action' => ContentTypeAction::Link, 'name' => 'ZIP'],
+                'application/pdf' => ['action' => ContentTypeAction::Link, 'name' => 'PDF'],
+                'image' => ['action' => ContentTypeAction::Link, 'name' => 'Image'],
+                'audio' => ['action' => ContentTypeAction::Link, 'name' => 'Audio'],
+                'video' => ['action' => ContentTypeAction::Link, 'name' => 'Video'],
+                'text/plain' => ['action' => ContentTypeAction::Link, 'name' => 'Plain text'],
             ],
             'content_links' => ContentLinks::Preserve,
             'http_client' => [],
@@ -145,7 +146,7 @@ class GrabyConfig
         $resolver->setNormalizer('content_type_exc', static function (Options $options, $value) {
             $resolver = new OptionsResolver();
             $resolver->setRequired(['action', 'name']);
-            $resolver->setAllowedValues('action', ['link', 'exclude']);
+            $resolver->setAllowedTypes('action', ContentTypeAction::class);
 
             foreach ($value as $mime => $info) {
                 $resolver->resolve($info);
@@ -218,7 +219,7 @@ class GrabyConfig
     }
 
     /**
-     * @return array<string, array{name: string, action: 'link'|'exclude'}>
+     * @return array<string, array{name: string, action: ContentTypeAction}>
      */
     public function getContentTypeExc(): array
     {

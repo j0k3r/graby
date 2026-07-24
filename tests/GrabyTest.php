@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Graby;
 
 use Graby\Config\ContentLinks;
+use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
 use Graby\Graby;
 use GuzzleHttp\Psr7\Response;
@@ -231,7 +232,7 @@ class GrabyTest extends TestCase
 
         $graby = new Graby([
             'content_type_exc' => [
-                'application/x-msdownload' => ['action' => 'exclude', 'name' => 'we do not want virus'],
+                'application/x-msdownload' => ['action' => ContentTypeAction::Exclude, 'name' => 'we do not want virus'],
             ],
         ], $httpMockClient);
 
@@ -1409,7 +1410,7 @@ class GrabyTest extends TestCase
      *   allowed_urls?: string[],
      *   blocked_urls?: string[],
      *   xss_filter?: bool,
-     *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
+     *   content_type_exc?: array<string, array{name: string, action: ContentTypeAction}>,
      *   content_links?: ContentLinks,
      *   http_client?: array{
      *     ua_browser?: string,
