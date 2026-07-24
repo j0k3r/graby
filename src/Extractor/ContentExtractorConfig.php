@@ -15,72 +15,53 @@ class ContentExtractorConfig
 {
     use ArrayStringOptionsTrait;
 
-    private Parser $default_parser;
-    /** @var array<string, string> */
-    private array $fingerprints;
-
-    /**
-     * @var array{
-     *   site_config?: string[],
-     *   hostname_regex?: string,
-     * }
-     */
-    private array $config_builder;
-
-    private ReadabilityConfig $readability;
-
-    /** @var array<string> */
-    private array $src_lazy_load_attributes;
-    /** @var array<string> */
-    private array $json_ld_ignore_types;
-
-    /**
-     * @param array{
-     *   default_parser?: Parser,
-     *   fingerprints?: array<string, string>,
-     *   config_builder?: array{
-     *     site_config?: string[],
-     *     hostname_regex?: string,
-     *   },
-     *   readability?: ReadabilityConfig,
-     *   src_lazy_load_attributes?: string[],
-     *   json_ld_ignore_types?: string[],
-     * } $config
-     */
-    public function __construct(array $config)
-    {
+    public function __construct(
+        private Parser $defaultParser = Parser::Libxml,
+        /**
+         * @var array<string, string> key is fingerprint (fragment to find in HTML)
+         *                            value is host name to use for site config lookup if fingerprint matches
+         *                            \s* match anything INCLUDING new lines
+         */
+        private array $fingerprints = [
+            '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
+            '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
+            '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
+            '/\<meta\s*data-rh=([\'"])true([\'"])\s*property=([\'"])al:ios:app_name([\'"])\s*content=([\'"])Medium([\'"])/i' => 'fingerprint.medium.com',
+            '/\<script\>.*\{([\'"])de\.ippen-digital\.story\.onlineId([\'"])/i' => 'fingerprint.ippen.media',
+            '/\<link\s*rel=([\'"])stylesheet([\'"])\s*type=([\'"])text\/css([\'"])\s*href=([\'"])https:\/\/substackcdn\.com\//' => 'fingerprint.substack.com',
+        ],
+        /**
+         * @var array{
+         *   site_config?: string[],
+         *   hostname_regex?: string,
+         * }
+         */
+        private array $configBuilder = [],
+        private ReadabilityConfig $readability = new ReadabilityConfig(),
+        /** @var array<string> */
+        private array $srcLazyLoadAttributes = [
+            'data-src',
+            'data-lazy-src',
+            'data-original',
+            'data-sources',
+            'data-hi-res-src',
+            'data-srcset',
+        ],
+        /** @var array<string> */
+        private array $jsonLdIgnoreTypes = ['Organization', 'WebSite', 'Person', 'VideoGame'],
+    ) {
         $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            'default_parser' => Parser::Libxml,
-            // key is fingerprint (fragment to find in HTML)
-            // value is host name to use for site config lookup if fingerprint matches
-            // \s* match anything INCLUDING new lines
-            'fingerprints' => [
-                '/\<meta\s*content=([\'"])blogger([\'"])\s*name=([\'"])generator([\'"])/i' => 'fingerprint.blogspot.com',
-                '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
-                '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
-                '/\<meta\s*data-rh=([\'"])true([\'"])\s*property=([\'"])al:ios:app_name([\'"])\s*content=([\'"])Medium([\'"])/i' => 'fingerprint.medium.com',
-                '/\<script\>.*\{([\'"])de\.ippen-digital\.story\.onlineId([\'"])/i' => 'fingerprint.ippen.media',
-                '/\<link\s*rel=([\'"])stylesheet([\'"])\s*type=([\'"])text\/css([\'"])\s*href=([\'"])https:\/\/substackcdn\.com\//' => 'fingerprint.substack.com',
-            ],
-            'config_builder' => [],
-            'readability' => new ReadabilityConfig(),
-            'src_lazy_load_attributes' => [
-                'data-src',
-                'data-lazy-src',
-                'data-original',
-                'data-sources',
-                'data-hi-res-src',
-                'data-srcset',
-            ],
-            'json_ld_ignore_types' => ['Organization', 'WebSite', 'Person', 'VideoGame'],
+        $resolver->setDefined([
+            'fingerprints',
+            'configBuilder',
+            'srcLazyLoadAttributes',
+            'jsonLdIgnoreTypes',
         ]);
 
-        $resolver->setAllowedTypes('default_parser', Parser::class);
         $resolver->setAllowedTypes('fingerprints', 'array');
-        $resolver->setAllowedTypes('config_builder', 'array');
-        $resolver->setAllowedTypes('src_lazy_load_attributes', 'string[]');
-        $resolver->setAllowedTypes('json_ld_ignore_types', 'string[]');
+        $resolver->setAllowedTypes('configBuilder', 'array');
+        $resolver->setAllowedTypes('srcLazyLoadAttributes', 'string[]');
+        $resolver->setAllowedTypes('jsonLdIgnoreTypes', 'string[]');
 
         $resolver->setNormalizer('fingerprints', function (Options $options, $value) {
             $this->validateArray($value, 'fingerprints');
@@ -88,16 +69,17 @@ class ContentExtractorConfig
             return $value;
         });
 
-        $config = $resolver->resolve($config);
-
-        foreach ($config as $key => $value) {
-            $this->$key = $value;
-        }
+        $config = $resolver->resolve([
+            'fingerprints' => $fingerprints,
+            'configBuilder' => $configBuilder,
+            'srcLazyLoadAttributes' => $srcLazyLoadAttributes,
+            'jsonLdIgnoreTypes' => $jsonLdIgnoreTypes,
+        ]);
     }
 
     public function getDefaultParser(): Parser
     {
-        return $this->default_parser;
+        return $this->defaultParser;
     }
 
     /**
@@ -116,7 +98,7 @@ class ContentExtractorConfig
      */
     public function getConfigBuilder(): array
     {
-        return $this->config_builder;
+        return $this->configBuilder;
     }
 
     public function getReadability(): ReadabilityConfig
@@ -129,12 +111,12 @@ class ContentExtractorConfig
      */
     public function getSrcLazyLoadAttributes(): array
     {
-        return $this->src_lazy_load_attributes;
+        return $this->srcLazyLoadAttributes;
     }
 
     public function addSrcLazyLoadAttributes(string $attribute): void
     {
-        $this->src_lazy_load_attributes[] = $attribute;
+        $this->srcLazyLoadAttributes[] = $attribute;
     }
 
     /**
@@ -142,6 +124,6 @@ class ContentExtractorConfig
      */
     public function getJsonLdIgnoreTypes(): array
     {
-        return $this->json_ld_ignore_types;
+        return $this->jsonLdIgnoreTypes;
     }
 }

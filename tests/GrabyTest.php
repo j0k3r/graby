@@ -6,6 +6,7 @@ namespace Tests\Graby;
 
 use Graby\Config\ContentLinks;
 use Graby\Config\ContentTypeAction;
+use Graby\Extractor\ContentExtractorConfig;
 use Graby\Graby;
 use Graby\GrabyConfig;
 use GuzzleHttp\Psr7\Response;
@@ -71,13 +72,13 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 xssFilter: false,
-                extractor: [
-                    'config_builder' => [
+                extractor: new ContentExtractorConfig(
+                    configBuilder: [
                         'site_config' => [
                             __DIR__ . '/fixtures/site_config',
                         ],
                     ],
-                ],
+                ),
             ),
             $httpMockClient,
         );
@@ -438,9 +439,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -481,9 +482,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 xssFilter: false,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -523,9 +524,9 @@ class GrabyTest extends TestCase
             new GrabyConfig(
                 debug: true,
                 xssFilter: false,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -559,9 +560,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -601,9 +602,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -643,9 +644,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -690,9 +691,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -732,9 +733,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: ['config_builder' => [
+                extractor: new ContentExtractorConfig(configBuilder: [
                     'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]],
+                ]),
             ),
             $httpMockClient,
         );
@@ -1327,11 +1328,11 @@ class GrabyTest extends TestCase
             '/fixtures/content/' . $file,
             200,
             new GrabyConfig(
-                extractor: [
-                    'config_builder' => [
+                extractor: new ContentExtractorConfig(
+                    configBuilder: [
                         'site_config' => [__DIR__ . '/fixtures/site_config'],
                     ],
-                ],
+                ),
             ),
         );
         $res = $graby->fetchContent($url);
@@ -1349,11 +1350,11 @@ class GrabyTest extends TestCase
             '/fixtures/content/timothysykes-keepol.html',
             200,
             new GrabyConfig(
-                extractor: [
-                    'config_builder' => [
+                extractor: new ContentExtractorConfig(
+                    configBuilder: [
                         'site_config' => [__DIR__ . '/fixtures/site_config'],
                     ],
-                ],
+                ),
             ),
         );
         $res = $graby->fetchContent('https://www.timothysykes.com/blog/10-things-know-short-selling/');
@@ -1372,11 +1373,11 @@ class GrabyTest extends TestCase
             200,
             new GrabyConfig(
                 debug: true,
-                extractor: [
-                    'config_builder' => [
+                extractor: new ContentExtractorConfig(
+                    configBuilder: [
                         'site_config' => [__DIR__ . '/fixtures/site_config'],
                     ],
-                ],
+                ),
             ),
         );
         $res = $graby->fetchContent('https://www.rollingstone.com/?redirurl=/politics/news/greed-and-debt-the-true-story-of-mitt-romney-and-bain-capital-20120829');
