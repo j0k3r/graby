@@ -114,11 +114,6 @@ class ContentExtractorConfig
         return $this->srcLazyLoadAttributes;
     }
 
-    public function addSrcLazyLoadAttributes(string $attribute): void
-    {
-        $this->srcLazyLoadAttributes[] = $attribute;
-    }
-
     /**
      * @return array<string>
      */
