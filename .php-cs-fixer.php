@@ -16,8 +16,6 @@ return (new PhpCsFixer\Config())
         'method_argument_space' => false,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_unsets' => true,
-        // Enabled by @Symfony:risky but requires PHP 8.
-        'get_class_to_class_keyword' => false,
         'heredoc_to_nowdoc' => true,
         'no_extra_blank_lines' => ['tokens' => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block']],
         'no_unreachable_default_argument_value' => true,
