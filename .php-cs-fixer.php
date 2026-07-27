@@ -25,8 +25,7 @@ return (new PhpCsFixer\Config())
         'ordered_imports' => true,
         'php_unit_strict' => true,
         'phpdoc_order' => true,
-        // This breaks `Monolog\Formatter\GrabyFormatter::convertToString()`.
-        // 'phpdoc_to_param_type' => ['union_types' => false],
+        'phpdoc_to_param_type' => ['union_types' => false],
         'phpdoc_to_return_type' => ['union_types' => false],
         'phpdoc_to_property_type' => ['union_types' => false],
         // 'psr4' => true,
