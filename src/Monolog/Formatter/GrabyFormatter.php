@@ -44,9 +44,6 @@ class GrabyFormatter extends HtmlFormatter
         return $output . '</table>';
     }
 
-    /**
-     * @param mixed $data
-     */
     protected function convertToString($data): string
     {
         if (\is_bool($data)) {
