@@ -108,6 +108,7 @@ class ContentExtractor
         $nextPageUrl = null;
 
         $siteConfig = $this->prepareSiteConfig($html, $url, $siteConfig);
+        $srcLazyLoadAttributes = $this->getSrcLazyLoadAttributes($siteConfig->src_lazy_load_attr);
 
         $html = $this->processStringReplacements($html, $url, $siteConfig);
 
@@ -586,7 +587,7 @@ class ContentExtractor
             // remove image lazy loading
             foreach ($body->getElementsByTagName('img') as $e) {
                 $hasAttribute = false;
-                foreach ($this->config->getSrcLazyLoadAttributes() as $attribute) {
+                foreach ($srcLazyLoadAttributes as $attribute) {
                     if ($e->hasAttribute($attribute)) {
                         $hasAttribute = true;
                     }
@@ -611,7 +612,7 @@ class ContentExtractor
                 }
 
                 $attributes = [];
-                foreach ($this->config->getSrcLazyLoadAttributes() as $attribute) {
+                foreach ($srcLazyLoadAttributes as $attribute) {
                     if ($e->hasAttribute($attribute)) {
                         $key = 'src';
                         if ('data-srcset' === $attribute) {
@@ -739,14 +740,23 @@ class ContentExtractor
             $siteConfig = $this->buildSiteConfig($url, $html);
         }
 
-        // add lazyload information from siteconfig
-        if ($siteConfig->src_lazy_load_attr && !\in_array($siteConfig->src_lazy_load_attr, $this->config->getSrcLazyLoadAttributes(), true)) {
-            $this->config->addSrcLazyLoadAttributes($siteConfig->src_lazy_load_attr);
-        }
-
         $this->logger->debug('Actual site config', ['siteConfig' => $siteConfig]);
 
         return $siteConfig;
+    }
+
+    /**
+     * Returns the list of src attributes for lazy-loading extended with `$siteAttribute`, when not null.
+     *
+     * @return string[]
+     */
+    private function getSrcLazyLoadAttributes(?string $siteAttribute): array
+    {
+        if (null === $siteAttribute || \in_array($siteAttribute, $this->config->getSrcLazyLoadAttributes(), true)) {
+            return $this->config->getSrcLazyLoadAttributes();
+        }
+
+        return array_merge($this->config->getSrcLazyLoadAttributes(), [$siteAttribute]);
     }
 
     /**
