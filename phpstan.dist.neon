@@ -1,6 +1,3 @@
-includes:
-    - maintenance/phpstan-ignore-by-php-version.php
-
 parameters:
     level: 7
     paths:
