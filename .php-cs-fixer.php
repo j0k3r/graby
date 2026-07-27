@@ -21,8 +21,6 @@ return (new PhpCsFixer\Config())
         'no_unreachable_default_argument_value' => true,
         'no_useless_else' => true,
         'no_useless_return' => true,
-        // Enabled by Symfony and changes properties without type hints but we cannot use those yet because they require PHP 8.
-        'no_null_property_initialization' => false,
         'ordered_class_elements' => true,
         'ordered_imports' => true,
         'php_unit_strict' => true,
