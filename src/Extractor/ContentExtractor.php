@@ -19,32 +19,14 @@ use Readability\Readability;
  */
 class ContentExtractor
 {
-    private readonly ContentExtractorConfig $config;
     private readonly ConfigBuilder $configBuilder;
 
-    /**
-     * @param array{
-     *   default_parser?: string,
-     *   fingerprints?: array<string, string>,
-     *   config_builder?: array{
-     *     site_config?: string[],
-     *     hostname_regex?: string,
-     *   },
-     *   readability?: array{
-     *     pre_filters?: array<string, string>,
-     *     post_filters?: array<string, string>,
-     *   },
-     *   src_lazy_load_attributes?: string[],
-     *   json_ld_ignore_types?: string[],
-     * } $config
-     */
     public function __construct(
-        array $config = [],
+        private readonly ContentExtractorConfig $config = new ContentExtractorConfig(),
         private ?LoggerInterface $logger = new NullLogger(),
         ?ConfigBuilder $configBuilder = null
     ) {
-        $this->config = new ContentExtractorConfig($config);
-        $this->configBuilder = $configBuilder ?? new ConfigBuilder($this->config->getConfigBuilder(), $this->logger);
+        $this->configBuilder = $configBuilder ?? new ConfigBuilder($this->config->configBuilder, $this->logger);
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -59,7 +41,7 @@ class ContentExtractor
      */
     public function findHostUsingFingerprints(string $html): ?string
     {
-        foreach ($this->config->getFingerprints() as $metaPattern => $host) {
+        foreach ($this->config->fingerprints as $metaPattern => $host) {
             if (1 === preg_match($metaPattern, $html)) {
                 return $host;
             }
@@ -88,7 +70,7 @@ class ContentExtractor
 
         $configFingerprint = $this->configBuilder->buildForHost($fingerprintHost);
 
-        if (!empty($this->config->getFingerprints())) {
+        if (!empty($this->config->fingerprints)) {
             $this->logger->info('Appending site config settings from {host} (fingerprint match)', ['host' => $fingerprintHost]);
             $this->configBuilder->mergeConfig($config, $configFingerprint);
 
@@ -126,18 +108,18 @@ class ContentExtractor
         $nextPageUrl = null;
 
         $siteConfig = $this->prepareSiteConfig($html, $url, $siteConfig);
+        $srcLazyLoadAttributes = $this->getSrcLazyLoadAttributes($siteConfig->src_lazy_load_attr);
 
         $html = $this->processStringReplacements($html, $url, $siteConfig);
 
         // load and parse html
-        $parser = $siteConfig->parser();
-
-        if (!\in_array($parser, $this->config->getAllowedParsers(), true)) {
-            $this->logger->info('HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $parser, 'default_parser' => $this->config->getDefaultParser()]);
-            $parser = $this->config->getDefaultParser();
+        $parser = Parser::tryFrom($siteConfig->parser());
+        if (null === $parser) {
+            $this->logger->info('HTML parser {parser} not listed, using {default_parser} instead', ['parser' => $siteConfig->parser(), 'default_parser' => $this->config->defaultParser]);
+            $parser = $this->config->defaultParser;
         }
 
-        $this->logger->info('Attempting to parse HTML with {parser}', ['parser' => $parser]);
+        $this->logger->info('Attempting to parse HTML with {parser}', ['parser' => $parser->value]);
 
         $readability = $this->getReadability($html, $url, $parser, $siteConfig->tidy() && $smartTidy);
         $tidied = $readability->tidied;
@@ -605,7 +587,7 @@ class ContentExtractor
             // remove image lazy loading
             foreach ($body->getElementsByTagName('img') as $e) {
                 $hasAttribute = false;
-                foreach ($this->config->getSrcLazyLoadAttributes() as $attribute) {
+                foreach ($srcLazyLoadAttributes as $attribute) {
                     if ($e->hasAttribute($attribute)) {
                         $hasAttribute = true;
                     }
@@ -630,7 +612,7 @@ class ContentExtractor
                 }
 
                 $attributes = [];
-                foreach ($this->config->getSrcLazyLoadAttributes() as $attribute) {
+                foreach ($srcLazyLoadAttributes as $attribute) {
                     if ($e->hasAttribute($attribute)) {
                         $key = 'src';
                         if ('data-srcset' === $attribute) {
@@ -758,14 +740,23 @@ class ContentExtractor
             $siteConfig = $this->buildSiteConfig($url, $html);
         }
 
-        // add lazyload information from siteconfig
-        if ($siteConfig->src_lazy_load_attr && !\in_array($siteConfig->src_lazy_load_attr, $this->config->getSrcLazyLoadAttributes(), true)) {
-            $this->config->addSrcLazyLoadAttributes($siteConfig->src_lazy_load_attr);
-        }
-
         $this->logger->debug('Actual site config', ['siteConfig' => $siteConfig]);
 
         return $siteConfig;
+    }
+
+    /**
+     * Returns the list of src attributes for lazy-loading extended with `$siteAttribute`, when not null.
+     *
+     * @return string[]
+     */
+    private function getSrcLazyLoadAttributes(?string $siteAttribute): array
+    {
+        if (null === $siteAttribute || \in_array($siteAttribute, $this->config->srcLazyLoadAttributes, true)) {
+            return $this->config->srcLazyLoadAttributes;
+        }
+
+        return array_merge($this->config->srcLazyLoadAttributes, [$siteAttribute]);
     }
 
     /**
@@ -1128,18 +1119,18 @@ class ContentExtractor
      * Return an instance of Readability with pre & post filters added.
      *
      * @param string $html       HTML to make readable from Readability lib
-     * @param string $parser     Parser to use
+     * @param Parser $parser     Parser to use
      * @param bool   $enableTidy Should it use tidy extension?
      */
-    private function getReadability(string $html, UriInterface $url, string $parser, bool $enableTidy): Readability
+    private function getReadability(string $html, UriInterface $url, Parser $parser, bool $enableTidy): Readability
     {
-        $readability = new Readability($html, (string) $url, $parser, $enableTidy);
+        $readability = new Readability($html, (string) $url, $parser->value, $enableTidy);
 
-        foreach ($this->config->getReadability()['pre_filters'] as $filter => $replacer) {
+        foreach ($this->config->readability['pre_filters'] as $filter => $replacer) {
             $readability->addPreFilter($filter, $replacer);
         }
 
-        foreach ($this->config->getReadability()['post_filters'] as $filter => $replacer) {
+        foreach ($this->config->readability['post_filters'] as $filter => $replacer) {
             $readability->addPostFilter($filter, $replacer);
         }
 
@@ -1458,7 +1449,7 @@ class ContentExtractor
                 continue;
             }
 
-            if (isset($data['@type']) && \in_array($data['@type'], $this->config->getJsonLdIgnoreTypes(), true)) {
+            if (isset($data['@type']) && \in_array($data['@type'], $this->config->jsonLdIgnoreTypes, true)) {
                 if (isset($data['name'])) {
                     $ignoreNames[] = $data['name'];
                 }

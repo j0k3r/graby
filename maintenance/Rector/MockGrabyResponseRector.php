@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Maintenance\Graby\Rector;
 
 use Graby\Graby;
+use Graby\GrabyConfig;
 use Graby\HttpClient\Plugin\CookiePlugin;
 use Http\Client\Common\PluginClient;
 use Http\Discovery\Psr18ClientDiscovery;
@@ -116,7 +117,7 @@ final class MockGrabyResponseRector extends AbstractRector
             }
         }
 
-        if (\count($new->args) > 1) {
+        if (null !== $new->getArg('client', 1)) {
             // The Graby instance is already passed a MockHttpClient.
             return null;
         }
@@ -160,10 +161,11 @@ final class MockGrabyResponseRector extends AbstractRector
             new Expression(new Assign($httpMockClientVariable, new New_(new Name('HttpMockClient')))),
         ];
 
-        $config = 0 === \count($new->args) || !($configArg = $new->args[0]) instanceof Arg ? [] : $this->valueResolver->getValue($configArg->value);
+        $configArg = $new->getArg('config', 0);
+        $config = null === $configArg ? new GrabyConfig() : $this->valueResolver->getValue($configArg->value);
         if (null === $config) {
             // Paste the config here if this failed.
-            $config = [];
+            $config = new GrabyConfig();
 
             $assignStmt->setAttribute(
                 AttributeKey::COMMENTS,
@@ -197,7 +199,10 @@ final class MockGrabyResponseRector extends AbstractRector
         }
 
         // Add the mocked client to Graby constructor.
-        $new->args[] = new Arg($httpMockClientVariable);
+        $new->args[] = new Arg(
+            $httpMockClientVariable,
+            name: (null === $configArg || null !== $configArg->name) ? new Identifier('client') : null,
+        );
 
         $index = array_search($assignStmt, $stmts, true);
         \assert(false !== $index, 'Assignment statement not direct child of the method');
@@ -250,48 +255,9 @@ final class MockGrabyResponseRector extends AbstractRector
     /**
      * Runs Graby for given URL and returns HTTP responses by the client.
      *
-     * @param array{
-     *   debug?: bool,
-     *   log_level?: 'info'|'debug',
-     *   rewrite_relative_urls?: bool,
-     *   singlepage?: bool,
-     *   multipage?: bool,
-     *   error_message?: string,
-     *   error_message_title?: string,
-     *   allowed_urls?: string[],
-     *   blocked_urls?: string[],
-     *   xss_filter?: bool,
-     *   content_type_exc?: array<string, array{name: string, action: 'link'|'exclude'}>,
-     *   content_links?: 'preserve'|'footnotes'|'remove',
-     *   http_client?: array{
-     *     ua_browser?: string,
-     *     default_referer?: string,
-     *     rewrite_url?: array<array<string, string>>,
-     *     header_only_types?: array<string>,
-     *     header_only_clues?: array<string>,
-     *     user_agents?: array<string, string>,
-     *     ajax_triggers?: array<string>,
-     *     max_redirect?: int,
-     *   },
-     *   extractor?: array{
-     *     default_parser?: string,
-     *     fingerprints?: array<string, string>,
-     *     config_builder?: array{
-     *       site_config?: string[],
-     *       hostname_regex?: string,
-     *     },
-     *     readability?: array{
-     *       pre_filters?: array<string, string>,
-     *       post_filters?: array<string, string>,
-     *     },
-     *     src_lazy_load_attributes?: string[],
-     *     json_ld_ignore_types?: string[],
-     *   },
-     * } $config
-     *
      * @return ResponseInterface[]
      */
-    private function fetchResponses(string $url, array $config): array
+    private function fetchResponses(string $url, GrabyConfig $config): array
     {
         // Wrap the same HTTP client internally created by Graby class with a proxy
         // that captures the returned responses.

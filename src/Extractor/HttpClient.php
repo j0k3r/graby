@@ -30,7 +30,6 @@ use Psr\Log\NullLogger;
  */
 class HttpClient
 {
-    private readonly HttpClientConfig $config;
     private readonly HttpMethodsClient $client;
     private LoggerInterface $logger;
     private readonly ResponseFactoryInterface $responseFactory;
@@ -40,25 +39,13 @@ class HttpClient
 
     /**
      * @param ClientInterface $client Http client
-     * @param array{
-     *   ua_browser?: string,
-     *   default_referer?: string,
-     *   rewrite_url?: array<array<string, string>>,
-     *   header_only_types?: array<string>,
-     *   header_only_clues?: array<string>,
-     *   user_agents?: array<string, string>,
-     *   ajax_triggers?: array<string>,
-     *   max_redirect?: int,
-     * } $config
      */
     public function __construct(
         ClientInterface $client,
-        array $config = [],
+        private readonly HttpClientConfig $config = new HttpClientConfig(),
         ?LoggerInterface $logger = null,
         private readonly ?ContentExtractor $extractor = null
     ) {
-        $this->config = new HttpClientConfig($config);
-
         if (null === $logger) {
             $logger = new NullLogger();
         }
@@ -79,7 +66,7 @@ class HttpClient
                     new ErrorPlugin(),
                 ],
                 [
-                    'max_restarts' => $this->config->getMaxRedirect(),
+                    'max_restarts' => $this->config->maxRedirect,
                 ]
             ),
             Psr17FactoryDiscovery::findRequestFactory()
@@ -110,7 +97,7 @@ class HttpClient
         $url = $this->cleanupUrl($url);
 
         $method = 'get';
-        if (!$skipTypeVerification && !empty($this->config->getHeaderOnlyTypes()) && $this->possibleUnsupportedType($url)) {
+        if (!$skipTypeVerification && !empty($this->config->headerOnlyTypes) && $this->possibleUnsupportedType($url)) {
             $method = 'head';
         }
 
@@ -147,7 +134,7 @@ class HttpClient
             /** @var ResponseInterface $response */
             $response = $this->client->$method($url, $headers);
         } catch (LoopException) {
-            $this->logger->info('Endless redirect: ' . ($this->config->getMaxRedirect() + 1) . ' on "{url}"', ['url' => (string) $url]);
+            $this->logger->info('Endless redirect: ' . ($this->config->maxRedirect + 1) . ' on "{url}"', ['url' => (string) $url]);
 
             return new EffectiveResponse(
                 $url,
@@ -252,7 +239,7 @@ class HttpClient
         $url = (string) $uri;
 
         // rewrite part of urls to something more readable
-        foreach ($this->config->getRewriteUrl() as $find => $action) {
+        foreach ($this->config->rewriteUrl as $find => $action) {
             if (str_contains($url, (string) $find)) {
                 $url = strtr($url, $action);
             }
@@ -292,7 +279,7 @@ class HttpClient
             return false;
         }
 
-        return \in_array($ext, $this->config->getHeaderOnlyClues(), true);
+        return \in_array($ext, $this->config->headerOnlyClues, true);
     }
 
     /**
@@ -304,7 +291,7 @@ class HttpClient
      */
     private function getUserAgent(UriInterface $url, array $httpHeader = []): string
     {
-        $ua = $this->config->getUaBrowser();
+        $ua = $this->config->uaBrowser;
 
         if (!empty($httpHeader['user-agent'])) {
             $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from site config', ['user-agent' => $httpHeader['user-agent'], 'url' => (string) $url]);
@@ -328,10 +315,10 @@ class HttpClient
         }
 
         foreach ($try as $h) {
-            if (isset($this->config->getUserAgents()[$h])) {
-                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config->getUserAgents()[$h], 'url' => (string) $url]);
+            if (isset($this->config->userAgents[$h])) {
+                $this->logger->info('Found user-agent "{user-agent}" for url "{url}" from config', ['user-agent' => $this->config->userAgents[$h], 'url' => (string) $url]);
 
-                return $this->config->getUserAgents()[$h];
+                return $this->config->userAgents[$h];
             }
         }
 
@@ -349,7 +336,7 @@ class HttpClient
      */
     private function getReferer(UriInterface $url, array $httpHeader = []): string
     {
-        $default_referer = $this->config->getDefaultReferer();
+        $default_referer = $this->config->defaultReferer;
 
         if (!empty($httpHeader['referer'])) {
             $this->logger->info('Found referer "{referer}" for url "{url}" from site config', ['referer' => $httpHeader['referer'], 'url' => (string) $url]);
@@ -436,7 +423,7 @@ class HttpClient
         $match[2] = strtolower(trim($match[2]));
 
         foreach ([$match[1], $match[2]] as $mime) {
-            if (\in_array($mime, $this->config->getHeaderOnlyTypes(), true)) {
+            if (\in_array($mime, $this->config->headerOnlyTypes, true)) {
                 return true;
             }
         }
@@ -485,7 +472,7 @@ class HttpClient
     private function getUglyURL(UriInterface $url, string $html): ?UriInterface
     {
         $found = false;
-        foreach ($this->config->getAjaxTriggers() as $string) {
+        foreach ($this->config->ajaxTriggers as $string) {
             if (stripos($html, $string)) {
                 $found = true;
                 break;
