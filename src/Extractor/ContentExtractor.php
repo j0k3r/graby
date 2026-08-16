@@ -187,7 +187,7 @@ class ContentExtractor
         $image = $extractedInfo['image'] ?? $image;
         $language = $extractedInfo['language'] ?? $language;
         $date = $extractedInfo['date'] ?? $date;
-        $authors = array_merge($authors, $extractedInfo['authors'] ?? []);
+        $authors = $this->normalizeAuthors(array_merge($authors, $extractedInfo['authors'] ?? []));
         $body = $extractedInfo['body'] ?? $body;
 
         // check if this is a native ad
@@ -218,8 +218,11 @@ class ContentExtractor
 
                 $extractedAuthors = $this->extractMultipleEntityFromPattern('authors', $pattern, $xpath, $readability);
                 if (null !== $extractedAuthors) {
-                    $authors = $extractedAuthors;
-                    break;
+                    $extractedAuthors = $this->normalizeAuthors($extractedAuthors);
+                    if ([] !== $extractedAuthors) {
+                        $authors = $extractedAuthors;
+                        break;
+                    }
                 }
             }
         }
@@ -412,7 +415,7 @@ class ContentExtractor
                     $xpath
                 );
                 if (null !== $extractedAuthors) {
-                    $authors = array_merge($authors, $extractedAuthors);
+                    $authors = $this->normalizeAuthors(array_merge($authors, $extractedAuthors));
                     $detectAuthor = false;
                 }
 
@@ -493,7 +496,7 @@ class ContentExtractor
             static fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
         );
         if (null !== $extractedAuthors) {
-            $authors = array_merge($authors, $extractedAuthors);
+            $authors = $this->normalizeAuthors(array_merge($authors, $extractedAuthors));
         }
 
         $extractedAuthors = $this->extractEntityFromQuery(
@@ -506,7 +509,7 @@ class ContentExtractor
             static fn ($element, $currentEntity) => $currentEntity + [trim((string) $element)]
         );
         if (null !== $extractedAuthors) {
-            $authors = array_merge($authors, $extractedAuthors);
+            $authors = $this->normalizeAuthors(array_merge($authors, $extractedAuthors));
         }
 
         // Find date in pubdate marked time element
@@ -682,6 +685,8 @@ class ContentExtractor
             );
         }
 
+        $authors = $this->normalizeAuthors($authors);
+
         $this->logger->info('Success ? {is_success}', ['is_success' => $success]);
 
         return new ExtractedContent(
@@ -745,6 +750,33 @@ class ContentExtractor
 
             return null;
         }
+    }
+
+    /**
+     * Mostly to ensure we wont defined an array of empty values.
+     *
+     * @param string[] $authors
+     *
+     * @return string[]
+     */
+    private function normalizeAuthors(array $authors): array
+    {
+        $normalizedAuthors = [];
+
+        foreach ($authors as $author) {
+            if (!\is_string($author)) {
+                continue;
+            }
+
+            $author = trim($author);
+            if ('' === $author || \in_array($author, $normalizedAuthors, true)) {
+                continue;
+            }
+
+            $normalizedAuthors[] = $author;
+        }
+
+        return $normalizedAuthors;
     }
 
     /**

@@ -1168,6 +1168,38 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertTrue(\count($authors) === \count($authorsUnique), 'There is no duplicate authors');
     }
 
+    public function testBlankAuthorsAreIgnoredAfterTrim(): void
+    {
+        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+
+        $siteConfig = new SiteConfig();
+        $siteConfig->author = ['//*[(@rel = "author")]'];
+
+        $result = $contentExtractor->process(
+            '<html>from <a rel="author" href="/user"> John Doe </a><a rel="author"></a><a rel="author">   </a><a rel="author">John Doe</a></html>',
+            new Uri('https://example.com/blank-authors'),
+            $siteConfig
+        );
+
+        $this->assertSame(['John Doe'], $result->authors);
+    }
+
+    public function testOnlyBlankAuthorsAreIgnored(): void
+    {
+        $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
+
+        $siteConfig = new SiteConfig();
+        $siteConfig->author = ['//*[(@rel = "author")]'];
+
+        $result = $contentExtractor->process(
+            '<html>from <a rel="author" href="/user"></a><a rel="author">   </a></html>',
+            new Uri('https://example.com/empty-author'),
+            $siteConfig
+        );
+
+        $this->assertSame([], $result->authors);
+    }
+
     public function testBodyAsDomAttribute(): void
     {
         $contentExtractor = new ContentExtractor(self::CONTENT_EXTRACTOR_CONFIG);
