@@ -9,6 +9,7 @@ use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
 use Graby\Extractor\HttpClientConfig;
 use Graby\Extractor\Parser;
+use Graby\Extractor\ReadabilityConfig;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -49,10 +50,7 @@ readonly class GrabyConfig
          *     site_config?: string[],
          *     hostname_regex?: string,
          *   },
-         *   readability?: array{
-         *     pre_filters?: array<string, string>,
-         *     post_filters?: array<string, string>,
-         *   },
+         *   readability?: ReadabilityConfig,
          *   src_lazy_load_attributes?: string[],
          *   json_ld_ignore_types?: string[],
          * }

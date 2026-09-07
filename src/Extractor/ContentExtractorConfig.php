@@ -27,13 +27,7 @@ class ContentExtractorConfig
      */
     private array $config_builder;
 
-    /**
-     * @var array{
-     *   pre_filters: array<string, string>,
-     *   post_filters: array<string, string>,
-     * }
-     */
-    private array $readability;
+    private ReadabilityConfig $readability;
 
     /** @var array<string> */
     private array $src_lazy_load_attributes;
@@ -48,10 +42,7 @@ class ContentExtractorConfig
      *     site_config?: string[],
      *     hostname_regex?: string,
      *   },
-     *   readability?: array{
-     *     pre_filters?: array<string, string>,
-     *     post_filters?: array<string, string>,
-     *   },
+     *   readability?: ReadabilityConfig,
      *   src_lazy_load_attributes?: string[],
      *   json_ld_ignore_types?: string[],
      * } $config
@@ -73,10 +64,7 @@ class ContentExtractorConfig
                 '/\<link\s*rel=([\'"])stylesheet([\'"])\s*type=([\'"])text\/css([\'"])\s*href=([\'"])https:\/\/substackcdn\.com\//' => 'fingerprint.substack.com',
             ],
             'config_builder' => [],
-            'readability' => [
-                'pre_filters' => [],
-                'post_filters' => [],
-            ],
+            'readability' => new ReadabilityConfig(),
             'src_lazy_load_attributes' => [
                 'data-src',
                 'data-lazy-src',
@@ -91,25 +79,9 @@ class ContentExtractorConfig
         $resolver->setAllowedTypes('default_parser', Parser::class);
         $resolver->setAllowedTypes('fingerprints', 'array');
         $resolver->setAllowedTypes('config_builder', 'array');
-        $resolver->setAllowedTypes('readability', 'array');
         $resolver->setAllowedTypes('src_lazy_load_attributes', 'string[]');
         $resolver->setAllowedTypes('json_ld_ignore_types', 'string[]');
 
-        $resolver->setNormalizer('readability', function (Options $options, $value) {
-            $readabilityResolver = new OptionsResolver();
-            $readabilityResolver->setDefaults([
-                'pre_filters' => [],
-                'post_filters' => [],
-            ]);
-            $readabilityResolver->setAllowedTypes('pre_filters', 'array');
-            $readabilityResolver->setAllowedTypes('post_filters', 'array');
-            $value = $readabilityResolver->resolve($value);
-
-            $this->validateArray($value, 'readability[pre_filters]', 'pre_filters');
-            $this->validateArray($value, 'readability[post_filters]', 'post_filters');
-
-            return $value;
-        });
         $resolver->setNormalizer('fingerprints', function (Options $options, $value) {
             $this->validateArray($value, 'fingerprints');
 
@@ -147,13 +119,7 @@ class ContentExtractorConfig
         return $this->config_builder;
     }
 
-    /**
-     * @return array{
-     *   pre_filters: array<string, string>,
-     *   post_filters: array<string, string>,
-     * }
-     */
-    public function getReadability(): array
+    public function getReadability(): ReadabilityConfig
     {
         return $this->readability;
     }

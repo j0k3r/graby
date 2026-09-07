@@ -30,10 +30,7 @@ class ContentExtractor
      *     site_config?: string[],
      *     hostname_regex?: string,
      *   },
-     *   readability?: array{
-     *     pre_filters?: array<string, string>,
-     *     post_filters?: array<string, string>,
-     *   },
+     *   readability?: ReadabilityConfig,
      *   src_lazy_load_attributes?: string[],
      *   json_ld_ignore_types?: string[],
      * } $config
@@ -1134,11 +1131,11 @@ class ContentExtractor
     {
         $readability = new Readability($html, (string) $url, $parser->value, $enableTidy);
 
-        foreach ($this->config->getReadability()['pre_filters'] as $filter => $replacer) {
+        foreach ($this->config->getReadability()->preFilters as $filter => $replacer) {
             $readability->addPreFilter($filter, $replacer);
         }
 
-        foreach ($this->config->getReadability()['post_filters'] as $filter => $replacer) {
+        foreach ($this->config->getReadability()->postFilters as $filter => $replacer) {
             $readability->addPostFilter($filter, $replacer);
         }
 

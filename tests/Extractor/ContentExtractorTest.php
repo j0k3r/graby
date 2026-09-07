@@ -6,6 +6,7 @@ namespace Tests\Graby\Extractor;
 
 use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\ExtractedContent;
+use Graby\Extractor\ReadabilityConfig;
 use Graby\SiteConfig\SiteConfig;
 use GuzzleHttp\Psr7\Uri;
 use Monolog\Handler\TestHandler;
@@ -891,10 +892,10 @@ class ContentExtractorTest extends TestCase
     {
         $contentExtractor = new ContentExtractor(
             self::CONTENT_EXTRACTOR_CONFIG
-            + ['readability' => [
-                'post_filters' => ['!<head[^>]*>(.*?)</head>!is' => ''],
-                'pre_filters' => ['!</?noscript>!is' => ''],
-            ]]
+            + ['readability' => new ReadabilityConfig(
+                postFilters: ['!<head[^>]*>(.*?)</head>!is' => ''],
+                preFilters: ['!</?noscript>!is' => ''],
+            )]
         );
 
         $config = new SiteConfig();

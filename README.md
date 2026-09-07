@@ -215,6 +215,7 @@ use Graby\Config\ContentLinks;
 use Graby\Config\ContentTypeAction;
 use Graby\Config\LogLevel;
 use Graby\Extractor\HttpClientConfig;
+use Graby\Extractor\ReadabilityConfig;
 use Graby\Graby;
 use Graby\GrabyConfig;
 
@@ -325,12 +326,12 @@ $graby = new Graby(new GrabyConfig(
             'site_config' => [],
             'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
         ],
-        'readability' => [
+        'readability' => new ReadabilityConfig(
             // filters might be like array('regex' => 'replace with')
             // for example, to remove script content: array('!<script[^>]*>(.*?)</script>!is' => '')
-            'pre_filters' => [],
-            'post_filters' => [],
-        ],
+            preFilters: [],
+            postFilters: [],
+        ),
         'src_lazy_load_attributes' => [
             'data-src',
             'data-lazy-src',
