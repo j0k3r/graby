@@ -10,7 +10,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Configuration for ConfigBuilder as a Value Object.
  */
-class ConfigBuilderConfig
+readonly class ConfigBuilderConfig
 {
     /** @var string[] Directory paths of site config folders WITHOUT trailing slash */
     private array $siteConfig;
