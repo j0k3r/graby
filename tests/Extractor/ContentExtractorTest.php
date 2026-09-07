@@ -873,14 +873,14 @@ class ContentExtractorTest extends TestCase
         $records = $handler->getRecords();
 
         $this->assertGreaterThanOrEqual(6, $records);
-        $this->assertSame('Attempting to parse HTML with {parser}', $records[0]['message']);
-        $this->assertSame('libxml', $records[0]['context']['parser']);
-        $this->assertSame('Opengraph "og:" data: {ogData}', $records[2]['message']);
-        $this->assertSame('Opengraph "article:" data: {ogData}', $records[3]['message']);
-        $this->assertSame('Trying {pattern} for language', $records[4]['message']);
-        $this->assertSame('Trying {pattern} for language', $records[5]['message']);
-        $this->assertSame('Using Readability', $records[6]['message']);
-        $this->assertSame('Attempting to parse HTML with {parser}', $records[8]['message']);
+        $this->assertSame('Attempting to parse HTML with {parser}', $records[0]->message);
+        $this->assertSame('libxml', $records[0]->context['parser']);
+        $this->assertSame('Opengraph "og:" data: {ogData}', $records[2]->message);
+        $this->assertSame('Opengraph "article:" data: {ogData}', $records[3]->message);
+        $this->assertSame('Trying {pattern} for language', $records[4]->message);
+        $this->assertSame('Trying {pattern} for language', $records[5]->message);
+        $this->assertSame('Using Readability', $records[6]->message);
+        $this->assertSame('Attempting to parse HTML with {parser}', $records[8]->message);
     }
 
     public function testWithCustomFiltersForReadability(): void

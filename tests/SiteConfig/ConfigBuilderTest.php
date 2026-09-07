@@ -247,11 +247,11 @@ class ConfigBuilderTest extends TestCase
         $records = $handler->getRecords();
 
         $this->assertGreaterThan(5, $records);
-        $this->assertSame('. looking for site config for {host} in primary folder', $records[0]['message']);
-        $this->assertSame('fr.wikipedia.org', $records[0]['context']['host']);
-        $this->assertSame('... found site config {host}', $records[1]['message']);
-        $this->assertSame('.wikipedia.org.txt', $records[1]['context']['host']);
-        $this->assertSame('Appending site config settings from global.txt', $records[2]['message']);
+        $this->assertSame('. looking for site config for {host} in primary folder', $records[0]->message);
+        $this->assertSame('fr.wikipedia.org', $records[0]->context['host']);
+        $this->assertSame('... found site config {host}', $records[1]->message);
+        $this->assertSame('.wikipedia.org.txt', $records[1]->context['host']);
+        $this->assertSame('Appending site config settings from global.txt', $records[2]->message);
     }
 
     /**
@@ -299,7 +299,7 @@ class ConfigBuilderTest extends TestCase
 
         $records = $handler->getRecords();
 
-        $this->assertSame('find_string & replace_string size mismatch, check the site config to fix it', $records[0]['message']);
-        $this->assertCount(2, $records[0]['context']);
+        $this->assertSame('find_string & replace_string size mismatch, check the site config to fix it', $records[0]->message);
+        $this->assertCount(2, $records[0]->context);
     }
 }

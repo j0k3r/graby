@@ -43,25 +43,25 @@ class GrabyFunctionalTest extends TestCase
         $records = $handler->getRecords();
 
         $this->assertGreaterThan(30, $records);
-        $this->assertSame('Graby is ready to fetch', $records[0]['message']);
-        $this->assertSame('. looking for site config for {host} in primary folder', $records[1]['message']);
-        $this->assertSame('... found site config {host}', $records[2]['message']);
-        $this->assertSame('Appending site config settings from global.txt', $records[3]['message']);
-        $this->assertSame('. looking for site config for {host} in primary folder', $records[4]['message']);
-        $this->assertSame('... found site config {host}', $records[5]['message']);
-        $this->assertSame('Cached site config with key: {key}', $records[6]['message']);
-        $this->assertSame('. looking for site config for {host} in primary folder', $records[7]['message']);
-        $this->assertSame('... found site config {host}', $records[8]['message']);
-        $this->assertSame('Appending site config settings from global.txt', $records[9]['message']);
-        $this->assertSame('Cached site config with key: {key}', $records[10]['message']);
-        $this->assertSame('Cached site config with key: {key}', $records[11]['message']);
-        $this->assertSame('Fetching url: {url}', $records[12]['message']);
-        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', (string) $records[12]['context']['url']);
-        $this->assertSame('Trying using method "{method}" on url "{url}"', $records[13]['message']);
-        $this->assertSame('get', $records[13]['context']['method']);
-        $this->assertSame('Use default referer "{referer}" for url "{url}"', $records[15]['message']);
-        $this->assertSame('Data fetched: {data}', $records[18]['message']);
-        $this->assertSame('Looking for site config files to see if single page link exists', $records[20]['message']);
+        $this->assertSame('Graby is ready to fetch', $records[0]->message);
+        $this->assertSame('. looking for site config for {host} in primary folder', $records[1]->message);
+        $this->assertSame('... found site config {host}', $records[2]->message);
+        $this->assertSame('Appending site config settings from global.txt', $records[3]->message);
+        $this->assertSame('. looking for site config for {host} in primary folder', $records[4]->message);
+        $this->assertSame('... found site config {host}', $records[5]->message);
+        $this->assertSame('Cached site config with key: {key}', $records[6]->message);
+        $this->assertSame('. looking for site config for {host} in primary folder', $records[7]->message);
+        $this->assertSame('... found site config {host}', $records[8]->message);
+        $this->assertSame('Appending site config settings from global.txt', $records[9]->message);
+        $this->assertSame('Cached site config with key: {key}', $records[10]->message);
+        $this->assertSame('Cached site config with key: {key}', $records[11]->message);
+        $this->assertSame('Fetching url: {url}', $records[12]->message);
+        $this->assertSame('https://www.lemonde.fr/actualite-medias/article/2015/04/12/radio-france-vers-une-sortie-du-conflit_4614610_3236.html', (string) $records[12]->context['url']);
+        $this->assertSame('Trying using method "{method}" on url "{url}"', $records[13]->message);
+        $this->assertSame('get', $records[13]->context['method']);
+        $this->assertSame('Use default referer "{referer}" for url "{url}"', $records[15]->message);
+        $this->assertSame('Data fetched: {data}', $records[18]->message);
+        $this->assertSame('Looking for site config files to see if single page link exists', $records[20]->message);
     }
 
     public function testRealFetchContent2(): void
