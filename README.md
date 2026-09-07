@@ -219,6 +219,7 @@ use Graby\Extractor\HttpClientConfig;
 use Graby\Extractor\ReadabilityConfig;
 use Graby\Graby;
 use Graby\GrabyConfig;
+use Graby\SiteConfig\ConfigBuilderConfig;
 
 $graby = new Graby(new GrabyConfig(
     // Enable or disable debugging.
@@ -322,11 +323,11 @@ $graby = new Graby(new GrabyConfig(
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])Blogger([\'"])/i' => 'fingerprint.blogspot.com',
             '/\<meta\s*name=([\'"])generator([\'"])\s*content=([\'"])WordPress/i' => 'fingerprint.wordpress.com',
         ],
-        configBuilder: [
+        configBuilder: new ConfigBuilderConfig(
             // Directory path to the site config folder WITHOUT trailing slash
-            'site_config' => [],
-            'hostname_regex' => '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
-        ],
+            siteConfig: [],
+            hostnameRegex: '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
+        ),
         readability: new ReadabilityConfig(
             // filters might be like array('regex' => 'replace with')
             // for example, to remove script content: array('!<script[^>]*>(.*?)</script>!is' => '')

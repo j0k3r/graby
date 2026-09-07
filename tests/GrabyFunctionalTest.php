@@ -7,6 +7,7 @@ namespace Tests\Graby;
 use Graby\Extractor\ContentExtractorConfig;
 use Graby\Graby;
 use Graby\GrabyConfig;
+use Graby\SiteConfig\ConfigBuilderConfig;
 use GuzzleHttp\Psr7\Response;
 use Http\Mock\Client as HttpMockClient;
 use Monolog\Handler\TestHandler;
@@ -201,9 +202,9 @@ class GrabyFunctionalTest extends TestCase
             new GrabyConfig(
                 debug: true,
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [__DIR__ . '/fixtures/site_config'],
-                    ],
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [__DIR__ . '/fixtures/site_config'],
+                    ),
                 ),
             ),
             $httpMockClient,
@@ -224,9 +225,9 @@ class GrabyFunctionalTest extends TestCase
         $graby = new Graby(new GrabyConfig(
             debug: true,
             extractor: new ContentExtractorConfig(
-                configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ],
+                configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                ),
             ),
         ));
         $res = $graby->fetchContent('https://www.npr.org/sections/parallels/2017/05/19/529148729/michael-flynns-contradictory-line-on-russia');
@@ -245,9 +246,9 @@ class GrabyFunctionalTest extends TestCase
             new GrabyConfig(
                 debug: true,
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [__DIR__ . '/fixtures/site_config'],
-                    ],
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [__DIR__ . '/fixtures/site_config'],
+                    ),
                 ),
             ),
             $httpMockClient,
@@ -266,9 +267,9 @@ class GrabyFunctionalTest extends TestCase
             new GrabyConfig(
                 debug: true,
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [__DIR__ . '/fixtures/site_config'],
-                    ],
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [__DIR__ . '/fixtures/site_config'],
+                    ),
                 ),
             ),
             $httpMockClient,
@@ -288,9 +289,9 @@ class GrabyFunctionalTest extends TestCase
             new GrabyConfig(
                 debug: true,
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [__DIR__ . '/fixtures/site_config'],
-                    ],
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [__DIR__ . '/fixtures/site_config'],
+                    ),
                 ),
             ),
             $httpMockClient,

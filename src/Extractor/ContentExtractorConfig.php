@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Graby\Extractor;
 
 use Graby\OptionsResolver\ArrayStringOptionsTrait;
+use Graby\SiteConfig\ConfigBuilderConfig;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -30,13 +31,7 @@ readonly class ContentExtractorConfig
             '/\<script\>.*\{([\'"])de\.ippen-digital\.story\.onlineId([\'"])/i' => 'fingerprint.ippen.media',
             '/\<link\s*rel=([\'"])stylesheet([\'"])\s*type=([\'"])text\/css([\'"])\s*href=([\'"])https:\/\/substackcdn\.com\//' => 'fingerprint.substack.com',
         ],
-        /**
-         * @var array{
-         *   site_config?: string[],
-         *   hostname_regex?: string,
-         * }
-         */
-        public array $configBuilder = [],
+        public ConfigBuilderConfig $configBuilder = new ConfigBuilderConfig(),
         public ReadabilityConfig $readability = new ReadabilityConfig(),
         /** @var array<string> */
         public array $srcLazyLoadAttributes = [
@@ -53,13 +48,11 @@ readonly class ContentExtractorConfig
         $resolver = new OptionsResolver();
         $resolver->setDefined([
             'fingerprints',
-            'configBuilder',
             'srcLazyLoadAttributes',
             'jsonLdIgnoreTypes',
         ]);
 
         $resolver->setAllowedTypes('fingerprints', 'array');
-        $resolver->setAllowedTypes('configBuilder', 'array');
         $resolver->setAllowedTypes('srcLazyLoadAttributes', 'string[]');
         $resolver->setAllowedTypes('jsonLdIgnoreTypes', 'string[]');
 
@@ -71,7 +64,6 @@ readonly class ContentExtractorConfig
 
         $config = $resolver->resolve([
             'fingerprints' => $fingerprints,
-            'configBuilder' => $configBuilder,
             'srcLazyLoadAttributes' => $srcLazyLoadAttributes,
             'jsonLdIgnoreTypes' => $jsonLdIgnoreTypes,
         ]);

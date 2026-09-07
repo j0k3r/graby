@@ -9,6 +9,7 @@ use Graby\Config\ContentTypeAction;
 use Graby\Extractor\ContentExtractorConfig;
 use Graby\Graby;
 use Graby\GrabyConfig;
+use Graby\SiteConfig\ConfigBuilderConfig;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use Http\Mock\Client as HttpMockClient;
@@ -73,11 +74,11 @@ class GrabyTest extends TestCase
             new GrabyConfig(
                 xssFilter: false,
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [
                             __DIR__ . '/fixtures/site_config',
                         ],
-                    ],
+                    ),
                 ),
             ),
             $httpMockClient,
@@ -439,9 +440,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -482,9 +483,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 xssFilter: false,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -524,9 +525,9 @@ class GrabyTest extends TestCase
             new GrabyConfig(
                 debug: true,
                 xssFilter: false,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -560,9 +561,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -602,9 +603,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -644,9 +645,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -691,9 +692,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -733,9 +734,9 @@ class GrabyTest extends TestCase
         $graby = new Graby(
             new GrabyConfig(
                 contentLinks: ContentLinks::Footnotes,
-                extractor: new ContentExtractorConfig(configBuilder: [
-                    'site_config' => [__DIR__ . '/fixtures/site_config'],
-                ]),
+                extractor: new ContentExtractorConfig(configBuilder: new ConfigBuilderConfig(
+                    siteConfig: [__DIR__ . '/fixtures/site_config'],
+                )),
             ),
             $httpMockClient,
         );
@@ -1329,9 +1330,9 @@ class GrabyTest extends TestCase
             200,
             new GrabyConfig(
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [__DIR__ . '/fixtures/site_config'],
-                    ],
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [__DIR__ . '/fixtures/site_config'],
+                    ),
                 ),
             ),
         );
@@ -1351,9 +1352,9 @@ class GrabyTest extends TestCase
             200,
             new GrabyConfig(
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [__DIR__ . '/fixtures/site_config'],
-                    ],
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [__DIR__ . '/fixtures/site_config'],
+                    ),
                 ),
             ),
         );
@@ -1374,9 +1375,9 @@ class GrabyTest extends TestCase
             new GrabyConfig(
                 debug: true,
                 extractor: new ContentExtractorConfig(
-                    configBuilder: [
-                        'site_config' => [__DIR__ . '/fixtures/site_config'],
-                    ],
+                    configBuilder: new ConfigBuilderConfig(
+                        siteConfig: [__DIR__ . '/fixtures/site_config'],
+                    ),
                 ),
             ),
         );

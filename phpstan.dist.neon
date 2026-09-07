@@ -20,8 +20,6 @@ parameters:
         -
             message: '#\$innerHTML#'
             path: %currentWorkingDirectory%
-        -
-            identifier: property.uninitializedReadonly
 
     inferPrivatePropertyTypeFromConstructor: true
     treatPhpDocTypesAsCertain: false

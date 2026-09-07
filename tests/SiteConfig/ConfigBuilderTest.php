@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Graby\SiteConfig;
 
 use Graby\SiteConfig\ConfigBuilder;
+use Graby\SiteConfig\ConfigBuilderConfig;
 use Graby\SiteConfig\SiteConfig;
 use GuzzleHttp\Psr7\Uri;
 use Monolog\Handler\TestHandler;
@@ -18,12 +19,12 @@ class ConfigBuilderTest extends TestCase
      */
     public function testConstructDefault(): void
     {
-        $builder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $builder = new ConfigBuilder(new ConfigBuilderConfig(siteConfig: [__DIR__]));
     }
 
     public function testBuildFromArrayNoLines(): void
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(siteConfig: [__DIR__]));
         $configActual = $configBuilder->parseLines([]);
 
         $this->assertEqualsCanonicalizing($configBuilder->create(), $configActual);
@@ -31,7 +32,7 @@ class ConfigBuilderTest extends TestCase
 
     public function testBuildFromArray(): void
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(siteConfig: [__DIR__]));
         $configActual = $configBuilder->parseLines([
             '# this is a comment and it will be removed',
             'no colon on this line, it will be removed',
@@ -112,7 +113,7 @@ class ConfigBuilderTest extends TestCase
      */
     public function testAddToCache(string $key, string $cachedKey, string $expectedKey): void
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(siteConfig: [__DIR__]));
 
         $config = $configBuilder->create();
         $config->body = ['//test'];
@@ -143,7 +144,7 @@ class ConfigBuilderTest extends TestCase
     public function testCachedVersion(string $key, bool $cached): void
     {
         $config = null;
-        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(siteConfig: [__DIR__]));
 
         if ($cached) {
             $config = $configBuilder->create();
@@ -157,7 +158,7 @@ class ConfigBuilderTest extends TestCase
 
     public function testBuildOnCachedVersion(): void
     {
-        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(siteConfig: [__DIR__]));
         $config1 = $configBuilder->buildForHost('www.host.io');
 
         $this->assertSame($config1, $configBuilder->getCachedVersion('host.io'));
@@ -199,9 +200,9 @@ class ConfigBuilderTest extends TestCase
      */
     public function testBuildSiteConfig(string $host, bool $expectedRes, ?string $matchedHost = null): void
     {
-        $configBuilder = new ConfigBuilder([
-            'site_config' => [__DIR__ . '/../fixtures/site_config'],
-        ]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(
+            siteConfig: [__DIR__ . '/../fixtures/site_config'],
+        ));
 
         $res = $configBuilder->loadSiteConfig($host);
 
@@ -215,9 +216,9 @@ class ConfigBuilderTest extends TestCase
 
     public function testBuildWithCachedVersion(): void
     {
-        $configBuilder = new ConfigBuilder([
-            'site_config' => [__DIR__ . '/../fixtures/site_config'],
-        ]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(
+            siteConfig: [__DIR__ . '/../fixtures/site_config'],
+        ));
 
         $res = $configBuilder->loadSiteConfig('fr.wikipedia.org');
 
@@ -237,9 +238,9 @@ class ConfigBuilderTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $configBuilder = new ConfigBuilder([
-            'site_config' => [__DIR__ . '/../fixtures/site_config'],
-        ]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(
+            siteConfig: [__DIR__ . '/../fixtures/site_config'],
+        ));
         $configBuilder->setLogger($logger);
 
         $res = $configBuilder->buildFromUrl(new Uri('https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal'));
@@ -259,9 +260,9 @@ class ConfigBuilderTest extends TestCase
      */
     public function testMergeConfigMultipleTimes(): void
     {
-        $configBuilder = new ConfigBuilder([
-            'site_config' => [__DIR__ . '/../fixtures/site_config'],
-        ]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(
+            siteConfig: [__DIR__ . '/../fixtures/site_config'],
+        ));
 
         $config1 = new SiteConfig();
         $config1->find_string = ['toto'];
@@ -287,7 +288,7 @@ class ConfigBuilderTest extends TestCase
         $handler = new TestHandler();
         $logger->pushHandler($handler);
 
-        $configBuilder = new ConfigBuilder(['site_config' => [__DIR__]]);
+        $configBuilder = new ConfigBuilder(new ConfigBuilderConfig(siteConfig: [__DIR__]));
         $configBuilder->setLogger($logger);
 
         $configActual = $configBuilder->parseLines([

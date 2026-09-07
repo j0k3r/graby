@@ -8,6 +8,7 @@ use Graby\Extractor\ContentExtractor;
 use Graby\Extractor\ContentExtractorConfig;
 use Graby\Extractor\ExtractedContent;
 use Graby\Extractor\ReadabilityConfig;
+use Graby\SiteConfig\ConfigBuilderConfig;
 use Graby\SiteConfig\SiteConfig;
 use GuzzleHttp\Psr7\Uri;
 use Monolog\Handler\TestHandler;
@@ -18,7 +19,9 @@ class ContentExtractorTest extends TestCase
 {
     public function testConstructDefault(): void
     {
-        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(configBuilder: ['site_config' => [__DIR__]]));
+        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(
+            configBuilder: new ConfigBuilderConfig(siteConfig: [__DIR__]),
+        ));
         $result = $contentExtractor->process('', new Uri('http://example.com'));
 
         $this->assertNull($result->content);
@@ -64,7 +67,7 @@ class ContentExtractorTest extends TestCase
     public function testFingerPrints(string $html, string $fingerprints): void
     {
         $contentExtractor = new ContentExtractor(new ContentExtractorConfig(
-            configBuilder: ['site_config' => [__DIR__]],
+            configBuilder: new ConfigBuilderConfig(siteConfig: [__DIR__]),
         ));
 
         $res = $contentExtractor->findHostUsingFingerprints('');
@@ -84,9 +87,11 @@ class ContentExtractorTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('directory does not exist');
 
-        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(configBuilder: [
-            'site_config' => [__DIR__ . '/../../wrong_site_config'],
-        ]));
+        $contentExtractor = new ContentExtractor(new ContentExtractorConfig(
+            configBuilder: new ConfigBuilderConfig(
+                siteConfig: [__DIR__ . '/../../wrong_site_config'],
+            ),
+        ));
         $contentExtractor->buildSiteConfig(new Uri('http://0.0.0.0'));
     }
 
@@ -886,9 +891,9 @@ class ContentExtractorTest extends TestCase
     public function testWithCustomFiltersForReadability(): void
     {
         $contentExtractor = new ContentExtractor(new ContentExtractorConfig(
-            configBuilder: [
-                'site_config' => [__DIR__ . '/../fixtures/site_config'],
-            ],
+            configBuilder: new ConfigBuilderConfig(
+                siteConfig: [__DIR__ . '/../fixtures/site_config'],
+            ),
             readability: new ReadabilityConfig(
                 postFilters: ['!<head[^>]*>(.*?)</head>!is' => ''],
                 preFilters: ['!</?noscript>!is' => ''],
@@ -1254,9 +1259,9 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
     private static function contentExtractorConfig(): ContentExtractorConfig
     {
         return new ContentExtractorConfig(
-            configBuilder: [
-                'site_config' => [__DIR__ . '/../fixtures/site_config'],
-            ],
+            configBuilder: new ConfigBuilderConfig(
+                siteConfig: [__DIR__ . '/../fixtures/site_config'],
+            ),
         );
     }
 
