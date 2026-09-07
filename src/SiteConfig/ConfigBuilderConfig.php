@@ -13,14 +13,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 readonly class ConfigBuilderConfig
 {
     /** @var string[] Directory paths of site config folders WITHOUT trailing slash */
-    private array $siteConfig;
+    public array $siteConfig;
 
     /**
      * @param string[] $siteConfig
      */
     public function __construct(
         array $siteConfig = [],
-        private string $hostnameRegex = '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
+        public string $hostnameRegex = '/^(([a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9-]*[A-Za-z0-9])$/',
     ) {
         $resolver = new OptionsResolver();
         $resolver->setDefined([
@@ -42,18 +42,5 @@ readonly class ConfigBuilderConfig
         ]);
 
         $this->siteConfig = $config['siteConfig'];
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getSiteConfig(): array
-    {
-        return $this->siteConfig;
-    }
-
-    public function getHostnameRegex(): string
-    {
-        return $this->hostnameRegex;
     }
 }

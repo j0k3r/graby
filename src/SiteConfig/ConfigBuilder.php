@@ -46,7 +46,7 @@ class ConfigBuilder
      */
     public function loadConfigFiles(): void
     {
-        $this->configFiles = Files::getFiles($this->config->getSiteConfig());
+        $this->configFiles = Files::getFiles($this->config->siteConfig);
     }
 
     /**
@@ -162,7 +162,7 @@ class ConfigBuilder
     {
         $host = $this->makeHostKey($host);
 
-        if (!$host || (\strlen($host) > 200) || !preg_match($this->config->getHostnameRegex(), ltrim($host, '.'))) {
+        if (!$host || (\strlen($host) > 200) || !preg_match($this->config->hostnameRegex, ltrim($host, '.'))) {
             return null;
         }
 
