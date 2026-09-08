@@ -145,8 +145,9 @@ Since the 1.9.0 version, you can also send html content to be cleanup in the sam
 
 ```php
 use Graby\Graby;
+use GuzzleHttp\Psr7\Uri;
 
-$article = 'http://www.bbc.com/news/entertainment-arts-32547474';
+$article = new Uri('http://www.bbc.com/news/entertainment-arts-32547474');
 // use your own way to retrieve html or to provide html
 $html = ...
 
