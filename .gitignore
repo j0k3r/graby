@@ -4,5 +4,6 @@ log/graby.log
 log/html.log
 composer.lock
 /.php-cs-fixer.cache
+/.extracted-code-examples
 .phpunit.result.cache
 phpstan.neon

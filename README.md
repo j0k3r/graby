@@ -156,7 +156,7 @@ use GuzzleHttp\Psr7\Uri;
 
 $article = new Uri('http://www.bbc.com/news/entertainment-arts-32547474');
 // use your own way to retrieve html or to provide html
-$html = ...
+$html = '<html>[...]</html>';
 
 $graby = new Graby();
 $result = $graby->cleanupHtml($html, $article);
@@ -191,7 +191,7 @@ monolog:
 
 You can then retrieve logs from graby in your controller using:
 
-```php
+```php no-extract
 $logs = $this->get('monolog.handler.graby')->getRecords();
 ```
 

@@ -59,8 +59,12 @@
         }
     },
     "scripts": {
+        "extract-code-examples": "php maintenance/extract-readme-examples.php",
         "fix": "php-cs-fixer fix --verbose --diff",
-        "phpstan": "phpstan analyse --memory-limit 512M",
+        "phpstan": [
+            "@extract-code-examples @no_additional_args",
+            "phpstan analyse --memory-limit 512M"
+        ],
         "rector": "vendor/bin/rector process -c maintenance/rector.php",
         "test": "simple-phpunit -v"
     },

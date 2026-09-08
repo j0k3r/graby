@@ -4,6 +4,7 @@ parameters:
         - maintenance/Rector
         - src
         - tests
+        - .extracted-code-examples
 
     bootstrapFiles:
         - vendor/bin/.phpunit/phpunit/vendor/autoload.php
