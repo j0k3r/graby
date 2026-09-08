@@ -75,50 +75,57 @@ $article = 'http://www.bbc.com/news/entertainment-arts-32547474';
 $graby = new Graby();
 $result = $graby->fetchContent($article);
 
-var_dump($result->getEffectiveResponse()->getResponse()->getStatusCode()); // 200
-var_dump($result->getHtml()); // "[Fetched and readable content…]"
-var_dump($result->getTitle()); // "Ben E King: R&B legend dies at 76"
-var_dump($result->getLanguage()); // "en-GB"
-var_dump($result->getDate()); // "2015-05-01T16:24:37+01:00"
-var_dump($result->getAuthors()); // ["BBC News"]
-var_dump((string) $result->getEffectiveResponse()->getEffectiveUri()); // "http://www.bbc.com/news/entertainment-arts-32547474"
-var_dump($result->getImage()); // "https://ichef-1.bbci.co.uk/news/720/media/images/82709000/jpg/_82709878_146366806.jpg"
-var_dump($result->getSummary()); // "Ben E King received an award from the Songwriters Hall of Fame in &hellip;"
-var_dump($result->getIsNativeAd()); // false
-var_dump($result->getEffectiveResponse()->getResponse()->getHeaders()); /*
-[
-  'server' => ['Apache'],
-  'content-type' => ['text/html; charset=utf-8'],
-  'x-news-data-centre' => ['cwwtf'],
-  'content-language' => ['en'],
-  'x-pal-host' => ['pal074.back.live.cwwtf.local:80'],
-  'x-news-cache-id' => ['13648'],
-  'content-length' => ['157341'],
-  'date' => ['Sat, 29 Apr 2017 07:35:39 GMT'],
-  'connection' => ['keep-alive'],
-  'cache-control' => ['private, max-age=60, stale-while-revalidate'],
-  'x-cache-action' => ['MISS'],
-  'x-cache-age' => ['0'],
-  'x-lb-nocache' => ['true'],
-  'vary' => ['X-CDN,X-BBC-Edge-Cache,Accept-Encoding'],
-]
-*/
+assert(200 === $result->getEffectiveResponse()->getResponse()->getStatusCode());
+assert('[Fetched and readable content…]' === $result->getHtml());
+assert('Ben E King: R&B legend dies at 76' === $result->getTitle());
+assert('en-GB' === $result->getLanguage());
+assert('2015-05-01T16:24:37+01:00' === $result->getDate());
+assert($result->getAuthors() === ['BBC News']);
+assert('http://www.bbc.com/news/entertainment-arts-32547474' === (string) $result->getEffectiveResponse()->getEffectiveUri());
+assert('https://ichef-1.bbci.co.uk/news/720/media/images/82709000/jpg/_82709878_146366806.jpg' === $result->getImage());
+assert('Ben E King received an award from the Songwriters Hall of Fame in &hellip;' === $result->getSummary());
+assert(false === $result->getIsNativeAd());
+assert(
+    $result->getEffectiveResponse()->getResponse()->getHeaders() === [
+        'server' => ['Apache'],
+        'content-type' => ['text/html; charset=utf-8'],
+        'x-news-data-centre' => ['cwwtf'],
+        'content-language' => ['en'],
+        'x-pal-host' => ['pal074.back.live.cwwtf.local:80'],
+        'x-news-cache-id' => ['13648'],
+        'content-length' => ['157341'],
+        'date' => ['Sat, 29 Apr 2017 07:35:39 GMT'],
+        'connection' => ['keep-alive'],
+        'cache-control' => ['private, max-age=60, stale-while-revalidate'],
+        'x-cache-action' => ['MISS'],
+        'x-cache-age' => ['0'],
+        'x-lb-nocache' => ['true'],
+        'vary' => ['X-CDN,X-BBC-Edge-Cache,Accept-Encoding'],
+    ]
+);
 ```
 
 In case of error when fetching the url, graby won't throw an exception but will return information about the error (at least the status code):
 
 ```php
-var_dump($result->getEffectiveResponse()->getResponse()->getStatusCode()); // 200
-var_dump($result->getHtml()); // "[unable to retrieve full-text content]"
-var_dump($result->getTitle()); // "BBC - 404: Not Found"
-var_dump($result->getLanguage()); // "en-GB"
-var_dump($result->getDate()); // null
-var_dump($result->getAuthors()); // []
-var_dump((string) $result->getEffectiveResponse()->getEffectiveUri()); // "http://www.bbc.co.uk/404"
-var_dump($result->getImage()); // null
-var_dump($result->getSummary()); // "[unable to retrieve full-text content]"
-var_dump($result->getIsNativeAd()); // false
-var_dump($result->getEffectiveResponse()->getResponse()->getHeaders()); // […]
+use Graby\Graby;
+
+$article = 'http://www.bbc.com/news/404';
+
+$graby = new Graby();
+$result = $graby->fetchContent($article);
+
+assert($result->getEffectiveResponse()->getResponse()->getStatusCode() === 200);
+assert($result->getHtml() === "[unable to retrieve full-text content]");
+assert($result->getTitle() === "BBC - 404: Not Found");
+assert($result->getLanguage() === "en-GB");
+assert($result->getDate() === null);
+assert($result->getAuthors() === []);
+assert((string) $result->getEffectiveResponse()->getEffectiveUri() === "http://www.bbc.co.uk/404");
+assert($result->getImage() === null);
+assert($result->getSummary() === "[unable to retrieve full-text content]");
+assert($result->getIsNativeAd() === false);
+assert($result->getEffectiveResponse()->getResponse()->getHeaders() === [/* … */]);
 ```
 
 The `date` result is the same as displayed in the content. If `date` is not `null` in the result, we recommend you to parse it using [`date_parse`](http://php.net/date_parse) (this is what we are using to validate that the date is correct).
