@@ -62,6 +62,8 @@ class GrabyTest extends TestCase
     }
 
     /**
+     * @requires function tidy_parse_string
+     *
      * @dataProvider dataForFetchContent
      */
     public function testFetchContent(string $url, string $urlEffective, string $header, string $language, string $author, string $title, string $summary, string $rawContent, string $rawContent2, string $parsedContent): void
