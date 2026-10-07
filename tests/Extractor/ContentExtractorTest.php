@@ -522,6 +522,8 @@ class ContentExtractorTest extends TestCase
     }
 
     /**
+     * @requires function tidy_parse_string
+     *
      * @dataProvider dataForStripAttr
      *
      * @param string[]                $patterns
@@ -858,6 +860,9 @@ class ContentExtractorTest extends TestCase
         $this->assertStringContainsString('<iframe src="http://www.dailymotion.com/embed/video/x2kjh59" frameborder="0" width="534" height="320">[embedded content]</iframe>', $this->getXmlContent($result));
     }
 
+    /**
+     * @requires function tidy_parse_string
+     */
     public function testLogMessage(): void
     {
         $logger = new Logger('foo');

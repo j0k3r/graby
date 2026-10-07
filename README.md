@@ -46,7 +46,8 @@ That's why I made this fork:
 ### Requirements
 
 - PHP >= 8.2
-- [Tidy](https://github.com/htacg/tidy-html5) & cURL extensions enabled
+- cURL extension enabled
+- [Tidy](https://github.com/htacg/tidy-html5) extension (optional, recommended): cleans up malformed HTML before extraction
 
 ### Installation
 

@@ -17,7 +17,6 @@
     "require": {
         "php": ">=8.2",
         "ext-curl": "*",
-        "ext-tidy": "*",
         "fossar/htmlawed": "^1.3.3",
         "guzzlehttp/psr7": "^2.0 || ^3.0",
         "j0k3r/graby-site-config": "^1.0.181",
@@ -46,6 +45,9 @@
         "rector/rector": "^2.0.0",
         "symfony/filesystem": "^7.3",
         "symfony/phpunit-bridge": "^7.3"
+    },
+    "suggest": {
+        "ext-tidy": "Cleans up malformed HTML before extraction, which improves results on badly structured pages."
     },
     "autoload": {
         "psr-4": {
