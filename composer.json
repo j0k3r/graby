@@ -75,6 +75,11 @@
         "allow-plugins": {
             "phpstan/extension-installer": true,
             "php-http/discovery": false
+        },
+        "policy": {
+            "advisories": {
+                "ignore-id": ["PKSA-px1b-j2dd-31r6"]
+            }
         }
     }
 }
