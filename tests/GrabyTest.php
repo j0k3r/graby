@@ -1256,6 +1256,17 @@ class GrabyTest extends TestCase
         $this->assertStringNotContainsString('onerror=', $cleanedHtml);
     }
 
+    public function testCleanupHtmlRemovesLinkElements(): void
+    {
+        $graby = new Graby();
+        $html = '<article><link rel="stylesheet" href="https://example.com/style.css"><p>hello</p></article>';
+
+        $cleanedHtml = $graby->cleanupHtml($html, new Uri('https://example.com/article'));
+
+        $this->assertStringNotContainsString('<link', $cleanedHtml);
+        $this->assertStringContainsString('<p>hello</p>', $cleanedHtml);
+    }
+
     public function testBadUrl(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);
