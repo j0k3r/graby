@@ -40,8 +40,7 @@ That's why I made this fork:
 
 ## How to use it
 
-> **Note**
-> These instructions are for development version of Graby, which has an API incompatible with the stable version. Please check out the [README in the `2.x` branch](https://github.com/j0k3r/graby/blob/2.x/README.md#how-to-use-it) for usage instructions for the stable version.
+These instructions are for Graby **3.x**. If you are upgrading from 2.x, see the [upgrade guide](UPGRADE.md#from-2x-to-30). For Graby 2.x usage, see the [README in the `2.x` branch](https://github.com/j0k3r/graby/blob/2.x/README.md#how-to-use-it).
 
 ### Requirements
 
@@ -53,9 +52,9 @@ That's why I made this fork:
 
 Add the lib using [Composer](https://getcomposer.org/):
 
-    composer require 'j0k3r/graby dev-master' php-http/guzzle7-adapter
+    composer require j0k3r/graby:^3.0 php-http/guzzle7-adapter
 
-Why `php-http/guzzle7-adapter`? Because Graby is decoupled from any HTTP client implementation, thanks to [HTTPlug](http://httplug.io/) (see [that list of client implementation](https://packagist.org/providers/php-http/client-implementation)).
+Why `php-http/guzzle7-adapter`? Graby accepts any [PSR-18 HTTP client](https://packagist.org/providers/psr/http-client-implementation) and uses [HTTPlug](http://httplug.io/) plugins internally. The adapter provides a PSR-18 client backed by Guzzle 7. You can also use [Symfony HttpClient](#symfony-httpclient).
 
 Graby is tested & should work great with:
 
@@ -63,6 +62,31 @@ Graby is tested & should work great with:
 - cURL (using `php-http/curl-client`)
 
 Note: if you want to use Guzzle 5 or 6, use Graby 2 (support has dropped in v3 because of dependencies conflicts)
+
+### Symfony HttpClient
+
+Install Symfony HttpClient instead of the Guzzle adapter:
+
+```bash
+composer require j0k3r/graby:^3.0 symfony/http-client
+```
+
+Wrap it in Symfony's [PSR-18 adapter](https://symfony.com/doc/current/http_client.html#psr-18-and-psr-17) and pass it to Graby. Graby already requires `guzzlehttp/psr7`, which provides the PSR-17 factories; no additional PSR-7 package is needed.
+
+<!-- Not extracted for PHPStan: symfony/http-client is an optional dependency. -->
+```php no-extract
+use Graby\Graby;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\Psr18Client;
+
+$client = new Psr18Client(HttpClient::create([
+    'timeout' => 2,
+]));
+$graby = new Graby(client: $client);
+$result = $graby->fetchContent('https://example.com/article');
+```
+
+`fetchContent()` remains synchronous when using this client. Symfony's `timeout` option limits inactivity; use `max_duration` to limit the total request duration.
 
 ### Retrieve content from an url
 
@@ -198,8 +222,7 @@ $logs = $this->get('monolog.handler.graby')->getRecords();
 
 ### Timeout configuration
 
-If you need to define a timeout, you must create the `Http\Client\HttpClient` manually,
-configure it and inject it to `Graby\Graby`.
+If you need to define a timeout, create and configure a PSR-18 client (`Psr\Http\Client\ClientInterface`) and inject it into `Graby\Graby`. See also the [Symfony HttpClient example](#symfony-httpclient).
 
 - For Guzzle 7:
 

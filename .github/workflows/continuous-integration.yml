@@ -13,7 +13,7 @@ env:
 
 jobs:
   phpunit:
-    name: "PHPUnit (PHP ${{ matrix.php }})"
+    name: "PHPUnit (PHP ${{ matrix.php }}, ${{ matrix.tidy == ':tidy' && 'without Tidy' || 'with Tidy' }})"
     runs-on: "ubuntu-latest"
 
     strategy:
@@ -23,6 +23,11 @@ jobs:
           - "8.3"
           - "8.4"
           - "8.5"
+        tidy:
+          - "tidy"
+        include:
+          - php: "8.2"
+            tidy: ":tidy"
 
     steps:
       - name: "Checkout"
@@ -36,9 +41,14 @@ jobs:
           php-version: "${{ matrix.php }}"
           coverage: "none"
           tools: composer:v2
-          extensions: tidy
+          extensions: "${{ matrix.tidy }}"
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Verify Tidy is disabled"
+        if: matrix.tidy == ':tidy'
+        run: |
+          php -r 'exit(extension_loaded("tidy") ? 1 : 0);'
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v2"
@@ -125,14 +135,19 @@ jobs:
       - name: "Run PHPUnit"
         run: "php vendor/bin/simple-phpunit -v"
 
-  phpunit-curl:
-    name: "PHPUnit (PHP ${{ matrix.php }} and cURL)"
+  phpunit-http-client:
+    name: "PHPUnit (PHP ${{ matrix.php }} and ${{ matrix.client }})"
     runs-on: "ubuntu-latest"
 
     strategy:
       matrix:
-        php:
-          - "8.2"
+        include:
+          - php: "8.2"
+            client: "cURL"
+            package: "php-http/curl-client"
+          - php: "8.2"
+            client: "Symfony HttpClient"
+            package: "symfony/http-client:^7.4"
 
     steps:
       - name: "Checkout"
@@ -153,10 +168,10 @@ jobs:
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v2"
 
-      - name: "Setup adapter: cURL"
+      - name: "Setup adapter: ${{ matrix.client }}"
         run: |
           composer remove php-http/guzzle7-adapter --dev -n
-          composer require php-http/curl-client --dev -n
+          composer require '${{ matrix.package }}' --dev -n
 
       - name: "Setup logs"
         run: "mkdir -p build/logs"

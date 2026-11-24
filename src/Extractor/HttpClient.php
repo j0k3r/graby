@@ -14,8 +14,8 @@ use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\ErrorPlugin;
 use Http\Client\Common\Plugin\RedirectPlugin;
 use Http\Client\Common\PluginClient;
-use Http\Client\Exception\TransferException;
 use Http\Discovery\Psr17FactoryDiscovery;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -139,7 +139,7 @@ class HttpClient
                 // Too many Redirects
                 $this->responseFactory->createResponse(310)
             );
-        } catch (TransferException $e) {
+        } catch (ClientExceptionInterface $e) {
             if (method_exists($e, 'getRequest')) {
                 $url = $e->getRequest()->getUri();
             }
