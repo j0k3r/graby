@@ -1160,6 +1160,20 @@ HTML
         $this->assertStringContainsString('<p>hello</p>', $cleanedHtml);
     }
 
+    public function testCleanupHtmlRemovesLinkElements(): void
+    {
+        $graby = new Graby();
+        $html = '<article><link rel="stylesheet" href="https://example.com/style.css"><p>hello</p></article>';
+
+        $cleanupXss = \Closure::bind(function ($html) {
+            return $this->cleanupXss($html);
+        }, $graby, Graby::class);
+        $cleanedHtml = $cleanupXss($html);
+
+        $this->assertStringNotContainsString('<link', $cleanedHtml);
+        $this->assertStringContainsString('<p>hello</p>', $cleanedHtml);
+    }
+
     public function testBadUrl(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/bjori-404.html', 404);

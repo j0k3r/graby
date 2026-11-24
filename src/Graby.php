@@ -1039,8 +1039,8 @@ class Graby
             $html,
             [
                 'safe' => 1,
-                // Keep iframe, but remove meta and style elements.
-                'elements' => '*+iframe-meta-style',
+                // Keep iframe, but remove meta, style and link elements.
+                'elements' => '*+iframe-meta-style-link',
                 'deny_attribute' => 'style,srcdoc',
                 'comment' => 1,
                 'cdata' => 1,
