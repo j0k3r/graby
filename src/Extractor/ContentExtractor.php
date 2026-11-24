@@ -765,9 +765,7 @@ class ContentExtractor
      */
     private function prepareSiteConfig(string $html, UriInterface $url, ?SiteConfig $siteConfig = null): SiteConfig
     {
-        if (null === $siteConfig) {
-            $siteConfig = $this->buildSiteConfig($url, $html);
-        }
+        $siteConfig ??= $this->buildSiteConfig($url, $html);
 
         $this->logger->debug('Actual site config', ['siteConfig' => $siteConfig]);
 
@@ -927,9 +925,7 @@ class ContentExtractor
         }
 
         // we define the default callback here
-        if (null === $returnCallback) {
-            $returnCallback = static fn ($element) => trim((string) $element);
-        }
+        $returnCallback ??= static fn ($element) => trim((string) $element);
 
         // check for given css class
         // shut up operator as there is no pre-validation possible.
@@ -1187,9 +1183,7 @@ class ContentExtractor
     private function extractEntityFromPattern(string $entity, string $pattern, \DOMXPath $xpath, Readability $readability, ?callable $returnCallback = null): mixed
     {
         // we define the default callback here
-        if (null === $returnCallback) {
-            $returnCallback = static fn ($e) => trim((string) $e);
-        }
+        $returnCallback ??= static fn ($e) => trim((string) $e);
 
         $elems = $xpath->evaluate($pattern, $readability->dom);
         $entityValue = null;
@@ -1235,9 +1229,7 @@ class ContentExtractor
     private function extractMultipleEntityFromPattern(string $entity, string $pattern, \DOMXPath $xpath, Readability $readability, ?callable $returnCallback = null): ?array
     {
         // we define the default callback here
-        if (null === $returnCallback) {
-            $returnCallback = static fn ($e) => trim((string) $e);
-        }
+        $returnCallback ??= static fn ($e) => trim((string) $e);
 
         $elems = $xpath->evaluate($pattern, $readability->dom);
         $entityValue = null;
@@ -1516,9 +1508,7 @@ class ContentExtractor
             if (!empty($data['author'])) {
                 $authors = \is_array($data['author']) ? $this->extractAuthorsFromJsonLdArray($data['author']) : [$data['author']];
 
-                if (!isset($extracted['authors'])) {
-                    $extracted['authors'] = [];
-                }
+                $extracted['authors'] ??= [];
 
                 foreach ($authors as $author) {
                     $extracted['authors'][] = $author;

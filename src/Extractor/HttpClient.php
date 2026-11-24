@@ -46,9 +46,7 @@ class HttpClient
         ?LoggerInterface $logger = null,
         private readonly ?ContentExtractor $extractor = null
     ) {
-        if (null === $logger) {
-            $logger = new NullLogger();
-        }
+        $logger ??= new NullLogger();
 
         $this->logger = $logger;
 

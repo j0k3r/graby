@@ -76,12 +76,10 @@ class Graby
             $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../log/graby.log', Level::Info, false));
         }
 
-        if (null === $configBuilder) {
-            $configBuilder = new ConfigBuilder(
-                $this->config->extractor->configBuilder,
-                $this->logger
-            );
-        }
+        $configBuilder ??= new ConfigBuilder(
+            $this->config->extractor->configBuilder,
+            $this->logger
+        );
         $this->configBuilder = $configBuilder;
 
         $this->extractor = new ContentExtractor(

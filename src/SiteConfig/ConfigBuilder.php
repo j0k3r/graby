@@ -127,9 +127,7 @@ class ConfigBuilder
         }
 
         // if no match, use defaults
-        if (null === $config) {
-            $config = $this->create();
-        }
+        $config ??= $this->create();
 
         // load global config?
         $configGlobal = $this->loadSiteConfig('global', true);
@@ -248,9 +246,7 @@ class ConfigBuilder
         // check for single statement commands
         // we do not overwrite existing non null values
         foreach (['tidy', 'prune', 'parser', 'autodetect_on_failure', 'requires_login', 'skip_json_ld'] as $var) {
-            if ($currentConfig->$var === null) {
-                $currentConfig->$var = $newConfig->$var;
-            }
+            $currentConfig->$var ??= $newConfig->$var;
         }
 
         // merge http_header array from currentConfig into newConfig
