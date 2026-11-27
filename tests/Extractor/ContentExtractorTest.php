@@ -991,6 +991,117 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertStringContainsString('<p>hihi</p>', $this->getXmlContent($result));
     }
 
+    /**
+     * @return iterable<array{array<array-key, mixed>}>
+     */
+    public function dataJsonLdGraphs(): iterable
+    {
+        $article = [
+            '@type' => 'NewsArticle',
+            'name' => 'Graph article',
+            'datePublished' => '2020-07-17T07:32:04Z',
+            'author' => ['@type' => 'Person', 'name' => 'Graph author'],
+            'image' => ['@type' => 'ImageObject', 'url' => 'https://example.com/image.jpg'],
+            'articleBody' => 'Article body from graph.',
+        ];
+        $website = ['@type' => 'WebSite', 'name' => 'Website name'];
+
+        return [
+            'graph' => [['@context' => 'https://schema.org', '@graph' => [$website, $article]]],
+            'ignored type after article' => [['@graph' => [$article, $website]]],
+            'invalid graph members' => [['@graph' => [null, false, 42, 'invalid', $article]]],
+            'nested graph' => [['@graph' => [['@graph' => [$article]]]]],
+            'single graph object' => [['@graph' => $article]],
+            'top-level list' => [[$website, $article]],
+        ];
+    }
+
+    /**
+     * @dataProvider dataJsonLdGraphs
+     *
+     * @param array<array-key, mixed> $data
+     */
+    public function testJsonLdGraphs(array $data): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+
+        $result = $contentExtractor->process(
+            '<script type="application/ld+json">' . json_encode($data, \JSON_THROW_ON_ERROR) . '</script>',
+            new Uri('https://example.com/jsonld-graph')
+        );
+
+        $this->assertSame('Graph article', $result->title);
+        $this->assertSame('2020-07-17T07:32:04+00:00', $result->date);
+        $this->assertSame(['Graph author'], $result->authors);
+        $this->assertSame('https://example.com/image.jpg', $result->image);
+        $this->assertStringContainsString('Article body from graph.', $this->getXmlContent($result));
+    }
+
+    public function testJsonLdWebPageGraph(): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+
+        $result = $contentExtractor->process(
+            '<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Dissent Magazine"},{"@type":"WebPage","name":"Why the Left Needs Liberals","datePublished":"2019-10-07T16:56:07+00:00"}]}</script>',
+            new Uri('https://example.com/jsonld-graph')
+        );
+
+        $this->assertSame('Why the Left Needs Liberals', $result->title);
+        $this->assertSame('2019-10-07T16:56:07+00:00', $result->date);
+    }
+
+    public function testJsonLdGraphsPreserveScriptOrder(): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+
+        $result = $contentExtractor->process(
+            '<script type="application/ld+json">{"@graph":[{"name":"First article"}]}</script>'
+            . '<script type="application/ld+json">{"name":"Second article"}</script>',
+            new Uri('https://example.com/jsonld-graph')
+        );
+
+        $this->assertSame('Second article', $result->title);
+    }
+
+    public function testJsonLdArticleBodySupportsPostStripAttributes(): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+        $config = new SiteConfig();
+        $config->post_strip_attr = ['.//@class'];
+
+        $result = $contentExtractor->process(
+            '<html><head><script type="application/ld+json">{"@type":"NewsArticle","name":"Article title","articleBody":"Body from JSON-LD."}</script></head><body><article><p>HTML body.</p></article></body></html>',
+            new Uri('https://example.com/jsonld-body'),
+            $config
+        );
+
+        $this->assertTrue($result->isSuccess);
+        $this->assertSame('<p>Body from JSON-LD.</p>', $this->getXmlContent($result));
+        $this->assertNotNull($result->readability);
+        $this->assertInstanceOf(\DOMElement::class, $result->content);
+        $this->assertSame($result->readability->dom, $result->content->ownerDocument);
+        $this->assertNull($result->content->parentNode);
+    }
+
+    public function testSiteConfigBodyTakesPrecedenceOverJsonLdGraphBody(): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+        $config = new SiteConfig();
+        $config->body = ['//article'];
+        $config->post_strip_attr = ['.//@class'];
+        $config->tidy = false;
+        $config->prune = false;
+
+        $result = $contentExtractor->process(
+            '<html><head><script type="application/ld+json">{"@graph":[{"@type":"NewsArticle","name":"Article title","articleBody":"Body from JSON-LD."}]}</script></head><body><article><p class="remove-me">Site-config body.</p></article></body></html>',
+            new Uri('https://example.com/jsonld-body'),
+            $config
+        );
+
+        $this->assertTrue($result->isSuccess);
+        $this->assertSame('<article><p>Site-config body.</p></article>', $this->getXmlContent($result));
+    }
+
     public function testJsonLdWithMultipleAuthors(): void
     {
         $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
