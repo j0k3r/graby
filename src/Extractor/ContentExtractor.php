@@ -1533,12 +1533,13 @@ class ContentExtractor
                 $this->logger->info('body matched from JsonLd: {body}', ['body' => $extracted['body']]);
             }
 
-            if (!empty($data['headline'])) {
-                $candidateNames[] = $data['headline'];
-            }
-
-            if (!empty($data['name'])) {
-                $candidateNames[] = $data['name'];
+            foreach (['headline', 'name'] as $property) {
+                foreach ((array) ($data[$property] ?? []) as $name) {
+                    if (\is_string($name) && '' !== trim($name)) {
+                        $candidateNames[] = trim($name);
+                        break;
+                    }
+                }
             }
 
             if (!empty($data['author'])) {
