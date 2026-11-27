@@ -917,6 +917,11 @@ class Graby
 
         $encoding = strtolower(trim((string) $encoding));
 
+        // Prefetched HTML has no HTTP charset, but may already be UTF-8.
+        if ('' === $encoding && null !== $this->prefetchedContent && mb_check_encoding($html, 'UTF-8')) {
+            $encoding = 'utf-8';
+        }
+
         // fix bad encoding values
         if ('iso-8850-1' === $encoding) {
             $encoding = 'iso-8859-1';

@@ -1474,6 +1474,51 @@ class GrabyTest extends TestCase
     }
 
     /**
+     * @return iterable<array{string, string, string}>
+     */
+    public function dataPrefetchedContentEncoding(): iterable
+    {
+        $utf8 = 'Café déjà vu — 日本語';
+        $latin1 = "Caf\xE9 d\xE9j\xE0 vu";
+
+        return [
+            'UTF-8 without charset' => ['', $utf8, $utf8],
+            'UTF-8 with charset' => ['<meta charset="UTF-8">', $utf8, $utf8],
+            'Latin-1 with charset' => ['<meta charset="ISO-8859-1">', $latin1, 'Café déjà vu'],
+            'Latin-1 without charset' => ['', $latin1, 'Café déjà vu'],
+            'Latin-1 with HTTP-equivalent charset' => ['<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">', $latin1, 'Café déjà vu'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataPrefetchedContentEncoding
+     */
+    public function testPrefetchedContentEncoding(string $meta, string $text, string $expected): void
+    {
+        $graby = new Graby(client: new HttpMockClient());
+        $graby->setContentAsPrefetched(
+            '<html><head>' . $meta . '</head><body><h1>Article title</h1><article><p>' . str_repeat($text . ' ', 20) . '</p></article></body></html>'
+        );
+
+        $result = $graby->fetchContent('https://example.com/prefetched-content');
+
+        $this->assertStringContainsString($expected, $result->getHtml());
+    }
+
+    public function testPrefetchedEmojisAreNotConvertedFromLatin1(): void
+    {
+        $graby = new Graby(client: new HttpMockClient());
+        $input = '<p>🔒️ Apple 💡</p>';
+        $graby->setContentAsPrefetched($input);
+
+        $reflection = new \ReflectionClass($graby::class);
+        $method = $reflection->getMethod('convert2Utf8');
+        $result = $method->invoke($graby, new Response(200, ['Content-Type' => 'text/html'], $input));
+
+        $this->assertSame($input, $result);
+    }
+
+    /**
      * Return an instance of graby with a mocked Guzzle client returning data from a predefined file.
      */
     private function getGrabyWithMock(string $filePath, int $status = 200, GrabyConfig $grabyConfig = new GrabyConfig()): Graby
