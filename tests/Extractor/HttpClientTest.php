@@ -268,7 +268,7 @@ class HttpClientTest extends TestCase
         $isCurl = false;
         $isGuzzle = false;
 
-        // find with adapter is installed
+        // Find which adapter is installed.
         if (class_exists(\Http\Adapter\Guzzle7\Client::class)) {
             $isGuzzle = true;
             $guzzle = new \GuzzleHttp\Client(['timeout' => 2]);
@@ -282,8 +282,12 @@ class HttpClientTest extends TestCase
                     \CURLOPT_TIMEOUT => 2,
                 ]
             );
+        } elseif (class_exists(\Symfony\Component\HttpClient\Psr18Client::class) && class_exists(\Symfony\Component\HttpClient\HttpClient::class)) {
+            $adapter = new \Symfony\Component\HttpClient\Psr18Client(
+                \Symfony\Component\HttpClient\HttpClient::create(['timeout' => 2, 'max_duration' => 2])
+            );
         } else {
-            $this->markTestSkipped('No Guzzle adapter defined ?');
+            $this->markTestSkipped('No supported HTTP client installed.');
         }
 
         $http = new HttpClient($adapter, new HttpClientConfig(), $logger);
@@ -300,8 +304,10 @@ class HttpClientTest extends TestCase
         // "cURL error 28: Connection timed out after"
         if ($isGuzzle) {
             $this->assertStringContainsString('cURL error 28', $records[3]->context['error_message']);
-        } else {
+        } elseif ($isCurl) {
             $this->assertStringContainsString('Connection timed out after', $records[3]->context['error_message']);
+        } else {
+            $this->assertMatchesRegularExpression('/timed out|timeout/i', $records[3]->context['error_message']);
         }
     }
 
