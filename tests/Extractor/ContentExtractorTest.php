@@ -1256,6 +1256,40 @@ secteurid=6;articleid=907;article_jour=19;article_mois=12;article_annee=2016;
         $this->assertSame('name !!', $result->title);
     }
 
+    /**
+     * @return iterable<array{string, mixed, string}>
+     */
+    public function dataJsonLdTitleValues(): iterable
+    {
+        return [
+            'headline list' => ['headline', ['First headline', 'Second headline'], 'First headline'],
+            'name list' => ['name', ['First name', 'Second name'], 'First name'],
+            'mixed headline list' => ['headline', [null, 42, false, ['Nested'], ' Valid headline '], 'Valid headline'],
+            'mixed name list' => ['name', [null, ['Nested'], ' Valid name '], 'Valid name'],
+            'empty list' => ['headline', [], 'Fallback title'],
+            'nested list' => ['headline', [['Nested']], 'Fallback title'],
+            'numeric headline' => ['headline', 42, 'Fallback title'],
+            'boolean name' => ['name', true, 'Fallback title'],
+            'blank title' => ['headline', '   ', 'Fallback title'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataJsonLdTitleValues
+     */
+    public function testJsonLdTitleValues(string $property, mixed $value, string $expectedTitle): void
+    {
+        $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
+        $json = json_encode(['@type' => 'NewsArticle', $property => $value], \JSON_THROW_ON_ERROR);
+
+        $result = $contentExtractor->process(
+            '<html><head><title>Fallback title</title><script type="application/ld+json">' . $json . '</script></head><body><p>Article content.</p></body></html>',
+            new Uri('https://example.com/jsonld-title')
+        );
+
+        $this->assertSame($expectedTitle, $result->title);
+    }
+
     public function testJsonLdDateArray(): void
     {
         $contentExtractor = new ContentExtractor(self::contentExtractorConfig());
