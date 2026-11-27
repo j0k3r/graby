@@ -171,6 +171,9 @@ class ContentExtractor
         $date = $extractedInfo['date'] ?? $date;
         $authors = $this->mergeAuthors($authors, $extractedInfo['authors'] ?? []);
         $body = $extractedInfo['body'] ?? $body;
+        if ($body instanceof \DOMElement && $body->ownerDocument !== $readability->dom) {
+            $body = $readability->dom->importNode($body, true);
+        }
 
         // check if this is a native ad
         foreach ($siteConfig->native_ad_clue as $pattern) {
@@ -1443,6 +1446,30 @@ class ContentExtractor
     }
 
     /**
+     * @param array<array-key, mixed> $data
+     *
+     * @return iterable<array<array-key, mixed>>
+     */
+    private function getJsonLdObjects(array $data): iterable
+    {
+        if (array_is_list($data)) {
+            foreach ($data as $object) {
+                if (\is_array($object)) {
+                    yield from $this->getJsonLdObjects($object);
+                }
+            }
+
+            return;
+        }
+
+        yield $data;
+
+        if (isset($data['@graph']) && \is_array($data['@graph'])) {
+            yield from $this->getJsonLdObjects($data['@graph']);
+        }
+    }
+
+    /**
      * Extract data from JSON-LD information.
      *
      * @param \DOMXPath $xpath DOMXpath from the DOMDocument of the page
@@ -1462,14 +1489,23 @@ class ContentExtractor
         $ignoreNames = [];
         $candidateNames = [];
         $extracted = [];
+        $objects = [];
 
         foreach ($scripts as $script) {
             try {
-                $data = (array) json_decode(trim((string) $script->nodeValue), true, 512, \JSON_THROW_ON_ERROR);
+                $data = json_decode(trim((string) $script->nodeValue), true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException) {
                 continue;
             }
 
+            if (\is_array($data)) {
+                foreach ($this->getJsonLdObjects($data) as $object) {
+                    $objects[] = $object;
+                }
+            }
+        }
+
+        foreach ($objects as $data) {
             if (isset($data['@type']) && \in_array($data['@type'], $this->config->jsonLdIgnoreTypes, true)) {
                 if (isset($data['name'])) {
                     $ignoreNames[] = $data['name'];
