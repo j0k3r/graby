@@ -1183,6 +1183,21 @@ class GrabyTest extends TestCase
         $this->assertStringNotContainsString('<figure><p>Après un <em>icebreaker</em>', $res->getHtml());
     }
 
+    public function testPictureSourcePreserved(): void
+    {
+        $graby = new Graby(client: new HttpMockClient());
+        $graby->setContentAsPrefetched(
+            '<html><body><h1>Article title</h1><article><p>' . str_repeat('Article content. ', 30) . '</p>'
+            . '<figure><picture><source srcset="https://example.com/image.webp" type="image/webp"></source><img alt="Article image"></picture></figure>'
+            . '</article></body></html>'
+        );
+
+        $result = $graby->fetchContent('https://example.com/picture-image');
+
+        $this->assertStringContainsString('srcset="https://example.com/image.webp"', $result->getHtml());
+        $this->assertStringContainsString('<img', $result->getHtml());
+    }
+
     public function testEmptyImgNodesPreserved(): void
     {
         $graby = $this->getGrabyWithMock('/fixtures/content/empty-img-node.html');
